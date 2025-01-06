@@ -1,4 +1,4 @@
-module hazunit(
+module dtcore32_hazunit(
     //Forwarding
     input logic [4:0] Rs1E, Rs2E,
     input logic [4:0] RdM, RdW,

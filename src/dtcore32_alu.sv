@@ -1,4 +1,4 @@
-module alu #(parameter WIDTH=32)(
+module dtcore32_alu #(parameter WIDTH=32)(
     input  logic  [3:0]       control,
     input  logic [WIDTH-1:0] a,b,
     output logic [WIDTH-1:0] y,

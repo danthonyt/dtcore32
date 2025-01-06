@@ -1,4 +1,4 @@
-module top(
+module core_with_mem(
     input logic clk,rst,
     output logic [31:0] WriteData, DataAdr,
     output logic [1:0] MemWrite
@@ -6,7 +6,7 @@ module top(
   logic [1:0] MemWrite_sig;
   logic [31:0] WriteData_sig, DataAdr_sig;
   logic [31:0] PCF,InstrF,ReadDataMTick;
-  rv32ipipelined riscv(
+  dtcore32_top riscv(
                    //inputs
                    .clk(clk),
                    .rst(rst),

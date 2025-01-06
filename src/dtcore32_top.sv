@@ -1,4 +1,4 @@
-module rv32ipipelined(
+module dtcore32_top(
 	input logic  clk, rst,
 	input logic   [31:0] InstrF, ReadDataMTick,
 	output logic [31:0] PCF, ALUResultM, WriteDataM,
@@ -26,7 +26,7 @@ module rv32ipipelined(
 	logic [31:0]ALUResultW, ReadDataW, PCPlus4W;
 
 
-	rv32i_fetch fetchstage(
+	dtcore32_IF_stage fetchstage(
 		.clk(clk),
 		.rst(rst),
 		.PCSrcE(PCSrcE),
@@ -40,7 +40,7 @@ module rv32ipipelined(
 		.PCD(PCD),
 		.PCPlus4D(PCPlus4D)
 	);
-	rv32i_decode decodestage(
+	dtcore32_ID_stage decodestage(
 		.clk(clk),
 		.rst(rst),
 		.FlushE(FlushE),
@@ -69,7 +69,7 @@ module rv32ipipelined(
 		.LoadSizeE(LoadSizeE),
 		.ALUControlE(ALUControlE)
 	);
-	rv32i_execute executestage(
+	dtcore32_EX_stage executestage(
 		.clk(clk),
 		.rst(rst),
 		.RD1E(RD1E),
@@ -102,7 +102,7 @@ module rv32ipipelined(
 		.ALUResultM(ALUResultM),
 		.RdM(RdM)
 	);
-	rv32i_datamemory datamemorystage(
+	dtcore32_MEM_stage datamemorystage(
 		.clk(clk),
 		.rst(rst),
 		.RegWriteM(RegWriteM),
@@ -119,14 +119,14 @@ module rv32ipipelined(
 		.ReadDataW(ReadDataW), 
 		.PCPlus4W(PCPlus4W)
 	);
-	rv32i_writeback writebackstage(
+	dtcore32_WB_stage writebackstage(
 		.ResultSrcW(ResultSrcW),
 		.ALUResultW(ALUResultW), 
 		.ReadDataW(ReadDataW), 
 		.PCPlus4W(PCPlus4W),
 		.ResultW(ResultW)
 	);
-	hazunit hazardunit(
+	dtcore32_hazunit hazardunit(
 		.Rs1E(Rs1E), 
 		.Rs2E(Rs2E),
 		.RdM(RdM), 

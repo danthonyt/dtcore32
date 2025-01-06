@@ -1,0 +1,137 @@
+module dtcore32_controller(
+    input logic [6:0]  op,
+    input logic [2:0]  funct3,
+    input logic funct7b5,
+    output logic [1:0]  ResultSrcD,ALUASrcD,MemWriteD,
+    output logic [3:0]  ALUControlD,
+    output logic [2:0]  ImmSrcD,LoadSizeD,
+    output logic ALUBSrcD,  RegWriteD, JumpD, BranchD,PCTargetALUSrcD
+  );
+  logic [1:0] ALUOp;
+  logic  [18:0] controls;
+  logic RtypeSub,ItypeSub;
+
+  assign RtypeSub = op[5] & funct7b5;
+  assign ItypeSub = ~op[5] & funct7b5;
+  assign {RegWriteD, ImmSrcD, ALUASrcD, ALUBSrcD,MemWriteD, ResultSrcD, BranchD, ALUOp, JumpD, LoadSizeD,PCTargetALUSrcD} = controls;
+
+  always_comb
+  begin
+    case (op)
+      7'b0000011:
+      case(funct3)
+        3'b000:
+          controls = 19'b1_000_00_1_00_01_0_00_0_001_0;	//lb
+        3'b001:
+          controls = 19'b1_000_00_1_00_01_0_00_0_011_0;	//lh
+        3'b010:
+          controls = 19'b1_000_00_1_00_01_0_00_0_000_0;	//lw
+        3'b100:
+          controls = 19'b1_000_00_1_00_01_0_00_0_010_0;	//lbu
+        3'b101:
+          controls = 19'b1_000_00_1_00_01_0_00_0_100_0;	//lhu
+        default:
+          controls = 0;   //?
+      endcase
+      7'b0100011:
+      case(funct3)
+        3'b000:
+          controls = 19'b0_001_00_1_11_00_0_00_0_000_0;	//sb
+        3'b001:
+          controls = 19'b0_001_00_1_10_00_0_00_0_000_0;	//sh
+        3'b010:
+          controls = 19'b0_001_00_1_01_00_0_00_0_000_0;	//sw
+        default:
+          controls = 0;   //?
+      endcase
+      7'b0110011:
+        controls = 19'b1_000_00_0_00_00_0_10_0_000_0;	//R-type
+      7'b1100011:
+        controls = 19'b0_010_00_0_00_00_1_01_0_000_0;	//beq
+      //I-type ALU or shift
+      7'b0010011:
+      case (funct3)
+        3'b000,3'b010,3'b011,3'b100,3'b110,3'b111:
+          controls = 19'b1_000_00_1_00_00_0_10_0_000_0;	//I-type ALU
+        3'b001,3'b101					         :
+          controls = 19'b1_100_00_1_00_00_0_10_0_000_0;	//I-type Shift
+        default									 :
+          controls = 0;	//unknown
+      endcase											//I-type shift
+      7'b1101111:
+        controls = 19'b1_011_00_0_00_10_0_00_1_000_0;  //jal
+      7'b0110111:
+        controls = 19'b1_101_01_1_00_00_0_00_0_000_0;  //U-type lui
+      7'b0010111:
+        controls = 19'b1_101_10_1_00_00_0_00_0_000_0; //U-type auipc
+      7'b1100111:
+        controls = 19'b1_000_00_1_00_10_0_00_1_000_1; //jalr
+      7'b0000000:
+        controls = 19'b0_000_00_0_00_00_0_00_0_000_0;	//reset
+      default:
+        controls = 0;	//unknown
+    endcase
+
+  end
+
+  always_comb
+  begin
+    case (ALUOp)
+      //I-type Load, S-type, U-type
+      2'b00:
+        ALUControlD = 4'b0000; //add- lw,sw,lb,lh,lbu,lhu,sb,sh,auipc,lui
+      //B-type
+      2'b01:
+      case (funct3)
+        3'b000:
+          ALUControlD = 4'b0001; //sub - beq
+        3'b001:
+          ALUControlD = 4'b1100; //sub - bne
+        3'b100:
+          ALUControlD = 4'b0101; //blt
+        3'b101:
+          ALUControlD = 4'b1010; //bge
+        3'b110:
+          ALUControlD = 4'b0110; //bltu
+        3'b111:
+          ALUControlD = 4'b1011; //bgeu
+        default:
+          ALUControlD = 0; //unknown
+      endcase
+      //R-type, I-type ALU,I-type logical shift
+      2'b10:
+      case (funct3)
+        3'b000:
+          if (RtypeSub)
+            ALUControlD = 4'b0001; //sub
+          else
+            ALUControlD = 4'b0000; //add
+
+        3'b001:
+          ALUControlD = 4'b0100; //sll
+        3'b010:
+          ALUControlD = 4'b0101; //slt
+        3'b011:
+          ALUControlD = 4'b0110; //sltu
+        3'b100:
+          ALUControlD = 4'b0111; //xor
+        3'b101:
+          if (RtypeSub | ItypeSub)
+            ALUControlD = 4'b1000; //sra
+          else
+            ALUControlD = 4'b1001; //srl
+        3'b110:
+          ALUControlD = 4'b0011; //or
+        3'b111:
+          ALUControlD = 4'b0010; //and
+        default:
+          ALUControlD = 0; //unknown
+      endcase
+      default:  // unknown instruction type
+        ALUControlD = 0;
+    endcase
+  end
+endmodule
+
+
+
