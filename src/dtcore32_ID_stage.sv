@@ -19,10 +19,11 @@ module dtcore32_ID_stage(
     output logic  	     	RegWriteE,JumpE,BranchE,ALUBSrcE,PCTargetALUSrcE,
     output logic   [1:0] 	ResultSrcE,MemWriteE,ALUASrcE,
     output logic   [2:0] 	LoadSizeE,
-    output logic   [3:0] 	ALUControlE
+    output logic   [3:0] 	ALUControlE,
+    output logic exception
   );
   //datapath outputs to ID/IE register input
-  logic  [31:0]	RD1D,RD2D,ImmExtD;
+  logic  [31:0]	RD1D,RD2D,ImmExtD,ImmExtD_sig;
 
   //control unit outputs to ID/IE register input
   logic 	   	RegWriteD,JumpD,BranchD,ALUBSrcD,PCTargetALUSrcD;
@@ -34,10 +35,16 @@ module dtcore32_ID_stage(
 
   logic [4:0] RdD;
   logic [4:0] Rs1D,Rs2D;
-  assign RdD = InstrD[11:7];
-  assign Rs1D = InstrD[19:15];
-  assign Rs2D =InstrD[24:20];
-
+  // instruction is addi x0, x0 , 0 for a nop
+  logic isNop;
+  assign RdD = isNop ? 0 : InstrD[11:7];
+  assign Rs1D = isNop ? 0 : InstrD[19:15];
+  assign Rs2D = isNop ? 0 : InstrD[24:20];
+  // regfile source registers
+  logic a1,a2;
+  assign a1 = isNop ? 0 : instrD[19:15];
+  assign a2 = isNop ? 0 : InstrD[24:20];
+  assign ImmExtD = isNop ? 0 : ImmExtD_sig;
   dtcore32_controller control(
                         //inputs
                         .op(InstrD[6:0]),
@@ -55,13 +62,15 @@ module dtcore32_ID_stage(
                         .BranchD(BranchD),
                         .LoadSizeD(LoadSizeD),
                         .PCTargetALUSrcD(PCTargetALUSrcD)
+                        .isNop(isNop),
+                        .exception(exception)
                       );
   dtcore32_regfile regfile1(
                      .clk(clk),
                      .we3(RegWriteW),
                      .rst(rst),
-                     .a1(InstrD[19:15]),
-                     .a2(InstrD[24:20]),
+                     .a1(a1),
+                     .a2(a2),
                      .a3(RdW),
                      .wd3(ResultW),
                      .rd1(RD1D),
@@ -73,19 +82,19 @@ module dtcore32_ID_stage(
   begin
     case (ImmSrcD)
       3'b000:
-        ImmExtD = { {20{InstrD[31]}}, InstrD[31:20] }; 				    		     //I-type ALU
+        ImmExtD_sig = { {20{InstrD[31]}}, InstrD[31:20] }; 				    		     //I-type ALU
       3'b001:
-        ImmExtD = { {20{InstrD[31]}}, InstrD[31:25], InstrD[11:7] }; 		     	 //S-type
+        ImmExtD_sig = { {20{InstrD[31]}}, InstrD[31:25], InstrD[11:7] }; 		     	 //S-type
       3'b010:
-        ImmExtD = { {20{InstrD[31]}}, InstrD[7], InstrD[30:25], InstrD[11:8], 1'b0};   //B-type
+        ImmExtD_sig = { {20{InstrD[31]}}, InstrD[7], InstrD[30:25], InstrD[11:8], 1'b0};   //B-type
       3'b011:
-        ImmExtD = { {12{InstrD[31]}}, InstrD[19:12], InstrD[20], InstrD[30:21], 1'b0}; //J-type
+        ImmExtD_sig = { {12{InstrD[31]}}, InstrD[19:12], InstrD[20], InstrD[30:21], 1'b0}; //J-type
       3'b100:
-        ImmExtD = { {27{1'b0}}, InstrD[24:20]};						                 //I-type Shift
+        ImmExtD_sig = { {27{1'b0}}, InstrD[24:20]};						                 //I-type Shift
       3'b101:
-        ImmExtD = { InstrD[31:12] , {12{1'b0}} };//U-type lui
+        ImmExtD_sig = { InstrD[31:12] , {12{1'b0}} };//U-type lui
       default:
-        ImmExtD = {32{1'bx}};
+        ImmExtD_sig = 0;
     endcase
   end
 

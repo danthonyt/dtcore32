@@ -2,7 +2,8 @@ module dtcore32_top(
 	input logic  clk, rst,
 	input logic   [31:0] InstrF, ReadDataMTick,
 	output logic [31:0] PCF, ALUResultM, WriteDataM,
-	output logic [1:0]  MemWriteM
+	output logic [1:0]  MemWriteM,
+	output logic exception
 );
 	//fetch connections
 	logic PCSrcE, StallF, StallD,FlushD;
@@ -67,7 +68,8 @@ module dtcore32_top(
 		.MemWriteE(MemWriteE),
 		.ALUASrcE(ALUASrcE),
 		.LoadSizeE(LoadSizeE),
-		.ALUControlE(ALUControlE)
+		.ALUControlE(ALUControlE),
+		.exception(exception)
 	);
 	dtcore32_EX_stage executestage(
 		.clk(clk),
