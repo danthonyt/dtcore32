@@ -58,10 +58,18 @@ module dtcore32_MEM_stage(
 			default:ReadDataM = 32'd0;
 		endcase
 	end
+
 	always_ff@(posedge clk)
 	begin
-	  if(rst)
-		{ALUResultW, ReadDataW, PCPlus4W, RdW,RegWriteW, ResultSrcW} <= 0;
+	  if(rst) begin
+		// signals for NOP
+		ALUResultW <= 0;
+		ReadDataW <= 0;
+		PCPlus4W <= 0;
+		RdW <= 0;
+		RegWriteW <= 0;
+		ResultSrcW <= 0; 
+	  end
 	  else
 		{ALUResultW, ReadDataW, PCPlus4W, RdW,RegWriteW, ResultSrcW} <= {ALUResultM, ReadDataM, PCPlus4M, RdM,RegWriteM, ResultSrcM};
 	end

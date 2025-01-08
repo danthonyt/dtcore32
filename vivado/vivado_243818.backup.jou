@@ -1,0 +1,35 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Mon Jan  6 14:05:19 2025
+# Process ID         : 243818
+# Current directory  : /home/david/Documents/work/dtcore32/vivado
+# Command line       : vivado
+# Log file           : /home/david/Documents/work/dtcore32/vivado/vivado.log
+# Journal file       : /home/david/Documents/work/dtcore32/vivado/vivado.jou
+# Running On         : localhost-live.lan
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : 12th Gen Intel(R) Core(TM) i5-12400F
+# CPU Frequency      : 4000.000 MHz
+# CPU Physical cores : 6
+# CPU Logical cores  : 12
+# Host memory        : 16611 MB
+# Swap memory        : 8589 MB
+# Total Virtual      : 25201 MB
+# Available Virtual  : 16830 MB
+#-----------------------------------------------------------
+start_gui
+create_project dtcore32 . -part xc7k70tfbv676-1
+add_files {/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv /home/david/Documents/work/dtcore32/src/dtcore32_top.sv /home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv /home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv /home/david/Documents/work/dtcore32/src/dtcore32_hazunit.sv /home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv /home/david/Documents/work/dtcore32/src/dtcore32_controller.sv /home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv /home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv /home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv}
+add_files -fileset sim_1 {/home/david/Documents/work/dtcore32/sim/testbench.sv /home/david/Documents/work/dtcore32/sim/top_tb.sv}
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+update_compile_order -fileset sim_1
+update_compile_order -fileset sources_1
+remove_files  -fileset sim_1 /home/david/Documents/work/dtcore32/sim/top_tb.sv
+launch_simulation
+source testbench.tcl
+close_sim

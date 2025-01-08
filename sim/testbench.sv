@@ -85,10 +85,8 @@ module testbench();
   logic [31:0] DMEM_addr;
   logic [3:0]  DMEM_wr_byte_en;
   logic [31:0] DMEM_wr_data;
-  logic        DMEM_rst;
   logic        Exception;
 
-  assign DMEM_rst = rst;
   dtcore32_top UUT(
                  .clk(clk),
                  .rst(rst),
@@ -97,7 +95,7 @@ module testbench();
                  .PCF(IMEM_addr),
                  .ALUResultM(DMEM_addr),
                  .WriteDataM(DMEM_wr_data),
-                 .MemWriteM(DMEM_wr_byte_en)
+                 .MemWriteM(DMEM_wr_byte_en),
                  .exception(Exception)
                );
 
@@ -120,7 +118,6 @@ module testbench();
 
   // MEMORY SIMULATION
   logic [31:0] MEMORY [0:MEMORY_DEPTH];
-  integer i;
   /*
       $readmemh loads program data into consecutive addresses, however 
       RISC-V uses byte-addressable memory (i.e. a word at every fourth address)
@@ -131,38 +128,42 @@ module testbench();
       Data memory begins at 0x2000, this can be changed by editing /Scripts/memgen.sh and
       changing the -Tdata parameter of riscv32-unknown-elf-ld.
   */
-  always@(posedge clk, posedge rst)
-  begin
-    if(rst == 1'b1)
-    begin
-      IMEM_data <= 0;
-      DMEM_rd_data <= 0;
-    end
-    else
-    begin
-      IMEM_data <= MEMORY[IMEM_addr[31:2]];
-
-      if(DMEM_rst)
-        DMEM_rd_data <= 0;
-      else
-        DMEM_rd_data <= MEMORY[DMEM_addr[31:2]];
-
-      if(DMEM_wr_byte_en[0] == 1'b1)
-        MEMORY[DMEM_addr[31:2]][7:0]   <= DMEM_wr_data[7:0];
-      if(DMEM_wr_byte_en[1] == 1'b1)
-        MEMORY[DMEM_addr[31:2]][15:8]  <= DMEM_wr_data[15:8];
-      if(DMEM_wr_byte_en[2] == 1'b1)
-        MEMORY[DMEM_addr[31:2]][23:16] <= DMEM_wr_data[23:16];
-      if(DMEM_wr_byte_en[3] == 1'b1)
-        MEMORY[DMEM_addr[31:2]][31:24] <= DMEM_wr_data[31:24];
-    end
-
+  // Data memory and IMEM
+	always_ff@(posedge clk) begin//write
+	   if (rst)begin
+	       IMEM_data <= 0;
+         DMEM_rd_data <= 0;
+	   end 
+	   else begin
+	    IMEM_data = MEMORY[IMEM_addr[31:2]];
+      DMEM_rd_data <= MEMORY[DMEM_addr[31:2]];
+		case(DMEM_wr_byte_en)
+			//no write for 2'b00
+			//sw
+			2'b01: MEMORY[DMEM_addr[31:2]]<= DMEM_wr_data[31:0];
+			//sh
+			2'b10: case(DMEM_addr[1])
+						1'b0:MEMORY[DMEM_addr[31:2]][15:0]<= DMEM_wr_data[15:0];
+						1'b1:MEMORY[DMEM_addr[31:2]][31:16]<= DMEM_wr_data[15:0];
+						default: MEMORY[DMEM_addr[31:2]]<= MEMORY[DMEM_addr[31:2]];
+				   endcase
+			//sb
+			2'b11: case(DMEM_addr[1:0])
+						2'b00:MEMORY[DMEM_addr[31:2]][7:0] <= DMEM_wr_data[7:0];
+						2'b01:MEMORY[DMEM_addr[31:2]][15:8] <= DMEM_wr_data[7:0];
+						2'b10:MEMORY[DMEM_addr[31:2]][23:16] <= DMEM_wr_data[7:0];
+						2'b11:MEMORY[DMEM_addr[31:2]][31:24] <= DMEM_wr_data[7:0];
+						default: MEMORY[DMEM_addr[31:2]]<= MEMORY[DMEM_addr[31:2]];
+				   endcase 
+				   
+			default: MEMORY[DMEM_addr[31:2]]    <= MEMORY[DMEM_addr[31:2]];    
+		endcase
+	 end
   end
-
   //
   // SIMULATION TASKS
   //
-
+  integer i;
   task LOAD_TEST;
     input integer TESTID;
     begin
@@ -176,89 +177,89 @@ module testbench();
 
         // R-R [0:9]
         `RR_ADD:
-          $readmemh("mem/hex/add.S.hex"  ,MEMORY);
+          $readmemh("add.mem"  ,MEMORY);
         `RR_SUB:
-          $readmemh("mem/hex/sub.S.hex"  ,MEMORY);
+          $readmemh("sub.mem"  ,MEMORY);
         `RR_AND:
-          $readmemh("mem/hex/and.S.hex"  ,MEMORY);
+          $readmemh("and.mem"  ,MEMORY);
         `RR_OR:
-          $readmemh("mem/hex/or.S.hex"   ,MEMORY);
+          $readmemh("or.mem"   ,MEMORY);
         `RR_XOR:
-          $readmemh("mem/hex/xor.S.hex"  ,MEMORY);
+          $readmemh("xor.mem"  ,MEMORY);
         `RR_SLT:
-          $readmemh("mem/hex/slt.S.hex"  ,MEMORY);
+          $readmemh("slt.mem"  ,MEMORY);
         `RR_SLTU:
-          $readmemh("mem/hex/sltu.S.hex" ,MEMORY);
+          $readmemh("sltu.mem" ,MEMORY);
         `RR_SLL:
-          $readmemh("mem/hex/sll.S.hex"  ,MEMORY);
+          $readmemh("sll.mem"  ,MEMORY);
         `RR_SRL:
-          $readmemh("mem/hex/srl.S.hex"  ,MEMORY);
+          $readmemh("srl.mem"  ,MEMORY);
         `RR_SRA:
-          $readmemh("mem/hex/sra.S.hex"  ,MEMORY);
+          $readmemh("sra.mem"  ,MEMORY);
 
         // R-I [10:17]
         `I_ADDI:
-          $readmemh("mem/hex/addi.S.hex" ,MEMORY);
+          $readmemh("addi.mem" ,MEMORY);
         `I_ANDI:
-          $readmemh("mem/hex/andi.S.hex" ,MEMORY);
+          $readmemh("andi.mem" ,MEMORY);
         `I_ORI:
-          $readmemh("mem/hex/ori.S.hex"  ,MEMORY);
+          $readmemh("ori.mem"  ,MEMORY);
         `I_XORI:
-          $readmemh("mem/hex/xori.S.hex" ,MEMORY);
+          $readmemh("xori.mem" ,MEMORY);
         `I_SLTI:
-          $readmemh("mem/hex/slti.S.hex" ,MEMORY);
+          $readmemh("slti.mem" ,MEMORY);
         `I_SLLI:
-          $readmemh("mem/hex/slli.S.hex" ,MEMORY);
+          $readmemh("slli.mem" ,MEMORY);
         `I_SRLI:
-          $readmemh("mem/hex/srli.S.hex" ,MEMORY);
+          $readmemh("srli.mem" ,MEMORY);
         `I_SRAI:
-          $readmemh("mem/hex/srai.S.hex" ,MEMORY);
+          $readmemh("srai.mem" ,MEMORY);
 
         // Conditional Branches [18:23]
         `B_BEQ:
-          $readmemh("mem/hex/beq.S.hex"  ,MEMORY);
+          $readmemh("beq.mem"  ,MEMORY);
         `B_BNE:
-          $readmemh("mem/hex/bne.S.hex"  ,MEMORY);
+          $readmemh("bne.mem"  ,MEMORY);
         `B_BLT:
-          $readmemh("mem/hex/blt.S.hex"  ,MEMORY);
+          $readmemh("blt.mem"  ,MEMORY);
         `B_BGE:
-          $readmemh("mem/hex/bge.S.hex"  ,MEMORY);
+          $readmemh("bge.mem"  ,MEMORY);
         `B_BLTU:
-          $readmemh("mem/hex/bltu.S.hex" ,MEMORY);
+          $readmemh("bltu.mem" ,MEMORY);
         `B_BGEU:
-          $readmemh("mem/hex/bgeu.S.hex" ,MEMORY);
+          $readmemh("bgeu.mem" ,MEMORY);
 
         // Upper Imm [24:25]
         `UI_LUI:
-          $readmemh("mem/hex/lui.S.hex"  ,MEMORY);
+          $readmemh("lui.mem"  ,MEMORY);
         `UI_AUIPC:
-          $readmemh("mem/hex/auipc.S.hex",MEMORY);
+          $readmemh("auipc.mem",MEMORY);
 
         // Jumps [26:27]
         `J_JAL:
-          $readmemh("mem/hex/jal.S.hex"  ,MEMORY);
+          $readmemh("jal.mem"  ,MEMORY);
         `J_JALR:
-          $readmemh("mem/hex/jalr.S.hex" ,MEMORY);
+          $readmemh("jalr.mem" ,MEMORY);
 
         // Loads [28:32]
         `L_LB:
-          $readmemh("mem/hex/lb.S.hex"   ,MEMORY);
+          $readmemh("lb.mem"   ,MEMORY);
         `L_LH:
-          $readmemh("mem/hex/lh.S.hex"   ,MEMORY);
+          $readmemh("lh.mem"   ,MEMORY);
         `L_LW:
-          $readmemh("mem/hex/lw.S.hex"   ,MEMORY);
+          $readmemh("lw.mem"   ,MEMORY);
         `L_LBU:
-          $readmemh("mem/hex/lbu.S.hex"  ,MEMORY);
+          $readmemh("lbu.mem"  ,MEMORY);
         `L_LHU:
-          $readmemh("mem/hex/lhu.S.hex"  ,MEMORY);
+          $readmemh("lhu.mem"  ,MEMORY);
 
         // Stores [33:35]
         `S_SB:
-          $readmemh("mem/hex/sb.S.hex"   ,MEMORY);
+          $readmemh("sb.mem"   ,MEMORY);
         `S_SH:
-          $readmemh("mem/hex/sh.S.hex"   ,MEMORY);
+          $readmemh("sh.mem"   ,MEMORY);
         `S_SW:
-          $readmemh("mem/hex/sw.S.hex"   ,MEMORY);
+          $readmemh("sw.mem"   ,MEMORY);
 
       endcase
     end
@@ -315,7 +316,8 @@ module testbench();
     rst = 1;
     #100;
 
-    if($test$plusargs("runall"))
+   // if($test$plusargs("runall"))
+   if(1)
     begin
       $display("Running all tests.");
       for(j=`RR_ADD; j<=`S_SW; j=j+1)

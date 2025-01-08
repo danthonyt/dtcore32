@@ -41,12 +41,14 @@ module dtcore32_ID_stage(
   assign Rs1D = isNop ? 0 : InstrD[19:15];
   assign Rs2D = isNop ? 0 : InstrD[24:20];
   // regfile source registers
-  logic a1,a2;
-  assign a1 = isNop ? 0 : instrD[19:15];
+  logic [4:0] a1,a2;
+  assign a1 = isNop ? 0 : InstrD[19:15];
   assign a2 = isNop ? 0 : InstrD[24:20];
   assign ImmExtD = isNop ? 0 : ImmExtD_sig;
   dtcore32_controller control(
                         //inputs
+                        .clk(clk),
+                        .rst(rst),
                         .op(InstrD[6:0]),
                         .funct3(InstrD[14:12]),
                         .funct7b5(InstrD[30]),
@@ -61,7 +63,7 @@ module dtcore32_ID_stage(
                         .JumpD(JumpD),
                         .BranchD(BranchD),
                         .LoadSizeD(LoadSizeD),
-                        .PCTargetALUSrcD(PCTargetALUSrcD)
+                        .PCTargetALUSrcD(PCTargetALUSrcD),
                         .isNop(isNop),
                         .exception(exception)
                       );
@@ -101,10 +103,26 @@ module dtcore32_ID_stage(
 
   always_ff@(posedge clk)
   begin
-    if (FlushE || rst)
-      {RegWriteE, MemWriteE, JumpE, BranchE, ALUASrcE, ALUBSrcE,
-       ResultSrcE,  ALUControlE, RD1E, RD2E,PCE, ImmExtE, PCPlus4E, RdE, Rs1E,
-       Rs2E,LoadSizeE,PCTargetALUSrcE} <= 0;
+    if (FlushE || rst) begin
+      RegWriteE <= 0;
+      MemWriteE <= 0;
+      JumpE <= 0;
+      BranchE <= 0;
+      ALUASrcE <= 0;
+      ALUBSrcE <= 1;
+      ResultSrcE <= 0;
+      ALUControlE <= 0;
+      RD1E <= 0;
+      RD2E <= 0;
+      PCE <= 0;
+      ImmExtE <= 0; 
+      PCPlus4E <= 0;
+      RdE <= 0;
+      Rs1E <= 0;
+      Rs2E <= 0;
+      LoadSizeE <= 0;
+      PCTargetALUSrcE <= 0;
+    end
     else
       {RegWriteE, MemWriteE, JumpE, BranchE, ALUASrcE,
           ALUBSrcE, ResultSrcE, ALUControlE,

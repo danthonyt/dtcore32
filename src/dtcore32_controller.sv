@@ -1,4 +1,5 @@
 module dtcore32_controller(
+   input logic clk,rst,
     input logic [6:0]  op,
     input logic [2:0]  funct3,
     input logic funct7b5,
@@ -21,8 +22,12 @@ module dtcore32_controller(
   assign isNop = isNop_sig;
   assign ALUControlD = isNop_sig ? 0 : ALUControlD_sig;
   // exception handling
-  assign exception = opcode_exception | ALUOp_exception;
-
+  always_ff @(posedge clk)begin
+    if (rst)
+    exception <=0;
+    else 
+    exception <= opcode_exception | ALUOp_exception;
+  end
   always_comb
   begin
     isNop_sig = 0;
@@ -47,7 +52,9 @@ module dtcore32_controller(
         end
       endcase
       // FENCE,ECALL, and EBREAK should be a NOP for now
-      7'b0000111:
+      //FENCE, ECALL and EBREAK and zicsr
+      
+      7'b00001111, 7'b1110011:
       begin
         isNop_sig = 1;
         controls = 19'b1_000_00_1_00_00_0_10_0_000_0;	//addi x0,x0,0
@@ -127,6 +134,7 @@ module dtcore32_controller(
           ALUControlD_sig = 4'b0110; //bltu
         3'b111:
           ALUControlD_sig = 4'b1011; //bgeu
+
         default:
         begin
           ALUControlD_sig = 0; //unknown

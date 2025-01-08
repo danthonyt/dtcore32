@@ -1,0 +1,216 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Tue Jan  7 19:47:54 2025
+# Process ID         : 7215
+# Current directory  : /home/david/Documents/work/dtcore32/vivado
+# Command line       : vivado
+# Log file           : /home/david/Documents/work/dtcore32/vivado/vivado.log
+# Journal file       : /home/david/Documents/work/dtcore32/vivado/vivado.jou
+# Running On         : fedora
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : 12th Gen Intel(R) Core(TM) i5-12400F
+# CPU Frequency      : 2331.569 MHz
+# CPU Physical cores : 6
+# CPU Logical cores  : 12
+# Host memory        : 16609 MB
+# Swap memory        : 8589 MB
+# Total Virtual      : 25198 MB
+# Available Virtual  : 20733 MB
+#-----------------------------------------------------------
+start_gui
+open_project /home/david/Documents/work/dtcore32/vivado/dtcore32.xpr
+update_compile_order -fileset sources_1
+launch_simulation
+source testbench.tcl
+current_wave_config {Untitled 1}
+add_wave {{/testbench/UUT/decodestage/regfile1}} 
+relaunch_sim
+save_wave_config {/home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg}
+add_files -fileset sim_1 -norecurse /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+set_property xsim.view /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg [get_filesets sim_1]
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+close_sim
+launch_simulation
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+relaunch_sim
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/decodestage/control}} 
+relaunch_sim
+save_wave_config {/home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg}
+close_sim
+launch_simulation
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/MEMORY}} 
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/add.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/addi.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/and.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/andi.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/auipc.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/beq.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/bge.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/bgeu.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/blt.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/bltu.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/bne.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/fence_i.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/jal.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/jalr.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/lb.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/lbu.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/lh.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/lhu.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/lui.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/lw.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/ma_data.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/or.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/ori.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/sb.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/sh.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/simple.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/sll.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/slli.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/slt.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/slti.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/sltiu.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/sltu.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/sra.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/srai.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/srl.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/srli.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/sub.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/sw.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/xor.mem] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/scripts/mem/hex/xori.mem] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 {/home/david/Documents/work/dtcore32/scripts/mem/hex/add.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/addi.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/and.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/andi.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/auipc.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/beq.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bge.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bgeu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/blt.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bltu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bne.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/fence_i.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jal.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jalr.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lb.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lbu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lh.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lhu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lui.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lw.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ma_data.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/or.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ori.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sb.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sh.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/simple.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sll.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slli.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slt.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slti.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltiu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sra.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srai.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srl.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srli.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sub.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sw.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xor.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xori.mem}
+set_property SOURCE_SET sources_1 [get_filesets sim_1]
+add_files -fileset sim_1 -norecurse {/home/david/Documents/work/dtcore32/scripts/mem/hex/ori.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/add.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sub.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lw.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bgeu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sll.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bge.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lh.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xor.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srl.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slti.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltiu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sra.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sh.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jal.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ma_data.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/or.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/andi.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srli.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/and.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slli.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xori.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/addi.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lb.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/blt.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slt.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/fence_i.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lhu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srai.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bne.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lbu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lui.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/simple.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sw.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jalr.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bltu.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/auipc.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/beq.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sb.mem}
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/decodestage}} 
+relaunch_sim
+save_wave_config {/home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg}
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/fetchstage/PCF}} 
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/executestage/PCTargetE}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/fetchstage/PCFTick}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/fetchstage/PCPlus4F}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/executestage/PCSrcE}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/executestage/JumpE}} {{/testbench/UUT/executestage/BranchE}} {{/testbench/UUT/executestage/BranchCondE}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/executestage/SrcAE}} {{/testbench/UUT/executestage/SrcBE}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/executestage/RD1E}} {{/testbench/UUT/executestage/RD2E}} {{/testbench/UUT/executestage/PCE}} {{/testbench/UUT/executestage/ImmExtE}} {{/testbench/UUT/executestage/PCPlus4E}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/decodestage/control}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/fetchstage/PCF}} 
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/fetchstage/PCTargetE}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/executestage}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/decodestage/RD1E}} {{/testbench/UUT/decodestage/RD2E}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/decodestage/RD1D}} {{/testbench/UUT/decodestage/RD2D}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/decodestage/regfile1/rd1}} {{/testbench/UUT/decodestage/regfile1/rd2}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/decodestage/regfile1}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/decodestage/isNop}} 
+relaunch_sim
+current_wave_config {testbench_behav.wcfg}
+add_wave {{/testbench/UUT/decodestage/InstrD}} 
+relaunch_sim
+save_wave_config {/home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg}
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+run all
+relaunch_sim
+vsim work.testbench +runall
+vsim testbench
+xsim work.testbench +runall
+xsim -help
+xsim launch_simulation
+save_wave_config {/home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg}
+current_sim simulation_14
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+save_wave_config {/home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg}
+close_sim
+launch_simulation
+open_wave_config /home/david/Documents/work/dtcore32/vivado/testbench_behav.wcfg
+source testbench.tcl
+close_sim

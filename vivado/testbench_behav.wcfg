@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="testbench_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="testbench" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="211.270001 us"></ZoomEndTime>
+      <Cursor1Time time="35.446061 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="152"></NameColumnWidth>
+      <ValueColumnWidth column_width="272"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="9" />
+   <wvobject type="logic" fp_name="/testbench/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/rst">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/IMEM_data">
+      <obj_property name="ElementShortName">IMEM_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IMEM_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/DMEM_rd_data">
+      <obj_property name="ElementShortName">DMEM_rd_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM_rd_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/IMEM_addr">
+      <obj_property name="ElementShortName">IMEM_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IMEM_addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/DMEM_addr">
+      <obj_property name="ElementShortName">DMEM_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM_addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/DMEM_wr_byte_en">
+      <obj_property name="ElementShortName">DMEM_wr_byte_en[3:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM_wr_byte_en[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/DMEM_wr_data">
+      <obj_property name="ElementShortName">DMEM_wr_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM_wr_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/Exception">
+      <obj_property name="ElementShortName">Exception</obj_property>
+      <obj_property name="ObjectShortName">Exception</obj_property>
+   </wvobject>
+</wave_config>

@@ -42,7 +42,7 @@ module dtcore32_EX_stage(
 // ===========================================================================
 // 			          Instantiations
 // ===========================================================================
-  alu #(.WIDTH(32)) alu1(//performs arithmetic calculations of instruction
+  dtcore32_alu #(.WIDTH(32)) alu1(//performs arithmetic calculations of instruction
         .a(SrcAE),
         .b(SrcBE),
         .control(ALUControlE),
@@ -56,7 +56,7 @@ module dtcore32_EX_stage(
 
   assign PCTargetE = PCTargetSrcAE + ImmExtE;	//adds branch offset to PC for B-type instructions
   assign PCSrcE = (BranchE & BranchCondE) | (JumpE);
-  assign ySrcBE = ALUBSrcE ? ImmExtE : WriteDataE;
+  assign SrcBE = ALUBSrcE ? ImmExtE : WriteDataE;
   assign PCTargetSrcAE = PCTargetALUSrcE ? SrcAETick : PCE;
   assign SrcAETick = ForwardAE[1] ? ALUResultM : (ForwardAE[0] ? ResultW : RD1E); 
   assign WriteDataE = ForwardBE[1] ? ALUResultM : (ForwardBE[0] ? ResultW : RD2E); 

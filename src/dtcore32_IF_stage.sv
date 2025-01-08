@@ -27,12 +27,15 @@ module dtcore32_IF_stage(
 
   always_ff@(posedge clk)
   begin
-    if (FlushD)
-      {InstrD, PCD, PCPlus4D} <= 0;
-    else if (rst)
-      {InstrD, PCD, PCPlus4D} <= 0;
-    else if (!StallD)
+    if (FlushD || rst) begin
+      InstrD <= 32'h00000013;//NOP
+      {PCD, PCPlus4D} <= 0;
+    end
+      
+    else if (!StallD) begin
       {InstrD, PCD, PCPlus4D} <= {InstrF, PCF, PCPlus4F};
+    end
+      
   end
 endmodule
 

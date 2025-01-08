@@ -1,0 +1,22 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_EX_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_ID_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_IF_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_MEM_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_WB_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_alu
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_controller
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_hazunit.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_hazunit
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_regfile
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_top.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_top
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/sim/testbench.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module testbench
