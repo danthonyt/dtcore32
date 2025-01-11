@@ -1,0 +1,29 @@
+// IF
+output logic [NRET        - 1 : 0] rvfi_valid,  start in IF , 0 on reset or flush, stall retains value, 1 if neither in IF
+output logic [NRET * ILEN - 1 : 0] rvfi_insn,   start in IF, 0 on reset/flush, stall retains value, else prop.
+output logic [NRET        - 1 : 0] rvfi_halt,   set to 0
+output logic [NRET        - 1 : 0] rvfi_intr,   set to 0
+output logic [NRET * 2    - 1 : 0] rvfi_mode,   set to 0
+output logic [NRET * 2    - 1 : 0] rvfi_ixl,    set to 1
+output logic [NRET * XLEN - 1 : 0] rvfi_pc_rdata, start in IF, PCF
+
+//ID signals
+output logic [NRET        - 1 : 0] rvfi_trap,   start in ID, set if illegal opcode, misaligned mem read/write/jump
+output logic [NRET *    5 - 1 : 0] rvfi_rs1_addr, start in ID, rs1_addr
+output logic [NRET *    5 - 1 : 0] rvfi_rs2_addr, start in ID, rs2_addr
+output logic [NRET * XLEN - 1 : 0] rvfi_rs1_rdata, start in ID, rs1_data
+output logic [NRET * XLEN - 1 : 0] rvfi_rs2_rdata, start in ID, rs2_data
+
+// MEM 
+output logic [NRET * XLEN   - 1 : 0] rvfi_mem_addr, 
+output logic [NRET * XLEN/8 - 1 : 0] rvfi_mem_rmask,
+output logic [NRET * XLEN/8 - 1 : 0] rvfi_mem_wmask,
+output logic [NRET * XLEN   - 1 : 0] rvfi_mem_rdata,
+output logic [NRET * XLEN   - 1 : 0] rvfi_mem_wdata,
+
+// WB
+output logic [NRET *   64 - 1 : 0] rvfi_order,  start in WB, 0 on reset, increment every time valid asserted 
+output logic [NRET *    5 - 1 : 0] rvfi_rd_addr, start in WB ,a3, but 0 if WE3 is 0
+output logic [NRET * XLEN - 1 : 0] rvfi_rd_wdata, start in WB, wd3, read register after it was written to
+output logic [NRET * XLEN - 1 : 0] rvfi_pc_wdata, start in WB, rvfi_mem_r_data
+

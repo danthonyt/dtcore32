@@ -3,13 +3,25 @@ module dtcore32_controller(
     input logic [6:0]  op,
     input logic [2:0]  funct3,
     input logic funct7b5,
-    output logic [1:0]  ResultSrcD,ALUASrcD,MemWriteD,
+    output logic [1:0]  ID_result_src,ID_alu_a_src,ID_mem_wr,
     output logic [3:0]  ALUControlD,
-    output logic [2:0]  ImmSrcD,LoadSizeD,
-    output logic ALUBSrcD,  RegWriteD, JumpD, BranchD,PCTargetALUSrcD,
+    output logic [2:0]  ID_imm_src,ID_load_size,
+    output logic ID_alu_b_src,  ID_reg_wr, ID_jump, ID_branch,ID_pc_target_alu_src,
     output logic isNop,
-    output logic exception
+    output logic is_unknown_instruction
   );
+
+// ===========================================================================
+// 			          Parameters, Registers, and Wires
+// ===========================================================================
+
+// ===========================================================================
+// 			          Instantiations
+// ===========================================================================
+
+// ===========================================================================
+// 			          Implementation
+// ===========================================================================
   logic [1:0] ALUOp;
   logic  [18:0] controls;
   logic RtypeSub,ItypeSub;
@@ -17,16 +29,16 @@ module dtcore32_controller(
   logic [3:0] ALUControlD_sig;
   assign RtypeSub = op[5] & funct7b5;
   assign ItypeSub = ~op[5] & funct7b5;
-  assign {RegWriteD, ImmSrcD, ALUASrcD, ALUBSrcD,MemWriteD, ResultSrcD, BranchD, ALUOp, JumpD, LoadSizeD,PCTargetALUSrcD} = controls;
+  assign {ID_reg_wr, ID_imm_src, ID_alu_a_src, ID_alu_b_src,ID_mem_wr, ID_result_src, ID_branch, ALUOp, ID_jump, ID_load_size,ID_pc_target_alu_src} = controls;
   // nop handling
   assign isNop = isNop_sig;
   assign ALUControlD = isNop_sig ? 0 : ALUControlD_sig;
   // exception handling
   always_ff @(posedge clk)begin
     if (rst)
-    exception <=0;
+    is_unknown_instruction <=0;
     else 
-    exception <= opcode_exception | ALUOp_exception;
+    is_unknown_instruction <= opcode_exception | ALUOp_exception;
   end
   always_comb
   begin
@@ -54,12 +66,28 @@ module dtcore32_controller(
       // FENCE,ECALL, and EBREAK should be a NOP for now
       //FENCE, ECALL and EBREAK and zicsr
       
-      7'b00001111, 7'b1110011:
+      7'b00001111:
       begin
         isNop_sig = 1;
         controls = 19'b1_000_00_1_00_00_0_10_0_000_0;	//addi x0,x0,0
       end
-        
+      // zicsr instruction
+      7'b1110011:
+      case (funct3)
+      // CSRRW
+      3'b001: 
+      // CSRRS
+      3'b010:
+      // CSRRC
+      3'b011:
+      // CSRRWI
+      3'b101:
+      // CSRRSI
+      3'b110:
+      // CSRRCI
+      3'b111:
+        default: 
+      endcase
 
       7'b0100011:
       case(funct3)

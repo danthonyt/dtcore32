@@ -13,6 +13,17 @@ module dtcore32_hazunit(
     output logic FlushE,FlushD
 
   );
+// ===========================================================================
+// 			          Parameters, Registers, and Wires
+// ===========================================================================
+
+// ===========================================================================
+// 			          Instantiations
+// ===========================================================================
+
+// ===========================================================================
+// 			          Implementation
+// ===========================================================================
   //if either source register matches a register we are writing to in a previous
   //instruction we must forward that value from the previous instruction so the updated
   //value is used.
