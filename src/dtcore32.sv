@@ -1,31 +1,4 @@
 module dtcore32(
-`ifdef RISCV_FORMAL
-    output logic [`NRET        - 1 : 0] rvfi_valid_o,
-    output logic [`NRET *   64 - 1 : 0] rvfi_order_o,
-    output logic [`NRET * `ILEN - 1 : 0] rvfi_insn_o,
-    output logic [`NRET        - 1 : 0] rvfi_trap_o,
-    output logic [`NRET        - 1 : 0] rvfi_halt_o,
-    output logic [`NRET        - 1 : 0] rvfi_intr_o,
-    output logic [`NRET * 2    - 1 : 0] rvfi_mode_o,
-    output logic [`NRET * 2    - 1 : 0] rvfi_ixl_o,
-
-    output logic [`NRET *    5 - 1 : 0] rvfi_rs1_addr_o,
-    output logic [`NRET *    5 - 1 : 0] rvfi_rs2_addr_o,
-    output logic [`NRET * `XLEN - 1 : 0] rvfi_rs1_rdata_o,
-    output logic [`NRET * `XLEN - 1 : 0] rvfi_rs2_rdata_o,
-
-    output logic [`NRET *    5 - 1 : 0] rvfi_rd_addr_o,
-    output logic [`NRET * `XLEN - 1 : 0] rvfi_rd_wdata_o,
-
-    output logic [`NRET * `XLEN - 1 : 0] rvfi_pc_rdata_o,
-    output logic [`NRET * `XLEN - 1 : 0] rvfi_pc_wdata_o,
-
-    output logic [`NRET * `XLEN   - 1 : 0] rvfi_mem_addr_o,
-    output logic [`NRET * `XLEN/8 - 1 : 0] rvfi_mem_rmask_o,
-    output logic [`NRET * `XLEN/8 - 1 : 0] rvfi_mem_wmask_o,
-    output logic [`NRET * `XLEN   - 1 : 0] rvfi_mem_rdata_o,
-    output logic [`NRET * `XLEN   - 1 : 0] rvfi_mem_wdata_o,
-`endif
     input logic           clk_i,
     input logic           rst_i,
     input logic   [31:0]  IMEM_rd_data_i,
@@ -34,38 +7,23 @@ module dtcore32(
     output logic [31:0]   DMEM_addr_o,
     output logic [31:0]   DMEM_wr_data_o,
     output logic [1:0]    DMEM_wr_en_o,
-    output logic          exception
+    output logic          exception_o
   );
-  // RISCV_FORMAL INTERFACE
-  `ifdef RISCV_FORMAL
-
-  assign IF_rvfi_insn_o = IF_instr_i;
-  assign IF_rvfi_halt_o = 0;
-  assign IF_rvfi_intr_o = 0;
-  assign IF_rvfi_mode_o = 0;
-  assign IF_rvfi_ixl_o = 1;
 
 
-  assign  ID_rvfi_trap_o = ID_instr_exception;
-  assign  ID_rvfi_rs1_addr_o = ID_instr_i[19:15];
-  assign ID_rvfi_rs2_addr_o = ID_instr_i[24:20];
-  assign ID_rvfi_rs1_rdata_o = ID_reg_data_1;
-  assign ID_rvfi_rs2_rdata_o = ID_reg_data_2;
-
-
-`endif
   // CHECK
-  assign ID_instr_exception_o = ID_instr_exception;
-  assign op = ID_instr_i[6:0];
-  assign funct3 = ID_instr_i[14:12];
-  assign funct7b5 = ID_instr_i[30];
-  assign ID_dest_reg = isNop ? 0 : ID_instr_i[11:7];
-  assign ID_src_reg_1 = isNop ? 0 : ID_instr_i[19:15];
-  assign ID_src_reg_2 = isNop ? 0 : ID_instr_i[24:20];
+  logic [6:0] op;
+  logic [2:0] funct3;
+  logic funct7b5;
+  logic [1:0] byte_num;
+  logic exception;
+  assign op = ID_instr[6:0];
+  assign funct3 = ID_instr[14:12];
+  assign funct7b5 = ID_instr[30];
+  assign byte_num = DMEM_addr[1:0];
+  // NOP for system calls
+  assign exception_o = exception;
 
-  assign a1 = isNop ? 0 : ID_instr_i[19:15];
-  assign a2 = isNop ? 0 : ID_instr_i[24:20];
-  assign ID_imm_ext = isNop ? 0 : ID_imm_ext_sig;
   // DMEM interface
   logic [31:0] DMEM_addr;
   logic [31:0] DMEM_wr_data;
@@ -100,7 +58,9 @@ module dtcore32(
   logic [24:20] ID_src_reg_2;
   logic [11:7] ID_dest_reg;
   logic [31:0] ID_imm_ext;
+  logic [31:0] ID_imm_ext_sig;
   logic [31:0] ID_pc_plus_4;
+  logic ID_is_nop;
 
   // Instruction execute signals
   logic EX_pc_src;
@@ -166,16 +126,13 @@ module dtcore32(
   assign DMEM_addr_o = DMEM_addr;
 
   // Instruction Fetch stage
-  ff_nen # (
-           .WIDTH(32)
-         )
-         ff_nen_inst (
-           .clk(clk_i),
-           .rst(rst_i),
-           .en_n(IF_stall),
-           .d(IF_pc_tick),
-           .q(IMEM_addr)
-         );
+  always_ff @(posedge clk_i)
+  begin
+    if (rst_i)
+      IMEM_addr <= 0;
+    else if (!IF_stall)
+      IMEM_addr <= IF_pc_tick;
+  end
 
   mux2to1 # (
             .WIDTH(32)
@@ -215,15 +172,16 @@ module dtcore32(
 
 
   //Instruction Decode stage
-  assign ID_src_reg_1 = ID_instr[19:15];
-  assign ID_src_reg_2 = ID_instr[24:20];
-  assign ID_dest_reg = ID_instr[11:7];
+  assign ID_dest_reg = ID_is_nop ? 0 : ID_instr[11:7];
+  assign ID_src_reg_1 = ID_is_nop ? 0 : ID_instr[19:15];
+  assign ID_src_reg_2 = ID_is_nop ? 0 : ID_instr[24:20];
+  assign ID_imm_ext = ID_is_nop ? 0 : ID_imm_ext_sig;
   dtcore32_regfile  dtcore32_regfile_inst (
                       .clk(clk_i),
                       .we3(WB_reg_wr),
                       .rst(rst_i),
-                      .a1(ID_instr[19:15]),
-                      .a2(ID_instr[24:20]),
+                      .a1(ID_src_reg_1),
+                      .a2(ID_src_reg_2),
                       .a3(WB_dest_reg),
                       .wd3(WB_result),
                       .rd1(ID_reg_data_1),
@@ -233,28 +191,28 @@ module dtcore32(
   extend  extend_inst (
             .instr_data(ID_instr[31:7]),
             .imm_src(ID_imm_src),
-            .imm_ext(ID_imm_ext)
+            .imm_ext(ID_imm_ext_sig)
           );
 
   dtcore32_controller  dtcore32_controller_inst (
                          .clk(clk_i),
                          .rst(rst_i),
-                         .op(ID_instr[6:0]),
-                         .funct3(ID_instr[14:12]),
-                         .funct7b5(ID_instr[30]),
-                         .ResultSrcD(ID_result_src),
-                         .ALUASrcD(ID_alu_a_src),
-                         .MemWriteD(ID_mem_wr),
-                         .ALUControlD(ID_alu_control),
-                         .ImmSrcD(ID_imm_src),
-                         .LoadSizeD(ID_load_size),
-                         .ALUBSrcD(ID_alu_b_src),
-                         .RegWriteD(ID_reg_wr),
-                         .JumpD(ID_jump),
-                         .BranchD(ID_branch),
-                         .PCTargetALUSrcD(ID_pc_target_alu_src),
-                         .isNop(isNop),
-                         .is_unknown_instruction(is_unknown_instruction)
+                         .op(op),
+                         .funct3(funct3),
+                         .funct7b5(funct7b5),
+                         .ID_result_src_o(ID_result_src),
+                         .ID_alu_a_src_o(ID_alu_a_src),
+                         .ID_mem_wr_o(ID_mem_wr),
+                         .ID_alu_control_o(ID_alu_control),
+                         .ID_imm_src_o(ID_imm_src),
+                         .ID_load_size_o(ID_load_size),
+                         .ID_alu_b_src_o(ID_alu_b_src),
+                         .ID_reg_wr_o(ID_reg_wr),
+                         .ID_jump_o(ID_jump),
+                         .ID_branch_o(ID_branch),
+                         .ID_pc_target_alu_src_o(ID_pc_target_alu_src),
+                         .ID_is_nop_o(ID_is_nop),
+                         .ID_exception_o(exception)
                        );
 
   // ID/EX register
@@ -403,7 +361,7 @@ module dtcore32(
   // Data Memory stage
   load_size_conv  load_size_conv_inst (
                     .load_size(MEM_load_size),
-                    .byte_num(DMEM_addr[1:0]),
+                    .byte_num(byte_num),
                     .rd_data(DMEM_rd_data_i),
                     .converted_data(MEM_rd_data)
                   );

@@ -20,8 +20,6 @@ begin
       imm_ext = { {27{1'b0}}, instr_data[24:20]};						                 //I-type Shift
     3'b101:
       imm_ext = { instr_data[31:12] , {12{1'b0}} };//U-type lui
-    3'b110:
-      imm_ext = {{27{1'b0}},instr_data[19:15]};
     default:
       imm_ext = 0;
   endcase

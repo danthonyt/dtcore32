@@ -13,10 +13,6 @@ module load_size_conv
       3'b000:
       begin
         converted_data = rd_data;
-`ifdef RISCV_FORMAL
-
-        MEM_rvfi_mem_rmask_o = 4'hf;
-`endif
 
       end
       //lb
@@ -25,37 +21,21 @@ module load_size_conv
         2'b00:
         begin
           converted_data = { {24{rd_data[7]}}, rd_data[7:0] };
-`ifdef RISCV_FORMAL
-
-          MEM_rvfi_mem_rmask_o = 4'h1;
-`endif
 
         end
         2'b01:
         begin
           converted_data = { {24{rd_data[15]}}, rd_data[15:8] };
-`ifdef RISCV_FORMAL
-
-          MEM_rvfi_mem_rmask_o = 4'h2;
-`endif
 
         end
         2'b10:
         begin
           converted_data = { {24{rd_data[23]}}, rd_data[23:16] };
-`ifdef RISCV_FORMAL
-
-          MEM_rvfi_mem_rmask_o = 4'h4;
-`endif
 
         end
         2'b11:
         begin
           converted_data = { {24{rd_data[31]}}, rd_data[31:24] };
-`ifdef RISCV_FORMAL
-
-          MEM_rvfi_mem_rmask_o = 4'h8;
-`endif
 
         end
       endcase
@@ -65,37 +45,23 @@ module load_size_conv
         2'b00:
         begin
           converted_data = { {24{1'b0}},rd_data[7:0] };
-`ifdef RISCV_FORMAL
-
-          MEM_rvfi_mem_rmask_o = 4'h1;
-`endif
 
         end
         2'b01:
         begin
           converted_data = { {24{1'b0}},rd_data[15:8] };
-`ifdef RISCV_FORMAL
-
-          MEM_rvfi_mem_rmask_o = 4'h2;
-`endif
 
         end
         2'b10:
         begin
           converted_data = { {24{1'b0}},rd_data[23:16] };
-`ifdef RISCV_FORMAL
 
-          MEM_rvfi_mem_rmask_o = 4'h4;
-`endif
 
         end
         2'b11:
         begin
           converted_data = { {24{1'b0}},rd_data[31:24] };
-`ifdef RISCV_FORMAL
 
-          MEM_rvfi_mem_rmask_o = 4'h8;
-`endif
 
         end
       endcase
@@ -106,19 +72,13 @@ module load_size_conv
         1'b0:
         begin
           converted_data = { {16{rd_data[15]}},rd_data[15:0] };
-`ifdef RISCV_FORMAL
 
-          MEM_rvfi_mem_rmask_o = 4'h3;
-`endif
 
         end
         1'b1:
         begin
           converted_data = { {16{rd_data[31]}},rd_data[31:16] };
-`ifdef RISCV_FORMAL
 
-          MEM_rvfi_mem_rmask_o = 4'hc;
-`endif
 
         end
       endcase
@@ -129,19 +89,13 @@ module load_size_conv
         1'b0:
         begin
           converted_data = { {16{1'b0}},rd_data[15:0] };
-`ifdef RISCV_FORMAL
 
-          MEM_rvfi_mem_rmask_o = 4'h3;
-`endif
 
         end
         1'b1:
         begin
           converted_data = { {16{1'b0}},rd_data[31:16] };
-`ifdef RISCV_FORMAL
 
-          MEM_rvfi_mem_rmask_o = 4'hc;
-`endif
 
         end
       endcase
@@ -149,10 +103,7 @@ module load_size_conv
       default:
       begin
         converted_data = 32'dx;
-`ifdef RISCV_FORMAL
 
-        MEM_rvfi_mem_rmask_o = 4'hx;
-`endif
 
       end
     endcase

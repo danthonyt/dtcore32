@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<ProcessHandle Version="1" Minor="0">
-    <Process Command="vivado" Owner="david" Host="syn-2603-8000-0f3c-2b16-0000-0000-0000-655b.res6.spectrum.com" Pid="4805" HostCore="12" HostMemory="16219740">
-    </Process>
-</ProcessHandle>
