@@ -1,3 +1,4 @@
+`include "macros.svh"
 module dtcore32(
     input logic           clk_i,
     input logic           rst_i,
@@ -6,7 +7,7 @@ module dtcore32(
     output logic [31:0]   IMEM_addr_o,
     output logic [31:0]   DMEM_addr_o,
     output logic [31:0]   DMEM_wr_data_o,
-    output logic [1:0]    DMEM_wr_en_o,
+    output logic [3:0]    DMEM_wr_byte_en_o,
     output logic          exception_o
   );
 
@@ -15,19 +16,20 @@ module dtcore32(
   logic [6:0] op;
   logic [2:0] funct3;
   logic funct7b5;
-  logic [1:0] byte_num;
   logic exception;
+  logic misaligned_store;
+  logic misaligned_load;
+  logic unknown_load;
   assign op = ID_instr[6:0];
   assign funct3 = ID_instr[14:12];
   assign funct7b5 = ID_instr[30];
-  assign byte_num = DMEM_addr[1:0];
   // NOP for system calls
-  assign exception_o = exception;
+  assign exception_o = exception | misaligned_store | misaligned_load | unknown_load;
 
   // DMEM interface
   logic [31:0] DMEM_addr;
   logic [31:0] DMEM_wr_data;
-  logic [1:0]  DMEM_wr_en;
+  logic [3:0]  DMEM_wr_byte_en;
   //logic [31:0] DMEM_rd_data;
 
   // IMEM interface
@@ -43,7 +45,7 @@ module dtcore32(
   logic ID_reg_wr;
   logic [1:0] ID_result_src;
   logic [2:0] ID_load_size;
-  logic [1:0] ID_mem_wr;
+  logic [1:0] ID_mem_wr_size;
   logic ID_jump;
   logic ID_branch;
   logic [3:0] ID_alu_control;
@@ -68,7 +70,7 @@ module dtcore32(
   logic EX_reg_wr;
   logic [1:0] EX_result_src;
   logic [2:0] EX_load_size;
-  logic [1:0] EX_mem_wr;
+  logic [1:0] EX_mem_wr_size;
   logic EX_jump;
   logic EX_branch;
   logic [3:0] EX_alu_control;
@@ -98,7 +100,9 @@ module dtcore32(
   logic [11:7] MEM_dest_reg;
   logic [31:0] MEM_pc_plus_4;
   logic [31:0] MEM_rd_data;
-
+  logic [1:0] MEM_mem_wr_size;
+  logic [31:0] MEM_wr_data;
+  logic [31:0] MEM_alu_result;
   // write back signals
   logic WB_reg_wr;
   logic [1:0] WB_result_src;
@@ -119,7 +123,7 @@ module dtcore32(
 
   // DMEM interface
   assign DMEM_wr_data_o = DMEM_wr_data;
-  assign DMEM_wr_en_o = DMEM_wr_en;
+  assign DMEM_wr_byte_en_o = DMEM_wr_byte_en;
 
   // IMEM interface
   assign IMEM_addr_o = IMEM_addr;
@@ -158,9 +162,9 @@ module dtcore32(
   begin
     if (rst_i || ID_flush)
     begin
-      ID_instr <= 0;
+      ID_instr <= `NOP_INSTRUCTION;
       ID_pc <= 0;
-      ID_pc_plus_4 <= 0;
+      ID_pc_plus_4 <= 0 ;
     end
     else if (!ID_stall)
     begin
@@ -194,15 +198,16 @@ module dtcore32(
             .imm_ext(ID_imm_ext_sig)
           );
 
+
   dtcore32_controller  dtcore32_controller_inst (
-                         .clk(clk_i),
-                         .rst(rst_i),
-                         .op(op),
-                         .funct3(funct3),
-                         .funct7b5(funct7b5),
+                         .clk_i(clk_i),
+                         .rst_i(rst_i),
+                         .op_i(op),
+                         .funct3_i(funct3),
+                         .funct7b5_i(funct7b5),
                          .ID_result_src_o(ID_result_src),
                          .ID_alu_a_src_o(ID_alu_a_src),
-                         .ID_mem_wr_o(ID_mem_wr),
+                         .ID_mem_wr_size_o(ID_mem_wr_size),
                          .ID_alu_control_o(ID_alu_control),
                          .ID_imm_src_o(ID_imm_src),
                          .ID_load_size_o(ID_load_size),
@@ -223,12 +228,12 @@ module dtcore32(
       EX_reg_wr <= 0;
       EX_result_src <= 0;
       EX_load_size <= 0;
-      EX_mem_wr <= 0;
+      EX_mem_wr_size <= 0;
       EX_jump <= 0;
       EX_branch <= 0;
       EX_alu_control <= 0;
       EX_alu_a_src <= 0;
-      EX_alu_b_src <= 0;
+      EX_alu_b_src <= 1;
       EX_pc_target_alu_src <= 0;
       EX_reg_data_1 <= 0;
       EX_reg_data_2 <= 0;
@@ -244,7 +249,7 @@ module dtcore32(
       EX_reg_wr <= ID_reg_wr;
       EX_result_src <= ID_result_src;
       EX_load_size <= ID_load_size;
-      EX_mem_wr <= ID_mem_wr;
+      EX_mem_wr_size <= ID_mem_wr_size;
       EX_jump <= ID_jump;
       EX_branch <= ID_branch;
       EX_alu_control <= ID_alu_control;
@@ -339,9 +344,9 @@ module dtcore32(
       MEM_reg_wr <= 0;
       MEM_result_src <= 0;
       MEM_load_size <= 0;
-      DMEM_wr_en <= 0;
-      DMEM_addr <= 0;
-      DMEM_wr_data <= 0;
+      MEM_mem_wr_size <= 0;
+      MEM_alu_result <= 0;
+      MEM_wr_data <= 0;
       MEM_dest_reg <= 0;
       MEM_pc_plus_4 <= 0;
     end
@@ -350,56 +355,203 @@ module dtcore32(
       MEM_reg_wr <= EX_reg_wr;
       MEM_result_src <= EX_result_src;
       MEM_load_size <= EX_load_size;
-      DMEM_wr_en <= EX_mem_wr;
-      DMEM_addr <= EX_alu_result;
-      DMEM_wr_data <= EX_wr_data;
+      MEM_mem_wr_size <= EX_mem_wr_size;
+      MEM_alu_result <= EX_alu_result;
+      MEM_wr_data <= EX_wr_data;
       MEM_dest_reg <= EX_dest_reg;
       MEM_pc_plus_4 <= EX_pc_plus_4;
     end
   end
 
+
   // Data Memory stage
-  load_size_conv  load_size_conv_inst (
-                    .load_size(MEM_load_size),
-                    .byte_num(byte_num),
-                    .rd_data(DMEM_rd_data_i),
-                    .converted_data(MEM_rd_data)
-                  );
 
-  // MEM/WB register
-  always_ff@(posedge clk_i)
+  // stores
+  always_comb
   begin
-    if(rst_i)
-    begin
-      WB_reg_wr <= 0;
-      WB_result_src <= 0;
-      WB_alu_result <= 0;
-      WB_rd_data <= 0;
-      WB_dest_reg <= 0;
-      WB_pc_plus_4 <= 0;
-    end
-    else
-    begin
-      WB_reg_wr <= MEM_reg_wr;
-      WB_result_src <= MEM_result_src;
-      WB_alu_result <= DMEM_addr;
-      WB_rd_data <= MEM_rd_data;
-      WB_dest_reg <= MEM_dest_reg;
-      WB_pc_plus_4 <= MEM_pc_plus_4;
-    end
-  end
+    DMEM_addr = MEM_alu_result;
+    misaligned_store = 0;
+    DMEM_wr_data = 0;
+    DMEM_wr_byte_en = 0;
+    unique case (MEM_mem_wr_size)
+             `MEM_NO_DMEM_WR:
+             begin
+             end
+             `MEM_WORD_WR:
+             begin
+               DMEM_wr_data = MEM_wr_data;
+               DMEM_wr_byte_en = 4'hf;
+             end
+             `MEM_HALF_WR:
+             begin
+               case (MEM_alu_result[1:0])
+                 2'b00:
+                 begin
+                   DMEM_wr_byte_en = 4'h3;
+                   DMEM_wr_data = {16'd0,MEM_wr_data[15:0]};
+                 end
+                 2'b10:
+                 begin
+                   DMEM_wr_byte_en = 4'hc;
+                   DMEM_wr_data = {MEM_wr_data[15:0],16'd0};
+                 end
+                 default:
+                   misaligned_store = 1;
+               endcase
 
-  // Writeback stage
-  mux3to1 # (
-            .WIDTH(32)
-          )
-          mux3to1_inst_WB (
-            .in0(WB_alu_result),
-            .in1(WB_rd_data),
-            .in2(WB_pc_plus_4),
-            .sel(WB_result_src),
-            .out(WB_result)
-          );
+             end
+             `MEM_BYTE_WR:
+             begin
+               case (MEM_alu_result[1:0])
+                 2'b00:
+                 begin
+                   DMEM_wr_byte_en = 4'h1;
+                   DMEM_wr_data = {24'd0,MEM_wr_data[7:0]};
+                 end
+                 2'b01:
+                 begin
+                   DMEM_wr_byte_en = 4'h2;
+                   DMEM_wr_data = {16'd0,MEM_wr_data[7:0],8'd0};
+                 end
+                 2'b10:
+                 begin
+                   DMEM_wr_byte_en = 4'h4;
+                   DMEM_wr_data = {8'd0,MEM_wr_data[7:0],16'd0};
+                 end
+                 2'b11:
+                 begin
+                   DMEM_wr_byte_en = 4'h8;
+                   DMEM_wr_data = {MEM_wr_data[7:0],24'd0};
+                 end
+                 default:
+                   misaligned_store = 1;
+               endcase
+             end
+           endcase
+         end
+
+         // loads
+         always_comb
+         begin
+           misaligned_load = 0;
+           unknown_load = 0;
+           MEM_rd_data = 0;
+           case (MEM_load_size)
+             //lw
+             `DMEM_LOAD_SIZE_WORD:
+             begin
+               MEM_rd_data = DMEM_rd_data_i;
+             end
+             //lb
+             `DMEM_LOAD_SIZE_BYTE:
+             case(MEM_alu_result[1:0])
+               2'b00:
+               begin
+                 MEM_rd_data = { {24{DMEM_rd_data_i[7]}}, DMEM_rd_data_i[7:0] };
+               end
+               2'b01:
+               begin
+                 MEM_rd_data = { {24{DMEM_rd_data_i[15]}}, DMEM_rd_data_i[15:8] };
+               end
+               2'b10:
+               begin
+                 MEM_rd_data = { {24{DMEM_rd_data_i[23]}}, DMEM_rd_data_i[23:16] };
+               end
+               2'b11:
+               begin
+                 MEM_rd_data = { {24{DMEM_rd_data_i[31]}}, DMEM_rd_data_i[31:24] };
+               end
+             endcase
+             //lbu
+             `DMEM_LOAD_SIZE_BYTEU:
+             case(MEM_alu_result[1:0])
+               2'b00:
+               begin
+                 MEM_rd_data = { {24{1'b0}},DMEM_rd_data_i[7:0] };
+               end
+               2'b01:
+               begin
+                 MEM_rd_data = { {24{1'b0}},DMEM_rd_data_i[15:8] };
+               end
+               2'b10:
+               begin
+                 MEM_rd_data = { {24{1'b0}},DMEM_rd_data_i[23:16] };
+               end
+               2'b11:
+               begin
+                 MEM_rd_data = { {24{1'b0}},DMEM_rd_data_i[31:24] };
+               end
+             endcase
+             //lh
+             `DMEM_LOAD_SIZE_HALF:
+             case(MEM_alu_result[1:0])
+               2'b00:
+               begin
+                 MEM_rd_data = { {16{DMEM_rd_data_i[15]}},DMEM_rd_data_i[15:0] };
+               end
+               2'b10:
+               begin
+                 MEM_rd_data = { {16{DMEM_rd_data_i[31]}},DMEM_rd_data_i[31:16] };
+               end
+               default:
+                 misaligned_load = 1;
+             endcase
+
+             //lhu
+             `DMEM_LOAD_SIZE_HALFU:
+             case(MEM_alu_result[1:0])
+               2'b00:
+               begin
+                 MEM_rd_data = { {16{1'b0}},DMEM_rd_data_i[15:0] };
+               end
+               2'b10:
+               begin
+                 MEM_rd_data = { {16{1'b0}},DMEM_rd_data_i[31:16] };
+               end
+               default:
+                 misaligned_load = 1;
+
+             endcase
+
+             default:
+               unknown_load = 1;
+           endcase
+         end
+
+         // MEM/WB register
+         always_ff@(posedge clk_i)
+         begin
+           if(rst_i)
+           begin
+             WB_reg_wr <= 0;
+             WB_result_src <= 0;
+             WB_alu_result <= 0;
+             WB_rd_data <= 0;
+             WB_dest_reg <= 0;
+             WB_pc_plus_4 <= 0;
+           end
+           else
+           begin
+             WB_reg_wr <= MEM_reg_wr;
+             WB_result_src <= MEM_result_src;
+             WB_alu_result <= DMEM_addr;
+             WB_rd_data <= MEM_rd_data;
+             WB_dest_reg <= MEM_dest_reg;
+             WB_pc_plus_4 <= MEM_pc_plus_4;
+           end
+         end
+
+         // Writeback stage
+         mux3to1 # (
+                   .WIDTH(32)
+                 )
+                 mux3to1_inst_WB (
+                   .in0(WB_alu_result),
+                   .in1(WB_rd_data),
+                   .in2(WB_pc_plus_4),
+                   .sel(WB_result_src),
+                   .out(WB_result)
+                 );
 
   // Hazard Unit
   dtcore32_hazunit  dtcore32_hazunit_inst (

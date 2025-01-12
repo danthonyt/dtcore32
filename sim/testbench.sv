@@ -87,18 +87,18 @@ module testbench();
   logic [31:0] DMEM_wr_data;
   logic        Exception;
 
-  dtcore32_top UUT(
-                 .clk(clk),
-                 .rst(rst),
-                 .InstrF(IMEM_data),
-                 .ReadDataMTick(DMEM_rd_data),
-                 .PCF(IMEM_addr),
-                 .ALUResultM(DMEM_addr),
-                 .WriteDataM(DMEM_wr_data),
-                 .MemWriteM(DMEM_wr_byte_en),
-                 .exception(Exception)
-               );
 
+  dtcore32  UUT (
+              .clk_i(clk),
+              .rst_i(rst),
+              .IMEM_rd_data_i(IMEM_data),
+              .DMEM_rd_data_i(DMEM_rd_data),
+              .IMEM_addr_o(IMEM_addr),
+              .DMEM_addr_o(DMEM_addr),
+              .DMEM_wr_data_o(DMEM_wr_data),
+              .DMEM_wr_byte_en_o(DMEM_wr_byte_en),
+              .exception_o(Exception)
+            );
   always#(10) clk = ~clk;
 
 
@@ -129,36 +129,27 @@ module testbench();
       changing the -Tdata parameter of riscv32-unknown-elf-ld.
   */
   // Data memory and IMEM
-	always_ff@(posedge clk) begin//write
-	   if (rst)begin
-	       IMEM_data <= 0;
-         DMEM_rd_data <= 0;
-	   end 
-	   else begin
-	    IMEM_data = MEMORY[IMEM_addr[31:2]];
+  always_ff@(posedge clk)
+  begin//write
+    if (rst)
+    begin
+      IMEM_data <= 0;
+      DMEM_rd_data <= 0;
+    end
+    else
+    begin
+      IMEM_data = MEMORY[IMEM_addr[31:2]];
       DMEM_rd_data <= MEMORY[DMEM_addr[31:2]];
-		case(DMEM_wr_byte_en)
-			//no write for 2'b00
-			//sw
-			2'b01: MEMORY[DMEM_addr[31:2]]<= DMEM_wr_data[31:0];
-			//sh
-			2'b10: case(DMEM_addr[1])
-						1'b0:MEMORY[DMEM_addr[31:2]][15:0]<= DMEM_wr_data[15:0];
-						1'b1:MEMORY[DMEM_addr[31:2]][31:16]<= DMEM_wr_data[15:0];
-						default: MEMORY[DMEM_addr[31:2]]<= MEMORY[DMEM_addr[31:2]];
-				   endcase
-			//sb
-			2'b11: case(DMEM_addr[1:0])
-						2'b00:MEMORY[DMEM_addr[31:2]][7:0] <= DMEM_wr_data[7:0];
-						2'b01:MEMORY[DMEM_addr[31:2]][15:8] <= DMEM_wr_data[7:0];
-						2'b10:MEMORY[DMEM_addr[31:2]][23:16] <= DMEM_wr_data[7:0];
-						2'b11:MEMORY[DMEM_addr[31:2]][31:24] <= DMEM_wr_data[7:0];
-						default: MEMORY[DMEM_addr[31:2]]<= MEMORY[DMEM_addr[31:2]];
-				   endcase 
-				   
-			default: MEMORY[DMEM_addr[31:2]]    <= MEMORY[DMEM_addr[31:2]];    
-		endcase
-	 end
+      if (DMEM_wr_byte_en[0])
+        MEMORY[DMEM_addr[31:2]][7:0]   <= DMEM_wr_data[7:0];
+      if (DMEM_wr_byte_en[1])
+        MEMORY[DMEM_addr[31:2]][15:8]   <= DMEM_wr_data[15:8];
+      if (DMEM_wr_byte_en[2])
+        MEMORY[DMEM_addr[31:2]][23:16]   <= DMEM_wr_data[23:16];
+      if (DMEM_wr_byte_en[3])
+        MEMORY[DMEM_addr[31:2]][31:24]   <= DMEM_wr_data[31:24];
+    end
+
   end
   //
   // SIMULATION TASKS
@@ -279,9 +270,9 @@ module testbench();
 
            // Check if test pass
            // pass condition: GP=1 , A7=93, A0=0
-           if((UUT.decodestage.regfile1.rf[3] == 1) &&
-               (UUT.decodestage.regfile1.rf[17] == 93) &&
-               (UUT.decodestage.regfile1.rf[10] == 0))
+           if((UUT.dtcore32_regfile_inst.rf[3] == 1) &&
+               (UUT.dtcore32_regfile_inst.rf[17] == 93) &&
+               (UUT.dtcore32_regfile_inst.rf[10] == 0))
            begin
              $display("TEST PASSED; ID: %0d", TESTID);
              t=1000000;
@@ -316,8 +307,8 @@ module testbench();
     rst = 1;
     #100;
 
-   // if($test$plusargs("runall"))
-   if(1)
+    // if($test$plusargs("runall"))
+    if(1)
     begin
       $display("Running all tests.");
       for(j=`RR_ADD; j<=`S_SW; j=j+1)

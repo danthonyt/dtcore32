@@ -5,465 +5,465 @@
 Disassembly of section .text:
 
 00000000 <_start>:
-   0:	0480006f          	j	48 <reset_vector>
+   0:	a835                	j	3c <reset_vector>
+   2:	0001                	nop
 
 00000004 <trap_vector>:
    4:	34202f73          	csrr	t5,mcause
-   8:	00800f93          	li	t6,8
-   c:	03ff0863          	beq	t5,t6,3c <write_tohost>
-  10:	00900f93          	li	t6,9
-  14:	03ff0463          	beq	t5,t6,3c <write_tohost>
-  18:	00b00f93          	li	t6,11
-  1c:	03ff0063          	beq	t5,t6,3c <write_tohost>
-  20:	00000f13          	li	t5,0
-  24:	000f0463          	beqz	t5,2c <trap_vector+0x28>
-  28:	000f0067          	jr	t5
-  2c:	34202f73          	csrr	t5,mcause
-  30:	000f5463          	bgez	t5,38 <handle_exception>
-  34:	0040006f          	j	38 <handle_exception>
+   8:	4fa1                	li	t6,8
+   a:	03ff0463          	beq	t5,t6,32 <write_tohost>
+   e:	4fa5                	li	t6,9
+  10:	03ff0163          	beq	t5,t6,32 <write_tohost>
+  14:	4fad                	li	t6,11
+  16:	01ff0e63          	beq	t5,t6,32 <write_tohost>
+  1a:	00000f13          	li	t5,0
+  1e:	000f0363          	beqz	t5,24 <trap_vector+0x20>
+  22:	8f02                	jr	t5
+  24:	34202f73          	csrr	t5,mcause
+  28:	000f5363          	bgez	t5,2e <handle_exception>
+  2c:	a009                	j	2e <handle_exception>
 
-00000038 <handle_exception>:
-  38:	5391e193          	ori	gp,gp,1337
+0000002e <handle_exception>:
+  2e:	5391e193          	ori	gp,gp,1337
 
-0000003c <write_tohost>:
-  3c:	9831a023          	sw	gp,-1664(gp) # 2180 <tohost>
-  40:	9801a223          	sw	zero,-1660(gp) # 2184 <tohost+0x4>
-  44:	ff9ff06f          	j	3c <write_tohost>
+00000032 <write_tohost>:
+  32:	9831a023          	sw	gp,-1664(gp) # 2180 <tohost>
+  36:	9801a223          	sw	zero,-1660(gp) # 2184 <tohost+0x4>
+  3a:	bfe5                	j	32 <write_tohost>
 
-00000048 <reset_vector>:
-  48:	00000093          	li	ra,0
-  4c:	00000113          	li	sp,0
-  50:	00000193          	li	gp,0
-  54:	00000213          	li	tp,0
-  58:	00000293          	li	t0,0
-  5c:	00000313          	li	t1,0
-  60:	00000393          	li	t2,0
-  64:	00000413          	li	s0,0
-  68:	00000493          	li	s1,0
-  6c:	00000513          	li	a0,0
-  70:	00000593          	li	a1,0
-  74:	00000613          	li	a2,0
-  78:	00000693          	li	a3,0
-  7c:	00000713          	li	a4,0
-  80:	00000793          	li	a5,0
-  84:	00000813          	li	a6,0
-  88:	00000893          	li	a7,0
-  8c:	00000913          	li	s2,0
-  90:	00000993          	li	s3,0
-  94:	00000a13          	li	s4,0
-  98:	00000a93          	li	s5,0
-  9c:	00000b13          	li	s6,0
-  a0:	00000b93          	li	s7,0
-  a4:	00000c13          	li	s8,0
-  a8:	00000c93          	li	s9,0
-  ac:	00000d13          	li	s10,0
-  b0:	00000d93          	li	s11,0
-  b4:	00000e13          	li	t3,0
-  b8:	00000e93          	li	t4,0
-  bc:	00000f13          	li	t5,0
-  c0:	00000f93          	li	t6,0
-  c4:	f1402573          	csrr	a0,mhartid
-  c8:	00051063          	bnez	a0,c8 <reset_vector+0x80>
-  cc:	00000297          	auipc	t0,0x0
-  d0:	01028293          	addi	t0,t0,16 # dc <reset_vector+0x94>
-  d4:	30529073          	csrw	mtvec,t0
-  d8:	74445073          	csrwi	0x744,8
-  dc:	00000297          	auipc	t0,0x0
-  e0:	01028293          	addi	t0,t0,16 # ec <reset_vector+0xa4>
-  e4:	30529073          	csrw	mtvec,t0
-  e8:	18005073          	csrwi	satp,0
-  ec:	00000297          	auipc	t0,0x0
-  f0:	02028293          	addi	t0,t0,32 # 10c <reset_vector+0xc4>
-  f4:	30529073          	csrw	mtvec,t0
-  f8:	800002b7          	lui	t0,0x80000
-  fc:	fff28293          	addi	t0,t0,-1 # 7fffffff <__global_pointer$+0x7fffd7ff>
- 100:	3b029073          	csrw	pmpaddr0,t0
- 104:	01f00293          	li	t0,31
- 108:	3a029073          	csrw	pmpcfg0,t0
- 10c:	30405073          	csrwi	mie,0
- 110:	00000297          	auipc	t0,0x0
- 114:	01428293          	addi	t0,t0,20 # 124 <reset_vector+0xdc>
- 118:	30529073          	csrw	mtvec,t0
- 11c:	30205073          	csrwi	medeleg,0
- 120:	30305073          	csrwi	mideleg,0
- 124:	00000193          	li	gp,0
- 128:	00000297          	auipc	t0,0x0
- 12c:	edc28293          	addi	t0,t0,-292 # 4 <trap_vector>
- 130:	30529073          	csrw	mtvec,t0
- 134:	00100513          	li	a0,1
- 138:	01f51513          	slli	a0,a0,0x1f
- 13c:	00054c63          	bltz	a0,154 <reset_vector+0x10c>
- 140:	0ff0000f          	fence
- 144:	00100193          	li	gp,1
- 148:	05d00893          	li	a7,93
- 14c:	00000513          	li	a0,0
- 150:	00000073          	ecall
- 154:	00000293          	li	t0,0
- 158:	00028a63          	beqz	t0,16c <reset_vector+0x124>
- 15c:	10529073          	csrw	stvec,t0
- 160:	0000b2b7          	lui	t0,0xb
- 164:	10928293          	addi	t0,t0,265 # b109 <__global_pointer$+0x8909>
- 168:	30229073          	csrw	medeleg,t0
- 16c:	30005073          	csrwi	mstatus,0
- 170:	00000297          	auipc	t0,0x0
- 174:	01428293          	addi	t0,t0,20 # 184 <reset_vector+0x13c>
- 178:	34129073          	csrw	mepc,t0
- 17c:	f1402573          	csrr	a0,mhartid
- 180:	30200073          	mret
- 184:	00002417          	auipc	s0,0x2
- 188:	e7c40413          	addi	s0,s0,-388 # 2000 <__DATA_BEGIN__>
- 18c:	00100193          	li	gp,1
- 190:	20100313          	li	t1,513
- 194:	00141383          	lh	t2,1(s0)
- 198:	52731c63          	bne	t1,t2,6d0 <fail>
- 19c:	00200193          	li	gp,2
- 1a0:	20100313          	li	t1,513
- 1a4:	00145383          	lhu	t2,1(s0)
- 1a8:	52731463          	bne	t1,t2,6d0 <fail>
- 1ac:	00300193          	li	gp,3
- 1b0:	04030337          	lui	t1,0x4030
- 1b4:	20130313          	addi	t1,t1,513 # 4030201 <__global_pointer$+0x402da01>
- 1b8:	00142383          	lw	t2,1(s0)
- 1bc:	50731a63          	bne	t1,t2,6d0 <fail>
- 1c0:	00400193          	li	gp,4
- 1c4:	05040337          	lui	t1,0x5040
- 1c8:	30230313          	addi	t1,t1,770 # 5040302 <__global_pointer$+0x503db02>
- 1cc:	00242383          	lw	t2,2(s0)
- 1d0:	50731063          	bne	t1,t2,6d0 <fail>
- 1d4:	00500193          	li	gp,5
- 1d8:	06050337          	lui	t1,0x6050
- 1dc:	40330313          	addi	t1,t1,1027 # 6050403 <__global_pointer$+0x604dc03>
- 1e0:	00342383          	lw	t2,3(s0)
- 1e4:	4e731663          	bne	t1,t2,6d0 <fail>
- 1e8:	01000193          	li	gp,16
- 1ec:	00002337          	lui	t1,0x2
- 1f0:	01f30313          	addi	t1,t1,31 # 201f <__DATA_BEGIN__+0x1f>
- 1f4:	01f41383          	lh	t2,31(s0)
- 1f8:	4c731c63          	bne	t1,t2,6d0 <fail>
- 1fc:	01100193          	li	gp,17
- 200:	00002337          	lui	t1,0x2
- 204:	01f30313          	addi	t1,t1,31 # 201f <__DATA_BEGIN__+0x1f>
- 208:	01f45383          	lhu	t2,31(s0)
- 20c:	4c731263          	bne	t1,t2,6d0 <fail>
- 210:	01200193          	li	gp,18
- 214:	201f2337          	lui	t1,0x201f2
- 218:	e1d30313          	addi	t1,t1,-483 # 201f1e1d <__global_pointer$+0x201ef61d>
- 21c:	01d42383          	lw	t2,29(s0)
- 220:	4a731863          	bne	t1,t2,6d0 <fail>
- 224:	01300193          	li	gp,19
- 228:	21202337          	lui	t1,0x21202
- 22c:	f1e30313          	addi	t1,t1,-226 # 21201f1e <__global_pointer$+0x211ff71e>
- 230:	01e42383          	lw	t2,30(s0)
- 234:	48731e63          	bne	t1,t2,6d0 <fail>
- 238:	01400193          	li	gp,20
- 23c:	22212337          	lui	t1,0x22212
- 240:	01f30313          	addi	t1,t1,31 # 2221201f <__global_pointer$+0x2220f81f>
- 244:	01f42383          	lw	t2,31(s0)
- 248:	48731463          	bne	t1,t2,6d0 <fail>
- 24c:	01f00193          	li	gp,31
- 250:	00004337          	lui	t1,0x4
- 254:	03f30313          	addi	t1,t1,63 # 403f <__global_pointer$+0x183f>
- 258:	03f41383          	lh	t2,63(s0)
- 25c:	46731a63          	bne	t1,t2,6d0 <fail>
- 260:	02000193          	li	gp,32
- 264:	00004337          	lui	t1,0x4
- 268:	03f30313          	addi	t1,t1,63 # 403f <__global_pointer$+0x183f>
- 26c:	03f45383          	lhu	t2,63(s0)
- 270:	46731063          	bne	t1,t2,6d0 <fail>
- 274:	02100193          	li	gp,33
- 278:	403f4337          	lui	t1,0x403f4
- 27c:	e3d30313          	addi	t1,t1,-451 # 403f3e3d <__global_pointer$+0x403f163d>
- 280:	03d42383          	lw	t2,61(s0)
- 284:	44731663          	bne	t1,t2,6d0 <fail>
- 288:	02200193          	li	gp,34
- 28c:	41404337          	lui	t1,0x41404
- 290:	f3e30313          	addi	t1,t1,-194 # 41403f3e <__global_pointer$+0x4140173e>
- 294:	03e42383          	lw	t2,62(s0)
- 298:	42731c63          	bne	t1,t2,6d0 <fail>
- 29c:	02300193          	li	gp,35
- 2a0:	42414337          	lui	t1,0x42414
- 2a4:	03f30313          	addi	t1,t1,63 # 4241403f <__global_pointer$+0x4241183f>
- 2a8:	03f42383          	lw	t2,63(s0)
- 2ac:	42731263          	bne	t1,t2,6d0 <fail>
- 2b0:	02e00193          	li	gp,46
- 2b4:	ffff8337          	lui	t1,0xffff8
- 2b8:	18030313          	addi	t1,t1,384 # ffff8180 <__global_pointer$+0xffff5980>
- 2bc:	006410a3          	sh	t1,1(s0)
- 2c0:	00141383          	lh	t2,1(s0)
- 2c4:	40731663          	bne	t1,t2,6d0 <fail>
- 2c8:	02f00193          	li	gp,47
- 2cc:	00008337          	lui	t1,0x8
- 2d0:	38230313          	addi	t1,t1,898 # 8382 <__global_pointer$+0x5b82>
- 2d4:	006410a3          	sh	t1,1(s0)
- 2d8:	00145383          	lhu	t2,1(s0)
- 2dc:	3e731a63          	bne	t1,t2,6d0 <fail>
- 2e0:	03000193          	li	gp,48
- 2e4:	87868337          	lui	t1,0x87868
- 2e8:	58430313          	addi	t1,t1,1412 # 87868584 <__global_pointer$+0x87865d84>
- 2ec:	006420a3          	sw	t1,1(s0)
- 2f0:	00142383          	lw	t2,1(s0)
- 2f4:	3c731e63          	bne	t1,t2,6d0 <fail>
- 2f8:	03100193          	li	gp,49
- 2fc:	8b8a9337          	lui	t1,0x8b8a9
- 300:	98830313          	addi	t1,t1,-1656 # 8b8a8988 <__global_pointer$+0x8b8a6188>
- 304:	00642123          	sw	t1,2(s0)
- 308:	00242383          	lw	t2,2(s0)
- 30c:	3c731263          	bne	t1,t2,6d0 <fail>
- 310:	03200193          	li	gp,50
- 314:	8f8e9337          	lui	t1,0x8f8e9
- 318:	d8c30313          	addi	t1,t1,-628 # 8f8e8d8c <__global_pointer$+0x8f8e658c>
- 31c:	006421a3          	sw	t1,3(s0)
- 320:	00342383          	lw	t2,3(s0)
- 324:	3a731663          	bne	t1,t2,6d0 <fail>
- 328:	03d00193          	li	gp,61
- 32c:	ffffd337          	lui	t1,0xffffd
- 330:	5d430313          	addi	t1,t1,1492 # ffffd5d4 <__global_pointer$+0xffffadd4>
- 334:	00641fa3          	sh	t1,31(s0)
- 338:	01f41383          	lh	t2,31(s0)
- 33c:	38731a63          	bne	t1,t2,6d0 <fail>
- 340:	03e00193          	li	gp,62
- 344:	0000d337          	lui	t1,0xd
- 348:	7d630313          	addi	t1,t1,2006 # d7d6 <__global_pointer$+0xafd6>
- 34c:	00641fa3          	sh	t1,31(s0)
- 350:	01f45383          	lhu	t2,31(s0)
- 354:	36731e63          	bne	t1,t2,6d0 <fail>
- 358:	03f00193          	li	gp,63
- 35c:	dbdae337          	lui	t1,0xdbdae
- 360:	9d830313          	addi	t1,t1,-1576 # dbdad9d8 <__global_pointer$+0xdbdab1d8>
- 364:	00642ea3          	sw	t1,29(s0)
- 368:	01d42383          	lw	t2,29(s0)
- 36c:	36731263          	bne	t1,t2,6d0 <fail>
- 370:	04000193          	li	gp,64
- 374:	dfdee337          	lui	t1,0xdfdee
- 378:	ddc30313          	addi	t1,t1,-548 # dfdedddc <__global_pointer$+0xdfdeb5dc>
- 37c:	00642f23          	sw	t1,30(s0)
- 380:	01e42383          	lw	t2,30(s0)
- 384:	34731663          	bne	t1,t2,6d0 <fail>
- 388:	04100193          	li	gp,65
- 38c:	e3e2e337          	lui	t1,0xe3e2e
- 390:	1e030313          	addi	t1,t1,480 # e3e2e1e0 <__global_pointer$+0xe3e2b9e0>
- 394:	00642fa3          	sw	t1,31(s0)
- 398:	01f42383          	lw	t2,31(s0)
- 39c:	32731a63          	bne	t1,t2,6d0 <fail>
- 3a0:	04c00193          	li	gp,76
- 3a4:	00003337          	lui	t1,0x3
- 3a8:	53430313          	addi	t1,t1,1332 # 3534 <__global_pointer$+0xd34>
- 3ac:	02641fa3          	sh	t1,63(s0)
- 3b0:	03f41383          	lh	t2,63(s0)
- 3b4:	30731e63          	bne	t1,t2,6d0 <fail>
- 3b8:	04d00193          	li	gp,77
- 3bc:	00003337          	lui	t1,0x3
- 3c0:	73630313          	addi	t1,t1,1846 # 3736 <__global_pointer$+0xf36>
- 3c4:	02641fa3          	sh	t1,63(s0)
- 3c8:	03f45383          	lhu	t2,63(s0)
- 3cc:	30731263          	bne	t1,t2,6d0 <fail>
- 3d0:	04e00193          	li	gp,78
- 3d4:	3b3a4337          	lui	t1,0x3b3a4
- 3d8:	93830313          	addi	t1,t1,-1736 # 3b3a3938 <__global_pointer$+0x3b3a1138>
- 3dc:	02642ea3          	sw	t1,61(s0)
- 3e0:	03d42383          	lw	t2,61(s0)
- 3e4:	2e731663          	bne	t1,t2,6d0 <fail>
- 3e8:	04f00193          	li	gp,79
- 3ec:	3f3e4337          	lui	t1,0x3f3e4
- 3f0:	d3c30313          	addi	t1,t1,-708 # 3f3e3d3c <__global_pointer$+0x3f3e153c>
- 3f4:	02642f23          	sw	t1,62(s0)
- 3f8:	03e42383          	lw	t2,62(s0)
- 3fc:	2c731a63          	bne	t1,t2,6d0 <fail>
- 400:	05000193          	li	gp,80
- 404:	43424337          	lui	t1,0x43424
- 408:	14030313          	addi	t1,t1,320 # 43424140 <__global_pointer$+0x43421940>
- 40c:	02642fa3          	sw	t1,63(s0)
- 410:	03f42383          	lw	t2,63(s0)
- 414:	2a731e63          	bne	t1,t2,6d0 <fail>
- 418:	05b00193          	li	gp,91
- 41c:	0000a337          	lui	t1,0xa
- 420:	99830313          	addi	t1,t1,-1640 # 9998 <__global_pointer$+0x7198>
- 424:	f9800393          	li	t2,-104
- 428:	006410a3          	sh	t1,1(s0)
- 42c:	00140e03          	lb	t3,1(s0)
- 430:	2bc39063          	bne	t2,t3,6d0 <fail>
- 434:	05c00193          	li	gp,92
- 438:	0000a337          	lui	t1,0xa
- 43c:	b9a30313          	addi	t1,t1,-1126 # 9b9a <__global_pointer$+0x739a>
- 440:	f9b00393          	li	t2,-101
- 444:	006410a3          	sh	t1,1(s0)
- 448:	00240e03          	lb	t3,2(s0)
- 44c:	29c39263          	bne	t2,t3,6d0 <fail>
- 450:	05d00193          	li	gp,93
- 454:	0000a337          	lui	t1,0xa
- 458:	d9c30313          	addi	t1,t1,-612 # 9d9c <__global_pointer$+0x759c>
- 45c:	09c00393          	li	t2,156
- 460:	006410a3          	sh	t1,1(s0)
- 464:	00144e03          	lbu	t3,1(s0)
- 468:	27c39463          	bne	t2,t3,6d0 <fail>
- 46c:	05e00193          	li	gp,94
- 470:	0000a337          	lui	t1,0xa
- 474:	f9e30313          	addi	t1,t1,-98 # 9f9e <__global_pointer$+0x779e>
- 478:	09f00393          	li	t2,159
- 47c:	006410a3          	sh	t1,1(s0)
- 480:	00244e03          	lbu	t3,2(s0)
- 484:	25c39663          	bne	t2,t3,6d0 <fail>
- 488:	05f00193          	li	gp,95
- 48c:	a3a2a337          	lui	t1,0xa3a2a
- 490:	1a030313          	addi	t1,t1,416 # a3a2a1a0 <__global_pointer$+0xa3a279a0>
- 494:	fa000393          	li	t2,-96
- 498:	006420a3          	sw	t1,1(s0)
- 49c:	00140e03          	lb	t3,1(s0)
- 4a0:	23c39863          	bne	t2,t3,6d0 <fail>
- 4a4:	06000193          	li	gp,96
- 4a8:	a7a6a337          	lui	t1,0xa7a6a
- 4ac:	5a430313          	addi	t1,t1,1444 # a7a6a5a4 <__global_pointer$+0xa7a67da4>
- 4b0:	0a500393          	li	t2,165
- 4b4:	00642123          	sw	t1,2(s0)
- 4b8:	00344e03          	lbu	t3,3(s0)
- 4bc:	21c39a63          	bne	t2,t3,6d0 <fail>
- 4c0:	06100193          	li	gp,97
- 4c4:	abaab337          	lui	t1,0xabaab
- 4c8:	9a830313          	addi	t1,t1,-1624 # abaaa9a8 <__global_pointer$+0xabaa81a8>
- 4cc:	ffffb3b7          	lui	t2,0xffffb
- 4d0:	aa938393          	addi	t2,t2,-1367 # ffffaaa9 <__global_pointer$+0xffff82a9>
- 4d4:	006421a3          	sw	t1,3(s0)
- 4d8:	00441e03          	lh	t3,4(s0)
- 4dc:	1fc39a63          	bne	t2,t3,6d0 <fail>
- 4e0:	06200193          	li	gp,98
- 4e4:	afaeb337          	lui	t1,0xafaeb
- 4e8:	dac30313          	addi	t1,t1,-596 # afaeadac <__global_pointer$+0xafae85ac>
- 4ec:	0000b3b7          	lui	t2,0xb
- 4f0:	fae38393          	addi	t2,t2,-82 # afae <__global_pointer$+0x87ae>
- 4f4:	006421a3          	sw	t1,3(s0)
- 4f8:	00545e03          	lhu	t3,5(s0)
- 4fc:	1dc39a63          	bne	t2,t3,6d0 <fail>
- 500:	06a00193          	li	gp,106
- 504:	0000f337          	lui	t1,0xf
- 508:	9e830313          	addi	t1,t1,-1560 # e9e8 <__global_pointer$+0xc1e8>
- 50c:	fe800393          	li	t2,-24
- 510:	00641fa3          	sh	t1,31(s0)
- 514:	01f40e03          	lb	t3,31(s0)
- 518:	1bc39c63          	bne	t2,t3,6d0 <fail>
- 51c:	06b00193          	li	gp,107
- 520:	0000f337          	lui	t1,0xf
- 524:	bea30313          	addi	t1,t1,-1046 # ebea <__global_pointer$+0xc3ea>
- 528:	feb00393          	li	t2,-21
- 52c:	00641fa3          	sh	t1,31(s0)
- 530:	02040e03          	lb	t3,32(s0)
- 534:	19c39e63          	bne	t2,t3,6d0 <fail>
- 538:	06c00193          	li	gp,108
- 53c:	0000f337          	lui	t1,0xf
- 540:	dec30313          	addi	t1,t1,-532 # edec <__global_pointer$+0xc5ec>
- 544:	0ec00393          	li	t2,236
- 548:	00641fa3          	sh	t1,31(s0)
- 54c:	01f44e03          	lbu	t3,31(s0)
- 550:	19c39063          	bne	t2,t3,6d0 <fail>
- 554:	06d00193          	li	gp,109
- 558:	0000f337          	lui	t1,0xf
- 55c:	fee30313          	addi	t1,t1,-18 # efee <__global_pointer$+0xc7ee>
- 560:	0ef00393          	li	t2,239
- 564:	00641fa3          	sh	t1,31(s0)
- 568:	02044e03          	lbu	t3,32(s0)
- 56c:	17c39263          	bne	t2,t3,6d0 <fail>
- 570:	06e00193          	li	gp,110
- 574:	f3f2f337          	lui	t1,0xf3f2f
- 578:	1f030313          	addi	t1,t1,496 # f3f2f1f0 <__global_pointer$+0xf3f2c9f0>
- 57c:	ff000393          	li	t2,-16
- 580:	00642ea3          	sw	t1,29(s0)
- 584:	01d40e03          	lb	t3,29(s0)
- 588:	15c39463          	bne	t2,t3,6d0 <fail>
- 58c:	06f00193          	li	gp,111
- 590:	f7f6f337          	lui	t1,0xf7f6f
- 594:	5f430313          	addi	t1,t1,1524 # f7f6f5f4 <__global_pointer$+0xf7f6cdf4>
- 598:	0f600393          	li	t2,246
- 59c:	00642f23          	sw	t1,30(s0)
- 5a0:	02044e03          	lbu	t3,32(s0)
- 5a4:	13c39663          	bne	t2,t3,6d0 <fail>
- 5a8:	07000193          	li	gp,112
- 5ac:	fbfb0337          	lui	t1,0xfbfb0
- 5b0:	9f830313          	addi	t1,t1,-1544 # fbfaf9f8 <__global_pointer$+0xfbfad1f8>
- 5b4:	bfa00393          	li	t2,-1030
- 5b8:	00642ea3          	sw	t1,29(s0)
- 5bc:	01f41e03          	lh	t3,31(s0)
- 5c0:	11c39863          	bne	t2,t3,6d0 <fail>
- 5c4:	07100193          	li	gp,113
- 5c8:	ffff0337          	lui	t1,0xffff0
- 5cc:	dfc30313          	addi	t1,t1,-516 # fffefdfc <__global_pointer$+0xfffed5fc>
- 5d0:	000103b7          	lui	t2,0x10
- 5d4:	dfc38393          	addi	t2,t2,-516 # fdfc <__global_pointer$+0xd5fc>
- 5d8:	00642fa3          	sw	t1,31(s0)
- 5dc:	01f45e03          	lhu	t3,31(s0)
- 5e0:	0fc39863          	bne	t2,t3,6d0 <fail>
- 5e4:	07900193          	li	gp,121
- 5e8:	00005337          	lui	t1,0x5
- 5ec:	94830313          	addi	t1,t1,-1720 # 4948 <__global_pointer$+0x2148>
- 5f0:	04800393          	li	t2,72
- 5f4:	02641fa3          	sh	t1,63(s0)
- 5f8:	03f40e03          	lb	t3,63(s0)
- 5fc:	0dc39a63          	bne	t2,t3,6d0 <fail>
- 600:	07a00193          	li	gp,122
- 604:	00005337          	lui	t1,0x5
- 608:	b4a30313          	addi	t1,t1,-1206 # 4b4a <__global_pointer$+0x234a>
- 60c:	04b00393          	li	t2,75
- 610:	02641fa3          	sh	t1,63(s0)
- 614:	04040e03          	lb	t3,64(s0)
- 618:	0bc39c63          	bne	t2,t3,6d0 <fail>
- 61c:	07b00193          	li	gp,123
- 620:	00005337          	lui	t1,0x5
- 624:	d4c30313          	addi	t1,t1,-692 # 4d4c <__global_pointer$+0x254c>
- 628:	04c00393          	li	t2,76
- 62c:	02641fa3          	sh	t1,63(s0)
- 630:	03f44e03          	lbu	t3,63(s0)
- 634:	09c39e63          	bne	t2,t3,6d0 <fail>
- 638:	07c00193          	li	gp,124
- 63c:	00005337          	lui	t1,0x5
- 640:	f4e30313          	addi	t1,t1,-178 # 4f4e <__global_pointer$+0x274e>
- 644:	04f00393          	li	t2,79
- 648:	02641fa3          	sh	t1,63(s0)
- 64c:	04044e03          	lbu	t3,64(s0)
- 650:	09c39063          	bne	t2,t3,6d0 <fail>
- 654:	07d00193          	li	gp,125
- 658:	53525337          	lui	t1,0x53525
- 65c:	15030313          	addi	t1,t1,336 # 53525150 <__global_pointer$+0x53522950>
- 660:	05000393          	li	t2,80
- 664:	02642ea3          	sw	t1,61(s0)
- 668:	03d40e03          	lb	t3,61(s0)
- 66c:	07c39263          	bne	t2,t3,6d0 <fail>
- 670:	07e00193          	li	gp,126
- 674:	57565337          	lui	t1,0x57565
- 678:	55430313          	addi	t1,t1,1364 # 57565554 <__global_pointer$+0x57562d54>
- 67c:	05600393          	li	t2,86
- 680:	02642f23          	sw	t1,62(s0)
- 684:	04044e03          	lbu	t3,64(s0)
- 688:	05c39463          	bne	t2,t3,6d0 <fail>
- 68c:	07f00193          	li	gp,127
- 690:	5b5a6337          	lui	t1,0x5b5a6
- 694:	95830313          	addi	t1,t1,-1704 # 5b5a5958 <__global_pointer$+0x5b5a3158>
- 698:	000063b7          	lui	t2,0x6
- 69c:	b5a38393          	addi	t2,t2,-1190 # 5b5a <__global_pointer$+0x335a>
- 6a0:	02642ea3          	sw	t1,61(s0)
- 6a4:	03f41e03          	lh	t3,63(s0)
- 6a8:	03c39463          	bne	t2,t3,6d0 <fail>
- 6ac:	08000193          	li	gp,128
- 6b0:	5f5e6337          	lui	t1,0x5f5e6
- 6b4:	d5c30313          	addi	t1,t1,-676 # 5f5e5d5c <__global_pointer$+0x5f5e355c>
- 6b8:	000063b7          	lui	t2,0x6
- 6bc:	d5c38393          	addi	t2,t2,-676 # 5d5c <__global_pointer$+0x355c>
- 6c0:	02642fa3          	sw	t1,63(s0)
- 6c4:	03f45e03          	lhu	t3,63(s0)
- 6c8:	01c39463          	bne	t2,t3,6d0 <fail>
- 6cc:	02301063          	bne	zero,gp,6ec <pass>
+0000003c <reset_vector>:
+  3c:	4081                	li	ra,0
+  3e:	4101                	li	sp,0
+  40:	4181                	li	gp,0
+  42:	4201                	li	tp,0
+  44:	4281                	li	t0,0
+  46:	4301                	li	t1,0
+  48:	4381                	li	t2,0
+  4a:	4401                	li	s0,0
+  4c:	4481                	li	s1,0
+  4e:	4501                	li	a0,0
+  50:	4581                	li	a1,0
+  52:	4601                	li	a2,0
+  54:	4681                	li	a3,0
+  56:	4701                	li	a4,0
+  58:	4781                	li	a5,0
+  5a:	4801                	li	a6,0
+  5c:	4881                	li	a7,0
+  5e:	4901                	li	s2,0
+  60:	4981                	li	s3,0
+  62:	4a01                	li	s4,0
+  64:	4a81                	li	s5,0
+  66:	4b01                	li	s6,0
+  68:	4b81                	li	s7,0
+  6a:	4c01                	li	s8,0
+  6c:	4c81                	li	s9,0
+  6e:	4d01                	li	s10,0
+  70:	4d81                	li	s11,0
+  72:	4e01                	li	t3,0
+  74:	4e81                	li	t4,0
+  76:	4f01                	li	t5,0
+  78:	4f81                	li	t6,0
+  7a:	f1402573          	csrr	a0,mhartid
+  7e:	e101                	bnez	a0,7e <reset_vector+0x42>
+  80:	00000297          	auipc	t0,0x0
+  84:	01028293          	addi	t0,t0,16 # 90 <reset_vector+0x54>
+  88:	30529073          	csrw	mtvec,t0
+  8c:	74445073          	csrwi	0x744,8
+  90:	00000297          	auipc	t0,0x0
+  94:	01028293          	addi	t0,t0,16 # a0 <reset_vector+0x64>
+  98:	30529073          	csrw	mtvec,t0
+  9c:	18005073          	csrwi	satp,0
+  a0:	00000297          	auipc	t0,0x0
+  a4:	01c28293          	addi	t0,t0,28 # bc <reset_vector+0x80>
+  a8:	30529073          	csrw	mtvec,t0
+  ac:	800002b7          	lui	t0,0x80000
+  b0:	12fd                	addi	t0,t0,-1 # 7fffffff <__global_pointer$+0x7fffd7ff>
+  b2:	3b029073          	csrw	pmpaddr0,t0
+  b6:	42fd                	li	t0,31
+  b8:	3a029073          	csrw	pmpcfg0,t0
+  bc:	30405073          	csrwi	mie,0
+  c0:	00000297          	auipc	t0,0x0
+  c4:	01428293          	addi	t0,t0,20 # d4 <reset_vector+0x98>
+  c8:	30529073          	csrw	mtvec,t0
+  cc:	30205073          	csrwi	medeleg,0
+  d0:	30305073          	csrwi	mideleg,0
+  d4:	4181                	li	gp,0
+  d6:	00000297          	auipc	t0,0x0
+  da:	f2e28293          	addi	t0,t0,-210 # 4 <trap_vector>
+  de:	30529073          	csrw	mtvec,t0
+  e2:	4505                	li	a0,1
+  e4:	057e                	slli	a0,a0,0x1f
+  e6:	00054a63          	bltz	a0,fa <reset_vector+0xbe>
+  ea:	0ff0000f          	fence
+  ee:	4185                	li	gp,1
+  f0:	05d00893          	li	a7,93
+  f4:	4501                	li	a0,0
+  f6:	00000073          	ecall
+  fa:	00000293          	li	t0,0
+  fe:	00028963          	beqz	t0,110 <reset_vector+0xd4>
+ 102:	10529073          	csrw	stvec,t0
+ 106:	62ad                	lui	t0,0xb
+ 108:	10928293          	addi	t0,t0,265 # b109 <__global_pointer$+0x8909>
+ 10c:	30229073          	csrw	medeleg,t0
+ 110:	30005073          	csrwi	mstatus,0
+ 114:	00000297          	auipc	t0,0x0
+ 118:	01428293          	addi	t0,t0,20 # 128 <reset_vector+0xec>
+ 11c:	34129073          	csrw	mepc,t0
+ 120:	f1402573          	csrr	a0,mhartid
+ 124:	30200073          	mret
+ 128:	00002417          	auipc	s0,0x2
+ 12c:	ed840413          	addi	s0,s0,-296 # 2000 <__DATA_BEGIN__>
+ 130:	4185                	li	gp,1
+ 132:	20100313          	li	t1,513
+ 136:	00141383          	lh	t2,1(s0)
+ 13a:	4c731f63          	bne	t1,t2,618 <fail>
+ 13e:	4189                	li	gp,2
+ 140:	20100313          	li	t1,513
+ 144:	00145383          	lhu	t2,1(s0)
+ 148:	4c731863          	bne	t1,t2,618 <fail>
+ 14c:	418d                	li	gp,3
+ 14e:	04030337          	lui	t1,0x4030
+ 152:	20130313          	addi	t1,t1,513 # 4030201 <__global_pointer$+0x402da01>
+ 156:	00142383          	lw	t2,1(s0)
+ 15a:	4a731f63          	bne	t1,t2,618 <fail>
+ 15e:	4191                	li	gp,4
+ 160:	05040337          	lui	t1,0x5040
+ 164:	30230313          	addi	t1,t1,770 # 5040302 <__global_pointer$+0x503db02>
+ 168:	00242383          	lw	t2,2(s0)
+ 16c:	4a731663          	bne	t1,t2,618 <fail>
+ 170:	4195                	li	gp,5
+ 172:	06050337          	lui	t1,0x6050
+ 176:	40330313          	addi	t1,t1,1027 # 6050403 <__global_pointer$+0x604dc03>
+ 17a:	00342383          	lw	t2,3(s0)
+ 17e:	48731d63          	bne	t1,t2,618 <fail>
+ 182:	41c1                	li	gp,16
+ 184:	6309                	lui	t1,0x2
+ 186:	037d                	addi	t1,t1,31 # 201f <__DATA_BEGIN__+0x1f>
+ 188:	01f41383          	lh	t2,31(s0)
+ 18c:	48731663          	bne	t1,t2,618 <fail>
+ 190:	41c5                	li	gp,17
+ 192:	6309                	lui	t1,0x2
+ 194:	037d                	addi	t1,t1,31 # 201f <__DATA_BEGIN__+0x1f>
+ 196:	01f45383          	lhu	t2,31(s0)
+ 19a:	46731f63          	bne	t1,t2,618 <fail>
+ 19e:	41c9                	li	gp,18
+ 1a0:	201f2337          	lui	t1,0x201f2
+ 1a4:	e1d30313          	addi	t1,t1,-483 # 201f1e1d <__global_pointer$+0x201ef61d>
+ 1a8:	01d42383          	lw	t2,29(s0)
+ 1ac:	46731663          	bne	t1,t2,618 <fail>
+ 1b0:	41cd                	li	gp,19
+ 1b2:	21202337          	lui	t1,0x21202
+ 1b6:	f1e30313          	addi	t1,t1,-226 # 21201f1e <__global_pointer$+0x211ff71e>
+ 1ba:	01e42383          	lw	t2,30(s0)
+ 1be:	44731d63          	bne	t1,t2,618 <fail>
+ 1c2:	41d1                	li	gp,20
+ 1c4:	22212337          	lui	t1,0x22212
+ 1c8:	037d                	addi	t1,t1,31 # 2221201f <__global_pointer$+0x2220f81f>
+ 1ca:	01f42383          	lw	t2,31(s0)
+ 1ce:	44731563          	bne	t1,t2,618 <fail>
+ 1d2:	41fd                	li	gp,31
+ 1d4:	6311                	lui	t1,0x4
+ 1d6:	03f30313          	addi	t1,t1,63 # 403f <__global_pointer$+0x183f>
+ 1da:	03f41383          	lh	t2,63(s0)
+ 1de:	42731d63          	bne	t1,t2,618 <fail>
+ 1e2:	02000193          	li	gp,32
+ 1e6:	6311                	lui	t1,0x4
+ 1e8:	03f30313          	addi	t1,t1,63 # 403f <__global_pointer$+0x183f>
+ 1ec:	03f45383          	lhu	t2,63(s0)
+ 1f0:	42731463          	bne	t1,t2,618 <fail>
+ 1f4:	02100193          	li	gp,33
+ 1f8:	403f4337          	lui	t1,0x403f4
+ 1fc:	e3d30313          	addi	t1,t1,-451 # 403f3e3d <__global_pointer$+0x403f163d>
+ 200:	03d42383          	lw	t2,61(s0)
+ 204:	40731a63          	bne	t1,t2,618 <fail>
+ 208:	02200193          	li	gp,34
+ 20c:	41404337          	lui	t1,0x41404
+ 210:	f3e30313          	addi	t1,t1,-194 # 41403f3e <__global_pointer$+0x4140173e>
+ 214:	03e42383          	lw	t2,62(s0)
+ 218:	40731063          	bne	t1,t2,618 <fail>
+ 21c:	02300193          	li	gp,35
+ 220:	42414337          	lui	t1,0x42414
+ 224:	03f30313          	addi	t1,t1,63 # 4241403f <__global_pointer$+0x4241183f>
+ 228:	03f42383          	lw	t2,63(s0)
+ 22c:	3e731663          	bne	t1,t2,618 <fail>
+ 230:	02e00193          	li	gp,46
+ 234:	7361                	lui	t1,0xffff8
+ 236:	18030313          	addi	t1,t1,384 # ffff8180 <__global_pointer$+0xffff5980>
+ 23a:	006410a3          	sh	t1,1(s0)
+ 23e:	00141383          	lh	t2,1(s0)
+ 242:	3c731b63          	bne	t1,t2,618 <fail>
+ 246:	02f00193          	li	gp,47
+ 24a:	6321                	lui	t1,0x8
+ 24c:	38230313          	addi	t1,t1,898 # 8382 <__global_pointer$+0x5b82>
+ 250:	006410a3          	sh	t1,1(s0)
+ 254:	00145383          	lhu	t2,1(s0)
+ 258:	3c731063          	bne	t1,t2,618 <fail>
+ 25c:	03000193          	li	gp,48
+ 260:	87868337          	lui	t1,0x87868
+ 264:	58430313          	addi	t1,t1,1412 # 87868584 <__global_pointer$+0x87865d84>
+ 268:	006420a3          	sw	t1,1(s0)
+ 26c:	00142383          	lw	t2,1(s0)
+ 270:	3a731463          	bne	t1,t2,618 <fail>
+ 274:	03100193          	li	gp,49
+ 278:	8b8a9337          	lui	t1,0x8b8a9
+ 27c:	98830313          	addi	t1,t1,-1656 # 8b8a8988 <__global_pointer$+0x8b8a6188>
+ 280:	00642123          	sw	t1,2(s0)
+ 284:	00242383          	lw	t2,2(s0)
+ 288:	38731863          	bne	t1,t2,618 <fail>
+ 28c:	03200193          	li	gp,50
+ 290:	8f8e9337          	lui	t1,0x8f8e9
+ 294:	d8c30313          	addi	t1,t1,-628 # 8f8e8d8c <__global_pointer$+0x8f8e658c>
+ 298:	006421a3          	sw	t1,3(s0)
+ 29c:	00342383          	lw	t2,3(s0)
+ 2a0:	36731c63          	bne	t1,t2,618 <fail>
+ 2a4:	03d00193          	li	gp,61
+ 2a8:	7375                	lui	t1,0xffffd
+ 2aa:	5d430313          	addi	t1,t1,1492 # ffffd5d4 <__global_pointer$+0xffffadd4>
+ 2ae:	00641fa3          	sh	t1,31(s0)
+ 2b2:	01f41383          	lh	t2,31(s0)
+ 2b6:	36731163          	bne	t1,t2,618 <fail>
+ 2ba:	03e00193          	li	gp,62
+ 2be:	6335                	lui	t1,0xd
+ 2c0:	7d630313          	addi	t1,t1,2006 # d7d6 <__global_pointer$+0xafd6>
+ 2c4:	00641fa3          	sh	t1,31(s0)
+ 2c8:	01f45383          	lhu	t2,31(s0)
+ 2cc:	34731663          	bne	t1,t2,618 <fail>
+ 2d0:	03f00193          	li	gp,63
+ 2d4:	dbdae337          	lui	t1,0xdbdae
+ 2d8:	9d830313          	addi	t1,t1,-1576 # dbdad9d8 <__global_pointer$+0xdbdab1d8>
+ 2dc:	00642ea3          	sw	t1,29(s0)
+ 2e0:	01d42383          	lw	t2,29(s0)
+ 2e4:	32731a63          	bne	t1,t2,618 <fail>
+ 2e8:	04000193          	li	gp,64
+ 2ec:	dfdee337          	lui	t1,0xdfdee
+ 2f0:	ddc30313          	addi	t1,t1,-548 # dfdedddc <__global_pointer$+0xdfdeb5dc>
+ 2f4:	00642f23          	sw	t1,30(s0)
+ 2f8:	01e42383          	lw	t2,30(s0)
+ 2fc:	30731e63          	bne	t1,t2,618 <fail>
+ 300:	04100193          	li	gp,65
+ 304:	e3e2e337          	lui	t1,0xe3e2e
+ 308:	1e030313          	addi	t1,t1,480 # e3e2e1e0 <__global_pointer$+0xe3e2b9e0>
+ 30c:	00642fa3          	sw	t1,31(s0)
+ 310:	01f42383          	lw	t2,31(s0)
+ 314:	30731263          	bne	t1,t2,618 <fail>
+ 318:	04c00193          	li	gp,76
+ 31c:	630d                	lui	t1,0x3
+ 31e:	53430313          	addi	t1,t1,1332 # 3534 <__global_pointer$+0xd34>
+ 322:	02641fa3          	sh	t1,63(s0)
+ 326:	03f41383          	lh	t2,63(s0)
+ 32a:	2e731763          	bne	t1,t2,618 <fail>
+ 32e:	04d00193          	li	gp,77
+ 332:	630d                	lui	t1,0x3
+ 334:	73630313          	addi	t1,t1,1846 # 3736 <__global_pointer$+0xf36>
+ 338:	02641fa3          	sh	t1,63(s0)
+ 33c:	03f45383          	lhu	t2,63(s0)
+ 340:	2c731c63          	bne	t1,t2,618 <fail>
+ 344:	04e00193          	li	gp,78
+ 348:	3b3a4337          	lui	t1,0x3b3a4
+ 34c:	93830313          	addi	t1,t1,-1736 # 3b3a3938 <__global_pointer$+0x3b3a1138>
+ 350:	02642ea3          	sw	t1,61(s0)
+ 354:	03d42383          	lw	t2,61(s0)
+ 358:	2c731063          	bne	t1,t2,618 <fail>
+ 35c:	04f00193          	li	gp,79
+ 360:	3f3e4337          	lui	t1,0x3f3e4
+ 364:	d3c30313          	addi	t1,t1,-708 # 3f3e3d3c <__global_pointer$+0x3f3e153c>
+ 368:	02642f23          	sw	t1,62(s0)
+ 36c:	03e42383          	lw	t2,62(s0)
+ 370:	2a731463          	bne	t1,t2,618 <fail>
+ 374:	05000193          	li	gp,80
+ 378:	43424337          	lui	t1,0x43424
+ 37c:	14030313          	addi	t1,t1,320 # 43424140 <__global_pointer$+0x43421940>
+ 380:	02642fa3          	sw	t1,63(s0)
+ 384:	03f42383          	lw	t2,63(s0)
+ 388:	28731863          	bne	t1,t2,618 <fail>
+ 38c:	05b00193          	li	gp,91
+ 390:	6329                	lui	t1,0xa
+ 392:	99830313          	addi	t1,t1,-1640 # 9998 <__global_pointer$+0x7198>
+ 396:	f9800393          	li	t2,-104
+ 39a:	006410a3          	sh	t1,1(s0)
+ 39e:	00140e03          	lb	t3,1(s0)
+ 3a2:	27c39b63          	bne	t2,t3,618 <fail>
+ 3a6:	05c00193          	li	gp,92
+ 3aa:	6329                	lui	t1,0xa
+ 3ac:	b9a30313          	addi	t1,t1,-1126 # 9b9a <__global_pointer$+0x739a>
+ 3b0:	f9b00393          	li	t2,-101
+ 3b4:	006410a3          	sh	t1,1(s0)
+ 3b8:	00240e03          	lb	t3,2(s0)
+ 3bc:	25c39e63          	bne	t2,t3,618 <fail>
+ 3c0:	05d00193          	li	gp,93
+ 3c4:	6329                	lui	t1,0xa
+ 3c6:	d9c30313          	addi	t1,t1,-612 # 9d9c <__global_pointer$+0x759c>
+ 3ca:	09c00393          	li	t2,156
+ 3ce:	006410a3          	sh	t1,1(s0)
+ 3d2:	00144e03          	lbu	t3,1(s0)
+ 3d6:	25c39163          	bne	t2,t3,618 <fail>
+ 3da:	05e00193          	li	gp,94
+ 3de:	6329                	lui	t1,0xa
+ 3e0:	f9e30313          	addi	t1,t1,-98 # 9f9e <__global_pointer$+0x779e>
+ 3e4:	09f00393          	li	t2,159
+ 3e8:	006410a3          	sh	t1,1(s0)
+ 3ec:	00244e03          	lbu	t3,2(s0)
+ 3f0:	23c39463          	bne	t2,t3,618 <fail>
+ 3f4:	05f00193          	li	gp,95
+ 3f8:	a3a2a337          	lui	t1,0xa3a2a
+ 3fc:	1a030313          	addi	t1,t1,416 # a3a2a1a0 <__global_pointer$+0xa3a279a0>
+ 400:	fa000393          	li	t2,-96
+ 404:	006420a3          	sw	t1,1(s0)
+ 408:	00140e03          	lb	t3,1(s0)
+ 40c:	21c39663          	bne	t2,t3,618 <fail>
+ 410:	06000193          	li	gp,96
+ 414:	a7a6a337          	lui	t1,0xa7a6a
+ 418:	5a430313          	addi	t1,t1,1444 # a7a6a5a4 <__global_pointer$+0xa7a67da4>
+ 41c:	0a500393          	li	t2,165
+ 420:	00642123          	sw	t1,2(s0)
+ 424:	00344e03          	lbu	t3,3(s0)
+ 428:	1fc39863          	bne	t2,t3,618 <fail>
+ 42c:	06100193          	li	gp,97
+ 430:	abaab337          	lui	t1,0xabaab
+ 434:	9a830313          	addi	t1,t1,-1624 # abaaa9a8 <__global_pointer$+0xabaa81a8>
+ 438:	73ed                	lui	t2,0xffffb
+ 43a:	aa938393          	addi	t2,t2,-1367 # ffffaaa9 <__global_pointer$+0xffff82a9>
+ 43e:	006421a3          	sw	t1,3(s0)
+ 442:	00441e03          	lh	t3,4(s0)
+ 446:	1dc39963          	bne	t2,t3,618 <fail>
+ 44a:	06200193          	li	gp,98
+ 44e:	afaeb337          	lui	t1,0xafaeb
+ 452:	dac30313          	addi	t1,t1,-596 # afaeadac <__global_pointer$+0xafae85ac>
+ 456:	63ad                	lui	t2,0xb
+ 458:	fae38393          	addi	t2,t2,-82 # afae <__global_pointer$+0x87ae>
+ 45c:	006421a3          	sw	t1,3(s0)
+ 460:	00545e03          	lhu	t3,5(s0)
+ 464:	1bc39a63          	bne	t2,t3,618 <fail>
+ 468:	06a00193          	li	gp,106
+ 46c:	633d                	lui	t1,0xf
+ 46e:	9e830313          	addi	t1,t1,-1560 # e9e8 <__global_pointer$+0xc1e8>
+ 472:	53a1                	li	t2,-24
+ 474:	00641fa3          	sh	t1,31(s0)
+ 478:	01f40e03          	lb	t3,31(s0)
+ 47c:	19c39e63          	bne	t2,t3,618 <fail>
+ 480:	06b00193          	li	gp,107
+ 484:	633d                	lui	t1,0xf
+ 486:	bea30313          	addi	t1,t1,-1046 # ebea <__global_pointer$+0xc3ea>
+ 48a:	53ad                	li	t2,-21
+ 48c:	00641fa3          	sh	t1,31(s0)
+ 490:	02040e03          	lb	t3,32(s0)
+ 494:	19c39263          	bne	t2,t3,618 <fail>
+ 498:	06c00193          	li	gp,108
+ 49c:	633d                	lui	t1,0xf
+ 49e:	dec30313          	addi	t1,t1,-532 # edec <__global_pointer$+0xc5ec>
+ 4a2:	0ec00393          	li	t2,236
+ 4a6:	00641fa3          	sh	t1,31(s0)
+ 4aa:	01f44e03          	lbu	t3,31(s0)
+ 4ae:	17c39563          	bne	t2,t3,618 <fail>
+ 4b2:	06d00193          	li	gp,109
+ 4b6:	633d                	lui	t1,0xf
+ 4b8:	1339                	addi	t1,t1,-18 # efee <__global_pointer$+0xc7ee>
+ 4ba:	0ef00393          	li	t2,239
+ 4be:	00641fa3          	sh	t1,31(s0)
+ 4c2:	02044e03          	lbu	t3,32(s0)
+ 4c6:	15c39963          	bne	t2,t3,618 <fail>
+ 4ca:	06e00193          	li	gp,110
+ 4ce:	f3f2f337          	lui	t1,0xf3f2f
+ 4d2:	1f030313          	addi	t1,t1,496 # f3f2f1f0 <__global_pointer$+0xf3f2c9f0>
+ 4d6:	53c1                	li	t2,-16
+ 4d8:	00642ea3          	sw	t1,29(s0)
+ 4dc:	01d40e03          	lb	t3,29(s0)
+ 4e0:	13c39c63          	bne	t2,t3,618 <fail>
+ 4e4:	06f00193          	li	gp,111
+ 4e8:	f7f6f337          	lui	t1,0xf7f6f
+ 4ec:	5f430313          	addi	t1,t1,1524 # f7f6f5f4 <__global_pointer$+0xf7f6cdf4>
+ 4f0:	0f600393          	li	t2,246
+ 4f4:	00642f23          	sw	t1,30(s0)
+ 4f8:	02044e03          	lbu	t3,32(s0)
+ 4fc:	11c39e63          	bne	t2,t3,618 <fail>
+ 500:	07000193          	li	gp,112
+ 504:	fbfb0337          	lui	t1,0xfbfb0
+ 508:	9f830313          	addi	t1,t1,-1544 # fbfaf9f8 <__global_pointer$+0xfbfad1f8>
+ 50c:	bfa00393          	li	t2,-1030
+ 510:	00642ea3          	sw	t1,29(s0)
+ 514:	01f41e03          	lh	t3,31(s0)
+ 518:	11c39063          	bne	t2,t3,618 <fail>
+ 51c:	07100193          	li	gp,113
+ 520:	7341                	lui	t1,0xffff0
+ 522:	dfc30313          	addi	t1,t1,-516 # fffefdfc <__global_pointer$+0xfffed5fc>
+ 526:	63c1                	lui	t2,0x10
+ 528:	dfc38393          	addi	t2,t2,-516 # fdfc <__global_pointer$+0xd5fc>
+ 52c:	00642fa3          	sw	t1,31(s0)
+ 530:	01f45e03          	lhu	t3,31(s0)
+ 534:	0fc39263          	bne	t2,t3,618 <fail>
+ 538:	07900193          	li	gp,121
+ 53c:	6315                	lui	t1,0x5
+ 53e:	94830313          	addi	t1,t1,-1720 # 4948 <__global_pointer$+0x2148>
+ 542:	04800393          	li	t2,72
+ 546:	02641fa3          	sh	t1,63(s0)
+ 54a:	03f40e03          	lb	t3,63(s0)
+ 54e:	0dc39563          	bne	t2,t3,618 <fail>
+ 552:	07a00193          	li	gp,122
+ 556:	6315                	lui	t1,0x5
+ 558:	b4a30313          	addi	t1,t1,-1206 # 4b4a <__global_pointer$+0x234a>
+ 55c:	04b00393          	li	t2,75
+ 560:	02641fa3          	sh	t1,63(s0)
+ 564:	04040e03          	lb	t3,64(s0)
+ 568:	0bc39863          	bne	t2,t3,618 <fail>
+ 56c:	07b00193          	li	gp,123
+ 570:	6315                	lui	t1,0x5
+ 572:	d4c30313          	addi	t1,t1,-692 # 4d4c <__global_pointer$+0x254c>
+ 576:	04c00393          	li	t2,76
+ 57a:	02641fa3          	sh	t1,63(s0)
+ 57e:	03f44e03          	lbu	t3,63(s0)
+ 582:	09c39b63          	bne	t2,t3,618 <fail>
+ 586:	07c00193          	li	gp,124
+ 58a:	6315                	lui	t1,0x5
+ 58c:	f4e30313          	addi	t1,t1,-178 # 4f4e <__global_pointer$+0x274e>
+ 590:	04f00393          	li	t2,79
+ 594:	02641fa3          	sh	t1,63(s0)
+ 598:	04044e03          	lbu	t3,64(s0)
+ 59c:	07c39e63          	bne	t2,t3,618 <fail>
+ 5a0:	07d00193          	li	gp,125
+ 5a4:	53525337          	lui	t1,0x53525
+ 5a8:	15030313          	addi	t1,t1,336 # 53525150 <__global_pointer$+0x53522950>
+ 5ac:	05000393          	li	t2,80
+ 5b0:	02642ea3          	sw	t1,61(s0)
+ 5b4:	03d40e03          	lb	t3,61(s0)
+ 5b8:	07c39063          	bne	t2,t3,618 <fail>
+ 5bc:	07e00193          	li	gp,126
+ 5c0:	57565337          	lui	t1,0x57565
+ 5c4:	55430313          	addi	t1,t1,1364 # 57565554 <__global_pointer$+0x57562d54>
+ 5c8:	05600393          	li	t2,86
+ 5cc:	02642f23          	sw	t1,62(s0)
+ 5d0:	04044e03          	lbu	t3,64(s0)
+ 5d4:	05c39263          	bne	t2,t3,618 <fail>
+ 5d8:	07f00193          	li	gp,127
+ 5dc:	5b5a6337          	lui	t1,0x5b5a6
+ 5e0:	95830313          	addi	t1,t1,-1704 # 5b5a5958 <__global_pointer$+0x5b5a3158>
+ 5e4:	6399                	lui	t2,0x6
+ 5e6:	b5a38393          	addi	t2,t2,-1190 # 5b5a <__global_pointer$+0x335a>
+ 5ea:	02642ea3          	sw	t1,61(s0)
+ 5ee:	03f41e03          	lh	t3,63(s0)
+ 5f2:	03c39363          	bne	t2,t3,618 <fail>
+ 5f6:	08000193          	li	gp,128
+ 5fa:	5f5e6337          	lui	t1,0x5f5e6
+ 5fe:	d5c30313          	addi	t1,t1,-676 # 5f5e5d5c <__global_pointer$+0x5f5e355c>
+ 602:	6399                	lui	t2,0x6
+ 604:	d5c38393          	addi	t2,t2,-676 # 5d5c <__global_pointer$+0x355c>
+ 608:	02642fa3          	sw	t1,63(s0)
+ 60c:	03f45e03          	lhu	t3,63(s0)
+ 610:	01c39463          	bne	t2,t3,618 <fail>
+ 614:	00301e63          	bne	zero,gp,630 <pass>
 
-000006d0 <fail>:
- 6d0:	0ff0000f          	fence
- 6d4:	00018063          	beqz	gp,6d4 <fail+0x4>
- 6d8:	00119193          	slli	gp,gp,0x1
- 6dc:	0011e193          	ori	gp,gp,1
- 6e0:	05d00893          	li	a7,93
- 6e4:	00018513          	mv	a0,gp
- 6e8:	00000073          	ecall
+00000618 <fail>:
+ 618:	0ff0000f          	fence
+ 61c:	00018063          	beqz	gp,61c <fail+0x4>
+ 620:	0186                	slli	gp,gp,0x1
+ 622:	0011e193          	ori	gp,gp,1
+ 626:	05d00893          	li	a7,93
+ 62a:	850e                	mv	a0,gp
+ 62c:	00000073          	ecall
 
-000006ec <pass>:
- 6ec:	0ff0000f          	fence
- 6f0:	00100193          	li	gp,1
- 6f4:	05d00893          	li	a7,93
- 6f8:	00000513          	li	a0,0
- 6fc:	00000073          	ecall
- 700:	c0001073          	unimp
+00000630 <pass>:
+ 630:	0ff0000f          	fence
+ 634:	4185                	li	gp,1
+ 636:	05d00893          	li	a7,93
+ 63a:	4501                	li	a0,0
+ 63c:	00000073          	ecall
 	...

@@ -33,7 +33,13 @@ for eachfile in "$TESTDIR"/*.S; do
 
     # Convert binary to hex and swap byte order (change endianness)
 hexdump -v -e '4/1 "%02X" "\n"' "$eachfile.bin" | \
-awk '{print substr($0,7,2) substr($0,5,2) substr($0,3,2) substr($0,1,2)}' > "$eachfile.hex"
+awk '{
+  swapped = substr($0,7,2) substr($0,5,2) substr($0,3,2) substr($0,1,2);
+  if ((NR - 1) % 4 == 0)
+    print swapped;
+  else
+    print "00000000";
+}' > "$eachfile.hex"
     # Rename .hex file to .mem
     memfile="$HEXDIR/$(basename "${eachfile%.S}.mem")"
     mv "$eachfile.hex" "$memfile"

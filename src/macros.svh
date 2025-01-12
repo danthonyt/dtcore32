@@ -1,0 +1,121 @@
+`ifndef MACROS_SVH
+`define MACROS_SVH
+//ID_reg_wr
+`define REGFILE_WRITE_DISABLE 1'b0
+`define REGFILE_WRITE_ENABLE 1'b1
+
+//ID_imm_src
+`define ID_NO_IMM_SRC 3'b000
+`define ID_I_ALU_TYPE_IMM_SRC 3'b000
+`define ID_S_TYPE_IMM_SRC 3'b001
+`define ID_B_TYPE_IMM_SRC 3'b010
+`define ID_J_TYPE_IMM_SRC 3'b011
+`define ID_I_SHIFT_TYPE_IMM_SRC 3'b100
+`define ID_U_TYPE_IMM_SRC 3'b101
+
+//ID_alu_a_src
+`define ALU_A_SRC_SELECT_REG_DATA 2'b00
+`define ALU_A_SRC_SELECT_ZERO 2'b01
+`define ALU_A_SRC_SELECT_PC 2'b10
+
+//ID_alu_b_src
+`define ALU_B_SRC_SELECT_REG_DATA 1'b0
+`define ALU_B_SRC_SELECT_IMM 1'b1
+
+
+//ID_mem_wr_size
+`define MEM_NO_DMEM_WR 2'h0
+`define MEM_WORD_WR 2'h1
+`define MEM_HALF_WR 2'h2
+`define MEM_BYTE_WR 2'h3
+
+//ID_result_src
+`define RESULT_SRC_NO_WRITEBACK 2'b00
+`define RESULT_SRC_SELECT_ALU_RESULT 2'b00
+`define RESULT_SRC_SELECT_DMEM_RD_DATA 2'b01
+`define RESULT_SRC_SELECT_NEXT_INSTR_ADDR 2'b10
+
+//ID_branch
+`define IS_BRANCH_INSTR 1'b1
+`define IS_NOT_BRANCH_INSTR 1'b0
+
+//ID_alu_op
+`define ALU_OP_ILOAD_S_U_TYPE 2'b00
+`define ALU_OP_B_TYPE 2'b01
+`define ALU_OP_IALU_ISHIFT_R_TYPE 2'b10
+
+//ID_jump
+`define IS_JUMP_INSTR 1'b1
+`define IS_NOT_JUMP_INSTR 1'b0
+
+//ID_load_size
+`define DMEM_LOAD_SIZE_NO_LOAD 3'b000
+`define DMEM_LOAD_SIZE_WORD 3'b000
+`define DMEM_LOAD_SIZE_HALF 3'b011
+`define DMEM_LOAD_SIZE_HALFU 3'b100
+`define DMEM_LOAD_SIZE_BYTE 3'b001
+`define DMEM_LOAD_SIZE_BYTEU 3'b010
+
+//ID_pc_target_alu_src
+`define PC_TARGET_ALU_SRC_SELECT_PC 1'b0
+`define PC_TARGET_ALU_SRC_SELECT_REG_DATA 1'b1
+
+// OPCODES
+`define OPCODE_LOAD 7'b0000011
+`define OPCODE_STORE 7'b0100011
+`define OPCODE_R_TYPE 7'b0110011
+`define OPCODE_B_TYPE 7'b1100011
+`define OPCODE_I_TYPE 7'b0010011
+`define OPCODE_JAL 7'b1101111
+`define OPCODE_U_TYPE_LUI 7'b0110111
+`define OPCODE_U_TYPE_AUIPC 7'b0010111
+`define OPCODE_JALR 7'b1100111
+`define OPCODE_SYSTEM 7'b1110011
+`define OPCODE_FENCE 7'b00001111
+// FUNCT3
+`define FUNCT3_LB 3'b000
+`define FUNCT3_LH 3'b001
+`define FUNCT3_LW 3'b010
+`define FUNCT3_LBU 3'b100
+`define FUNCT3_LHU 3'b101
+
+`define FUNCT3_SB 3'b000
+`define FUNCT3_SH 3'b001
+`define FUNCT3_SW 3'b010
+
+`define FUNCT3_BEQ 3'b000
+`define FUNCT3_BNE 3'b001
+`define FUNCT3_BLT 3'b100
+`define FUNCT3_BGE 3'b101
+`define FUNCT3_BLTU  3'b110
+`define FUNCT3_BGEU 3'b111
+
+`define FUNCT3_ADD_SUB 3'b000
+`define FUNCT3_SLL 3'b001
+`define FUNCT3_SLT 3'b010
+`define FUNCT3_SLTU 3'b011
+`define FUNCT3_XOR 3'b100
+`define FUNCT3_SRA_SRL 3'b101
+`define FUNCT3_OR 3'b110
+`define FUNCT3_AND 3'b111
+
+`define FUNCT3_ECALL_EBREAK 3'b000
+
+//alu module control
+`define EX_ADD_ALU_CONTROL 4'h0
+`define EX_SUB_ALU_CONTROL 4'h1
+`define EX_AND_ALU_CONTROL 4'h2
+`define EX_OR_ALU_CONTROL 4'h3
+`define EX_L_SHIFT_ALU_CONTROL 4'h4
+`define EX_LT_ALU_CONTROL 4'h5
+`define EX_LTU_ALU_CONTROL 4'h6
+`define EX_XOR_ALU_CONTROL 4'h7
+`define EX_R_SHIFT_A_ALU_CONTROL 4'h8
+`define EX_R_SHIFT_L_ALU_CONTROL 4'h9
+`define EX_BNE_ALU_CONTROL 4'hC
+`define EX_GE_ALU_CONTROL 4'hA
+`define EX_GEU_ALU_CONTROL 4'hB
+`define EX_NE_ALU_CONTROL 4'hC
+
+`define NOP_INSTRUCTION 32'h00000013    // addi x0, x0, 0
+`endif

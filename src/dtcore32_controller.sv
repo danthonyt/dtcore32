@@ -1,130 +1,12 @@
-
-//ID_reg_wr
-`define REGFILE_WRITE_DISABLE 1'b0
-`define REGFILE_WRITE_ENABLE 1'b1
-
-//ID_imm_src
-`define ID_NO_IMM_SRC 3'b000
-`define ID_I_ALU_TYPE_IMM_SRC 3'b000
-`define ID_S_TYPE_IMM_SRC 3'b001
-`define ID_B_TYPE_IMM_SRC 3'b010
-`define ID_J_TYPE_IMM_SRC 3'b011
-`define ID_I_SHIFT_TYPE_IMM_SRC 3'b100
-`define ID_U_TYPE_IMM_SRC 3'b101
-
-//ID_alu_a_src
-`define ALU_A_SRC_SELECT_REG_DATA 2'b00
-`define ALU_A_SRC_SELECT_ZERO 2'b01
-`define ALU_A_SRC_SELECT_PC 2'b10
-
-//ID_alu_b_src
-`define ALU_B_SRC_SELECT_REG_DATA 1'b0
-`define ALU_B_SRC_SELECT_IMM 1'b1
-
-
-//ID_mem_wr
-`define MEM_NO_DMEM_WR 2'b00
-`define MEM_WORD_WR 2'b01
-`define MEM_HALF_WR 2'b10
-`define MEM_BYTE_WR 2'b11
-
-//ID_result_src
-`define RESULT_SRC_NO_WRITEBACK 2'b00
-`define RESULT_SRC_SELECT_ALU_RESULT 2'b00
-`define RESULT_SRC_SELECT_DMEM_RD_DATA 2'b01
-`define RESULT_SRC_SELECT_NEXT_INSTR_ADDR 2'b10
-
-//ID_branch
-`define IS_BRANCH_INSTR 1'b1
-`define IS_NOT_BRANCH_INSTR 1'b0
-
-//ID_alu_op
-`define ALU_OP_ILOAD_S_U_TYPE 2'b00
-`define ALU_OP_B_TYPE 2'b01
-`define ALU_OP_IALU_ISHIFT_R_TYPE 2'b10
-
-//ID_jump
-`define IS_JUMP_INSTR 1'b1
-`define IS_NOT_JUMP_INSTR 1'b0
-
-//ID_load_size
-`define DMEM_LOAD_SIZE_NO_LOAD 3'b000
-`define DMEM_LOAD_SIZE_WORD 3'b000
-`define DMEM_LOAD_SIZE_HALF 3'b011
-`define DMEM_LOAD_SIZE_HALFU 3'b100
-`define DMEM_LOAD_SIZE_BYTE 3'b001
-`define DMEM_LOAD_SIZE_BYTEU 3'b010
-
-//ID_pc_target_alu_src
-`define PC_TARGET_ALU_SRC_SELECT_PC 1'b0
-`define PC_TARGET_ALU_SRC_SELECT_REG_DATA 1'b1
-
-// OPCODES
-`define OPCODE_LOAD 7'b0000011
-`define OPCODE_STORE 7'b0100011
-`define OPCODE_R_TYPE 7'b0110011
-`define OPCODE_B_TYPE 7'b1100011
-`define OPCODE_I_TYPE 7'b0010011
-`define OPCODE_JAL 7'b1101111
-`define OPCODE_U_TYPE_LUI 7'b0110111
-`define OPCODE_U_TYPE_AUIPC 7'b0010111
-`define OPCODE_JALR 7'b1100111
-`define OPCODE_SYSTEM 7'b1110011
-`define OPCODE_FENCE 7'b00001111
-// FUNCT3
-`define FUNCT3_LB 3'b000
-`define FUNCT3_LH 3'b001
-`define FUNCT3_LW 3'b010
-`define FUNCT3_LBU 3'b100
-`define FUNCT3_LHU 3'b101
-
-`define FUNCT3_SB 3'b000
-`define FUNCT3_SH 3'b001
-`define FUNCT3_SW 3'b010
-
-`define FUNCT3_BEQ 3'b000
-`define FUNCT3_BNE 3'b001
-`define FUNCT3_BLT 3'b100
-`define FUNCT3_BGE 3'b101
-`define FUNCT3_BLTU  3'b110
-`define FUNCT3_BGEU 3'b111
-
-`define FUNCT3_ADD_SUB 3'b000
-`define FUNCT3_SLL 3'b001
-`define FUNCT3_SLT 3'b010
-`define FUNCT3_SLTU 3'b011
-`define FUNCT3_XOR 3'b100
-`define FUNCT3_SRA_SRL 3'b101
-`define FUNCT3_OR 3'b110
-`define FUNCT3_AND 3'b111
-
-`define FUNCT3_ECALL_EBREAK 3'b000
-
-//alu module control
-`define EX_ADD_ALU_CONTROL 4'h0
-`define EX_SUB_ALU_CONTROL 4'h1
-`define EX_AND_ALU_CONTROL 4'h2
-`define EX_OR_ALU_CONTROL 4'h3
-`define EX_L_SHIFT_ALU_CONTROL 4'h4
-`define EX_LT_ALU_CONTROL 4'h5
-`define EX_LTU_ALU_CONTROL 4'h6
-`define EX_XOR_ALU_CONTROL 4'h7
-`define EX_R_SHIFT_A_ALU_CONTROL 4'h8
-`define EX_R_SHIFT_L_ALU_CONTROL 4'h9
-`define EX_BNE_ALU_CONTROL 4'hC
-`define EX_GE_ALU_CONTROL 4'hA
-`define EX_GEU_ALU_CONTROL 4'hB
-`define EX_NE_ALU_CONTROL 4'hC
-
-
+`include "macros.svh"
 module dtcore32_controller(
-    input logic clk,rst,
-    input logic [6:0]  op,
-    input logic [2:0]  funct3,
-    input logic funct7b5,
+    input logic clk_i,rst_i,
+    input logic [6:0]  op_i,
+    input logic [2:0]  funct3_i,
+    input logic funct7b5_i,
     output logic [1:0]  ID_result_src_o,
     output logic [1:0]  ID_alu_a_src_o,
-    output logic [1:0]  ID_mem_wr_o,
+    output logic [1:0]  ID_mem_wr_size_o,
     output logic [3:0]  ID_alu_control_o,
     output logic [2:0]  ID_imm_src_o,
     output logic [2:0] ID_load_size_o,
@@ -149,7 +31,7 @@ module dtcore32_controller(
   logic ID_i_type_sub;
   logic [1:0]  ID_result_src;
   logic [1:0]  ID_alu_a_src;
-  logic [1:0]  ID_mem_wr;
+  logic [1:0]  ID_mem_wr_size;
   logic [3:0]  ID_alu_control;
   logic [2:0]  ID_imm_src;
   logic [2:0] ID_load_size;
@@ -164,15 +46,15 @@ module dtcore32_controller(
   // ===========================================================================
 
 
-  assign ID_r_type_sub = op[5] & funct7b5;
-  assign ID_i_type_sub = ~op[5] & funct7b5;
+  assign ID_r_type_sub = op_i[5] & funct7b5_i;
+  assign ID_i_type_sub = ~op_i[5] & funct7b5_i;
   
   
 
   // exception handling
-  always_ff @(posedge clk)
+  always_ff @(posedge clk_i)
   begin
-    if (rst)
+    if (rst_i)
       ID_exception <=0;
     else
       ID_exception <= opcode_exception | ID_alu_op_exception;
@@ -181,20 +63,20 @@ module dtcore32_controller(
   begin
     ID_is_nop = 0;
     opcode_exception = 0;
-    case (op)
+    case (op_i)
       `OPCODE_LOAD:
       begin
         ID_reg_wr = `REGFILE_WRITE_ENABLE;
         ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
-        ID_mem_wr = `MEM_NO_DMEM_WR;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
         ID_result_src = `RESULT_SRC_SELECT_DMEM_RD_DATA;
         ID_branch = `IS_NOT_BRANCH_INSTR;
         ID_alu_op = `ALU_OP_ILOAD_S_U_TYPE;
         ID_jump = `IS_NOT_JUMP_INSTR;
         ID_pc_target_alu_src = `PC_TARGET_ALU_SRC_SELECT_PC;
-        case(funct3)
+        case(funct3_i)
           `FUNCT3_LB:
             ID_load_size = `DMEM_LOAD_SIZE_BYTE;
           `FUNCT3_LH:
@@ -220,7 +102,7 @@ module dtcore32_controller(
         ID_reg_wr = `REGFILE_WRITE_ENABLE;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
-        ID_mem_wr = `MEM_NO_DMEM_WR;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
         ID_result_src = `RESULT_SRC_SELECT_ALU_RESULT;
         ID_branch = `IS_NOT_BRANCH_INSTR;
         ID_alu_op = `ALU_OP_IALU_ISHIFT_R_TYPE;
@@ -244,16 +126,16 @@ module dtcore32_controller(
         ID_alu_op = `ALU_OP_ILOAD_S_U_TYPE;
         ID_jump = `IS_NOT_JUMP_INSTR;
         ID_pc_target_alu_src = `PC_TARGET_ALU_SRC_SELECT_PC;
-        case(funct3)
+        case(funct3_i)
           `FUNCT3_SB:
-            ID_mem_wr = `MEM_BYTE_WR;	//sb
+            ID_mem_wr_size = `MEM_BYTE_WR;	//sb
           `FUNCT3_SH:
-            ID_mem_wr = `MEM_HALF_WR;	//sh
+            ID_mem_wr_size = `MEM_HALF_WR;	//sh
           `FUNCT3_SW:
-            ID_mem_wr = `MEM_WORD_WR;	//sw
+            ID_mem_wr_size = `MEM_WORD_WR;	//sw
           default:
           begin
-            ID_mem_wr = `MEM_NO_DMEM_WR;	//unknown instruction
+            ID_mem_wr_size = `MEM_NO_DMEM_WR;	//unknown instruction
             opcode_exception = 1;
           end
         endcase
@@ -270,7 +152,7 @@ module dtcore32_controller(
         ID_alu_op = `ALU_OP_IALU_ISHIFT_R_TYPE;
         ID_jump = `IS_NOT_JUMP_INSTR;
         ID_pc_target_alu_src = `PC_TARGET_ALU_SRC_SELECT_PC;
-        ID_mem_wr = `MEM_NO_DMEM_WR;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
       end
       `OPCODE_B_TYPE:
       begin
@@ -278,7 +160,7 @@ module dtcore32_controller(
         ID_imm_src = `ID_B_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_REG_DATA;
-        ID_mem_wr = `MEM_NO_DMEM_WR;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
         ID_result_src = `RESULT_SRC_NO_WRITEBACK;
         ID_branch = `IS_BRANCH_INSTR;
         ID_alu_op = `ALU_OP_B_TYPE;
@@ -292,14 +174,14 @@ module dtcore32_controller(
         ID_reg_wr = `REGFILE_WRITE_ENABLE;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
-        ID_mem_wr = `MEM_NO_DMEM_WR;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
         ID_result_src = `RESULT_SRC_SELECT_ALU_RESULT;
         ID_branch = `IS_NOT_BRANCH_INSTR;
         ID_alu_op = `ALU_OP_IALU_ISHIFT_R_TYPE;
         ID_jump = `IS_NOT_JUMP_INSTR;
         ID_load_size = `DMEM_LOAD_SIZE_NO_LOAD;
         ID_pc_target_alu_src = `PC_TARGET_ALU_SRC_SELECT_PC;
-        case (funct3)
+        case (funct3_i)
           3'b000,3'b010,3'b011,3'b100,3'b110,3'b111:
             ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC; //I-type ALU
           3'b001,3'b101:
@@ -318,7 +200,7 @@ module dtcore32_controller(
         ID_imm_src = `ID_J_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_REG_DATA;
-        ID_mem_wr = `MEM_NO_DMEM_WR;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
         ID_result_src = `RESULT_SRC_SELECT_NEXT_INSTR_ADDR;
         ID_branch = `IS_NOT_BRANCH_INSTR;
         ID_alu_op = `ALU_OP_ILOAD_S_U_TYPE; // TODO
@@ -333,7 +215,7 @@ module dtcore32_controller(
         ID_imm_src = `ID_U_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_ZERO;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
-        ID_mem_wr = `MEM_NO_DMEM_WR;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
         ID_result_src = `RESULT_SRC_SELECT_ALU_RESULT;
         ID_branch = `IS_NOT_BRANCH_INSTR;
         ID_alu_op = `ALU_OP_ILOAD_S_U_TYPE;
@@ -347,7 +229,7 @@ module dtcore32_controller(
         ID_imm_src = `ID_U_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_PC;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
-        ID_mem_wr = `MEM_NO_DMEM_WR;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
         ID_result_src = `RESULT_SRC_SELECT_ALU_RESULT;
         ID_branch = `IS_NOT_BRANCH_INSTR;
         ID_alu_op = `ALU_OP_ILOAD_S_U_TYPE;
@@ -361,7 +243,7 @@ module dtcore32_controller(
         ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
-        ID_mem_wr = `MEM_NO_DMEM_WR;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
         ID_result_src = `RESULT_SRC_SELECT_NEXT_INSTR_ADDR;
         ID_branch = `IS_NOT_BRANCH_INSTR;
         ID_alu_op = `ALU_OP_ILOAD_S_U_TYPE;
@@ -374,7 +256,7 @@ module dtcore32_controller(
         ID_reg_wr = `REGFILE_WRITE_ENABLE;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
-        ID_mem_wr = `MEM_NO_DMEM_WR;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
         ID_result_src = `RESULT_SRC_SELECT_ALU_RESULT;
         ID_branch = `IS_NOT_BRANCH_INSTR;
         ID_alu_op = `ALU_OP_IALU_ISHIFT_R_TYPE;
@@ -398,7 +280,7 @@ module dtcore32_controller(
         ID_alu_control = `EX_ADD_ALU_CONTROL; //add- lw,sw,lb,lh,lbu,lhu,sb,sh,auipc,lui
       //B-type
       `ALU_OP_B_TYPE:
-      case (funct3)
+      case (funct3_i)
         `FUNCT3_BEQ:
           ID_alu_control = `EX_SUB_ALU_CONTROL; //sub - beq
         `FUNCT3_BNE:
@@ -421,7 +303,7 @@ module dtcore32_controller(
       endcase
       //R-type, I-type ALU,I-type logical shift
       `ALU_OP_IALU_ISHIFT_R_TYPE:
-      case (funct3)
+      case (funct3_i)
         `FUNCT3_ADD_SUB:
           ID_alu_control = (ID_r_type_sub) ? `EX_SUB_ALU_CONTROL /*sub*/ : `EX_ADD_ALU_CONTROL /*add*/;
         `FUNCT3_SLL:
@@ -457,7 +339,7 @@ module dtcore32_controller(
   assign ID_alu_control_o = ID_is_nop ? 0 : ID_alu_control;
   assign ID_result_src_o = ID_result_src;
   assign ID_alu_a_src_o = ID_alu_a_src;
-  assign ID_mem_wr_o = ID_mem_wr;
+  assign ID_mem_wr_size_o = ID_mem_wr_size;
   assign ID_imm_src_o = ID_imm_src;
   assign ID_load_size_o = ID_load_size;
   assign ID_alu_b_src_o = ID_alu_b_src;
