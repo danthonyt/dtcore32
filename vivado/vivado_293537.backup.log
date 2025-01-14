@@ -1,0 +1,540 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Mon Jan 13 15:31:50 2025
+# Process ID         : 293537
+# Current directory  : /home/david/Documents/work/dtcore32/vivado
+# Command line       : vivado
+# Log file           : /home/david/Documents/work/dtcore32/vivado/vivado.log
+# Journal file       : /home/david/Documents/work/dtcore32/vivado/vivado.jou
+# Running On         : david-MS-7D46
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 24.04.1 LTS
+# Processor Detail   : 12th Gen Intel(R) Core(TM) i5-12400F
+# CPU Frequency      : 2169.473 MHz
+# CPU Physical cores : 6
+# CPU Logical cores  : 12
+# Host memory        : 16620 MB
+# Swap memory        : 4294 MB
+# Total Virtual      : 20915 MB
+# Available Virtual  : 16506 MB
+#-----------------------------------------------------------
+start_gui
+open_project /home/david/Documents/work/dtcore32/vivado/riscv/riscv.xpr
+INFO: [filemgmt 56-3] Default IP Output Path : Could not find the directory '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.gen/sources_1'.
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/opt/Xilinx/Vivado/2024.2/data/ip'.
+update_compile_order -fileset sources_1
+launch_simulation
+Command: launch_simulation 
+INFO: [Vivado 12-12493] Simulation top is 'testbench'
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from '/opt/Xilinx/Vivado/2024.2/tps/boost_1_72_0'
+INFO: [SIM-utils-54] Inspecting design source files for 'testbench' in fileset 'sim_1'...
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/ori.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/add.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sub.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lw.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/bgeu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sll.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/bge.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lh.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/xor.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/srl.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/slti.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sltiu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sra.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sh.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/jal.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/ma_data.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/or.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/andi.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/srli.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/and.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/slli.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/xori.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/addi.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lb.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/blt.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/slt.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/fence_i.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lhu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/srai.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/bne.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lbu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lui.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/simple.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sw.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sltu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/jalr.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/bltu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/auipc.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/beq.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sb.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/ori.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/add.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sub.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lw.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/bgeu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sll.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/bge.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lh.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/xor.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/srl.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/slti.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sltiu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sra.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sh.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/jal.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/ma_data.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/or.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/andi.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/srli.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/and.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/slli.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/xori.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/addi.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lb.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/blt.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/slt.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/fence_i.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lhu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/srai.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/bne.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lbu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lui.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/simple.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sw.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sltu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/jalr.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/bltu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/auipc.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/beq.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sb.mem'
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+xvlog --incr --relax -L uvm -prj testbench_vlog.prj
+Waiting for jobs to finish...
+No pending jobs, compilation finished.
+INFO: [USF-XSim-69] 'compile' step finished in '1' seconds
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot testbench_behav xil_defaultlib.testbench xil_defaultlib.glbl -log elaborate.log
+Vivado Simulator v2024.2.0
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /opt/Xilinx/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot testbench_behav xil_defaultlib.testbench xil_defaultlib.glbl -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+INFO: [XSIM 43-4323] No Change in HDL. Linking previously generated obj files to create kernel
+INFO: [USF-XSim-69] 'elaborate' step finished in '1' seconds
+INFO: [USF-XSim-4] XSim::Simulate design
+INFO: [USF-XSim-61] Executing 'SIMULATE' step in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+INFO: [USF-XSim-98] *** Running xsim
+   with args "testbench_behav -key {Behavioral:sim_1:Functional:testbench} -tclbatch {testbench.tcl} -log {simulate.log}"
+INFO: [USF-XSim-8] Loading simulator feature
+Time resolution is 1 ps
+source testbench.tcl
+# set curr_wave [current_wave_config]
+# if { [string length $curr_wave] == 0 } {
+#   if { [llength [get_objects]] > 0} {
+#     add_wave /
+#     set_property needs_save false [current_wave_config]
+#   } else {
+#      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+#   }
+# }
+WARNING: [Wavedata 42-489] Can't add object "/testbench/MEMORY" to the wave window because it has 131072 bits, which exceeds the display limit of 65536 bits.  To change the display limit, use the command "set_property display_limit <new limit> [current_wave_config]".
+# run 1000ns
+WARNING: 0ns : none of the conditions were true for unique case from File:/home/david/Documents/work/dtcore32/src/dtcore32.sv:376
+Running all tests.
+***********************************
+Running Test ID: 0
+INFO: [USF-XSim-96] XSim completed. Design snapshot 'testbench_behav' loaded.
+INFO: [USF-XSim-97] XSim simulation ran for 1000ns
+relaunch_sim
+Command: launch_simulation -step compile -simset sim_1 -mode behavioral
+INFO: [Vivado 12-12493] Simulation top is 'testbench'
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from '/opt/Xilinx/Vivado/2024.2/tps/boost_1_72_0'
+INFO: [SIM-utils-54] Inspecting design source files for 'testbench' in fileset 'sim_1'...
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/ori.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/add.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sub.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lw.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/bgeu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sll.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/bge.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/lh.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/xor.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/srl.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/slti.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sltiu.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sra.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/sh.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/jal.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/ma_data.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/or.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/andi.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/srli.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/and.mem'
+INFO: [Common 17-14] Message 'SIM-utils 43' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+xvlog --incr --relax -L uvm -prj testbench_vlog.prj
+Waiting for jobs to finish...
+No pending jobs, compilation finished.
+INFO: [USF-XSim-69] 'compile' step finished in '1' seconds
+Command: launch_simulation -step elaborate -simset sim_1 -mode behavioral
+INFO: [Vivado 12-12493] Simulation top is 'testbench'
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot testbench_behav xil_defaultlib.testbench xil_defaultlib.glbl -log elaborate.log
+Vivado Simulator v2024.2.0
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /opt/Xilinx/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot testbench_behav xil_defaultlib.testbench xil_defaultlib.glbl -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+INFO: [XSIM 43-4323] No Change in HDL. Linking previously generated obj files to create kernel
+INFO: [USF-XSim-69] 'elaborate' step finished in '1' seconds
+Time resolution is 1 ps
+WARNING: 0ns : none of the conditions were true for unique case from File:/home/david/Documents/work/dtcore32/src/dtcore32.sv:376
+Running all tests.
+***********************************
+Running Test ID: 0
+set_property -name {xsim.simulate.runtime} -value {all} -objects [get_filesets sim_1]
+close_sim
+INFO: [Simtcl 6-16] Simulation closed
+launch_simulation
+Command: launch_simulation 
+INFO: [Vivado 12-12493] Simulation top is 'testbench'
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from '/opt/Xilinx/Vivado/2024.2/tps/boost_1_72_0'
+INFO: [SIM-utils-54] Inspecting design source files for 'testbench' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+xvlog --incr --relax -L uvm -prj testbench_vlog.prj
+Waiting for jobs to finish...
+No pending jobs, compilation finished.
+INFO: [USF-XSim-69] 'compile' step finished in '1' seconds
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot testbench_behav xil_defaultlib.testbench xil_defaultlib.glbl -log elaborate.log
+Vivado Simulator v2024.2.0
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /opt/Xilinx/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot testbench_behav xil_defaultlib.testbench xil_defaultlib.glbl -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+INFO: [XSIM 43-4323] No Change in HDL. Linking previously generated obj files to create kernel
+INFO: [USF-XSim-69] 'elaborate' step finished in '1' seconds
+INFO: [USF-XSim-4] XSim::Simulate design
+INFO: [USF-XSim-61] Executing 'SIMULATE' step in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+INFO: [USF-XSim-98] *** Running xsim
+   with args "testbench_behav -key {Behavioral:sim_1:Functional:testbench} -tclbatch {testbench.tcl} -log {simulate.log}"
+INFO: [USF-XSim-8] Loading simulator feature
+Time resolution is 1 ps
+source testbench.tcl
+# set curr_wave [current_wave_config]
+# if { [string length $curr_wave] == 0 } {
+#   if { [llength [get_objects]] > 0} {
+#     add_wave /
+#     set_property needs_save false [current_wave_config]
+#   } else {
+#      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+#   }
+# }
+WARNING: [Wavedata 42-489] Can't add object "/testbench/MEMORY" to the wave window because it has 131072 bits, which exceeds the display limit of 65536 bits.  To change the display limit, use the command "set_property display_limit <new limit> [current_wave_config]".
+# run all
+WARNING: 0ns : none of the conditions were true for unique case from File:/home/david/Documents/work/dtcore32/src/dtcore32.sv:376
+Running all tests.
+***********************************
+Running Test ID: 0
+TEST PASSED; ID: 0
+***********************************
+Running Test ID: 1
+TEST PASSED; ID: 1
+***********************************
+Running Test ID: 2
+TEST PASSED; ID: 2
+***********************************
+Running Test ID: 3
+TEST PASSED; ID: 3
+***********************************
+Running Test ID: 4
+TEST PASSED; ID: 4
+***********************************
+Running Test ID: 5
+TEST PASSED; ID: 5
+***********************************
+Running Test ID: 6
+TEST PASSED; ID: 6
+***********************************
+Running Test ID: 7
+TEST PASSED; ID: 7
+***********************************
+Running Test ID: 8
+TEST PASSED; ID: 8
+***********************************
+Running Test ID: 9
+TEST PASSED; ID: 9
+***********************************
+Running Test ID: 10
+TEST PASSED; ID: 10
+***********************************
+Running Test ID: 11
+TEST PASSED; ID: 11
+***********************************
+Running Test ID: 12
+TEST PASSED; ID: 12
+***********************************
+Running Test ID: 13
+TEST PASSED; ID: 13
+***********************************
+Running Test ID: 14
+TEST PASSED; ID: 14
+***********************************
+Running Test ID: 15
+TEST PASSED; ID: 15
+***********************************
+Running Test ID: 16
+TEST PASSED; ID: 16
+***********************************
+Running Test ID: 17
+TEST PASSED; ID: 17
+***********************************
+Running Test ID: 18
+TEST PASSED; ID: 18
+***********************************
+Running Test ID: 19
+TEST PASSED; ID: 19
+***********************************
+Running Test ID: 20
+TEST PASSED; ID: 20
+***********************************
+Running Test ID: 21
+TEST PASSED; ID: 21
+***********************************
+Running Test ID: 22
+TEST PASSED; ID: 22
+***********************************
+Running Test ID: 23
+TEST PASSED; ID: 23
+***********************************
+Running Test ID: 24
+TEST PASSED; ID: 24
+***********************************
+Running Test ID: 25
+TEST PASSED; ID: 25
+***********************************
+Running Test ID: 26
+TEST PASSED; ID: 26
+***********************************
+Running Test ID: 27
+TEST PASSED; ID: 27
+***********************************
+Running Test ID: 28
+TEST PASSED; ID: 28
+***********************************
+Running Test ID: 29
+TEST PASSED; ID: 29
+***********************************
+Running Test ID: 30
+TEST PASSED; ID: 30
+***********************************
+Running Test ID: 31
+TEST PASSED; ID: 31
+***********************************
+Running Test ID: 32
+TEST PASSED; ID: 32
+***********************************
+Running Test ID: 33
+TEST PASSED; ID: 33
+***********************************
+Running Test ID: 34
+TEST PASSED; ID: 34
+***********************************
+Running Test ID: 35
+TEST PASSED; ID: 35
+
+***********************************
+ALL TESTS PASSED !
+$finish called at time : 211270 ns : File "/home/david/Documents/work/dtcore32/sim/testbench.sv" Line 326
+INFO: [USF-XSim-96] XSim completed. Design snapshot 'testbench_behav' loaded.
+INFO: [USF-XSim-97] XSim simulation ran for all
+current_wave_config {Untitled 2}
+Untitled 2
+add_wave {{/testbench/UUT/dtcore32_regfile_inst/rf}} 
+relaunch_sim
+Command: launch_simulation -step compile -simset sim_1 -mode behavioral
+INFO: [Vivado 12-12493] Simulation top is 'testbench'
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+xvlog --incr --relax -L uvm -prj testbench_vlog.prj
+Waiting for jobs to finish...
+No pending jobs, compilation finished.
+INFO: [USF-XSim-69] 'compile' step finished in '1' seconds
+Command: launch_simulation -step elaborate -simset sim_1 -mode behavioral
+INFO: [Vivado 12-12493] Simulation top is 'testbench'
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim'
+xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot testbench_behav xil_defaultlib.testbench xil_defaultlib.glbl -log elaborate.log
+Vivado Simulator v2024.2.0
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /opt/Xilinx/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot testbench_behav xil_defaultlib.testbench xil_defaultlib.glbl -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+INFO: [XSIM 43-4323] No Change in HDL. Linking previously generated obj files to create kernel
+INFO: [USF-XSim-69] 'elaborate' step finished in '1' seconds
+Time resolution is 1 ps
+WARNING: 0ns : none of the conditions were true for unique case from File:/home/david/Documents/work/dtcore32/src/dtcore32.sv:376
+Running all tests.
+***********************************
+Running Test ID: 0
+TEST PASSED; ID: 0
+***********************************
+Running Test ID: 1
+TEST PASSED; ID: 1
+***********************************
+Running Test ID: 2
+TEST PASSED; ID: 2
+***********************************
+Running Test ID: 3
+TEST PASSED; ID: 3
+***********************************
+Running Test ID: 4
+TEST PASSED; ID: 4
+***********************************
+Running Test ID: 5
+TEST PASSED; ID: 5
+***********************************
+Running Test ID: 6
+TEST PASSED; ID: 6
+***********************************
+Running Test ID: 7
+TEST PASSED; ID: 7
+***********************************
+Running Test ID: 8
+TEST PASSED; ID: 8
+***********************************
+Running Test ID: 9
+TEST PASSED; ID: 9
+***********************************
+Running Test ID: 10
+TEST PASSED; ID: 10
+***********************************
+Running Test ID: 11
+TEST PASSED; ID: 11
+***********************************
+Running Test ID: 12
+TEST PASSED; ID: 12
+***********************************
+Running Test ID: 13
+TEST PASSED; ID: 13
+***********************************
+Running Test ID: 14
+TEST PASSED; ID: 14
+***********************************
+Running Test ID: 15
+TEST PASSED; ID: 15
+***********************************
+Running Test ID: 16
+TEST PASSED; ID: 16
+***********************************
+Running Test ID: 17
+TEST PASSED; ID: 17
+***********************************
+Running Test ID: 18
+TEST PASSED; ID: 18
+***********************************
+Running Test ID: 19
+TEST PASSED; ID: 19
+***********************************
+Running Test ID: 20
+TEST PASSED; ID: 20
+***********************************
+Running Test ID: 21
+TEST PASSED; ID: 21
+***********************************
+Running Test ID: 22
+TEST PASSED; ID: 22
+***********************************
+Running Test ID: 23
+TEST PASSED; ID: 23
+***********************************
+Running Test ID: 24
+TEST PASSED; ID: 24
+***********************************
+Running Test ID: 25
+TEST PASSED; ID: 25
+***********************************
+Running Test ID: 26
+TEST PASSED; ID: 26
+***********************************
+Running Test ID: 27
+TEST PASSED; ID: 27
+***********************************
+Running Test ID: 28
+TEST PASSED; ID: 28
+***********************************
+Running Test ID: 29
+TEST PASSED; ID: 29
+***********************************
+Running Test ID: 30
+TEST PASSED; ID: 30
+***********************************
+Running Test ID: 31
+TEST PASSED; ID: 31
+***********************************
+Running Test ID: 32
+TEST PASSED; ID: 32
+***********************************
+Running Test ID: 33
+TEST PASSED; ID: 33
+***********************************
+Running Test ID: 34
+TEST PASSED; ID: 34
+***********************************
+Running Test ID: 35
+TEST PASSED; ID: 35
+
+***********************************
+ALL TESTS PASSED !
+$finish called at time : 211270 ns : File "/home/david/Documents/work/dtcore32/sim/testbench.sv" Line 326
+save_wave_config {/home/david/Documents/work/dtcore32/vivado/riscv/testbench_behav.wcfg}
+add_files -fileset sim_1 -norecurse /home/david/Documents/work/dtcore32/vivado/riscv/testbench_behav.wcfg
+set_property xsim.view /home/david/Documents/work/dtcore32/vivado/riscv/testbench_behav.wcfg [get_filesets sim_1]
+close_sim
+INFO: [Simtcl 6-16] Simulation closed
+exit
+INFO: [Common 17-206] Exiting Vivado at Mon Jan 13 16:01:27 2025...

@@ -13,16 +13,11 @@ module dtcore32(
 
 
   // CHECK
-  logic [6:0] op;
-  logic [2:0] funct3;
-  logic funct7b5;
+  
   logic exception;
   logic misaligned_store;
   logic misaligned_load;
   logic unknown_load;
-  assign op = ID_instr[6:0];
-  assign funct3 = ID_instr[14:12];
-  assign funct7b5 = ID_instr[30];
   // NOP for system calls
   assign exception_o = exception | misaligned_store | misaligned_load | unknown_load;
 
@@ -74,7 +69,7 @@ module dtcore32(
   logic EX_jump;
   logic EX_branch;
   logic [3:0] EX_alu_control;
-  logic EX_alu_b_src;
+  logic [1:0] EX_alu_b_src;
   logic [1:0] EX_alu_a_src;
   logic EX_pc_target_alu_src;
   logic [31:0] EX_reg_data_1;
@@ -130,428 +125,203 @@ module dtcore32(
   assign DMEM_addr_o = DMEM_addr;
 
   // Instruction Fetch stage
-  always_ff @(posedge clk_i)
-  begin
-    if (rst_i)
-      IMEM_addr <= 0;
-    else if (!IF_stall)
-      IMEM_addr <= IF_pc_tick;
-  end
+  dtcore32_IF_stage  dtcore32_IF_stage_inst (
+    .clk_i(clk_i),
+    .rst_i(rst_i),
+    .IF_stall_n_i(IF_stall_n_i),
+    .EX_pc_target_i(EX_pc_target_i),
+    .EX_pc_src_i(EX_pc_src_i),
+    .IF_pc_plus_4_o(IF_pc_plus_4_o),
+    .IMEM_addr_o(IMEM_addr_o)
+  );
 
-  mux2to1 # (
-            .WIDTH(32)
-          )
-          mux2to1_inst (
-            .in0(IF_pc_plus_4),
-            .in1(EX_pc_target),
-            .sel(EX_pc_src),
-            .out(IF_pc_tick)
-          );
-
-  adder # (
-          .WIDTH(32)
-        )
-        adder_inst (
-          .in1(IMEM_addr),
-          .in2(32'd4),
-          .sum(IF_pc_plus_4)
-        );
-
-  // IF/ID register
-  always_ff @(posedge clk_i)
-  begin
-    if (rst_i || ID_flush)
-    begin
-      ID_instr <= `NOP_INSTRUCTION;
-      ID_pc <= 0;
-      ID_pc_plus_4 <= 0 ;
-    end
-    else if (!ID_stall)
-    begin
-      ID_instr <= IMEM_rd_data_i;
-      ID_pc <= IMEM_addr;
-      ID_pc_plus_4 <= IF_pc_plus_4;
-    end
-  end
+  dtcore32_IF_ID_reg  dtcore32_IF_ID_reg_inst (
+                        .clk_i(clk_i),
+                        .rst_i(rst_i),
+                        .ID_flush_i(ID_flush_i),
+                        .ID_stall_i(ID_stall_i),
+                        .IMEM_rd_data_i(IMEM_rd_data_i),
+                        .IMEM_addr_i(IMEM_addr_i),
+                        .IF_pc_plus_4_i(IF_pc_plus_4_i),
+                        .ID_instr_o(ID_instr_o),
+                        .ID_pc_o(ID_pc_o),
+                        .ID_pc_plus_4_o(ID_pc_plus_4_o)
+                      );
 
 
   //Instruction Decode stage
-  assign ID_dest_reg = ID_is_nop ? 0 : ID_instr[11:7];
-  assign ID_src_reg_1 = ID_is_nop ? 0 : ID_instr[19:15];
-  assign ID_src_reg_2 = ID_is_nop ? 0 : ID_instr[24:20];
-  assign ID_imm_ext = ID_is_nop ? 0 : ID_imm_ext_sig;
-  dtcore32_regfile  dtcore32_regfile_inst (
-                      .clk(clk_i),
-                      .we3(WB_reg_wr),
-                      .rst(rst_i),
-                      .a1(ID_src_reg_1),
-                      .a2(ID_src_reg_2),
-                      .a3(WB_dest_reg),
-                      .wd3(WB_result),
-                      .rd1(ID_reg_data_1),
-                      .rd2(ID_reg_data_2)
-                    );
-
-  extend  extend_inst (
-            .instr_data(ID_instr[31:7]),
-            .imm_src(ID_imm_src),
-            .imm_ext(ID_imm_ext_sig)
-          );
-
-
-  dtcore32_controller  dtcore32_controller_inst (
-                         .clk_i(clk_i),
-                         .rst_i(rst_i),
-                         .op_i(op),
-                         .funct3_i(funct3),
-                         .funct7b5_i(funct7b5),
-                         .ID_result_src_o(ID_result_src),
-                         .ID_alu_a_src_o(ID_alu_a_src),
-                         .ID_mem_wr_size_o(ID_mem_wr_size),
-                         .ID_alu_control_o(ID_alu_control),
-                         .ID_imm_src_o(ID_imm_src),
-                         .ID_load_size_o(ID_load_size),
-                         .ID_alu_b_src_o(ID_alu_b_src),
-                         .ID_reg_wr_o(ID_reg_wr),
-                         .ID_jump_o(ID_jump),
-                         .ID_branch_o(ID_branch),
-                         .ID_pc_target_alu_src_o(ID_pc_target_alu_src),
-                         .ID_is_nop_o(ID_is_nop),
-                         .ID_exception_o(exception)
-                       );
+                      dtcore32_ID_stage  dtcore32_ID_stage_inst (
+                        .ID_instr_i(ID_instr_i),
+                        .ID_pc_i(ID_pc_i),
+                        .WB_reg_wr_en_i(WB_reg_wr_en_i),
+                        .WB_csr_wr_en_i(WB_csr_wr_en_i),
+                        .WB_dest_reg_i(WB_dest_reg_i),
+                        .WB_result_i(WB_result_i),
+                        .WB_csr_wr_data_i(WB_csr_wr_data_i),
+                        .ID_reg_wr_en_o(ID_reg_wr_en_o),
+                        .ID_result_src_o(ID_result_src_o),
+                        .ID_load_size_o(ID_load_size_o),
+                        .ID_mem_wr_size_o(ID_mem_wr_size_o),
+                        .ID_jump_o(ID_jump_o),
+                        .ID_branch_o(ID_branch_o),
+                        .ID_alu_control_o(ID_alu_control_o),
+                        .ID_alu_b_src_o(ID_alu_b_src_o),
+                        .ID_alu_a_src_o(ID_alu_a_src_o),
+                        .ID_pc_target_alu_src_o(ID_pc_target_alu_src_o),
+                        .ID_csr_wr_en_o(ID_csr_wr_en_o),
+                        .ID_reg_data_1_o(ID_reg_data_1_o),
+                        .ID_reg_data_2_o(ID_reg_data_2_o),
+                        .ID_pc_o(ID_pc_o),
+                        .ID_src_reg_1_o(ID_src_reg_1_o),
+                        .ID_src_reg_2_o(ID_src_reg_2_o),
+                        .ID_dest_reg_o(ID_dest_reg_o),
+                        .ID_imm_ext_o(ID_imm_ext_o),
+                        .ID_csr_rd_data_o(ID_csr_rd_data_o),
+                        .ID_exception_o(ID_exception_o)
+                      );
 
   // ID/EX register
-  always_ff @(posedge clk_i)
-  begin
-    if (rst_i || EX_flush)
-    begin
-      EX_reg_wr <= 0;
-      EX_result_src <= 0;
-      EX_load_size <= 0;
-      EX_mem_wr_size <= 0;
-      EX_jump <= 0;
-      EX_branch <= 0;
-      EX_alu_control <= 0;
-      EX_alu_a_src <= 0;
-      EX_alu_b_src <= 1;
-      EX_pc_target_alu_src <= 0;
-      EX_reg_data_1 <= 0;
-      EX_reg_data_2 <= 0;
-      EX_pc <= 0;
-      EX_src_reg_1 <= 0;
-      EX_src_reg_2 <= 0;
-      EX_dest_reg <= 0;
-      EX_imm_ext <= 0;
-      EX_pc_plus_4 <= 0;
-    end
-    else
-    begin
-      EX_reg_wr <= ID_reg_wr;
-      EX_result_src <= ID_result_src;
-      EX_load_size <= ID_load_size;
-      EX_mem_wr_size <= ID_mem_wr_size;
-      EX_jump <= ID_jump;
-      EX_branch <= ID_branch;
-      EX_alu_control <= ID_alu_control;
-      EX_alu_a_src <= ID_alu_a_src;
-      EX_alu_b_src <= ID_alu_b_src;
-      EX_pc_target_alu_src <= ID_pc_target_alu_src;
-      EX_reg_data_1 <= ID_reg_data_1;
-      EX_reg_data_2 <= ID_reg_data_2;
-      EX_pc <= ID_pc;
-      EX_src_reg_1 <= ID_src_reg_1;
-      EX_src_reg_2 <= ID_src_reg_2;
-      EX_dest_reg <= ID_dest_reg;
-      EX_imm_ext <= ID_imm_ext;
-      EX_pc_plus_4 <= ID_pc_plus_4;
-    end
-  end
+  dtcore32_ID_EX_reg  dtcore32_ID_EX_reg_inst (
+                        .clk_i(clk_i),
+                        .rst_i(rst_i),
+                        .EX_flush_i(EX_flush_i),
+                        .ID_reg_wr_en_i(ID_reg_wr_en_i),
+                        .ID_result_src_i(ID_result_src_i),
+                        .ID_load_size_i(ID_load_size_i),
+                        .ID_mem_wr_size_i(ID_mem_wr_size_i),
+                        .ID_jump_i(ID_jump_i),
+                        .ID_branch_i(ID_branch_i),
+                        .ID_alu_control_i(ID_alu_control_i),
+                        .ID_alu_b_src_i(ID_alu_b_src_i),
+                        .ID_alu_a_src_i(ID_alu_a_src_i),
+                        .ID_pc_target_alu_src_i(ID_pc_target_alu_src_i),
+                        .ID_csr_wr_en_i(ID_csr_wr_en_i),
+                        .ID_reg_data_1_i(ID_reg_data_1_i),
+                        .ID_reg_data_2_i(ID_reg_data_2_i),
+                        .ID_pc_i(ID_pc_i),
+                        .ID_src_reg_1_i(ID_src_reg_1_i),
+                        .ID_src_reg_2_i(ID_src_reg_2_i),
+                        .ID_dest_reg_i(ID_dest_reg_i),
+                        .ID_imm_ext_i(ID_imm_ext_i),
+                        .ID_pc_plus_4_i(ID_pc_plus_4_i),
+                        .ID_csr_rd_data_i(ID_csr_rd_data_i),
+                        .EX_reg_wr_en_o(EX_reg_wr_en_o),
+                        .EX_result_src_o(EX_result_src_o),
+                        .EX_load_size_o(EX_load_size_o),
+                        .EX_mem_wr_size_o(EX_mem_wr_size_o),
+                        .EX_jump_o(EX_jump_o),
+                        .EX_branch_o(EX_branch_o),
+                        .EX_alu_control_o(EX_alu_control_o),
+                        .EX_alu_b_src_o(EX_alu_b_src_o),
+                        .EX_alu_a_src_o(EX_alu_a_src_o),
+                        .EX_pc_target_alu_src_o(EX_pc_target_alu_src_o),
+                        .EX_csr_wr_en_o(EX_csr_wr_en_o),
+                        .EX_reg_data_1_o(EX_reg_data_1_o),
+                        .EX_reg_data_2_o(EX_reg_data_2_o),
+                        .EX_pc_o(EX_pc_o),
+                        .EX_src_reg_1_o(EX_src_reg_1_o),
+                        .EX_src_reg_2_o(EX_src_reg_2_o),
+                        .EX_dest_reg_o(EX_dest_reg_o),
+                        .EX_imm_ext_o(EX_imm_ext_o),
+                        .EX_pc_plus_4_o(EX_pc_plus_4_o),
+                        .EX_csr_rd_data_o(EX_csr_rd_data_o)
+                      );
 
   // Instruction Execute stage
-  assign EX_pc_src = EX_jump | (EX_branch & EX_branch_cond);
-  mux3to1 # (
-            .WIDTH(32)
-          )
-          mux3to1_inst_EX1 (
-            .in0(EX_reg_data_1),
-            .in1(WB_result),
-            .in2(DMEM_addr),
-            .sel(EX_forward_a),
-            .out(EX_src_a_tick)
-          );
-  mux3to1 # (
-            .WIDTH(32)
-          )
-          mux3to1_inst_EX2 (
-            .in0(EX_src_a_tick),
-            .in1(32'd0),
-            .in2(EX_pc),
-            .sel(EX_alu_a_src),
-            .out(EX_src_a)
-          );
-  mux3to1 # (
-            .WIDTH(32)
-          )
-          mux3to1_inst_EX3 (
-            .in0(EX_reg_data_2),
-            .in1(WB_result),
-            .in2(DMEM_addr),
-            .sel(EX_forward_b),
-            .out(EX_wr_data)
-          );
-  mux2to1 # (
-            .WIDTH(32)
-          )
-          mux2to1_inst_EX1 (
-            .in0(EX_wr_data),
-            .in1(EX_imm_ext),
-            .sel(EX_alu_b_src),
-            .out(EX_src_b)
-          );
-  mux2to1 # (
-            .WIDTH(32)
-          )
-          mux2to1_inst_EX2 (
-            .in0(EX_pc),
-            .in1(EX_src_a_tick),
-            .sel(EX_pc_target_alu_src),
-            .out(EX_pc_target_src_a)
-          );
-  adder # (
-          .WIDTH(32)
-        )
-        adder_inst_EX (
-          .in1(EX_pc_target_src_a),
-          .in2(EX_imm_ext),
-          .sum(EX_pc_target)
-        );
-  dtcore32_alu # (
-                 .WIDTH(32)
-               )
-               dtcore32_alu_inst (
-                 .control(EX_alu_control),
-                 .a(EX_src_a),
-                 .b(EX_src_b),
-                 .y(EX_alu_result),
-                 .BranchCond(EX_branch_cond)
-               );
-
+  dtcore32_EX_stage  dtcore32_EX_stage_inst (
+                       .EX_jump_i(EX_jump_i),
+                       .EX_branch_i(EX_branch_i),
+                       .EX_alu_control_i(EX_alu_control_i),
+                       .EX_alu_b_src_i(EX_alu_b_src_i),
+                       .EX_alu_a_src_i(EX_alu_a_src_i),
+                       .EX_pc_target_alu_src_i(EX_pc_target_alu_src_i),
+                       .EX_reg_data_1_i(EX_reg_data_1_i),
+                       .EX_reg_data_2_i(EX_reg_data_2_i),
+                       .EX_pc_i(EX_pc_i),
+                       .EX_imm_ext_i(EX_imm_ext_i),
+                       .EX_forward_a_i(EX_forward_a_i),
+                       .EX_forward_b_i(EX_forward_b_i),
+                       .EX_csr_rd_data_i(EX_csr_rd_data_i),
+                       .MEM_alu_result_i(MEM_alu_result_i),
+                       .WB_result_i(WB_result_i),
+                       .EX_pc_src_o(EX_pc_src_o),
+                       .EX_alu_result_o(EX_alu_result_o),
+                       .EX_dmem_wr_data_o(EX_dmem_wr_data_o),
+                       .EX_pc_target_o(EX_pc_target_o)
+                     );
   // EX/MEM register
-  always_ff @(posedge clk_i)
-  begin
-    if (rst_i)
-    begin
-      MEM_reg_wr <= 0;
-      MEM_result_src <= 0;
-      MEM_load_size <= 0;
-      MEM_mem_wr_size <= 0;
-      MEM_alu_result <= 0;
-      MEM_wr_data <= 0;
-      MEM_dest_reg <= 0;
-      MEM_pc_plus_4 <= 0;
-    end
-    else
-    begin
-      MEM_reg_wr <= EX_reg_wr;
-      MEM_result_src <= EX_result_src;
-      MEM_load_size <= EX_load_size;
-      MEM_mem_wr_size <= EX_mem_wr_size;
-      MEM_alu_result <= EX_alu_result;
-      MEM_wr_data <= EX_wr_data;
-      MEM_dest_reg <= EX_dest_reg;
-      MEM_pc_plus_4 <= EX_pc_plus_4;
-    end
-  end
+  dtcore32_EX_MEM_reg  dtcore32_EX_MEM_reg_inst (
+                         .clk_i(clk_i),
+                         .rst_i(rst_i),
+                         .EX_reg_wr_en_i(EX_reg_wr_en_i),
+                         .EX_result_src_i(EX_result_src_i),
+                         .EX_load_size_i(EX_load_size_i),
+                         .EX_mem_wr_size_i(EX_mem_wr_size_i),
+                         .EX_csr_wr_en_i(EX_csr_wr_en_i),
+                         .EX_alu_result_i(EX_alu_result_i),
+                         .EX_wr_data_i(EX_wr_data_i),
+                         .EX_dest_reg_i(EX_dest_reg_i),
+                         .EX_pc_plus_4_i(EX_pc_plus_4_i),
+                         .EX_csr_rd_data_i(EX_csr_rd_data_i),
+                         .MEM_reg_wr_en_o(MEM_reg_wr_en_o),
+                         .MEM_result_src_o(MEM_result_src_o),
+                         .MEM_load_size_o(MEM_load_size_o),
+                         .MEM_mem_wr_size_o(MEM_mem_wr_size_o),
+                         .MEM_csr_wr_en_o(MEM_csr_wr_en_o),
+                         .MEM_alu_result_o(MEM_alu_result_o),
+                         .MEM_wr_data_o(MEM_wr_data_o),
+                         .MEM_dest_reg_o(MEM_dest_reg_o),
+                         .MEM_pc_plus_4_o(MEM_pc_plus_4_o),
+                         .MEM_csr_rd_data_o(MEM_csr_rd_data_o)
+                       );
 
 
   // Data Memory stage
+  dtcore32_MEM_stage  dtcore32_MEM_stage_inst (
+                        .MEM_load_size_i(MEM_load_size_i),
+                        .MEM_mem_wr_size_i(MEM_mem_wr_size_i),
+                        .MEM_alu_result_i(MEM_alu_result_i),
+                        .MEM_dmem_wr_data_i(MEM_dmem_wr_data_i),
+                        .DMEM_rd_data_i(DMEM_rd_data_i),
+                        .MEM_dmem_rd_data_o(MEM_dmem_rd_data_o),
+                        .DMEM_wr_byte_en_o(DMEM_wr_byte_en_o),
+                        .DMEM_wr_data_o(DMEM_wr_data_o),
+                        .MEM_misaligned_store_o(MEM_misaligned_store_o),
+                        .MEM_misaligned_load_o(MEM_misaligned_load_o),
+                        .MEM_unknown_load_o(MEM_unknown_load_o)
+                      );
 
-  // stores
-  always_comb
-  begin
-    DMEM_addr = MEM_alu_result;
-    misaligned_store = 0;
-    DMEM_wr_data = 0;
-    DMEM_wr_byte_en = 0;
-    unique case (MEM_mem_wr_size)
-             `MEM_NO_DMEM_WR:
-             begin
-             end
-             `MEM_WORD_WR:
-             begin
-               DMEM_wr_data = MEM_wr_data;
-               DMEM_wr_byte_en = 4'hf;
-             end
-             `MEM_HALF_WR:
-             begin
-               case (MEM_alu_result[1:0])
-                 2'b00:
-                 begin
-                   DMEM_wr_byte_en = 4'h3;
-                   DMEM_wr_data = {16'd0,MEM_wr_data[15:0]};
-                 end
-                 2'b10:
-                 begin
-                   DMEM_wr_byte_en = 4'hc;
-                   DMEM_wr_data = {MEM_wr_data[15:0],16'd0};
-                 end
-                 default:
-                   misaligned_store = 1;
-               endcase
 
-             end
-             `MEM_BYTE_WR:
-             begin
-               case (MEM_alu_result[1:0])
-                 2'b00:
-                 begin
-                   DMEM_wr_byte_en = 4'h1;
-                   DMEM_wr_data = {24'd0,MEM_wr_data[7:0]};
-                 end
-                 2'b01:
-                 begin
-                   DMEM_wr_byte_en = 4'h2;
-                   DMEM_wr_data = {16'd0,MEM_wr_data[7:0],8'd0};
-                 end
-                 2'b10:
-                 begin
-                   DMEM_wr_byte_en = 4'h4;
-                   DMEM_wr_data = {8'd0,MEM_wr_data[7:0],16'd0};
-                 end
-                 2'b11:
-                 begin
-                   DMEM_wr_byte_en = 4'h8;
-                   DMEM_wr_data = {MEM_wr_data[7:0],24'd0};
-                 end
-                 default:
-                   misaligned_store = 1;
-               endcase
-             end
-           endcase
-         end
+  dtcore32_MEM_WB_reg  dtcore32_MEM_WB_reg_inst (
+                         .clk_i(clk_i),
+                         .rst_i(rst_i),
+                         .MEM_reg_wr_en_i(MEM_reg_wr_en_i),
+                         .MEM_result_src_i(MEM_result_src_i),
+                         .MEM_csr_wr_en_i(MEM_csr_wr_en_i),
+                         .MEM_alu_result_i(MEM_alu_result_i),
+                         .MEM_dmem_rd_data_i(MEM_dmem_rd_data_i),
+                         .MEM_dest_reg_i(MEM_dest_reg_i),
+                         .MEM_pc_plus_4_i(MEM_pc_plus_4_i),
+                         .MEM_csr_rd_data_i(MEM_csr_rd_data_i),
+                         .WB_reg_wr_en_o(WB_reg_wr_en_o),
+                         .WB_result_src_o(WB_result_src_o),
+                         .WB_csr_wr_en_o(WB_csr_wr_en_o),
+                         .WB_alu_result_o(WB_alu_result_o),
+                         .WB_dmem_rd_data_o(WB_dmem_rd_data_o),
+                         .WB_dest_reg_o(WB_dest_reg_o),
+                         .WB_pc_plus_4_o(WB_pc_plus_4_o),
+                         .WB_csr_rd_data_o(WB_csr_rd_data_o)
+                       );
 
-         // loads
-         always_comb
-         begin
-           misaligned_load = 0;
-           unknown_load = 0;
-           MEM_rd_data = 0;
-           case (MEM_load_size)
-             //lw
-             `DMEM_LOAD_SIZE_WORD:
-             begin
-               MEM_rd_data = DMEM_rd_data_i;
-             end
-             //lb
-             `DMEM_LOAD_SIZE_BYTE:
-             case(MEM_alu_result[1:0])
-               2'b00:
-               begin
-                 MEM_rd_data = { {24{DMEM_rd_data_i[7]}}, DMEM_rd_data_i[7:0] };
-               end
-               2'b01:
-               begin
-                 MEM_rd_data = { {24{DMEM_rd_data_i[15]}}, DMEM_rd_data_i[15:8] };
-               end
-               2'b10:
-               begin
-                 MEM_rd_data = { {24{DMEM_rd_data_i[23]}}, DMEM_rd_data_i[23:16] };
-               end
-               2'b11:
-               begin
-                 MEM_rd_data = { {24{DMEM_rd_data_i[31]}}, DMEM_rd_data_i[31:24] };
-               end
-             endcase
-             //lbu
-             `DMEM_LOAD_SIZE_BYTEU:
-             case(MEM_alu_result[1:0])
-               2'b00:
-               begin
-                 MEM_rd_data = { {24{1'b0}},DMEM_rd_data_i[7:0] };
-               end
-               2'b01:
-               begin
-                 MEM_rd_data = { {24{1'b0}},DMEM_rd_data_i[15:8] };
-               end
-               2'b10:
-               begin
-                 MEM_rd_data = { {24{1'b0}},DMEM_rd_data_i[23:16] };
-               end
-               2'b11:
-               begin
-                 MEM_rd_data = { {24{1'b0}},DMEM_rd_data_i[31:24] };
-               end
-             endcase
-             //lh
-             `DMEM_LOAD_SIZE_HALF:
-             case(MEM_alu_result[1:0])
-               2'b00:
-               begin
-                 MEM_rd_data = { {16{DMEM_rd_data_i[15]}},DMEM_rd_data_i[15:0] };
-               end
-               2'b10:
-               begin
-                 MEM_rd_data = { {16{DMEM_rd_data_i[31]}},DMEM_rd_data_i[31:16] };
-               end
-               default:
-                 misaligned_load = 1;
-             endcase
 
-             //lhu
-             `DMEM_LOAD_SIZE_HALFU:
-             case(MEM_alu_result[1:0])
-               2'b00:
-               begin
-                 MEM_rd_data = { {16{1'b0}},DMEM_rd_data_i[15:0] };
-               end
-               2'b10:
-               begin
-                 MEM_rd_data = { {16{1'b0}},DMEM_rd_data_i[31:16] };
-               end
-               default:
-                 misaligned_load = 1;
-
-             endcase
-
-             default:
-               unknown_load = 1;
-           endcase
-         end
-
-         // MEM/WB register
-         always_ff@(posedge clk_i)
-         begin
-           if(rst_i)
-           begin
-             WB_reg_wr <= 0;
-             WB_result_src <= 0;
-             WB_alu_result <= 0;
-             WB_rd_data <= 0;
-             WB_dest_reg <= 0;
-             WB_pc_plus_4 <= 0;
-           end
-           else
-           begin
-             WB_reg_wr <= MEM_reg_wr;
-             WB_result_src <= MEM_result_src;
-             WB_alu_result <= DMEM_addr;
-             WB_rd_data <= MEM_rd_data;
-             WB_dest_reg <= MEM_dest_reg;
-             WB_pc_plus_4 <= MEM_pc_plus_4;
-           end
-         end
-
-         // Writeback stage
-         mux3to1 # (
-                   .WIDTH(32)
-                 )
-                 mux3to1_inst_WB (
-                   .in0(WB_alu_result),
-                   .in1(WB_rd_data),
-                   .in2(WB_pc_plus_4),
-                   .sel(WB_result_src),
-                   .out(WB_result)
-                 );
+  dtcore32_WB_stage  dtcore32_WB_stage_inst (
+                       .WB_result_src_i(WB_result_src_i),
+                       .WB_alu_result_i(WB_alu_result_i),
+                       .WB_dmem_rd_data_i(WB_dmem_rd_data_i),
+                       .WB_pc_plus_4_i(WB_pc_plus_4_i),
+                       .WB_csr_rd_data_i(WB_csr_rd_data_i),
+                       .WB_result_o(WB_result_o)
+                     );
 
   // Hazard Unit
   dtcore32_hazunit  dtcore32_hazunit_inst (

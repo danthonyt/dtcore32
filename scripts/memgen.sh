@@ -26,7 +26,7 @@ for eachfile in "$TESTDIR"/*.S; do
   if [ -f "$eachfile" ]; then
     # Compile, link, generate dump, and memory hex file
     riscv32-unknown-elf-gcc -c "$eachfile" -I"$RVTEST_INCLUDE" -o "$eachfile.o"
-    riscv32-unknown-elf-ld "$eachfile.o" -Ttext 0x00000000 -Tdata 0x00002000 -o "$eachfile.v2"
+    riscv32-unknown-elf-ld  "$eachfile.o" -Ttext 0x00000000 -Tdata 0x00002000 -o "$eachfile.v2"
     riscv32-unknown-elf-objdump -d "$eachfile.v2" > "$eachfile.dump"
     riscv32-unknown-elf-objcopy -O binary "$eachfile.v2" "$eachfile.bin"
 
@@ -35,10 +35,7 @@ for eachfile in "$TESTDIR"/*.S; do
 hexdump -v -e '4/1 "%02X" "\n"' "$eachfile.bin" | \
 awk '{
   swapped = substr($0,7,2) substr($0,5,2) substr($0,3,2) substr($0,1,2);
-  if ((NR - 1) % 4 == 0)
     print swapped;
-  else
-    print "00000000";
 }' > "$eachfile.hex"
     # Rename .hex file to .mem
     memfile="$HEXDIR/$(basename "${eachfile%.S}.mem")"

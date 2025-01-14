@@ -4,19 +4,23 @@ module dtcore32_controller(
     input logic [6:0]  op_i,
     input logic [2:0]  funct3_i,
     input logic funct7b5_i,
+    input logic [19:15] zicsr_rs1_i,
+    input logic [11:7] zicsr_rd_i,
     output logic [1:0]  ID_result_src_o,
     output logic [1:0]  ID_alu_a_src_o,
     output logic [1:0]  ID_mem_wr_size_o,
     output logic [3:0]  ID_alu_control_o,
     output logic [2:0]  ID_imm_src_o,
     output logic [2:0] ID_load_size_o,
-    output logic ID_alu_b_src_o,
+    output logic [1:0] ID_alu_b_src_o,
     output logic ID_reg_wr_o,
     output logic ID_jump_o,
     output logic ID_branch_o,
     output logic ID_pc_target_alu_src_o,
     output logic ID_is_nop_o,
-    output logic ID_exception_o
+    output logic ID_exception_o,
+    output logic ID_csr_wr_en_o,
+    output logic ID_csr_rd_en_o
   );
 
   // ===========================================================================
@@ -35,21 +39,21 @@ module dtcore32_controller(
   logic [3:0]  ID_alu_control;
   logic [2:0]  ID_imm_src;
   logic [2:0] ID_load_size;
-  logic ID_alu_b_src;
+  logic [1:0] ID_alu_b_src;
   logic ID_reg_wr;
   logic ID_jump;
   logic ID_branch;
   logic ID_pc_target_alu_src;
-
+  logic ID_csr_wr_en;
+  logic ID_csr_rd_en;
   // ===========================================================================
   // 			          Implementation
   // ===========================================================================
 
-
   assign ID_r_type_sub = op_i[5] & funct7b5_i;
   assign ID_i_type_sub = ~op_i[5] & funct7b5_i;
-  
-  
+
+
 
   // exception handling
   always_ff @(posedge clk_i)
@@ -63,6 +67,8 @@ module dtcore32_controller(
   begin
     ID_is_nop = 0;
     opcode_exception = 0;
+    ID_csr_rd_en = 0;
+    ID_csr_wr_en = 0;
     case (op_i)
       `OPCODE_LOAD:
       begin
@@ -97,7 +103,7 @@ module dtcore32_controller(
 
 
       // FENCE, ECALL, EBREAK are all NOPs
-      `OPCODE_FENCE, `OPCODE_SYSTEM:
+      `OPCODE_FENCE:
       begin
         ID_reg_wr = `REGFILE_WRITE_ENABLE;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
@@ -111,8 +117,56 @@ module dtcore32_controller(
         ID_pc_target_alu_src = `PC_TARGET_ALU_SRC_SELECT_PC;
         ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
         ID_is_nop = 1; //addi x0,x0,0
+        ID_csr_rd_en = 0;
+        ID_csr_wr_en = 0;
       end
 
+      `OPCODE_SYSTEM_ZICSR:
+      begin
+        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        //ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
+        ID_alu_b_src = `ALU_B_SRC_SELECT_CSR_RD_DATA;
+        ID_mem_wr_size = `MEM_NO_DMEM_WR;
+        ID_result_src = `RESULT_SRC_SELECT_ALU_RESULT;
+        ID_branch = `IS_NOT_BRANCH_INSTR;
+        ID_alu_op = `ALU_OP_ZICSR;
+        ID_jump = `IS_NOT_JUMP_INSTR;
+        ID_load_size = `DMEM_LOAD_SIZE_NO_LOAD;
+        ID_pc_target_alu_src = `PC_TARGET_ALU_SRC_SELECT_PC;
+        ID_imm_src = `ID_ZICSR_TYPE_IMM_SRC;
+        case (funct3_i)
+          `FUNCT3_CSRRW:
+          begin
+            ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
+            ID_alu_b_src = `ALU_B_SRC_SELECT_ZERO;
+            ID_csr_rd_en = (zicsr_rd_i == 0) ? 0 : 1;
+            ID_csr_wr_en = 1;
+          end
+          `FUNCT3_CSRRS,`FUNCT3_CSRRC:
+          begin
+            ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
+            ID_csr_rd_en = 1;
+            ID_csr_wr_en = (zicsr_rs1_i == 0) ? 0 : 1;
+          end
+          `FUNCT3_CSRRWI:
+          begin
+            ID_alu_a_src = `ALU_A_SRC_SELECT_CSR_IMM;
+            ID_alu_b_src = `ALU_B_SRC_SELECT_ZERO;
+            ID_csr_rd_en = (zicsr_rd_i == 0) ? 0 : 1;
+            ID_csr_wr_en = 1;
+          end
+          `FUNCT3_CSRRSI,`FUNCT3_CSRRCI:
+          begin
+            ID_alu_a_src = `ALU_A_SRC_SELECT_CSR_IMM;
+            ID_csr_rd_en = 1;
+            ID_csr_wr_en = (zicsr_rs1_i == 0) ? 0 : 1;
+          end
+          default:
+          begin
+            opcode_exception = 1;
+          end
+        endcase
+      end
 
       `OPCODE_STORE:
       begin
@@ -326,6 +380,21 @@ module dtcore32_controller(
           ID_alu_op_exception = 1;
         end
       endcase
+      `ALU_OP_ZICSR:
+      case (funct3_i)
+        `FUNCT3_CSRRW,`FUNCT3_CSRRWI:
+          ID_alu_control = `EX_ADD_ALU_CONTROL;
+        `FUNCT3_CSRRS,`FUNCT3_CSRRSI:
+          ID_alu_control = `EX_OR_ALU_CONTROL;
+        `FUNCT3_CSRRC,`FUNCT3_CSRRCI:
+          ID_alu_control = `EX_ADD_ALU_CONTROL;
+        default:
+        begin
+          ID_alu_control = 0; //unknown
+          ID_alu_op_exception = 1;
+        end
+
+      endcase
       default:
       begin
         ID_alu_control = 0; //unknown
@@ -347,7 +416,8 @@ module dtcore32_controller(
   assign ID_jump_o = ID_jump;
   assign ID_branch_o = ID_branch;
   assign ID_pc_target_alu_src_o = ID_pc_target_alu_src;
-
+  assign ID_csr_wr_en_o = ID_csr_wr_en;
+  assign ID_csr_rd_en_o = ID_csr_rd_en;
 endmodule
 
 

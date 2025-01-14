@@ -12,15 +12,19 @@
 `define ID_J_TYPE_IMM_SRC 3'b011
 `define ID_I_SHIFT_TYPE_IMM_SRC 3'b100
 `define ID_U_TYPE_IMM_SRC 3'b101
+`define ID_ZICSR_TYPE_IMM_SRC 3'b110
 
 //ID_alu_a_src
 `define ALU_A_SRC_SELECT_REG_DATA 2'b00
 `define ALU_A_SRC_SELECT_ZERO 2'b01
 `define ALU_A_SRC_SELECT_PC 2'b10
+`define ALU_A_SRC_SELECT_CSR_IMM 2'b11
 
 //ID_alu_b_src
-`define ALU_B_SRC_SELECT_REG_DATA 1'b0
-`define ALU_B_SRC_SELECT_IMM 1'b1
+`define ALU_B_SRC_SELECT_REG_DATA 2'b00
+`define ALU_B_SRC_SELECT_IMM 2'b01
+`define ALU_B_SRC_SELECT_CSR_RD_DATA 2'b10
+`define ALU_B_SRC_SELECT_ZERO 2'b11
 
 
 //ID_mem_wr_size
@@ -43,6 +47,7 @@
 `define ALU_OP_ILOAD_S_U_TYPE 2'b00
 `define ALU_OP_B_TYPE 2'b01
 `define ALU_OP_IALU_ISHIFT_R_TYPE 2'b10
+`define ALU_OP_ZICSR 2'b11
 
 //ID_jump
 `define IS_JUMP_INSTR 1'b1
@@ -60,6 +65,13 @@
 `define PC_TARGET_ALU_SRC_SELECT_PC 1'b0
 `define PC_TARGET_ALU_SRC_SELECT_REG_DATA 1'b1
 
+// ID_csr_wr_en
+`define CSR_WRITE_DISABLE 1'b0
+`define CSR_WRITE_ENABLE 1'b1
+// ID_csr_rd_en
+`define CSR_READ_DISABLE 1'b0
+`define CSR_READ_ENABLE 1'b1
+
 // OPCODES
 `define OPCODE_LOAD 7'b0000011
 `define OPCODE_STORE 7'b0100011
@@ -70,8 +82,8 @@
 `define OPCODE_U_TYPE_LUI 7'b0110111
 `define OPCODE_U_TYPE_AUIPC 7'b0010111
 `define OPCODE_JALR 7'b1100111
-`define OPCODE_SYSTEM 7'b1110011
-`define OPCODE_FENCE 7'b00001111
+`define OPCODE_SYSTEM_ZICSR 7'b1110011
+`define OPCODE_FENCE 7'b0001111
 // FUNCT3
 `define FUNCT3_LB 3'b000
 `define FUNCT3_LH 3'b001
@@ -101,6 +113,13 @@
 
 `define FUNCT3_ECALL_EBREAK 3'b000
 
+`define FUNCT3_CSRRW 3'b001
+`define FUNCT3_CSRRS 3'b010
+`define FUNCT3_CSRRC 3'b011
+`define FUNCT3_CSRRWI 3'b101
+`define FUNCT3_CSRRSI 3'b110
+`define FUNCT3_CSRRCI 3'b111
+
 //alu module control
 `define EX_ADD_ALU_CONTROL 4'h0
 `define EX_SUB_ALU_CONTROL 4'h1
@@ -116,6 +135,7 @@
 `define EX_GE_ALU_CONTROL 4'hA
 `define EX_GEU_ALU_CONTROL 4'hB
 `define EX_NE_ALU_CONTROL 4'hC
+`define EX_NOTA_AND_B_ALU_CONTROL 4'hD
 
 `define NOP_INSTRUCTION 32'h00000013    // addi x0, x0, 0
 `endif

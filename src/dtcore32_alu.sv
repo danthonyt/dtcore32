@@ -1,81 +1,76 @@
+`include "macros.svh"
 module dtcore32_alu #(parameter WIDTH=32)(
     input  logic  [3:0]       control,
     input  logic [WIDTH-1:0] a,b,
     output logic [WIDTH-1:0] y,
     output logic BranchCond
   );
-// ===========================================================================
-// 			          Parameters, Registers, and Wires
-// ===========================================================================
-
-// ===========================================================================
-// 			          Instantiations
-// ===========================================================================
-
-// ===========================================================================
-// 			          Implementation
-// ===========================================================================
+  
   always_comb
   begin
     BranchCond = 0;
     case (control)
       //add,addi,lw,sw
-      4'b0000:
+      `EX_ADD_ALU_CONTROL:
         y = a + b;
       //sub,beq
-      4'b0001:
+      `EX_SUB_ALU_CONTROL:
       begin
         y = a - b;
-        BranchCond = (y == 0) ? 1 : 0; 
+        BranchCond = (y == 0) ? 1 : 0;
       end
       //and,andi
-      4'b0010:
+      `EX_AND_ALU_CONTROL:
         y = a & b;
       //or,ori
-      4'b0011:
+      `EX_OR_ALU_CONTROL:
         y = a | b;
       //sll,slli
-      4'b0100:
+      `EX_L_SHIFT_ALU_CONTROL:
         y = a << b;
 
       //slt,slti,blt
-      4'b0101:
+      `EX_LT_ALU_CONTROL:
       begin
         y = ($signed(a) < $signed(b)) ? 1 : 0;
-        BranchCond = (y == 0) ? 0 : 1; 
+        BranchCond = (y == 0) ? 0 : 1;
       end
       //sltu,sltiu,bltu
-      4'b0110:
+      `EX_LTU_ALU_CONTROL:
       begin
         y = (a < b) ? 1 : 0;
-        BranchCond = (y == 0) ? 0 : 1; 
+        BranchCond = (y == 0) ? 0 : 1;
       end
       //xor,xori
-      4'b0111:
+      `EX_XOR_ALU_CONTROL:
         y = a ^ b;
       //sra,srai
-      4'b1000:
+      `EX_R_SHIFT_A_ALU_CONTROL:
         y = a >>> b;
       //srl,srli
-      4'b1001:
+      `EX_R_SHIFT_L_ALU_CONTROL:
         y = a >> b;
       //bge
-      4'b1010:
+      `EX_GE_ALU_CONTROL:
       begin
         y = ($signed(a) >= $signed(b)) ? 1 : 0;
-        BranchCond = (y == 0) ? 0 : 1; 
+        BranchCond = (y == 0) ? 0 : 1;
       end
       //bgeu
-      4'b1011:
+      `EX_GEU_ALU_CONTROL:
       begin
         y = (a >= b) ? 1 : 0;
-        BranchCond = (y == 0) ? 0 : 1; 
+        BranchCond = (y == 0) ? 0 : 1;
       end
       //bne
-      4'b1100:
+      `EX_NE_ALU_CONTROL:
       begin
         y = a - b;
-        BranchCond = (y == 0) ? 0 : 1; 
+        BranchCond = (y == 0) ? 0 : 1;
+      end
+      `EX_NOTA_AND_B_ALU_CONTROL:
+      begin
+        y = (~a) & b; // a is a bitmask that clears b for all high bit positions
       end
       default:
         y = 0; //??

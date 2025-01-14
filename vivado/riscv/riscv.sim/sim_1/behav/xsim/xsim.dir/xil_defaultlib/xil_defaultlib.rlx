@@ -1,0 +1,16 @@
+0.7
+2020.2
+Nov  8 2024
+22:36:55
+/home/david/Documents/work/dtcore32/sim/testbench.sv,1736768793,systemVerilog,,,,testbench,,uvm,../../../../../../src,,,,,
+/home/david/Documents/work/dtcore32/src/adder.sv,1736768793,systemVerilog,,/home/david/Documents/work/dtcore32/src/dtcore32.sv,,adder,,uvm,../../../../../../src,,,,,
+/home/david/Documents/work/dtcore32/src/dtcore32.sv,1736768793,systemVerilog,,/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv,/home/david/Documents/work/dtcore32/src/macros.svh,dtcore32,,uvm,../../../../../../src,,,,,
+/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv,1736768793,systemVerilog,,/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv,,dtcore32_alu,,uvm,../../../../../../src,,,,,
+/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv,1736768793,systemVerilog,,/home/david/Documents/work/dtcore32/src/dtcore32_hazunit.sv,/home/david/Documents/work/dtcore32/src/macros.svh,dtcore32_controller,,uvm,../../../../../../src,,,,,
+/home/david/Documents/work/dtcore32/src/dtcore32_hazunit.sv,1736768793,systemVerilog,,/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv,,dtcore32_hazunit,,uvm,../../../../../../src,,,,,
+/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv,1736768793,systemVerilog,,/home/david/Documents/work/dtcore32/src/extend.sv,,dtcore32_regfile,,uvm,../../../../../../src,,,,,
+/home/david/Documents/work/dtcore32/src/extend.sv,1736768793,systemVerilog,,/home/david/Documents/work/dtcore32/src/mux2to1.sv,,extend,,uvm,../../../../../../src,,,,,
+/home/david/Documents/work/dtcore32/src/macros.svh,1736768793,verilog,,,,,,,,,,,,
+/home/david/Documents/work/dtcore32/src/mux2to1.sv,1736768793,systemVerilog,,/home/david/Documents/work/dtcore32/src/mux3to1.sv,,mux2to1,,uvm,../../../../../../src,,,,,
+/home/david/Documents/work/dtcore32/src/mux3to1.sv,1736768793,systemVerilog,,/home/david/Documents/work/dtcore32/sim/testbench.sv,,mux3to1,,uvm,../../../../../../src,,,,,
+/home/david/Documents/work/dtcore32/vivado/riscv/riscv.sim/sim_1/behav/xsim/glbl.v,1724786425,verilog,,,,glbl,,uvm,,,,,,
