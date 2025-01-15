@@ -8,19 +8,24 @@ module dtcore32_MEM_stage (
     output logic [31:0] MEM_dmem_rd_data_o,
     output logic [3:0] DMEM_wr_byte_en_o,
     output logic [31:0] DMEM_wr_data_o,
+    output logic MEM_exception_o
+    /*
     output logic MEM_misaligned_store_o,
     output logic MEM_misaligned_load_o,
     output logic MEM_unknown_load_o
+    */
 
   );
   logic [31:0] MEM_dmem_rd_data;
   logic [3:0] DMEM_wr_byte_en;
   logic [31:0] DMEM_wr_data;
+  logic MEM_exception;
+
   logic MEM_misaligned_store;
   logic MEM_misaligned_load;
   logic MEM_unknown_load;
 
-
+  assign MEM_exception = MEM_misaligned_load | MEM_misaligned_store | MEM_unknown_load;
   // stores
   always_comb
   begin
@@ -176,7 +181,10 @@ module dtcore32_MEM_stage (
   assign MEM_dmem_rd_data_o = MEM_dmem_rd_data;
   assign DMEM_wr_byte_en_o = DMEM_wr_byte_en;
   assign DMEM_wr_data_o = DMEM_wr_data;
+  assign MEM_exception_o = MEM_exception;
+  /*
   assign MEM_misaligned_store_o = MEM_misaligned_store;
   assign MEM_misaligned_load_o = MEM_misaligned_load;
   assign MEM_unknown_load_o = MEM_unknown_load;
+  */
 endmodule

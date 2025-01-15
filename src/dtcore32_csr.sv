@@ -6,5 +6,6 @@ module dtcore32_csr(
     output logic [31:0]     csr_rd_data_o,
   );
 assign rd_en_i = 
-
+// csr [11:10] = 11 is read only, else read/write
+// csr [9:8] = lowest priv level that can access csr 
 endmodule

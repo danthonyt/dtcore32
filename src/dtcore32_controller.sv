@@ -13,7 +13,7 @@ module dtcore32_controller(
     output logic [2:0]  ID_imm_src_o,
     output logic [2:0] ID_load_size_o,
     output logic [1:0] ID_alu_b_src_o,
-    output logic ID_reg_wr_o,
+    output logic ID_reg_wr_en_o,
     output logic ID_jump_o,
     output logic ID_branch_o,
     output logic ID_pc_target_alu_src_o,
@@ -40,7 +40,7 @@ module dtcore32_controller(
   logic [2:0]  ID_imm_src;
   logic [2:0] ID_load_size;
   logic [1:0] ID_alu_b_src;
-  logic ID_reg_wr;
+  logic ID_reg_wr_en;
   logic ID_jump;
   logic ID_branch;
   logic ID_pc_target_alu_src;
@@ -72,7 +72,7 @@ module dtcore32_controller(
     case (op_i)
       `OPCODE_LOAD:
       begin
-        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
@@ -105,7 +105,7 @@ module dtcore32_controller(
       // FENCE, ECALL, EBREAK are all NOPs
       `OPCODE_FENCE:
       begin
-        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
         ID_mem_wr_size = `MEM_NO_DMEM_WR;
@@ -123,7 +123,7 @@ module dtcore32_controller(
 
       `OPCODE_SYSTEM_ZICSR:
       begin
-        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         //ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_CSR_RD_DATA;
         ID_mem_wr_size = `MEM_NO_DMEM_WR;
@@ -170,7 +170,7 @@ module dtcore32_controller(
 
       `OPCODE_STORE:
       begin
-        ID_reg_wr = `REGFILE_WRITE_DISABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_DISABLE;
         ID_imm_src = `ID_S_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
@@ -196,7 +196,7 @@ module dtcore32_controller(
       end
       `OPCODE_R_TYPE:
       begin
-        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         ID_imm_src = `ID_NO_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_REG_DATA;
@@ -210,7 +210,7 @@ module dtcore32_controller(
       end
       `OPCODE_B_TYPE:
       begin
-        ID_reg_wr = `REGFILE_WRITE_DISABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_DISABLE;
         ID_imm_src = `ID_B_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_REG_DATA;
@@ -225,7 +225,7 @@ module dtcore32_controller(
       //I-type ALU or shift
       `OPCODE_I_TYPE:
       begin
-        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
         ID_mem_wr_size = `MEM_NO_DMEM_WR;
@@ -250,7 +250,7 @@ module dtcore32_controller(
 
       `OPCODE_JAL:
       begin
-        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         ID_imm_src = `ID_J_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_REG_DATA;
@@ -265,7 +265,7 @@ module dtcore32_controller(
 
       `OPCODE_U_TYPE_LUI:
       begin
-        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         ID_imm_src = `ID_U_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_ZERO;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
@@ -279,7 +279,7 @@ module dtcore32_controller(
       end
       `OPCODE_U_TYPE_AUIPC:
       begin
-        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         ID_imm_src = `ID_U_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_PC;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
@@ -293,7 +293,7 @@ module dtcore32_controller(
       end
       `OPCODE_JALR:
       begin
-        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
@@ -307,7 +307,7 @@ module dtcore32_controller(
       end
       default:
       begin
-        ID_reg_wr = `REGFILE_WRITE_ENABLE;
+        ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
         ID_mem_wr_size = `MEM_NO_DMEM_WR;
@@ -412,7 +412,7 @@ module dtcore32_controller(
   assign ID_imm_src_o = ID_imm_src;
   assign ID_load_size_o = ID_load_size;
   assign ID_alu_b_src_o = ID_alu_b_src;
-  assign ID_reg_wr_o = ID_reg_wr;
+  assign ID_reg_wr_en_o = ID_reg_wr_en;
   assign ID_jump_o = ID_jump;
   assign ID_branch_o = ID_branch;
   assign ID_pc_target_alu_src_o = ID_pc_target_alu_src;
