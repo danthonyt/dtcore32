@@ -27,7 +27,7 @@ module dtcore32_alu #(parameter WIDTH=32)(
         y = a | b;
       //sll,slli
       `EX_L_SHIFT_ALU_CONTROL:
-        y = a << b;
+        y = a << (b & 'h1f);
 
       //slt,slti,blt
       `EX_LT_ALU_CONTROL:
@@ -46,10 +46,10 @@ module dtcore32_alu #(parameter WIDTH=32)(
         y = a ^ b;
       //sra,srai
       `EX_R_SHIFT_A_ALU_CONTROL:
-        y = a >>> b;
+        y = a >>> (b & 'h1f);
       //srl,srli
       `EX_R_SHIFT_L_ALU_CONTROL:
-        y = a >> b;
+        y = a >> (b & 'h1f);
       //bge
       `EX_GE_ALU_CONTROL:
       begin

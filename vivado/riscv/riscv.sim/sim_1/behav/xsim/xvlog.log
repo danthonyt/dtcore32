@@ -1,0 +1,40 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/adder.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module adder
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_EX_MEM_reg.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_EX_MEM_reg
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_EX_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_ID_EX_reg.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_ID_EX_reg
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_ID_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_IF_ID_reg.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_IF_ID_reg
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_IF_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_MEM_WB_reg.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_MEM_WB_reg
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_MEM_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_WB_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_alu
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_controller
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_hazard_unit.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_hazard_unit
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_regfile
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/extend.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module extend
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/mux2to1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module mux2to1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/mux3to1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module mux3to1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/mux4to1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module mux4to1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/sim/testbench.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module testbench

@@ -270,9 +270,9 @@ module testbench();
 
            // Check if test pass
            // pass condition: GP=1 , A7=93, A0=0
-           if((UUT.dtcore32_regfile_inst.rf[3] == 1) &&
-               (UUT.dtcore32_regfile_inst.rf[17] == 93) &&
-               (UUT.dtcore32_regfile_inst.rf[10] == 0))
+           if((UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[3] == 1) &&
+               (UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[17] == 93) &&
+               (UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[10] == 0))
            begin
              $display("TEST PASSED; ID: %0d", TESTID);
              t=1000000;

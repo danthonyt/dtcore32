@@ -1,6 +1,8 @@
 `include "macros.svh"
 module dtcore32_controller(
     input logic clk_i,rst_i,
+    // may remove
+    input logic [31:0] ID_instr_i,
     input logic [6:0]  op_i,
     input logic [2:0]  funct3_i,
     input logic funct7b5_i,
@@ -22,7 +24,6 @@ module dtcore32_controller(
     output logic ID_csr_wr_en_o,
     output logic ID_csr_rd_en_o
   );
-
   // ===========================================================================
   // 			          Parameters, Registers, and Wires
   // ===========================================================================
@@ -120,7 +121,45 @@ module dtcore32_controller(
         ID_csr_rd_en = 0;
         ID_csr_wr_en = 0;
       end
+      //  ECALL should jump to the start
+      `OPCODE_SYSTEM_ZICSR:
+      begin
+        // ECALL - treat as an uncond jump to adress 0x00
+        if (ID_instr_i == 32'h00000073)
+        begin
+          ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
+          ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
+          ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
+          ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
+          ID_mem_wr_size = `MEM_NO_DMEM_WR;
+          ID_result_src = `RESULT_SRC_SELECT_NEXT_INSTR_ADDR;
+          ID_branch = `IS_NOT_BRANCH_INSTR;
+          ID_alu_op = `ALU_OP_ILOAD_S_U_TYPE;
+          ID_jump = `IS_JUMP_INSTR;
+          ID_load_size = `DMEM_LOAD_SIZE_NO_LOAD;
+          ID_pc_target_alu_src = `PC_TARGET_ALU_SRC_SELECT_REG_DATA;
+        end
+        else
+        begin
 
+          ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
+          ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
+          ID_alu_b_src = `ALU_B_SRC_SELECT_IMM;
+          ID_mem_wr_size = `MEM_NO_DMEM_WR;
+          ID_result_src = `RESULT_SRC_SELECT_ALU_RESULT;
+          ID_branch = `IS_NOT_BRANCH_INSTR;
+          ID_alu_op = `ALU_OP_IALU_ISHIFT_R_TYPE;
+          ID_jump = `IS_NOT_JUMP_INSTR;
+          ID_load_size = `DMEM_LOAD_SIZE_NO_LOAD;
+          ID_pc_target_alu_src = `PC_TARGET_ALU_SRC_SELECT_PC;
+          ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
+          ID_is_nop = 1; //addi x0,x0,0
+          ID_csr_rd_en = 0;
+          ID_csr_wr_en = 0;
+        end
+      end
+
+      /*
       `OPCODE_SYSTEM_ZICSR:
       begin
         ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
@@ -167,6 +206,7 @@ module dtcore32_controller(
           end
         endcase
       end
+        */
 
       `OPCODE_STORE:
       begin

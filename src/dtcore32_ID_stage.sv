@@ -70,16 +70,16 @@ module dtcore32_ID_stage (
   assign zicsr_rs1 = ID_instr_i[11:7];
 
   dtcore32_regfile  dtcore32_regfile_inst (
-                      .clk(clk_i),
-                      .we3(WB_reg_wr_en_i),
-                      .rst(rst_i),
-                      .a1(ID_src_reg_1),
-                      .a2(ID_src_reg_2),
-                      .a3(WB_dest_reg_i),
-                      .wd3(WB_result_i),
-                      .rd1(ID_reg_data_1),
-                      .rd2(ID_reg_data_2)
-                    );
+    .clk_i(clk_i),
+    .rst_i(rst_i),
+    .regfile_wr_en_i(WB_reg_wr_en_i),
+    .src_reg_1_i(ID_src_reg_1),
+    .src_reg_2_i(ID_src_reg_2),
+    .dest_reg_i(WB_dest_reg_i),
+    .reg_wr_data_i(WB_result_i),
+    .src_reg_1_rd_data_o(ID_reg_data_1),
+    .src_reg_2_rd_data_o(ID_reg_data_2)
+  );
 
   extend  extend_inst (
             .instr_data(ID_instr_i[31:7]),
@@ -90,6 +90,7 @@ module dtcore32_ID_stage (
           dtcore32_controller  dtcore32_controller_inst (
             .clk_i(clk_i),
             .rst_i(rst_i),
+            .ID_instr_i(ID_instr_i),
             .op_i(op),
             .funct3_i(funct3),
             .funct7b5_i(funct7b5),
