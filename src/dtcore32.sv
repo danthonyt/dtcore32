@@ -108,8 +108,8 @@ module dtcore32(
 
 
   // hazard unit signals
-  logic IF_stall_n;
-  logic ID_stall_n;
+  logic IF_stall;
+  logic ID_stall;
   logic ID_flush;
   logic EX_flush;
   logic [1:0] EX_forward_a;
@@ -119,7 +119,7 @@ module dtcore32(
   dtcore32_IF_stage  dtcore32_IF_stage_inst (
                        .clk_i(clk_i),
                        .rst_i(rst_i),
-                       .IF_stall_n_i(IF_stall_n),
+                       .IF_stall_i(IF_stall),
                        .EX_pc_target_i(EX_pc_target),
                        .EX_pc_src_i(EX_pc_src),
                        .IF_pc_plus_4_o(IF_pc_plus_4),
@@ -130,7 +130,7 @@ module dtcore32(
                         .clk_i(clk_i),
                         .rst_i(rst_i),
                         .ID_flush_i(ID_flush),
-                        .ID_stall_n_i(ID_stall_n),
+                        .ID_stall_i(ID_stall),
                         .IMEM_rd_data_i(IMEM_rd_data_i),
                         .IMEM_addr_i(IMEM_addr),
                         .IF_pc_plus_4_i(IF_pc_plus_4),
@@ -330,8 +330,8 @@ module dtcore32(
                           .EX_pc_src_i(EX_pc_src),
                           .EX_forward_a_o(EX_forward_a),
                           .EX_forward_b_o(EX_forward_b),
-                          .IF_stall_n_o(IF_stall_n),
-                          .ID_stall_n_o(ID_stall_n),
+                          .IF_stall_o(IF_stall),
+                          .ID_stall_o(ID_stall),
                           .EX_flush_o(EX_flush),
                           .ID_flush_o(ID_flush)
                         );

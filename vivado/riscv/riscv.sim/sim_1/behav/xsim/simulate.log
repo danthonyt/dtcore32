@@ -29,6 +29,86 @@ Running Test ID: 8
 TEST PASSED; ID: 8
 ***********************************
 Running Test ID: 9
-TEST FAILED: TIMED OUT
-FAILED TEST ID: 9
-$finish called at time : 20100750 ns : File "/home/david/Documents/work/dtcore32/sim/testbench.sv" Line 292
+TEST PASSED; ID: 9
+***********************************
+Running Test ID: 10
+TEST PASSED; ID: 10
+***********************************
+Running Test ID: 11
+TEST PASSED; ID: 11
+***********************************
+Running Test ID: 12
+TEST PASSED; ID: 12
+***********************************
+Running Test ID: 13
+TEST PASSED; ID: 13
+***********************************
+Running Test ID: 14
+TEST PASSED; ID: 14
+***********************************
+Running Test ID: 15
+TEST PASSED; ID: 15
+***********************************
+Running Test ID: 16
+TEST PASSED; ID: 16
+***********************************
+Running Test ID: 17
+TEST PASSED; ID: 17
+***********************************
+Running Test ID: 18
+TEST PASSED; ID: 18
+***********************************
+Running Test ID: 19
+TEST PASSED; ID: 19
+***********************************
+Running Test ID: 20
+TEST PASSED; ID: 20
+***********************************
+Running Test ID: 21
+TEST PASSED; ID: 21
+***********************************
+Running Test ID: 22
+TEST PASSED; ID: 22
+***********************************
+Running Test ID: 23
+TEST PASSED; ID: 23
+***********************************
+Running Test ID: 24
+TEST PASSED; ID: 24
+***********************************
+Running Test ID: 25
+TEST PASSED; ID: 25
+***********************************
+Running Test ID: 26
+TEST PASSED; ID: 26
+***********************************
+Running Test ID: 27
+TEST PASSED; ID: 27
+***********************************
+Running Test ID: 28
+TEST PASSED; ID: 28
+***********************************
+Running Test ID: 29
+TEST PASSED; ID: 29
+***********************************
+Running Test ID: 30
+TEST PASSED; ID: 30
+***********************************
+Running Test ID: 31
+TEST PASSED; ID: 31
+***********************************
+Running Test ID: 32
+TEST PASSED; ID: 32
+***********************************
+Running Test ID: 33
+TEST PASSED; ID: 33
+***********************************
+Running Test ID: 34
+TEST PASSED; ID: 34
+***********************************
+Running Test ID: 35
+TEST PASSED; ID: 35
+
+***********************************
+ALL TESTS PASSED !
+$finish called at time : 287970 ns : File "/home/david/Documents/work/dtcore32/sim/testbench.sv" Line 327

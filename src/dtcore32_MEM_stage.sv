@@ -1,19 +1,39 @@
 `include "macros.svh"
 module dtcore32_MEM_stage (
+    input logic clk_i,
+    input logic rst_i,
     input logic [2:0] MEM_load_size_i,
     input logic [1:0] MEM_mem_wr_size_i,
     input logic [31:0] MEM_alu_result_i,
     input logic [31:0] MEM_dmem_wr_data_i,
     input logic [31:0] DMEM_rd_data_i,
+    input logic WB_stall_i,
+    // pipeline in
+    input logic MEM_reg_wr_en_i,
+    input logic [1:0] MEM_result_src_i,
+    input logic MEM_csr_wr_en_i,
+    input logic [31:0] MEM_dmem_rd_data_i,
+    input logic [11:7] MEM_dest_reg_i,
+    input logic [31:0] MEM_pc_plus_4_i,
+    input logic [31:0] MEM_csr_rd_data_i,
     output logic [31:0] MEM_dmem_rd_data_o,
     output logic [3:0] DMEM_wr_byte_en_o,
     output logic [31:0] DMEM_wr_data_o,
-    output logic MEM_exception_o
+    output logic MEM_exception_o,
     /*
     output logic MEM_misaligned_store_o,
     output logic MEM_misaligned_load_o,
     output logic MEM_unknown_load_o
     */
+    // pipeline out
+    output logic WB_reg_wr_en_o,
+    output logic [1:0] WB_result_src_o,
+    output logic WB_csr_wr_en_o,
+    output logic [31:0] WB_alu_result_o,
+    output logic [31:0] WB_dmem_rd_data_o,
+    output logic [11:7] WB_dest_reg_o,
+    output logic [31:0] WB_pc_plus_4_o,
+    output logic [31:0] WB_csr_rd_data_o
 
   );
   logic [31:0] MEM_dmem_rd_data;
@@ -25,6 +45,14 @@ module dtcore32_MEM_stage (
   logic MEM_misaligned_load;
   logic MEM_unknown_load;
 
+  logic WB_reg_wr_en;
+  logic [1:0] WB_result_src;
+  logic WB_csr_wr_en;
+  logic [31:0] WB_alu_result;
+  logic [31:0] WB_dmem_rd_data;
+  logic [11:7] WB_dest_reg;
+  logic [31:0] WB_pc_plus_4;
+  logic [31:0] WB_csr_rd_data;
   assign MEM_exception = MEM_misaligned_load | MEM_misaligned_store | MEM_unknown_load;
   // stores
   always_comb
@@ -187,4 +215,39 @@ module dtcore32_MEM_stage (
   assign MEM_misaligned_load_o = MEM_misaligned_load;
   assign MEM_unknown_load_o = MEM_unknown_load;
   */
+
+  // pipeline to WB stage
+  always_ff@(posedge clk_i)
+  begin
+    if(rst_i)
+    begin
+      WB_reg_wr_en <= 0;
+      WB_result_src <= 0;
+      WB_csr_wr_en <= 0;
+      WB_alu_result <= 0;
+      WB_dmem_rd_data <= 0;
+      WB_dest_reg <= 0;
+      WB_pc_plus_4 <= 0;
+      WB_csr_rd_data <= 0;
+    end
+    else if(!WB_stall_i)
+    begin
+      WB_reg_wr_en <= MEM_reg_wr_en_i;
+      WB_result_src <= MEM_result_src_i;
+      WB_csr_wr_en <= MEM_csr_wr_en_i;
+      WB_alu_result <= MEM_alu_result_i;
+      WB_dmem_rd_data <= MEM_dmem_rd_data_i;
+      WB_dest_reg <= MEM_dest_reg_i;
+      WB_pc_plus_4 <= MEM_pc_plus_4_i;
+      WB_csr_rd_data <= MEM_csr_rd_data_i;
+    end
+  end
+  assign WB_reg_wr_en_o = WB_reg_wr_en;
+  assign WB_result_src_o = WB_result_src;
+  assign WB_csr_wr_en_o = WB_csr_wr_en;
+  assign WB_alu_result_o = WB_alu_result;
+  assign WB_dmem_rd_data_o = WB_dmem_rd_data;
+  assign WB_dest_reg_o = WB_dest_reg;
+  assign WB_pc_plus_4_o = WB_pc_plus_4;
+  assign WB_csr_rd_data_o = WB_csr_rd_data;
 endmodule

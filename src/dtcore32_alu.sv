@@ -46,7 +46,7 @@ module dtcore32_alu #(parameter WIDTH=32)(
         y = a ^ b;
       //sra,srai
       `EX_R_SHIFT_A_ALU_CONTROL:
-        y = a >>> (b & 'h1f);
+        y = $signed(a) >>> (b & 'h1f);
       //srl,srli
       `EX_R_SHIFT_L_ALU_CONTROL:
         y = a >> (b & 'h1f);
