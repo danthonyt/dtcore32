@@ -2,6 +2,7 @@
 module dtcore32_EX_stage (
     input logic clk_i,
     input logic rst_i,
+    input logic EX_dmem_read_i,
     input logic EX_jump_i,
     input logic EX_branch_i,
     input logic [3:0] EX_alu_control_i,
@@ -33,6 +34,7 @@ module dtcore32_EX_stage (
     output logic [31:0] EX_dmem_wr_data_o,
     output logic [31:0] EX_pc_target_o,
     // pipeline out 
+    output logic MEM_dmem_read_o,
     output logic MEM_reg_wr_en_o,
     output logic [1:0] MEM_result_src_o,
     output logic [2:0] MEM_load_size_o,
@@ -67,6 +69,8 @@ module dtcore32_EX_stage (
   logic [31:0] EX_src_b;
   logic [31:0] EX_pc_target_src_a;
   logic EX_branch_cond;
+
+  logic MEM_dmem_read;
   mux3to1 # (
             .WIDTH(32)
           )
@@ -156,6 +160,7 @@ module dtcore32_EX_stage (
       MEM_dest_reg <= 0;
       MEM_pc_plus_4 <= 0;
       MEM_csr_rd_data <= 0;
+      MEM_dmem_read <= 0;
     end
     else if (!MEM_stall_i)
     begin
@@ -169,6 +174,7 @@ module dtcore32_EX_stage (
       MEM_dest_reg <= EX_dest_reg_i;
       MEM_pc_plus_4 <= EX_pc_plus_4_i;
       MEM_csr_rd_data <= EX_csr_rd_data_i;
+      MEM_dmem_read <= EX_dmem_read_i;
     end
   end
 
@@ -182,4 +188,5 @@ module dtcore32_EX_stage (
   assign  MEM_dest_reg_o = MEM_dest_reg;
   assign  MEM_pc_plus_4_o = MEM_pc_plus_4;
   assign  MEM_csr_rd_data_o = MEM_csr_rd_data;
+  assign MEM_dmem_read_o = MEM_dmem_read;
 endmodule

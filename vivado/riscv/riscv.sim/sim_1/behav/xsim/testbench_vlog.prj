@@ -2,13 +2,9 @@
 sv xil_defaultlib  --include "../../../../../../src" \
 "../../../../../../src/adder.sv" \
 "../../../../../../src/dtcore32.sv" \
-"../../../../../../src/dtcore32_EX_MEM_reg.sv" \
 "../../../../../../src/dtcore32_EX_stage.sv" \
-"../../../../../../src/dtcore32_ID_EX_reg.sv" \
 "../../../../../../src/dtcore32_ID_stage.sv" \
-"../../../../../../src/dtcore32_IF_ID_reg.sv" \
 "../../../../../../src/dtcore32_IF_stage.sv" \
-"../../../../../../src/dtcore32_MEM_WB_reg.sv" \
 "../../../../../../src/dtcore32_MEM_stage.sv" \
 "../../../../../../src/dtcore32_WB_stage.sv" \
 "../../../../../../src/dtcore32_alu.sv" \

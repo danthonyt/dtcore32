@@ -11,13 +11,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="227,432.540 ns"></ZoomStartTime>
-      <ZoomEndTime time="227,669.493 ns"></ZoomEndTime>
-      <Cursor1Time time="227,630.000 ns"></Cursor1Time>
+      <ZoomStartTime time="231,767.770 ns"></ZoomStartTime>
+      <ZoomEndTime time="232,034.447 ns"></ZoomEndTime>
+      <Cursor1Time time="231,870.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="203"></NameColumnWidth>
-      <ValueColumnWidth column_width="117"></ValueColumnWidth>
+      <ValueColumnWidth column_width="113"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="29" />
    <wvobject type="logic" fp_name="/testbench/clk">
@@ -79,16 +79,6 @@
    <wvobject type="array" fp_name="/testbench/UUT/dtcore32_MEM_stage_inst/MEM_load_size_i">
       <obj_property name="ElementShortName">MEM_load_size_i[2:0]</obj_property>
       <obj_property name="ObjectShortName">MEM_load_size_i[2:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/testbench/DMEM_wr_data">
-      <obj_property name="ElementShortName">DMEM_wr_data[31:0]</obj_property>
-      <obj_property name="ObjectShortName">DMEM_wr_data[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/testbench/DMEM_wr_byte_en">
-      <obj_property name="ElementShortName">DMEM_wr_byte_en[3:0]</obj_property>
-      <obj_property name="ObjectShortName">DMEM_wr_byte_en[3:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbench/UUT/dtcore32_ID_stage_inst/dtcore32_regfile_inst/t0">
       <obj_property name="ElementShortName">t0[31:0]</obj_property>
@@ -164,5 +154,13 @@
       <obj_property name="ElementShortName">j[31:0]</obj_property>
       <obj_property name="ObjectShortName">j[31:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_MEM_stage_inst/WB_stall_i">
+      <obj_property name="ElementShortName">WB_stall_i</obj_property>
+      <obj_property name="ObjectShortName">WB_stall_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/MEM_stall_i">
+      <obj_property name="ElementShortName">MEM_stall_i</obj_property>
+      <obj_property name="ObjectShortName">MEM_stall_i</obj_property>
    </wvobject>
 </wave_config>

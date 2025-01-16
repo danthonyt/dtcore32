@@ -50,7 +50,7 @@ module dtcore32_ID_stage (
     output logic [31:0] ID_imm_ext_o,
     output logic [31:0] ID_csr_rd_data_o,
     output logic ID_exception_o,
-
+    output logic EX_dmem_read_o,
     // pipeline out
     output logic EX_reg_wr_en_o,
     output logic [1:0] EX_result_src_o,
@@ -130,6 +130,8 @@ module dtcore32_ID_stage (
   logic [19:15] zicsr_rd;
   logic [11:7] zicsr_rs1;
 
+  logic ID_dmem_read;
+  logic EX_dmem_read;
   assign op = ID_instr_i[6:0];
   assign funct3 = ID_instr_i[14:12];
   assign funct7b5 = ID_instr_i[30];
@@ -161,6 +163,7 @@ module dtcore32_ID_stage (
   dtcore32_controller  dtcore32_controller_inst (
                          .clk_i(clk_i),
                          .rst_i(rst_i),
+                         .ID_dmem_read_o(ID_dmem_read),
                          .ID_instr_i(ID_instr_i),
                          .op_i(op),
                          .funct3_i(funct3),
@@ -229,6 +232,7 @@ module dtcore32_ID_stage (
       EX_pc_plus_4 <= 0;
       EX_csr_wr_en <= 0;
       EX_csr_rd_data <= 0;
+      EX_dmem_read <= 0;
     end
     else if (!EX_stall_i)
     begin
@@ -252,6 +256,7 @@ module dtcore32_ID_stage (
       EX_pc_plus_4 <= ID_pc_plus_4_i;
       EX_csr_wr_en <= ID_csr_wr_en_i;
       EX_csr_rd_data <= ID_csr_rd_data_i;
+      EX_dmem_read <= ID_dmem_read;
     end
   end
 
@@ -276,6 +281,7 @@ module dtcore32_ID_stage (
   assign EX_pc_plus_4_o = EX_pc_plus_4;
   assign EX_csr_wr_en_o = EX_csr_wr_en;
   assign EX_csr_rd_data_o = EX_csr_rd_data;
+  assign EX_dmem_read_o = EX_dmem_read;
 endmodule
 
 

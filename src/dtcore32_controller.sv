@@ -8,6 +8,7 @@ module dtcore32_controller(
     input logic funct7b5_i,
     input logic [19:15] zicsr_rs1_i,
     input logic [11:7] zicsr_rd_i,
+    output logic ID_dmem_read_o,
     output logic [1:0]  ID_result_src_o,
     output logic [1:0]  ID_alu_a_src_o,
     output logic [1:0]  ID_mem_wr_size_o,
@@ -27,6 +28,7 @@ module dtcore32_controller(
   // ===========================================================================
   // 			          Parameters, Registers, and Wires
   // ===========================================================================
+  logic ID_dmem_read;
   logic ID_is_nop;
   logic ID_exception;
   logic opcode_exception;
@@ -70,9 +72,11 @@ module dtcore32_controller(
     opcode_exception = 0;
     ID_csr_rd_en = 0;
     ID_csr_wr_en = 0;
+    ID_dmem_read = 0;
     case (op_i)
       `OPCODE_LOAD:
       begin
+        ID_dmem_read = 1;
         ID_reg_wr_en = `REGFILE_WRITE_ENABLE;
         ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
         ID_alu_a_src = `ALU_A_SRC_SELECT_REG_DATA;
@@ -458,6 +462,7 @@ module dtcore32_controller(
   assign ID_pc_target_alu_src_o = ID_pc_target_alu_src;
   assign ID_csr_wr_en_o = ID_csr_wr_en;
   assign ID_csr_rd_en_o = ID_csr_rd_en;
+  assign ID_dmem_read_o = ID_dmem_read;
 endmodule
 
 

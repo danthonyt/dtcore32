@@ -5,7 +5,6 @@ module dtcore32_IF_stage (
     input logic IF_stall_i,
     input logic [31:0] EX_pc_target_i,
     input logic EX_pc_src_i,
-    output logic [31:0] IF_pc_plus_4_o,
     output logic [31:0] IMEM_addr_o,
 
     input logic ID_flush_i,
@@ -52,7 +51,6 @@ module dtcore32_IF_stage (
           .in2(32'd4),
           .sum(IF_pc_plus_4)
         );
-  assign IF_pc_plus_4_o = IF_pc_plus_4;
   assign IMEM_addr_o = IMEM_addr;
 
   // IF/ID register

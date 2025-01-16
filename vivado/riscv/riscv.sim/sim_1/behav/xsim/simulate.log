@@ -111,4 +111,4 @@ TEST PASSED; ID: 35
 
 ***********************************
 ALL TESTS PASSED !
-$finish called at time : 287970 ns : File "/home/david/Documents/work/dtcore32/sim/testbench.sv" Line 327
+$finish called at time : 291930 ns : File "/home/david/Documents/work/dtcore32/sim/testbench.sv" Line 326

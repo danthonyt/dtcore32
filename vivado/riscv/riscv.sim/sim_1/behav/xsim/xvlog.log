@@ -2,20 +2,12 @@ INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dt
 INFO: [VRFC 10-311] analyzing module adder
 INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32.sv" into library xil_defaultlib
 INFO: [VRFC 10-311] analyzing module dtcore32
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_EX_MEM_reg.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module dtcore32_EX_MEM_reg
 INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv" into library xil_defaultlib
 INFO: [VRFC 10-311] analyzing module dtcore32_EX_stage
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_ID_EX_reg.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module dtcore32_ID_EX_reg
 INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv" into library xil_defaultlib
 INFO: [VRFC 10-311] analyzing module dtcore32_ID_stage
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_IF_ID_reg.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module dtcore32_IF_ID_reg
 INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv" into library xil_defaultlib
 INFO: [VRFC 10-311] analyzing module dtcore32_IF_stage
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_MEM_WB_reg.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module dtcore32_MEM_WB_reg
 INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv" into library xil_defaultlib
 INFO: [VRFC 10-311] analyzing module dtcore32_MEM_stage
 INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv" into library xil_defaultlib

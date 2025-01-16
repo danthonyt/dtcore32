@@ -13,7 +13,7 @@ module dtcore32_hazard_unit(
     input logic [4:0] ID_src_reg_1_i,
     input logic [4:0] ID_src_reg_2_i,
     input logic [4:0] EX_dest_reg_i,
-    input logic MEM_dmem_read_i,
+    input logic EX_dmem_read_i,
     //branch control hazard
     input logic EX_pc_src_i,
     output logic [1:0] EX_forward_a_o,
@@ -42,19 +42,19 @@ module dtcore32_hazard_unit(
   begin
     if (rst_i)
     begin
-      DMEM_read_stall <= 1;
+      DMEM_read_stall <= 0;
     end
     else
     begin
       // if stalled last cycle stop stalling
-      if (DMEM_read_stall == 0)
-      begin
-        DMEM_read_stall <= 1;
-      // else if current DM stage instruction is a DMEM read
-      end
-      else if (MEM_dmem_read_i)
+      if (DMEM_read_stall == 1)
       begin
         DMEM_read_stall <= 0;
+      // else if current DM stage instruction is a DMEM read
+      end
+      else if (EX_dmem_read_i)
+      begin
+        DMEM_read_stall <= 1;
 
       end
     end
