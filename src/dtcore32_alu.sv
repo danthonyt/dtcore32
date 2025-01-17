@@ -68,10 +68,6 @@ module dtcore32_alu #(parameter WIDTH=32)(
         y = a - b;
         BranchCond = (y == 0) ? 0 : 1;
       end
-      `EX_NOTA_AND_B_ALU_CONTROL:
-      begin
-        y = (~a) & b; // a is a bitmask that clears b for all high bit positions
-      end
       default:
         y = 0; //??
     endcase

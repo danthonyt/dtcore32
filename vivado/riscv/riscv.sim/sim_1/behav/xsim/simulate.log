@@ -1,4 +1,5 @@
 Time resolution is 1 ps
+WARNING: 0ns : none of the conditions were true for unique case from File:/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv:25
 Running all tests.
 ***********************************
 Running Test ID: 0

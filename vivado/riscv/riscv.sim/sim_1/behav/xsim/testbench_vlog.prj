@@ -1,6 +1,5 @@
 # compile verilog/system verilog design source files
 sv xil_defaultlib  --include "../../../../../../src" \
-"../../../../../../src/adder.sv" \
 "../../../../../../src/dtcore32.sv" \
 "../../../../../../src/dtcore32_EX_stage.sv" \
 "../../../../../../src/dtcore32_ID_stage.sv" \
@@ -8,13 +7,9 @@ sv xil_defaultlib  --include "../../../../../../src" \
 "../../../../../../src/dtcore32_MEM_stage.sv" \
 "../../../../../../src/dtcore32_WB_stage.sv" \
 "../../../../../../src/dtcore32_alu.sv" \
-"../../../../../../src/dtcore32_controller.sv" \
+"../../../../../../src/dtcore32_decode_unit.sv" \
 "../../../../../../src/dtcore32_hazard_unit.sv" \
 "../../../../../../src/dtcore32_regfile.sv" \
-"../../../../../../src/extend.sv" \
-"../../../../../../src/mux2to1.sv" \
-"../../../../../../src/mux3to1.sv" \
-"../../../../../../src/mux4to1.sv" \
 "../../../../../../sim/testbench.sv" \
 
 # compile glbl module

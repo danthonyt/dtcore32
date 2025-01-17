@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="231,767.770 ns"></ZoomStartTime>
-      <ZoomEndTime time="232,034.447 ns"></ZoomEndTime>
-      <Cursor1Time time="231,870.000 ns"></Cursor1Time>
+      <ZoomStartTime time="302.705 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,787.460 ns"></ZoomEndTime>
+      <Cursor1Time time="1,520.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="203"></NameColumnWidth>
-      <ValueColumnWidth column_width="113"></ValueColumnWidth>
+      <ValueColumnWidth column_width="105"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="29" />
+   <WVObjectSize size="91" />
    <wvobject type="logic" fp_name="/testbench/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -57,28 +57,6 @@
       <obj_property name="ElementShortName">DMEM_addr[31:0]</obj_property>
       <obj_property name="ObjectShortName">DMEM_addr[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_MEM_stage_inst/MEM_alu_result_i">
-      <obj_property name="ElementShortName">MEM_alu_result_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">MEM_alu_result_i[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_WB_stage_inst/WB_result">
-      <obj_property name="ElementShortName">WB_result[31:0]</obj_property>
-      <obj_property name="ObjectShortName">WB_result[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_WB_stage_inst/WB_dmem_rd_data_i">
-      <obj_property name="ElementShortName">WB_dmem_rd_data_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">WB_dmem_rd_data_i[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_MEM_stage_inst/MEM_dmem_rd_data">
-      <obj_property name="ElementShortName">MEM_dmem_rd_data[31:0]</obj_property>
-      <obj_property name="ObjectShortName">MEM_dmem_rd_data[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_MEM_stage_inst/MEM_load_size_i">
-      <obj_property name="ElementShortName">MEM_load_size_i[2:0]</obj_property>
-      <obj_property name="ObjectShortName">MEM_load_size_i[2:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/testbench/UUT/dtcore32_ID_stage_inst/dtcore32_regfile_inst/t0">
       <obj_property name="ElementShortName">t0[31:0]</obj_property>
@@ -155,12 +133,281 @@
       <obj_property name="ObjectShortName">j[31:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_MEM_stage_inst/WB_stall_i">
-      <obj_property name="ElementShortName">WB_stall_i</obj_property>
-      <obj_property name="ObjectShortName">WB_stall_i</obj_property>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_ID_stage_inst/ID_exception_o">
+      <obj_property name="ElementShortName">ID_exception_o</obj_property>
+      <obj_property name="ObjectShortName">ID_exception_o</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/MEM_stall_i">
-      <obj_property name="ElementShortName">MEM_stall_i</obj_property>
-      <obj_property name="ObjectShortName">MEM_stall_i</obj_property>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_MEM_stage_inst/MEM_exception_o">
+      <obj_property name="ElementShortName">MEM_exception_o</obj_property>
+      <obj_property name="ObjectShortName">MEM_exception_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_ID_stage_inst/dtcore32_decode_unit_inst/opcode_exception">
+      <obj_property name="ElementShortName">opcode_exception</obj_property>
+      <obj_property name="ObjectShortName">opcode_exception</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_ID_stage_inst/dtcore32_decode_unit_inst/op">
+      <obj_property name="ElementShortName">op[6:0]</obj_property>
+      <obj_property name="ObjectShortName">op[6:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_pc_plus_4_i">
+      <obj_property name="ElementShortName">ID_pc_plus_4_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_pc_plus_4_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_pc_target_alu_src">
+      <obj_property name="ElementShortName">EX_pc_target_alu_src</obj_property>
+      <obj_property name="ObjectShortName">EX_pc_target_alu_src</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/WB_result">
+      <obj_property name="ElementShortName">WB_result[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WB_result[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_IF_stage_inst/EX_pc_src_i">
+      <obj_property name="ElementShortName">EX_pc_src_i</obj_property>
+      <obj_property name="ObjectShortName">EX_pc_src_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_IF_stage_inst/IMEM_addr_o">
+      <obj_property name="ElementShortName">IMEM_addr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IMEM_addr_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_pc_target_src_a">
+      <obj_property name="ElementShortName">EX_pc_target_src_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_pc_target_src_a[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_imm_ext">
+      <obj_property name="ElementShortName">EX_imm_ext[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_imm_ext[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_pc">
+      <obj_property name="ElementShortName">EX_pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_pc[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_ID_stage_inst/ID_pc_o">
+      <obj_property name="ElementShortName">ID_pc_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_pc_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_alu_result_o">
+      <obj_property name="ElementShortName">EX_alu_result_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_alu_result_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/clk_i">
+      <obj_property name="ElementShortName">clk_i</obj_property>
+      <obj_property name="ObjectShortName">clk_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/rst_i">
+      <obj_property name="ElementShortName">rst_i</obj_property>
+      <obj_property name="ObjectShortName">rst_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_dmem_read_i">
+      <obj_property name="ElementShortName">ID_dmem_read_i</obj_property>
+      <obj_property name="ObjectShortName">ID_dmem_read_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_result_src_i">
+      <obj_property name="ElementShortName">ID_result_src_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_result_src_i[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_load_size_i">
+      <obj_property name="ElementShortName">ID_load_size_i[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_load_size_i[2:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_mem_wr_size_i">
+      <obj_property name="ElementShortName">ID_mem_wr_size_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_mem_wr_size_i[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_jump_i">
+      <obj_property name="ElementShortName">ID_jump_i</obj_property>
+      <obj_property name="ObjectShortName">ID_jump_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_branch_i">
+      <obj_property name="ElementShortName">ID_branch_i</obj_property>
+      <obj_property name="ObjectShortName">ID_branch_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_alu_control_i">
+      <obj_property name="ElementShortName">ID_alu_control_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_alu_control_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_alu_b_src_i">
+      <obj_property name="ElementShortName">ID_alu_b_src_i</obj_property>
+      <obj_property name="ObjectShortName">ID_alu_b_src_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_alu_a_src_i">
+      <obj_property name="ElementShortName">ID_alu_a_src_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_alu_a_src_i[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_pc_target_alu_src_i">
+      <obj_property name="ElementShortName">ID_pc_target_alu_src_i</obj_property>
+      <obj_property name="ObjectShortName">ID_pc_target_alu_src_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_reg_data_1_i">
+      <obj_property name="ElementShortName">ID_reg_data_1_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_reg_data_1_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_reg_data_2_i">
+      <obj_property name="ElementShortName">ID_reg_data_2_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_reg_data_2_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_pc_i">
+      <obj_property name="ElementShortName">ID_pc_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_pc_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_src_reg_1_i">
+      <obj_property name="ElementShortName">ID_src_reg_1_i[19:15]</obj_property>
+      <obj_property name="ObjectShortName">ID_src_reg_1_i[19:15]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_src_reg_2_i">
+      <obj_property name="ElementShortName">ID_src_reg_2_i[24:20]</obj_property>
+      <obj_property name="ObjectShortName">ID_src_reg_2_i[24:20]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_dest_reg_i">
+      <obj_property name="ElementShortName">ID_dest_reg_i[11:7]</obj_property>
+      <obj_property name="ObjectShortName">ID_dest_reg_i[11:7]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_imm_ext_i">
+      <obj_property name="ElementShortName">ID_imm_ext_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_imm_ext_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_pc_plus_4_i">
+      <obj_property name="ElementShortName">ID_pc_plus_4_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_pc_plus_4_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/ID_reg_wr_en_i">
+      <obj_property name="ElementShortName">ID_reg_wr_en_i</obj_property>
+      <obj_property name="ObjectShortName">ID_reg_wr_en_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_forward_a_i">
+      <obj_property name="ElementShortName">EX_forward_a_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_forward_a_i[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_forward_b_i">
+      <obj_property name="ElementShortName">EX_forward_b_i[1:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_forward_b_i[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_flush_i">
+      <obj_property name="ElementShortName">EX_flush_i</obj_property>
+      <obj_property name="ObjectShortName">EX_flush_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_stall_i">
+      <obj_property name="ElementShortName">EX_stall_i</obj_property>
+      <obj_property name="ObjectShortName">EX_stall_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_reg_wr_en_o">
+      <obj_property name="ElementShortName">EX_reg_wr_en_o</obj_property>
+      <obj_property name="ObjectShortName">EX_reg_wr_en_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_result_src_o">
+      <obj_property name="ElementShortName">EX_result_src_o[1:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_result_src_o[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_load_size_o">
+      <obj_property name="ElementShortName">EX_load_size_o[2:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_load_size_o[2:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_mem_wr_size_o">
+      <obj_property name="ElementShortName">EX_mem_wr_size_o[1:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_mem_wr_size_o[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_src_reg_1_o">
+      <obj_property name="ElementShortName">EX_src_reg_1_o[19:15]</obj_property>
+      <obj_property name="ObjectShortName">EX_src_reg_1_o[19:15]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_src_reg_2_o">
+      <obj_property name="ElementShortName">EX_src_reg_2_o[24:20]</obj_property>
+      <obj_property name="ObjectShortName">EX_src_reg_2_o[24:20]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_dest_reg_o">
+      <obj_property name="ElementShortName">EX_dest_reg_o[11:7]</obj_property>
+      <obj_property name="ObjectShortName">EX_dest_reg_o[11:7]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_pc_plus_4_o">
+      <obj_property name="ElementShortName">EX_pc_plus_4_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_pc_plus_4_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_dmem_wr_data_o">
+      <obj_property name="ElementShortName">EX_dmem_wr_data_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_dmem_wr_data_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_dmem_read_o">
+      <obj_property name="ElementShortName">EX_dmem_read_o</obj_property>
+      <obj_property name="ObjectShortName">EX_dmem_read_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_alu_result_o">
+      <obj_property name="ElementShortName">EX_alu_result_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_alu_result_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_pc_src_o">
+      <obj_property name="ElementShortName">EX_pc_src_o</obj_property>
+      <obj_property name="ObjectShortName">EX_pc_src_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_pc_target_o">
+      <obj_property name="ElementShortName">EX_pc_target_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_pc_target_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/MEM_alu_result_i">
+      <obj_property name="ElementShortName">MEM_alu_result_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MEM_alu_result_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/WB_result_i">
+      <obj_property name="ElementShortName">WB_result_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WB_result_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_jump">
+      <obj_property name="ElementShortName">EX_jump</obj_property>
+      <obj_property name="ObjectShortName">EX_jump</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_branch">
+      <obj_property name="ElementShortName">EX_branch</obj_property>
+      <obj_property name="ObjectShortName">EX_branch</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_alu_control">
+      <obj_property name="ElementShortName">EX_alu_control[3:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_alu_control[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_alu_b_src">
+      <obj_property name="ElementShortName">EX_alu_b_src</obj_property>
+      <obj_property name="ObjectShortName">EX_alu_b_src</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_alu_a_src">
+      <obj_property name="ElementShortName">EX_alu_a_src[1:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_alu_a_src[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_pc_target_alu_src">
+      <obj_property name="ElementShortName">EX_pc_target_alu_src</obj_property>
+      <obj_property name="ObjectShortName">EX_pc_target_alu_src</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_reg_data_1">
+      <obj_property name="ElementShortName">EX_reg_data_1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_reg_data_1[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_reg_data_2">
+      <obj_property name="ElementShortName">EX_reg_data_2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_reg_data_2[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_pc">
+      <obj_property name="ElementShortName">EX_pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_pc[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_src_a_tick">
+      <obj_property name="ElementShortName">EX_src_a_tick[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_src_a_tick[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_src_a">
+      <obj_property name="ElementShortName">EX_src_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_src_a[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_src_b">
+      <obj_property name="ElementShortName">EX_src_b[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_src_b[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_pc_target_src_a">
+      <obj_property name="ElementShortName">EX_pc_target_src_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_pc_target_src_a[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_branch_cond">
+      <obj_property name="ElementShortName">EX_branch_cond</obj_property>
+      <obj_property name="ObjectShortName">EX_branch_cond</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/testbench/UUT/dtcore32_EX_stage_inst/EX_imm_ext">
+      <obj_property name="ElementShortName">EX_imm_ext[31:0]</obj_property>
+      <obj_property name="ObjectShortName">EX_imm_ext[31:0]</obj_property>
    </wvobject>
 </wave_config>

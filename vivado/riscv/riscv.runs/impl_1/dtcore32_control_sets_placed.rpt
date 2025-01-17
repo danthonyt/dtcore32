@@ -1,0 +1,114 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
+| Date         : Thu Jan 16 11:37:05 2025
+| Host         : david-MS-7D46 running 64-bit Ubuntu 24.04.1 LTS
+| Command      : report_control_sets -verbose -file dtcore32_control_sets_placed.rpt
+| Design       : dtcore32
+| Device       : xc7k70t
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Total control sets                                       |    36 |
+|    Minimum number of control sets                        |    36 |
+|    Addition due to synthesis replication                 |     0 |
+|    Addition due to physical synthesis replication        |     0 |
+| Unused register locations in slices containing registers |    10 |
++----------------------------------------------------------+-------+
+* Control sets can be merged at opt_design using control_set_merge or merge_equivalent_drivers
+** Run report_qor_suggestions for automated merging and remapping suggestions
+
+
+2. Histogram
+------------
+
++--------------------+-------+
+|       Fanout       | Count |
++--------------------+-------+
+| Total control sets |    36 |
+| >= 0 to < 4        |     1 |
+| >= 4 to < 6        |     0 |
+| >= 6 to < 8        |     0 |
+| >= 8 to < 10       |     0 |
+| >= 10 to < 12      |     0 |
+| >= 12 to < 14      |     0 |
+| >= 14 to < 16      |     0 |
+| >= 16              |    35 |
++--------------------+-------+
+* Control sets can be remapped at either synth_design or opt_design
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |               2 |            2 |
+| No           | No                    | Yes                    |               0 |            0 |
+| No           | Yes                   | No                     |               0 |            0 |
+| Yes          | No                    | No                     |               0 |            0 |
+| Yes          | No                    | Yes                    |               0 |            0 |
+| Yes          | Yes                   | No                     |            1556 |          603 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++------------------+------------------------------------------------+---------------------------------------------+------------------+----------------+--------------+
+|   Clock Signal   |                  Enable Signal                 |               Set/Reset Signal              | Slice Load Count | Bel Load Count | Bels / Slice |
++------------------+------------------------------------------------+---------------------------------------------+------------------+----------------+--------------+
+|  clk_i_IBUF_BUFG |                                                |                                             |                2 |              2 |         1.00 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_29[0] | rst_i_IBUF                                  |               21 |             32 |         1.52 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_21[0] | rst_i_IBUF                                  |               10 |             32 |         3.20 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_22[0] | rst_i_IBUF                                  |               18 |             32 |         1.78 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_23[0] | rst_i_IBUF                                  |               13 |             32 |         2.46 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_24[0] | rst_i_IBUF                                  |               17 |             32 |         1.88 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_25[0] | rst_i_IBUF                                  |               13 |             32 |         2.46 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_26[0] | rst_i_IBUF                                  |               17 |             32 |         1.88 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_27[0] | rst_i_IBUF                                  |               16 |             32 |         2.00 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_28[0] | rst_i_IBUF                                  |               18 |             32 |         1.78 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_20[0] | rst_i_IBUF                                  |               13 |             32 |         2.46 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_3[0]  | rst_i_IBUF                                  |                9 |             32 |         3.56 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_30[0] | rst_i_IBUF                                  |               24 |             32 |         1.33 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_4[0]  | rst_i_IBUF                                  |               11 |             32 |         2.91 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_5[0]  | rst_i_IBUF                                  |               15 |             32 |         2.13 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_6[0]  | rst_i_IBUF                                  |               17 |             32 |         1.88 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_7[0]  | rst_i_IBUF                                  |               15 |             32 |         2.13 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_8[0]  | rst_i_IBUF                                  |               17 |             32 |         1.88 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_9[0]  | rst_i_IBUF                                  |                8 |             32 |         4.00 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_19[0] | rst_i_IBUF                                  |               13 |             32 |         2.46 |
+|  clk_i_IBUF_BUFG | dtcore32_ID_stage_inst/p_1_in                  | rst_i_IBUF                                  |                9 |             32 |         3.56 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_0[0]  | rst_i_IBUF                                  |               15 |             32 |         2.13 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_1[0]  | rst_i_IBUF                                  |                9 |             32 |         3.56 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_10[0] | rst_i_IBUF                                  |                9 |             32 |         3.56 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_11[0] | rst_i_IBUF                                  |               10 |             32 |         3.20 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_12[0] | rst_i_IBUF                                  |               11 |             32 |         2.91 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_13[0] | rst_i_IBUF                                  |               10 |             32 |         3.20 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_14[0] | rst_i_IBUF                                  |               11 |             32 |         2.91 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_15[0] | rst_i_IBUF                                  |               12 |             32 |         2.67 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_16[0] | rst_i_IBUF                                  |               12 |             32 |         2.67 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_17[0] | rst_i_IBUF                                  |               11 |             32 |         2.91 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_18[0] | rst_i_IBUF                                  |               11 |             32 |         2.91 |
+| ~clk_i_IBUF_BUFG | dtcore32_MEM_stage_inst/WB_reg_wr_en_reg_2[0]  | rst_i_IBUF                                  |                8 |             32 |         4.00 |
+|  clk_i_IBUF_BUFG | dtcore32_ID_stage_inst/p_1_in                  | dtcore32_ID_stage_inst/SR[0]                |               24 |             95 |         3.96 |
+|  clk_i_IBUF_BUFG | dtcore32_hazard_unit_inst/E[0]                 | dtcore32_ID_stage_inst/EX_reg_wr_en_i_1_n_0 |               66 |            192 |         2.91 |
+|  clk_i_IBUF_BUFG | dtcore32_hazard_unit_inst/E[0]                 | rst_i_IBUF                                  |               90 |            245 |         2.72 |
++------------------+------------------------------------------------+---------------------------------------------+------------------+----------------+--------------+
+
+

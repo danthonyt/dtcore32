@@ -9,55 +9,30 @@ Completed static elaboration
 Starting simulation data flow analysis
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32.sv" Line 2. Module dtcore32 doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv" Line 2. Module dtcore32_IF_stage doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux2to1.sv" Line 1. Module mux2to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/adder.sv" Line 1. Module adder doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv" Line 1. Module dtcore32_ID_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv" Line 2. Module dtcore32_ID_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_decode_unit.sv" Line 2. Module dtcore32_decode_unit doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv" Line 1. Module dtcore32_regfile doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/extend.sv" Line 1. Module extend doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv" Line 2. Module dtcore32_controller doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv" Line 2. Module dtcore32_EX_stage doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux3to1.sv" Line 1. Module mux3to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux4to1.sv" Line 1. Module mux4to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux3to1.sv" Line 1. Module mux3to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux4to1.sv" Line 1. Module mux4to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux2to1.sv" Line 1. Module mux2to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/adder.sv" Line 1. Module adder doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv" Line 2. Module dtcore32_alu doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv" Line 2. Module dtcore32_MEM_stage doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv" Line 1. Module dtcore32_WB_stage doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux4to1.sv" Line 1. Module mux4to1 doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_hazard_unit.sv" Line 1. Module dtcore32_hazard_unit doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32.sv" Line 2. Module dtcore32 doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv" Line 2. Module dtcore32_IF_stage doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux2to1.sv" Line 1. Module mux2to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/adder.sv" Line 1. Module adder doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv" Line 1. Module dtcore32_ID_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv" Line 2. Module dtcore32_ID_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_decode_unit.sv" Line 2. Module dtcore32_decode_unit doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv" Line 1. Module dtcore32_regfile doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/extend.sv" Line 1. Module extend doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv" Line 2. Module dtcore32_controller doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv" Line 2. Module dtcore32_EX_stage doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux3to1.sv" Line 1. Module mux3to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux4to1.sv" Line 1. Module mux4to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux3to1.sv" Line 1. Module mux3to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux4to1.sv" Line 1. Module mux4to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux2to1.sv" Line 1. Module mux2to1 doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/adder.sv" Line 1. Module adder doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv" Line 2. Module dtcore32_alu doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv" Line 2. Module dtcore32_MEM_stage doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv" Line 1. Module dtcore32_WB_stage doesn't have a timescale but at least one module in design has a timescale.
-WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/mux4to1.sv" Line 1. Module mux4to1 doesn't have a timescale but at least one module in design has a timescale.
 WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_hazard_unit.sv" Line 1. Module dtcore32_hazard_unit doesn't have a timescale but at least one module in design has a timescale.
 Completed simulation data flow analysis
 Time Resolution for simulation is 1ps
-Compiling module xil_defaultlib.mux2to1
-Compiling module xil_defaultlib.adder
 Compiling module xil_defaultlib.dtcore32_IF_stage
+Compiling module xil_defaultlib.dtcore32_decode_unit
 Compiling module xil_defaultlib.dtcore32_regfile
-Compiling module xil_defaultlib.extend
-Compiling module xil_defaultlib.dtcore32_controller
 Compiling module xil_defaultlib.dtcore32_ID_stage
-Compiling module xil_defaultlib.mux3to1
-Compiling module xil_defaultlib.mux4to1
 Compiling module xil_defaultlib.dtcore32_alu
 Compiling module xil_defaultlib.dtcore32_EX_stage
 Compiling module xil_defaultlib.dtcore32_MEM_stage

@@ -21,10 +21,8 @@
 `define ALU_A_SRC_SELECT_CSR_IMM 2'b11
 
 //ID_alu_b_src
-`define ALU_B_SRC_SELECT_REG_DATA 2'b00
-`define ALU_B_SRC_SELECT_IMM 2'b01
-`define ALU_B_SRC_SELECT_CSR_RD_DATA 2'b10
-`define ALU_B_SRC_SELECT_ZERO 2'b11
+`define ALU_B_SRC_SELECT_REG_DATA 1'b0
+`define ALU_B_SRC_SELECT_IMM 1'b1
 
 
 //ID_mem_wr_size

@@ -1,0 +1,444 @@
+
+*** Running vivado
+    with args -log dtcore32.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source dtcore32.tcl
+
+
+****** Vivado v2024.2 (64-bit)
+  **** SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+  **** IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+  **** SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+  **** Start of session at: Thu Jan 16 11:36:22 2025
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source dtcore32.tcl -notrace
+Command: synth_design -top dtcore32 -part xc7k70tfbv676-1
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7k70t'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7k70t'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 185413
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:02 ; elapsed = 00:00:03 . Memory (MB): peak = 1733.207 ; gain = 279.852 ; free physical = 189 ; free virtual = 11712
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'dtcore32' [/home/david/Documents/work/dtcore32/src/dtcore32.sv:2]
+INFO: [Synth 8-6157] synthesizing module 'dtcore32_IF_stage' [/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv:2]
+INFO: [Synth 8-6157] synthesizing module 'mux2to1' [/home/david/Documents/work/dtcore32/src/mux2to1.sv:1]
+	Parameter WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mux2to1' (0#1) [/home/david/Documents/work/dtcore32/src/mux2to1.sv:1]
+INFO: [Synth 8-6157] synthesizing module 'adder' [/home/david/Documents/work/dtcore32/src/adder.sv:1]
+	Parameter WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'adder' (0#1) [/home/david/Documents/work/dtcore32/src/adder.sv:1]
+INFO: [Synth 8-6155] done synthesizing module 'dtcore32_IF_stage' (0#1) [/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv:2]
+INFO: [Synth 8-6157] synthesizing module 'dtcore32_ID_stage' [/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv:1]
+INFO: [Synth 8-6157] synthesizing module 'dtcore32_regfile' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:1]
+INFO: [Synth 8-6155] done synthesizing module 'dtcore32_regfile' (0#1) [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:1]
+INFO: [Synth 8-6157] synthesizing module 'extend' [/home/david/Documents/work/dtcore32/src/extend.sv:1]
+INFO: [Synth 8-6155] done synthesizing module 'extend' (0#1) [/home/david/Documents/work/dtcore32/src/extend.sv:1]
+INFO: [Synth 8-6157] synthesizing module 'dtcore32_controller' [/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv:2]
+INFO: [Synth 8-226] default block is never used [/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv:282]
+INFO: [Synth 8-226] default block is never used [/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv:375]
+INFO: [Synth 8-226] default block is never used [/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv:404]
+INFO: [Synth 8-6155] done synthesizing module 'dtcore32_controller' (0#1) [/home/david/Documents/work/dtcore32/src/dtcore32_controller.sv:2]
+INFO: [Synth 8-6155] done synthesizing module 'dtcore32_ID_stage' (0#1) [/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv:1]
+INFO: [Synth 8-6157] synthesizing module 'dtcore32_EX_stage' [/home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv:2]
+INFO: [Synth 8-6157] synthesizing module 'mux3to1' [/home/david/Documents/work/dtcore32/src/mux3to1.sv:1]
+	Parameter WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mux3to1' (0#1) [/home/david/Documents/work/dtcore32/src/mux3to1.sv:1]
+INFO: [Synth 8-6157] synthesizing module 'mux4to1' [/home/david/Documents/work/dtcore32/src/mux4to1.sv:1]
+	Parameter WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-226] default block is never used [/home/david/Documents/work/dtcore32/src/mux4to1.sv:11]
+INFO: [Synth 8-6155] done synthesizing module 'mux4to1' (0#1) [/home/david/Documents/work/dtcore32/src/mux4to1.sv:1]
+INFO: [Synth 8-6157] synthesizing module 'dtcore32_alu' [/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv:2]
+	Parameter WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'dtcore32_alu' (0#1) [/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv:2]
+INFO: [Synth 8-6155] done synthesizing module 'dtcore32_EX_stage' (0#1) [/home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv:2]
+INFO: [Synth 8-6157] synthesizing module 'dtcore32_MEM_stage' [/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv:2]
+INFO: [Synth 8-226] default block is never used [/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv:92]
+INFO: [Synth 8-6155] done synthesizing module 'dtcore32_MEM_stage' (0#1) [/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv:2]
+INFO: [Synth 8-6157] synthesizing module 'dtcore32_WB_stage' [/home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv:1]
+INFO: [Synth 8-6155] done synthesizing module 'dtcore32_WB_stage' (0#1) [/home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv:1]
+INFO: [Synth 8-6157] synthesizing module 'dtcore32_hazard_unit' [/home/david/Documents/work/dtcore32/src/dtcore32_hazard_unit.sv:1]
+INFO: [Synth 8-6155] done synthesizing module 'dtcore32_hazard_unit' (0#1) [/home/david/Documents/work/dtcore32/src/dtcore32_hazard_unit.sv:1]
+INFO: [Synth 8-6155] done synthesizing module 'dtcore32' (0#1) [/home/david/Documents/work/dtcore32/src/dtcore32.sv:2]
+WARNING: [Synth 8-3848] Net ID_csr_rd_data in module/entity dtcore32_ID_stage does not have driver. [/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv:121]
+WARNING: [Synth 8-7129] Port zicsr_rs1_i[19] in module dtcore32_controller is either unconnected or has no load
+WARNING: [Synth 8-7129] Port zicsr_rs1_i[18] in module dtcore32_controller is either unconnected or has no load
+WARNING: [Synth 8-7129] Port zicsr_rs1_i[17] in module dtcore32_controller is either unconnected or has no load
+WARNING: [Synth 8-7129] Port zicsr_rs1_i[16] in module dtcore32_controller is either unconnected or has no load
+WARNING: [Synth 8-7129] Port zicsr_rs1_i[15] in module dtcore32_controller is either unconnected or has no load
+WARNING: [Synth 8-7129] Port zicsr_rd_i[11] in module dtcore32_controller is either unconnected or has no load
+WARNING: [Synth 8-7129] Port zicsr_rd_i[10] in module dtcore32_controller is either unconnected or has no load
+WARNING: [Synth 8-7129] Port zicsr_rd_i[9] in module dtcore32_controller is either unconnected or has no load
+WARNING: [Synth 8-7129] Port zicsr_rd_i[8] in module dtcore32_controller is either unconnected or has no load
+WARNING: [Synth 8-7129] Port zicsr_rd_i[7] in module dtcore32_controller is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[31] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[30] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[29] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[28] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[27] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[26] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[25] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[24] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[23] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[22] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[21] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[20] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[19] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[18] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[17] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[16] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[15] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[14] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[13] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[12] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[11] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[10] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[9] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[8] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[7] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[6] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[5] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[4] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[3] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[2] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[1] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ID_csr_rd_data_o[0] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_en_i in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[31] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[30] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[29] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[28] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[27] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[26] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[25] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[24] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[23] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[22] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[21] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[20] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[19] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[18] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[17] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[16] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[15] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[14] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[13] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[12] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[11] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[10] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[9] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[8] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[7] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[6] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[5] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[4] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[3] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[2] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[1] in module dtcore32_ID_stage is either unconnected or has no load
+WARNING: [Synth 8-7129] Port WB_csr_wr_data_i[0] in module dtcore32_ID_stage is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 1811.176 ; gain = 357.820 ; free physical = 292 ; free virtual = 11724
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1828.988 ; gain = 375.633 ; free physical = 289 ; free virtual = 11721
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7k70tfbv676-1
+INFO: [Device 21-403] Loading part xc7k70tfbv676-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1836.992 ; gain = 383.637 ; free physical = 288 ; free virtual = 11719
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1863.984 ; gain = 410.629 ; free physical = 235 ; free virtual = 11686
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   32 Bit       Adders := 3     
+	   3 Input   32 Bit       Adders := 1     
++---XORs : 
+	   2 Input     32 Bit         XORs := 1     
++---Registers : 
+	               32 Bit    Registers := 50    
+	                5 Bit    Registers := 5     
+	                4 Bit    Registers := 1     
+	                3 Bit    Registers := 2     
+	                2 Bit    Registers := 7     
+	                1 Bit    Registers := 13    
++---Muxes : 
+	   2 Input   32 Bit        Muxes := 5     
+	   4 Input   32 Bit        Muxes := 8     
+	   3 Input   32 Bit        Muxes := 2     
+	   3 Input   16 Bit        Muxes := 1     
+	   4 Input    8 Bit        Muxes := 1     
+	   2 Input    5 Bit        Muxes := 1     
+	   2 Input    4 Bit        Muxes := 1     
+	   9 Input    4 Bit        Muxes := 1     
+	   2 Input    3 Bit        Muxes := 1     
+	   6 Input    3 Bit        Muxes := 1     
+	   2 Input    2 Bit        Muxes := 3     
+	   4 Input    2 Bit        Muxes := 1     
+	   2 Input    1 Bit        Muxes := 34    
+	   9 Input    1 Bit        Muxes := 1     
+	   6 Input    1 Bit        Muxes := 3     
+	   4 Input    1 Bit        Muxes := 2     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[31] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][31]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[31] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[31] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[30] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][30]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[30] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[30] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[29] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][29]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[29] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[29] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[28] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][28]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[28] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[28] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[27] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][27]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[27] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[27] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[26] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][26]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[26] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[26] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[25] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][25]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[25] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[25] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[24] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][24]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[24] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[24] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[23] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][23]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[23] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[23] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[22] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][22]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[22] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[22] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[21] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][21]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[21] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[21] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[20] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][20]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[20] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[20] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[19] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][19]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[19] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[19] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[18] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][18]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[18] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[18] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[17] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][17]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[17] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[17] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[16] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][16]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[16] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[16] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[15] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][15]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[15] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[15] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[14] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][14]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[14] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[14] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[13] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][13]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[13] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[13] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[12] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][12]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[12] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[12] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[11] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][11]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[11] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[11] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[10] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][10]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[10] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[10] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[9] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][9]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[9] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[9] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[8] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][8]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[8] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[8] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[7] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][7]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[7] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[7] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[6] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][6]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[6] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[6] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[5] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][5]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[5] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[5] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[4] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][4]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[4] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[4] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[3] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][3]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[3] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[3] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[2] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][2]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[2] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[2] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[1] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][1]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[1] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[1] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[0] with 1st driver pin 'dtcore32_ID_stage_inst/dtcore32_regfile_inst/reg_array_reg[0][0]/Q' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6859] multi-driven net on pin data0[0] with 2nd driver pin 'GND' [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+CRITICAL WARNING: [Synth 8-6858] multi-driven net data0[0] is connected to at least one constant driver which has been preserved, other driver is ignored [/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv:62]
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:11 ; elapsed = 00:00:11 . Memory (MB): peak = 2034.383 ; gain = 581.027 ; free physical = 228 ; free virtual = 11507
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:11 ; elapsed = 00:00:11 . Memory (MB): peak = 2034.383 ; gain = 581.027 ; free physical = 227 ; free virtual = 11506
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 2034.383 ; gain = 581.027 ; free physical = 229 ; free virtual = 11508
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2108.195 ; gain = 654.840 ; free physical = 173 ; free virtual = 11452
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2108.195 ; gain = 654.840 ; free physical = 173 ; free virtual = 11452
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2108.195 ; gain = 654.840 ; free physical = 173 ; free virtual = 11452
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2108.195 ; gain = 654.840 ; free physical = 173 ; free virtual = 11452
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2108.195 ; gain = 654.840 ; free physical = 173 ; free virtual = 11452
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2108.195 ; gain = 654.840 ; free physical = 173 ; free virtual = 11452
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+-------+------+
+|      |Cell   |Count |
++------+-------+------+
+|1     |BUFG   |     1|
+|2     |CARRY4 |    55|
+|3     |LUT1   |    14|
+|4     |LUT2   |   122|
+|5     |LUT3   |   127|
+|6     |LUT4   |   185|
+|7     |LUT5   |   207|
+|8     |LUT6   |  1017|
+|9     |MUXF7  |   256|
+|10    |MUXF8  |    64|
+|11    |FDRE   |  1522|
+|12    |FDSE   |     4|
+|13    |IBUF   |    66|
+|14    |OBUF   |   101|
++------+-------+------+
+
+Report Instance Areas: 
++------+-----------------------------+---------------------+------+
+|      |Instance                     |Module               |Cells |
++------+-----------------------------+---------------------+------+
+|1     |top                          |                     |  3741|
+|2     |  dtcore32_EX_stage_inst     |dtcore32_EX_stage    |   263|
+|3     |    adder_inst_EX            |adder_0              |    43|
+|4     |    dtcore32_alu_inst        |dtcore32_alu         |    25|
+|5     |  dtcore32_ID_stage_inst     |dtcore32_ID_stage    |  2800|
+|6     |    dtcore32_controller_inst |dtcore32_controller  |     1|
+|7     |    dtcore32_regfile_inst    |dtcore32_regfile     |  1824|
+|8     |  dtcore32_IF_stage_inst     |dtcore32_IF_stage    |   340|
+|9     |    adder_inst               |adder                |     9|
+|10    |  dtcore32_MEM_stage_inst    |dtcore32_MEM_stage   |   137|
+|11    |  dtcore32_WB_stage_inst     |dtcore32_WB_stage    |    32|
+|12    |    mux4to1_inst             |mux4to1              |    32|
+|13    |  dtcore32_hazard_unit_inst  |dtcore32_hazard_unit |     1|
++------+-----------------------------+---------------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2108.195 ; gain = 654.840 ; free physical = 173 ; free virtual = 11452
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 96 critical warnings and 77 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2108.195 ; gain = 654.840 ; free physical = 173 ; free virtual = 11452
+Synthesis Optimization Complete : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 2108.203 ; gain = 654.840 ; free physical = 173 ; free virtual = 11452
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2126.039 ; gain = 0.000 ; free physical = 301 ; free virtual = 11580
+INFO: [Netlist 29-17] Analyzing 375 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2272.660 ; gain = 0.000 ; free physical = 209 ; free virtual = 11498
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Synth Design complete | Checksum: 9542691a
+INFO: [Common 17-83] Releasing license: Synthesis
+47 Infos, 77 Warnings, 96 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:17 ; elapsed = 00:00:16 . Memory (MB): peak = 2272.660 ; gain = 819.316 ; free physical = 209 ; free virtual = 11498
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 1523.688; main = 1485.506; forked = 268.330
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 2973.469; main = 2272.664; forked = 942.387
+INFO: [runtcl-6] Synthesis results are not added to the cache due to CRITICAL_WARNING
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 2296.672 ; gain = 0.000 ; free physical = 209 ; free virtual = 11499
+INFO: [Common 17-1381] The checkpoint '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.runs/synth_1/dtcore32.dcp' has been generated.
+INFO: [Vivado 12-24828] Executing command : report_utilization -file dtcore32_utilization_synth.rpt -pb dtcore32_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Thu Jan 16 11:36:41 2025...

@@ -1,0 +1,24 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Thu Jan 16 11:36:52 2025
+# Process ID         : 185648
+# Current directory  : /home/david/Documents/work/dtcore32/vivado/riscv/riscv.runs/impl_1
+# Command line       : vivado -log dtcore32.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source dtcore32.tcl -notrace
+# Log file           : /home/david/Documents/work/dtcore32/vivado/riscv/riscv.runs/impl_1/dtcore32.vdi
+# Journal file       : /home/david/Documents/work/dtcore32/vivado/riscv/riscv.runs/impl_1/vivado.jou
+# Running On         : david-MS-7D46
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 24.04.1 LTS
+# Processor Detail   : 12th Gen Intel(R) Core(TM) i5-12400F
+# CPU Frequency      : 1992.065 MHz
+# CPU Physical cores : 6
+# CPU Logical cores  : 12
+# Host memory        : 16620 MB
+# Swap memory        : 4294 MB
+# Total Virtual      : 20915 MB
+# Available Virtual  : 13251 MB
+#-----------------------------------------------------------
+source dtcore32.tcl -notrace
