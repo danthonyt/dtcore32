@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="top_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="top_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="674.400 ns"></ZoomStartTime>
+      <ZoomEndTime time="849.120 ns"></ZoomEndTime>
+      <Cursor1Time time="680.898 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="297"></NameColumnWidth>
+      <ValueColumnWidth column_width="92"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="22" />
+   <wvobject type="logic" fp_name="/top_tb/clk_i">
+      <obj_property name="ElementShortName">clk_i</obj_property>
+      <obj_property name="ObjectShortName">clk_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_tb/rst_i">
+      <obj_property name="ElementShortName">rst_i</obj_property>
+      <obj_property name="ObjectShortName">rst_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_tb/switch_state_i">
+      <obj_property name="ElementShortName">switch_state_i</obj_property>
+      <obj_property name="ObjectShortName">switch_state_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_tb/sw_state_test_o">
+      <obj_property name="ElementShortName">sw_state_test_o</obj_property>
+      <obj_property name="ObjectShortName">sw_state_test_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_tb/led_state_o">
+      <obj_property name="ElementShortName">led_state_o</obj_property>
+      <obj_property name="ObjectShortName">led_state_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_tb/exception_o">
+      <obj_property name="ElementShortName">exception_o</obj_property>
+      <obj_property name="ObjectShortName">exception_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dtcore32_inst/IMEM_rd_data_i">
+      <obj_property name="ElementShortName">IMEM_rd_data_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IMEM_rd_data_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dtcore32_inst/IMEM_addr_o">
+      <obj_property name="ElementShortName">IMEM_addr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IMEM_addr_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_tb/top_inst/dtcore32_inst/dtcore32_ID_stage_inst/dtcore32_decode_unit_inst/opcode_exception">
+      <obj_property name="ElementShortName">opcode_exception</obj_property>
+      <obj_property name="ObjectShortName">opcode_exception</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_tb/top_inst/dtcore32_inst/dtcore32_ID_stage_inst/dtcore32_decode_unit_inst/ID_alu_op_exception">
+      <obj_property name="ElementShortName">ID_alu_op_exception</obj_property>
+      <obj_property name="ObjectShortName">ID_alu_op_exception</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dtcore32_inst/dtcore32_ID_stage_inst/ID_instr">
+      <obj_property name="ElementShortName">ID_instr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_instr[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dtcore32_inst/dtcore32_ID_stage_inst/IMEM_addr_i">
+      <obj_property name="ElementShortName">IMEM_addr_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IMEM_addr_i[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dtcore32_inst/dtcore32_ID_stage_inst/ID_pc_o">
+      <obj_property name="ElementShortName">ID_pc_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ID_pc_o[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dtcore32_inst/dtcore32_MEM_stage_inst/MEM_alu_result_o">
+      <obj_property name="ElementShortName">MEM_alu_result_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MEM_alu_result_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dmem_inst/DMEM_wr_data_i">
+      <obj_property name="ElementShortName">DMEM_wr_data_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM_wr_data_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dmem_inst/DMEM_wr_byte_en_i">
+      <obj_property name="ElementShortName">DMEM_wr_byte_en_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM_wr_byte_en_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/DMEM_rd_data">
+      <obj_property name="ElementShortName">DMEM_rd_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM_rd_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dmem_inst/DMEM_addr_i">
+      <obj_property name="ElementShortName">DMEM_addr_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM_addr_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dmem_inst/word_addr">
+      <obj_property name="ElementShortName">word_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">word_addr[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dmem_inst/DMEM_wr_byte_en_i">
+      <obj_property name="ElementShortName">DMEM_wr_byte_en_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM_wr_byte_en_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dmem_inst/DMEM_wr_data_i">
+      <obj_property name="ElementShortName">DMEM_wr_data_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM_wr_data_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_tb/top_inst/dmem_inst/DMEM">
+      <obj_property name="ElementShortName">DMEM[0:255][31:0]</obj_property>
+      <obj_property name="ObjectShortName">DMEM[0:255][31:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+</wave_config>

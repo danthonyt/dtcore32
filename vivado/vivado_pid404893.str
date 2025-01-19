@@ -1,0 +1,208 @@
+/*
+
+AMD Vivado v2024.2 (64-bit) [Major: 2024, Minor: 2]
+SW Build: 5239630 on Fri Nov 08 22:34:34 MST 2024
+IP Build: 5239520 on Sun Nov 10 16:12:51 MST 2024
+IP Build: 5239520 on Sun Nov 10 16:12:51 MST 2024
+
+Process ID (PID): 404893
+License: Customer
+Mode: GUI Mode
+
+Current time: 	Sat Jan 18 11:14:47 PST 2025
+Time zone: 	Pacific Standard Time (America/Los_Angeles)
+
+OS: Ubuntu
+OS Version: 6.8.0-51-generic
+OS Architecture: amd64
+Available processors (cores): 12
+LSB Release Description: Ubuntu 24.04.1 LTS
+
+Display: 0
+Screen size: 2560x1440
+Local screen bounds: x = 66, y = 32, width = 2494, height = 1408
+Screen resolution (DPI): 100
+Available screens: 1
+Default font: family=Dialog,name=Dialog,style=plain,size=12
+Scale size: 12
+OS font scaling: 100%
+Anti-Alias Enabled: false
+
+Java version: 	21.0.1 64-bit
+
+Java home: 	/opt/Xilinx/Vivado/2024.2/tps/lnx64/jre21.0.1_12
+Java executable: 	/opt/Xilinx/Vivado/2024.2/tps/lnx64/jre21.0.1_12/bin/java
+Java arguments: 	[-Dsun.java2d.pmoffscreen=false, -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2, -Dsun.java2d.xrender=false, -Dsun.java2d.uiScale.enabled=false, -Dswing.aatext=true, -XX:-UsePerfData, -Djdk.map.althashing.threshold=512, -XX:StringTableSize=4072, -XX:+UseStringDeduplication, -XX:MaxGCPauseMillis=200, -XX:ParallelGCThreads=4, -XX:+ParallelRefProcEnabled, --add-opens=java.desktop/javax.swing.plaf.synth=ALL-UNNAMED, --add-opens=java.base/java.nio=ALL-UNNAMED, --add-opens=java.desktop/sun.swing=ALL-UNNAMED, --add-opens=java.desktop/javax.swing=ALL-UNNAMED, --add-opens=java.desktop/javax.swing.tree=ALL-UNNAMED, --add-opens=java.desktop/javax.swing.plaf.basic=ALL-UNNAMED, --add-opens=java.desktop/javax.swing.plaf.synth=ALL-UNNAMED, --add-opens=java.desktop/javax.swing.plaf.basic=ALL-UNNAMED, --add-opens=java.desktop/javax.swing=ALL-UNNAMED, --add-opens=java.desktop/javax.swing.tree=ALL-UNNAMED, --add-opens=java.desktop/java.awt.event=ALL-UNNAMED, --add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED, --add-exports=java.desktop/javax.swing.plaf.synth=ALL-UNNAMED, --add-exports=java.base/java.nio=ALL-UNNAMED, --add-exports=java.desktop/sun.swing=ALL-UNNAMED, --add-exports=java.desktop/javax.swing=ALL-UNNAMED, --add-exports=java.desktop/javax.swing.tree=ALL-UNNAMED, --add-exports=java.desktop/javax.swing.plaf.basic=ALL-UNNAMED, --add-exports=java.desktop/sun.swing=ALL-UNNAMED, --add-exports=java.desktop/sun.swing.table=ALL-UNNAMED, --add-exports=java.desktop/sun.swing.plaf.synth=ALL-UNNAMED, --add-exports=java.desktop/sun.awt.shell=ALL-UNNAMED, --add-exports=java.base/sun.security.action=ALL-UNNAMED, --add-exports=java.desktop/sun.font=ALL-UNNAMED, --add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED, -XX:NewSize=80m, -XX:MaxNewSize=80m, -Xms512m, -Xmx4072m, -Xss10m, -Xrs]
+Java initial memory (-Xms): 	512 MB
+Java maximum memory (-Xmx):	 3 GB
+
+User name: 	david
+User home directory: /home/david
+User working directory: /home/david/Documents/work/dtcore32/vivado
+User country: 	US
+User language: 	en
+User locale: 	en_US
+
+RDI_BASEROOT: /opt/Xilinx/Vivado
+HDI_APPROOT: /opt/Xilinx/Vivado/2024.2
+RDI_DATADIR: /opt/Xilinx/Vivado/2024.2/data
+RDI_BINDIR: /opt/Xilinx/Vivado/2024.2/bin
+
+Vivado preferences file: /home/david/.Xilinx/Vivado/2024.2/vivado.xml
+Vivado preferences directory: /home/david/.Xilinx/Vivado/2024.2/
+Vivado layouts directory: /home/david/.Xilinx/Vivado/2024.2/data/layouts
+PlanAhead jar file: 	/opt/Xilinx/Vivado/2024.2/lib/classes/planAhead.jar
+Vivado log file: 	/home/david/Documents/work/dtcore32/vivado/vivado.log
+Vivado journal file: 	/home/david/Documents/work/dtcore32/vivado/vivado.jou
+Engine tmp dir: 	./.Xil/Vivado-404893-david-MS-7D46
+Non-Default Parameters:	[]
+
+Xilinx & AMD Environment Variables
+--------------------------------------------------------------------------------------------
+GNOME_SHELL_SESSION_MODE: ubuntu
+RDI_APPROOT: /opt/Xilinx/Vivado/2024.2
+RDI_BASEROOT: /opt/Xilinx/Vivado
+RDI_BINROOT: /opt/Xilinx/Vivado/2024.2/bin
+RDI_BUILD: yes
+RDI_DATADIR: /opt/Xilinx/Vivado/2024.2/data
+RDI_INSTALLROOT: /opt/Xilinx
+RDI_INSTALLVER: 2024.2
+RDI_JAVA_PLATFORM: 
+RDI_JAVA_VERSION: 21.0.1_12
+RDI_LIBDIR: /opt/Xilinx/Vivado/2024.2/lib/lnx64.o/Ubuntu/24:/opt/Xilinx/Vivado/2024.2/lib/lnx64.o/Ubuntu:/opt/Xilinx/Vivado/2024.2/lib/lnx64.o
+RDI_OPT_EXT: .o
+RDI_PATCHROOT: 
+RDI_PLATFORM: lnx64
+RDI_PREPEND_PATH: /opt/Xilinx/Vitis/2024.2/bin:/opt/Xilinx/Vivado/2024.2/ids_lite/ISE/bin/lin64
+RDI_PROG: /opt/Xilinx/Vivado/2024.2/bin/unwrapped/lnx64.o/vivado
+RDI_SESSION_INFO: /home/david/Documents/work/dtcore32/vivado:david-MS-7D46_1737227677_404824
+RDI_SHARED_DATA: /opt/Xilinx/SharedData/2024.2/data
+RDI_TPS_ROOT: /opt/Xilinx/Vivado/2024.2/tps/lnx64
+RDI_USE_JDK21: True
+SHELL: /bin/bash
+XILINX: /opt/Xilinx/Vivado/2024.2/ids_lite/ISE
+XILINX_DSP: /opt/Xilinx/Vivado/2024.2/ids_lite/ISE
+XILINX_HLS: /opt/Xilinx/Vitis/2024.2
+XILINX_PLANAHEAD: /opt/Xilinx/Vivado/2024.2
+XILINX_SDK: /opt/Xilinx/Vitis/2024.2
+XILINX_VITIS: /opt/Xilinx/Vitis/2024.2
+XILINX_VIVADO: /opt/Xilinx/Vivado/2024.2
+
+
+GUI allocated memory:	512 MB
+GUI max memory:		4,072 MB
+Engine allocated memory: 1,363 MB
+
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+
+*/
+
+// TclEventType: START_GUI
+// Tcl Message: start_gui 
+// HMemoryUtils.trashcanNow. Engine heap size: 1,369 MB. GUI used memory: 74 MB. Current time: 1/18/25, 11:14:48 AM PST
+selectList(PAResourceQtoS.SyntheticaGettingStartedView_RECENT_PROJECTS, "/home/david/Documents/work/dtcore32/vivado/riscv/riscv.xpr", 0); // b.c (PAResourceQtoS.SyntheticaGettingStartedView_RECENT_PROJECTS)
+// Opening Vivado Project: /home/david/Documents/work/dtcore32/vivado/riscv/riscv.xpr. Version: Vivado v2024.2 
+// TclEventType: DEBUG_PROBE_SET_CHANGE
+// TclEventType: FLOW_ADDED
+// TclEventType: MSGMGR_MOVEMSG
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_NEW
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_CURRENT
+// TclEventType: PROJECT_DASHBOARD_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_NEW
+// [GUI Memory]: 91 MB (+93312kb) [00:00:33]
+// [Engine Memory]: 1,496 MB (+1416755kb) [00:00:33]
+// [GUI Memory]: 116 MB (+21490kb) [00:00:34]
+// WARNING: HEventQueue.dispatchEvent() is taking  1186 ms.
+// Tcl Message: open_project /home/david/Documents/work/dtcore32/vivado/riscv/riscv.xpr 
+// Tcl Message: INFO: [filemgmt 56-3] Default IP Output Path : Could not find the directory '/home/david/Documents/work/dtcore32/vivado/riscv/riscv.gen/sources_1'. 
+// Tcl Message: Scanning sources... Finished scanning sources 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories INFO: [IP_Flow 19-1704] No user IP repositories specified INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/opt/Xilinx/Vivado/2024.2/data/ip'. 
+// HMemoryUtils.trashcanNow. Engine heap size: 1,570 MB. GUI used memory: 79 MB. Current time: 1/18/25, 11:15:14 AM PST
+// [GUI Memory]: 141 MB (+19963kb) [00:00:34]
+// [Engine Memory]: 1,571 MB (+815kb) [00:00:34]
+// Project name: riscv; location: /home/david/Documents/work/dtcore32/vivado/riscv; part: xc7a35ticsg324-1L
+dismissDialog("Open Project"); // bh (Open Project Progress)
+// Tcl Message: update_compile_order -fileset sources_1 
+// [GUI Memory]: 157 MB (+9318kb) [00:00:40]
+// Elapsed time: 10 seconds
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, dtcore32 (dtcore32.sv)]", 2); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Constraints]", 9); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Constraints, constrs_1, arty.xdc]", 11, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Constraints, constrs_1, arty.xdc]", 11, false, false, false, false, false, true); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Double Click
+selectCodeEditor("arty.xdc", 0, 160, false, false, false, false, true); // ae (arty.xdc) - Double Click
+selectCodeEditor("arty.xdc", 15, 85); // ae (arty.xdc)
+typeControlKey(null, null, 'z');
+selectCodeEditor("arty.xdc", 1, 156, false, false, false, false, true); // ae (arty.xdc) - Double Click
+typeControlKey((HResource) null, "arty.xdc", 'v'); // ae (arty.xdc)
+typeControlKey((HResource) null, "arty.xdc", 'v'); // ae (arty.xdc)
+typeControlKey((HResource) null, "arty.xdc", 'v'); // ae (arty.xdc)
+typeControlKey((HResource) null, "arty.xdc", 'v'); // ae (arty.xdc)
+typeControlKey((HResource) null, "arty.xdc", 'v'); // ae (arty.xdc)
+// TclEventType: FILE_SET_CHANGE
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Run Implementation]", 18, false); // g (PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, Flow Navigator Tree)
+// Run Command: PAResourceCommand.PACommandNames_RUN_IMPLEMENTATION
+selectButton(RDIResource.BaseDialog_YES, "Yes", "Synthesis is Out-of-date"); // a (RDIResource.BaseDialog_YES)
+dismissDialog("Synthesis is Out-of-date"); // u (dialog0)
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run synth_1 
+// Tcl Message: INFO: [Project 1-1161] Replacing file /home/david/Documents/work/dtcore32/vivado/riscv/riscv.srcs/utils_1/imports/synth_1/dtcore32.dcp with file /home/david/Documents/work/dtcore32/vivado/riscv/riscv.runs/synth_1/top.dcp 
+// TclEventType: FILE_SET_CHANGE
+selectButton(RDIResource.BaseDialog_OK, "OK", "Launch Runs"); // a (RDIResource.BaseDialog_OK)
+dismissDialog("Launch Runs"); // g (dialog1)
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// Tcl Message: launch_runs impl_1 -jobs 12 
+// Tcl Message: [Sat Jan 18 11:15:48 2025] Launched synth_1... Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/riscv/riscv.runs/synth_1/runme.log [Sat Jan 18 11:15:48 2025] Launched impl_1... Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/riscv/riscv.runs/impl_1/runme.log 
+dismissDialog("Starting Design Runs"); // bh (Starting Design Runs Progress)
+// TclEventType: RUN_STATUS_CHANGE
+// PAPropertyPanels.initPanels (synth_1_copy_1) elapsed time: 0.2s
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "synth_1_copy_1 ; constrs_1 ; Not started ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; Vivado Synthesis Defaults (Vivado Synthesis 2024) ; Vivado Synthesis Default Reports (Vivado Synthesis 2024) ; xc7a35ticsg324-1L ;  ; Vivado Synthesis Defaults", 3, "synth_1_copy_1", 0, false, false, false, false, true, false); // ar (PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE) - Popup Trigger
+// [Engine Memory]: 1,663 MB (+13544kb) [00:01:12]
+selectMenuItem(RDIResourceCommand.RDICommands_DELETE, "Delete"); // aq (RDIResourceCommand.RDICommands_DELETE, global_delete_menu)
+// Run Command: RDIResourceCommand.RDICommands_DELETE
+selectButton(RDIResource.BaseDialog_OK, "Delete", "Delete Runs"); // a (RDIResource.BaseDialog_OK)
+// HMemoryUtils.trashcanNow. Engine heap size: 1,683 MB. GUI used memory: 86 MB. Current time: 1/18/25, 11:15:53 AM PST
+// TclEventType: RUN_DELETE
+// Tcl Message: delete_runs "synth_1_copy_1" 
+dismissDialog("Deleting Runs"); // bh (Deleting Runs Progress)
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "synth_1 ; constrs_1 ; Running synth_design... ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; Sat Jan 18 11:15:48 PST 2025 ; 00:00:05 ; Vivado Synthesis Defaults (Vivado Synthesis 2024) ; Vivado Synthesis Default Reports (Vivado Synthesis 2024) ; xc7a35ticsg324-1L ; david-MS-7D46 ; Vivado Synthesis Defaults", 0, "synth_1", 0, true); // ar (PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE) - Node
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "synth_1 ; constrs_1 ; Running synth_design... ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; Sat Jan 18 11:15:48 PST 2025 ; 00:00:05 ; Vivado Synthesis Defaults (Vivado Synthesis 2024) ; Vivado Synthesis Default Reports (Vivado Synthesis 2024) ; xc7a35ticsg324-1L ; david-MS-7D46 ; Vivado Synthesis Defaults", 0, "synth_1", 0, true, false, false, false, true, false); // ar (PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE) - Popup Trigger - Node
+// [Engine Memory]: 1,800 MB (+56768kb) [00:01:16]
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// Elapsed time: 99 seconds
+selectButton(RDIResource.BaseDialog_OK, "OK", "Implementation Failed"); // a (RDIResource.BaseDialog_OK)
+// Run Command: PAResourceCommand.PACommandNames_MESSAGE_WINDOW
+dismissDialog("Implementation Failed"); // W.a (dialog3)

@@ -1,5 +1,5 @@
 Time resolution is 1 ps
-WARNING: 0ns : none of the conditions were true for unique case from File:/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv:25
+WARNING: 0ns : none of the conditions were true for unique case from File:/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv:24
 Running all tests.
 ***********************************
 Running Test ID: 0
@@ -112,4 +112,4 @@ TEST PASSED; ID: 35
 
 ***********************************
 ALL TESTS PASSED !
-$finish called at time : 291930 ns : File "/home/david/Documents/work/dtcore32/sim/testbench.sv" Line 326
+$finish called at time : 291930 ns : File "/home/david/Documents/work/dtcore32/sim/dtcore32_tb.sv" Line 426

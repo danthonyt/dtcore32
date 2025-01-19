@@ -28,28 +28,47 @@ for eachfile in "$TESTDIR"/*.S; do
     riscv32-unknown-elf-gcc -c "$eachfile" -I"$RVTEST_INCLUDE" -o "$eachfile.o"
     riscv32-unknown-elf-ld  "$eachfile.o" -Ttext 0x00000000 -Tdata 0x00002000 -o "$eachfile.v2"
     riscv32-unknown-elf-objdump -d "$eachfile.v2" > "$eachfile.dump"
+    
+    # Generate binary output
     riscv32-unknown-elf-objcopy -O binary "$eachfile.v2" "$eachfile.bin"
 
+    # Extract instruction memory (IMEM) starting from address 0x00000000
+    riscv32-unknown-elf-objcopy -O binary -j .text "$eachfile.v2" "$eachfile.imem.bin"
+    
+    # Extract data memory (DMEM) starting from address 0x00002000
+    riscv32-unknown-elf-objcopy -O binary -j .data "$eachfile.v2" "$eachfile.dmem.bin"
 
-    # Convert binary to hex and swap byte order (change endianness)
-hexdump -v -e '4/1 "%02X" "\n"' "$eachfile.bin" | \
-awk '{
-  swapped = substr($0,7,2) substr($0,5,2) substr($0,3,2) substr($0,1,2);
-    print swapped;
-}' > "$eachfile.hex"
-    # Rename .hex file to .mem
-    memfile="$HEXDIR/$(basename "${eachfile%.S}.mem")"
-    mv "$eachfile.hex" "$memfile"
+    # Convert instruction binary to hex and swap byte order (change endianness)
+    hexdump -v -e '4/1 "%02X" "\n"' "$eachfile.imem.bin" | \
+    awk '{
+      swapped = substr($0,7,2) substr($0,5,2) substr($0,3,2) substr($0,1,2);
+      print swapped;
+    }' > "$eachfile.imem.hex"
+
+    # Convert data binary to hex and swap byte order (change endianness)
+    hexdump -v -e '4/1 "%02X" "\n"' "$eachfile.dmem.bin" | \
+    awk '{
+      swapped = substr($0,7,2) substr($0,5,2) substr($0,3,2) substr($0,1,2);
+      print swapped;
+    }' > "$eachfile.dmem.hex"
+
+    # Rename .hex files to .mem for instruction and data memory
+    memfile_imem="$HEXDIR/$(basename "${eachfile%.S}.imem.mem")"
+    memfile_dmem="$HEXDIR/$(basename "${eachfile%.S}.dmem.mem")"
+    
+    mv "$eachfile.imem.hex" "$memfile_imem"
+    mv "$eachfile.dmem.hex" "$memfile_dmem"
 
     # Move files to the appropriate directories
     mv "$eachfile.dump" "$DUMPDIR/"
 
     # Clean up intermediate files
-    rm -f "$eachfile.o" "$eachfile.v2" "$eachfile.hex" "$eachfile.bin"
+    rm -f "$eachfile.o" "$eachfile.v2" "$eachfile.imem.bin" "$eachfile.dmem.bin" "$eachfile.imem.hex" "$eachfile.dmem.hex"
   else
     echo "Warning: File \"$eachfile\" does not exist or is not a regular file."
   fi
 done
 
-echo "All memory .mem files moved to $HEXDIR."
+echo "All instruction memory .mem files moved to $HEXDIR."
+echo "All data memory .mem files moved to $HEXDIR."
 echo "All dump files moved to $DUMPDIR."

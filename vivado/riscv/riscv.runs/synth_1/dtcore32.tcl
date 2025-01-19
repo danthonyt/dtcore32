@@ -57,7 +57,7 @@ if {$::dispatch::connected} {
 
 OPTRACE "synth_1" START { ROLLUP_AUTO }
 OPTRACE "Creating in-memory project" START { }
-create_project -in_memory -part xc7k70tfbv676-1
+create_project -in_memory -part xc7a35ticsg324-1L
 
 set_param project.singleFileAddWarning.threshold 0
 set_param project.compositeFile.enableAutoGeneration 0
@@ -73,20 +73,15 @@ OPTRACE "Adding files" START { }
 read_verilog /home/david/Documents/work/dtcore32/src/macros.svh
 set_property file_type "Verilog Header" [get_files /home/david/Documents/work/dtcore32/src/macros.svh]
 read_verilog -library xil_defaultlib -sv {
-  /home/david/Documents/work/dtcore32/src/adder.sv
   /home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv
   /home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv
   /home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv
   /home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv
   /home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv
   /home/david/Documents/work/dtcore32/src/dtcore32_alu.sv
-  /home/david/Documents/work/dtcore32/src/dtcore32_controller.sv
+  /home/david/Documents/work/dtcore32/src/dtcore32_decode_unit.sv
   /home/david/Documents/work/dtcore32/src/dtcore32_hazard_unit.sv
   /home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv
-  /home/david/Documents/work/dtcore32/src/extend.sv
-  /home/david/Documents/work/dtcore32/src/mux2to1.sv
-  /home/david/Documents/work/dtcore32/src/mux3to1.sv
-  /home/david/Documents/work/dtcore32/src/mux4to1.sv
   /home/david/Documents/work/dtcore32/src/dtcore32.sv
 }
 OPTRACE "Adding files" END { }
@@ -98,11 +93,16 @@ OPTRACE "Adding files" END { }
 foreach dcp [get_files -quiet -all -filter file_type=="Design\ Checkpoint"] {
   set_property used_in_implementation false $dcp
 }
+read_xdc /home/david/Documents/work/dtcore32/vivado/riscv/riscv.srcs/constrs_1/new/arty.xdc
+set_property used_in_implementation false [get_files /home/david/Documents/work/dtcore32/vivado/riscv/riscv.srcs/constrs_1/new/arty.xdc]
+
 set_param ips.enableIPCacheLiteLoad 1
+
+read_checkpoint -auto_incremental -incremental /home/david/Documents/work/dtcore32/vivado/riscv/riscv.srcs/utils_1/imports/synth_1/dtcore32.dcp
 close [open __synthesis_is_running__ w]
 
 OPTRACE "synth_design" START { }
-synth_design -top dtcore32 -part xc7k70tfbv676-1
+synth_design -top dtcore32 -part xc7a35ticsg324-1L
 OPTRACE "synth_design" END { }
 if { [get_msg_config -count -severity {CRITICAL WARNING}] > 0 } {
  send_msg_id runtcl-6 info "Synthesis results are not added to the cache due to CRITICAL_WARNING"

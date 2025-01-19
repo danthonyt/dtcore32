@@ -105,9 +105,9 @@ set ACTIVE_STEP init_design
 set rc [catch {
   create_msg_db init_design.pb
   set_param chipscope.maxJobs 3
-  set_param runs.launchOptions { -jobs 6  }
+  set_param runs.launchOptions { -jobs 12  }
 OPTRACE "create in-memory project" START { }
-  create_project -in_memory -part xc7k70tfbv676-1
+  create_project -in_memory -part xc7a35ticsg324-1L
   set_property design_mode GateLvl [current_fileset]
   set_param project.singleFileAddWarning.threshold 0
 OPTRACE "create in-memory project" END { }
@@ -120,12 +120,13 @@ OPTRACE "set parameters" END { }
 OPTRACE "add files" START { }
   add_files -quiet /home/david/Documents/work/dtcore32/vivado/riscv/riscv.runs/synth_1/dtcore32.dcp
 OPTRACE "read constraints: implementation" START { }
+  read_xdc /home/david/Documents/work/dtcore32/vivado/riscv/riscv.srcs/constrs_1/new/arty.xdc
 OPTRACE "read constraints: implementation" END { }
 OPTRACE "read constraints: implementation_pre" START { }
 OPTRACE "read constraints: implementation_pre" END { }
 OPTRACE "add files" END { }
 OPTRACE "link_design" START { }
-  link_design -top dtcore32 -part xc7k70tfbv676-1 
+  link_design -top dtcore32 -part xc7a35ticsg324-1L 
 OPTRACE "link_design" END { }
 OPTRACE "gray box cells" START { }
 OPTRACE "gray box cells" END { }

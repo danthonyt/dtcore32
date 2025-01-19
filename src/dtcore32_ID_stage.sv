@@ -46,6 +46,7 @@ module dtcore32_ID_stage (
       ID_pc_o <= 0;
       ID_pc_plus_4_o <= 0 ;
     end
+    // allow 1 clock delay after a reset to prevent registering invalid instruction read data
     else if (!ID_stall_i)
     begin
       ID_instr <= IMEM_rd_data_i;

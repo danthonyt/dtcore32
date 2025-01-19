@@ -11,7 +11,6 @@ module dtcore32_IF_stage (
   );
 
   logic [31:0] IF_pc_tick;
-
   always_ff @(posedge clk_i)
   begin
     if (rst_i)

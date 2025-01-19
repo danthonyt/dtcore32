@@ -1,0 +1,19 @@
+# compile verilog/system verilog design source files
+sv xil_defaultlib  --include "../../../../../../src" \
+"../../../../../../src/dtcore32.sv" \
+"../../../../../../src/dtcore32_EX_stage.sv" \
+"../../../../../../src/dtcore32_ID_stage.sv" \
+"../../../../../../src/dtcore32_IF_stage.sv" \
+"../../../../../../src/dtcore32_MEM_stage.sv" \
+"../../../../../../src/dtcore32_WB_stage.sv" \
+"../../../../../../src/dtcore32_alu.sv" \
+"../../../../../../src/dtcore32_decode_unit.sv" \
+"../../../../../../src/dtcore32_hazard_unit.sv" \
+"../../../../../../src/dtcore32_regfile.sv" \
+"../../../../../../sim/dtcore32_tb.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

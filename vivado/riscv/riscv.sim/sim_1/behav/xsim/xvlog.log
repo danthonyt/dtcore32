@@ -18,5 +18,5 @@ INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dt
 INFO: [VRFC 10-311] analyzing module dtcore32_hazard_unit
 INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv" into library xil_defaultlib
 INFO: [VRFC 10-311] analyzing module dtcore32_regfile
-INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/sim/testbench.sv" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module testbench
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/sim/dtcore32_tb.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_tb

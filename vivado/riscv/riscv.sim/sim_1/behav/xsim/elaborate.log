@@ -1,7 +1,7 @@
 Vivado Simulator v2024.2.0
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
-Running: /opt/Xilinx/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot testbench_behav xil_defaultlib.testbench xil_defaultlib.glbl -log elaborate.log 
+Running: /opt/Xilinx/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot dtcore32_tb_behav xil_defaultlib.dtcore32_tb xil_defaultlib.glbl -log elaborate.log 
 Using 8 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
@@ -39,6 +39,6 @@ Compiling module xil_defaultlib.dtcore32_MEM_stage
 Compiling module xil_defaultlib.dtcore32_WB_stage
 Compiling module xil_defaultlib.dtcore32_hazard_unit
 Compiling module xil_defaultlib.dtcore32
-Compiling module xil_defaultlib.testbench
+Compiling module xil_defaultlib.dtcore32_tb
 Compiling module xil_defaultlib.glbl
-Built simulation snapshot testbench_behav
+Built simulation snapshot dtcore32_tb_behav

@@ -1,12 +1,12 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-| Date         : Thu Jan 16 11:37:03 2025
+| Date         : Sat Jan 18 11:16:41 2025
 | Host         : david-MS-7D46 running 64-bit Ubuntu 24.04.1 LTS
 | Command      : report_drc -file dtcore32_drc_opted.rpt -pb dtcore32_drc_opted.pb -rpx dtcore32_drc_opted.rpx
 | Design       : dtcore32
-| Device       : xc7k70tfbv676-1
-| Speed File   : -1
+| Device       : xc7a35ticsg324-1L
+| Speed File   : -1L
 | Design State : Synthesized
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -37,16 +37,16 @@ Table of Contents
 -----------------
 NSTD-1#1 Critical Warning
 Unspecified I/O Standard  
-167 out of 167 logical ports use I/O standard (IOSTANDARD) value 'DEFAULT', instead of a user assigned specific value. This may cause I/O contention or incompatibility with the board power or connectivity affecting performance, signal integrity or in extreme cases cause damage to the device or the components to which it is connected. To correct this violation, specify all I/O standards. This design will fail to generate a bitstream unless all logical ports have a user specified I/O standard value defined. To allow bitstream creation with unspecified I/O standard values (not recommended), use this command: set_property SEVERITY {Warning} [get_drc_checks NSTD-1].  NOTE: When using the Vivado Runs infrastructure (e.g. launch_runs Tcl command), add this command to a .tcl file and add that file as a pre-hook for write_bitstream step for the implementation run. Problem ports: DMEM_addr_o[31:0], DMEM_rd_data_i[31:0], DMEM_wr_byte_en_o[3:0],
-DMEM_wr_data_o[31:0], IMEM_addr_o[31:0], IMEM_rd_data_i[31:0], clk_i,
-exception_o, rst_i.
+166 out of 167 logical ports use I/O standard (IOSTANDARD) value 'DEFAULT', instead of a user assigned specific value. This may cause I/O contention or incompatibility with the board power or connectivity affecting performance, signal integrity or in extreme cases cause damage to the device or the components to which it is connected. To correct this violation, specify all I/O standards. This design will fail to generate a bitstream unless all logical ports have a user specified I/O standard value defined. To allow bitstream creation with unspecified I/O standard values (not recommended), use this command: set_property SEVERITY {Warning} [get_drc_checks NSTD-1].  NOTE: When using the Vivado Runs infrastructure (e.g. launch_runs Tcl command), add this command to a .tcl file and add that file as a pre-hook for write_bitstream step for the implementation run. Problem ports: DMEM_addr_o[31:0], DMEM_rd_data_i[31:0], DMEM_wr_byte_en_o[3:0],
+DMEM_wr_data_o[31:0], IMEM_addr_o[31:0], IMEM_rd_data_i[31:0], exception_o
+rst_i.
 Related violations: <none>
 
 UCIO-1#1 Critical Warning
 Unconstrained Logical Port  
-167 out of 167 logical ports have no user assigned specific location constraint (LOC). This may cause I/O contention or incompatibility with the board power or connectivity affecting performance, signal integrity or in extreme cases cause damage to the device or the components to which it is connected. To correct this violation, specify all pin locations. This design will fail to generate a bitstream unless all logical ports have a user specified site LOC constraint defined.  To allow bitstream creation with unspecified pin locations (not recommended), use this command: set_property SEVERITY {Warning} [get_drc_checks UCIO-1].  NOTE: When using the Vivado Runs infrastructure (e.g. launch_runs Tcl command), add this command to a .tcl file and add that file as a pre-hook for write_bitstream step for the implementation run.  Problem ports: DMEM_addr_o[31:0], DMEM_rd_data_i[31:0], DMEM_wr_byte_en_o[3:0],
-DMEM_wr_data_o[31:0], IMEM_addr_o[31:0], IMEM_rd_data_i[31:0], clk_i,
-exception_o, rst_i.
+166 out of 167 logical ports have no user assigned specific location constraint (LOC). This may cause I/O contention or incompatibility with the board power or connectivity affecting performance, signal integrity or in extreme cases cause damage to the device or the components to which it is connected. To correct this violation, specify all pin locations. This design will fail to generate a bitstream unless all logical ports have a user specified site LOC constraint defined.  To allow bitstream creation with unspecified pin locations (not recommended), use this command: set_property SEVERITY {Warning} [get_drc_checks UCIO-1].  NOTE: When using the Vivado Runs infrastructure (e.g. launch_runs Tcl command), add this command to a .tcl file and add that file as a pre-hook for write_bitstream step for the implementation run.  Problem ports: DMEM_addr_o[31:0], DMEM_rd_data_i[31:0], DMEM_wr_byte_en_o[3:0],
+DMEM_wr_data_o[31:0], IMEM_addr_o[31:0], IMEM_rd_data_i[31:0], exception_o
+rst_i.
 Related violations: <none>
 
 CFGBVS-1#1 Warning
