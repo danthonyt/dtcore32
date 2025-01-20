@@ -155,10 +155,11 @@ module dtcore32_decode_unit(
       //  ECALL should jump to the start
       `OPCODE_SYSTEM_ZICSR:
       begin
+        ID_reg_wr_en_o = `REGFILE_WRITE_ENABLE;
         // ECALL - treat as an uncond jump to adress 0x00
         if (ID_instr_i == 32'h00000073)
         begin
-          ID_reg_wr_en_o = `REGFILE_WRITE_ENABLE;
+          //ID_reg_wr_en_o = `REGFILE_WRITE_ENABLE;
           ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
           ID_alu_a_src_o = `ALU_A_SRC_SELECT_REG_DATA;
           ID_alu_b_src_o = `ALU_B_SRC_SELECT_IMM;
@@ -173,7 +174,7 @@ module dtcore32_decode_unit(
         else
         begin
 
-          ID_reg_wr_en_o = `REGFILE_WRITE_ENABLE;
+          //ID_reg_wr_en_o = `REGFILE_WRITE_ENABLE;
           ID_alu_a_src_o = `ALU_A_SRC_SELECT_REG_DATA;
           ID_alu_b_src_o = `ALU_B_SRC_SELECT_IMM;
           ID_mem_wr_size_o = `MEM_NO_DMEM_WR;

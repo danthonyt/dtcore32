@@ -21,14 +21,18 @@ module dtcore32_MEM_stage (
     // MEM stage
     input logic MEM_stall_i,
     output logic MEM_reg_wr_en_o,
-    output logic [1:0] MEM_result_src_o,
+    //output logic [1:0] MEM_result_src_o,
     output logic [31:0] MEM_alu_result_o,
     output logic [11:7] MEM_dest_reg_o,
-    output logic [31:0] MEM_pc_plus_4_o,
-    output logic [31:0] MEM_dmem_rd_data_o,
-    output logic MEM_exception_o
+    //output logic [31:0] MEM_pc_plus_4_o,
+    //output logic [31:0] MEM_dmem_rd_data_o,
+    output logic MEM_exception_o,
+    output logic [31:0] MEM_result_o
 
   );
+
+  logic [31:0] MEM_dmem_rd_data;
+  logic [31:0] MEM_pc_plus_4;
 
   logic MEM_misaligned_store;
   logic MEM_misaligned_load;
@@ -38,6 +42,7 @@ module dtcore32_MEM_stage (
   logic [1:0] MEM_mem_wr_size;
   logic [31:0] MEM_dmem_wr_data;
 
+  logic [1:0] MEM_result_src;
   assign MEM_exception_o = MEM_misaligned_load | MEM_misaligned_store | MEM_unknown_load;
 
   // EX/MEM register
@@ -46,24 +51,24 @@ module dtcore32_MEM_stage (
     if (rst_i)
     begin
       MEM_reg_wr_en_o <= 0;
-      MEM_result_src_o <= 0;
+      MEM_result_src <= 0;
       MEM_load_size <= 0;
       MEM_mem_wr_size <= 0;
       MEM_alu_result_o <= 0;
       MEM_dmem_wr_data <= 0;
       MEM_dest_reg_o <= 0;
-      MEM_pc_plus_4_o <= 0;
+      MEM_pc_plus_4 <= 0;
     end
     else if (!MEM_stall_i)
     begin
       MEM_reg_wr_en_o <= EX_reg_wr_en_i;
-      MEM_result_src_o <= EX_result_src_i;
+      MEM_result_src <= EX_result_src_i;
       MEM_load_size <= EX_load_size_i;
       MEM_mem_wr_size <= EX_mem_wr_size_i;
       MEM_alu_result_o <= EX_alu_result_i;
       MEM_dmem_wr_data <= EX_dmem_wr_data_i;
       MEM_dest_reg_o <= EX_dest_reg_i;
-      MEM_pc_plus_4_o <= EX_pc_plus_4_i;
+      MEM_pc_plus_4 <= EX_pc_plus_4_i;
     end
   end
   // logic to determine which bytes are written to data memory for store instructions
@@ -134,31 +139,31 @@ module dtcore32_MEM_stage (
   begin
     MEM_misaligned_load = 0;
     MEM_unknown_load = 0;
-    MEM_dmem_rd_data_o = 0;
+    MEM_dmem_rd_data = 0;
     case (MEM_load_size)
       //lw
       `DMEM_LOAD_SIZE_WORD:
       begin
-        MEM_dmem_rd_data_o = DMEM_rd_data_i;
+        MEM_dmem_rd_data = DMEM_rd_data_i;
       end
       //lb
       `DMEM_LOAD_SIZE_BYTE:
       case(MEM_alu_result_o[1:0])
         2'b00:
         begin
-          MEM_dmem_rd_data_o = { {24{DMEM_rd_data_i[7]}}, DMEM_rd_data_i[7:0] };
+          MEM_dmem_rd_data = { {24{DMEM_rd_data_i[7]}}, DMEM_rd_data_i[7:0] };
         end
         2'b01:
         begin
-          MEM_dmem_rd_data_o = { {24{DMEM_rd_data_i[15]}}, DMEM_rd_data_i[15:8] };
+          MEM_dmem_rd_data = { {24{DMEM_rd_data_i[15]}}, DMEM_rd_data_i[15:8] };
         end
         2'b10:
         begin
-          MEM_dmem_rd_data_o = { {24{DMEM_rd_data_i[23]}}, DMEM_rd_data_i[23:16] };
+          MEM_dmem_rd_data = { {24{DMEM_rd_data_i[23]}}, DMEM_rd_data_i[23:16] };
         end
         2'b11:
         begin
-          MEM_dmem_rd_data_o = { {24{DMEM_rd_data_i[31]}}, DMEM_rd_data_i[31:24] };
+          MEM_dmem_rd_data = { {24{DMEM_rd_data_i[31]}}, DMEM_rd_data_i[31:24] };
         end
       endcase
       //lbu
@@ -166,19 +171,19 @@ module dtcore32_MEM_stage (
       case(MEM_alu_result_o[1:0])
         2'b00:
         begin
-          MEM_dmem_rd_data_o = { {24{1'b0}},DMEM_rd_data_i[7:0] };
+          MEM_dmem_rd_data = { {24{1'b0}},DMEM_rd_data_i[7:0] };
         end
         2'b01:
         begin
-          MEM_dmem_rd_data_o = { {24{1'b0}},DMEM_rd_data_i[15:8] };
+          MEM_dmem_rd_data = { {24{1'b0}},DMEM_rd_data_i[15:8] };
         end
         2'b10:
         begin
-          MEM_dmem_rd_data_o = { {24{1'b0}},DMEM_rd_data_i[23:16] };
+          MEM_dmem_rd_data = { {24{1'b0}},DMEM_rd_data_i[23:16] };
         end
         2'b11:
         begin
-          MEM_dmem_rd_data_o = { {24{1'b0}},DMEM_rd_data_i[31:24] };
+          MEM_dmem_rd_data = { {24{1'b0}},DMEM_rd_data_i[31:24] };
         end
       endcase
       //lh
@@ -186,11 +191,11 @@ module dtcore32_MEM_stage (
       case(MEM_alu_result_o[1:0])
         2'b00:
         begin
-          MEM_dmem_rd_data_o = { {16{DMEM_rd_data_i[15]}},DMEM_rd_data_i[15:0] };
+          MEM_dmem_rd_data = { {16{DMEM_rd_data_i[15]}},DMEM_rd_data_i[15:0] };
         end
         2'b10:
         begin
-          MEM_dmem_rd_data_o = { {16{DMEM_rd_data_i[31]}},DMEM_rd_data_i[31:16] };
+          MEM_dmem_rd_data = { {16{DMEM_rd_data_i[31]}},DMEM_rd_data_i[31:16] };
         end
         default:
           MEM_misaligned_load = 1;
@@ -201,11 +206,11 @@ module dtcore32_MEM_stage (
       case(MEM_alu_result_o[1:0])
         2'b00:
         begin
-          MEM_dmem_rd_data_o = { {16{1'b0}},DMEM_rd_data_i[15:0] };
+          MEM_dmem_rd_data = { {16{1'b0}},DMEM_rd_data_i[15:0] };
         end
         2'b10:
         begin
-          MEM_dmem_rd_data_o = { {16{1'b0}},DMEM_rd_data_i[31:16] };
+          MEM_dmem_rd_data = { {16{1'b0}},DMEM_rd_data_i[31:16] };
         end
         default:
           MEM_misaligned_load = 1;
@@ -214,6 +219,20 @@ module dtcore32_MEM_stage (
 
       default:
         MEM_unknown_load = 1;
+    endcase
+  end
+  // wb result mux pushed to Mem stage
+  always_comb
+  begin
+    case (MEM_result_src)
+      2'b00:
+        MEM_result_o = MEM_alu_result_o;
+      2'b01:
+        MEM_result_o = MEM_dmem_rd_data;
+      2'b10:
+        MEM_result_o = MEM_pc_plus_4;
+      default:
+        MEM_result_o = 0;
     endcase
   end
 

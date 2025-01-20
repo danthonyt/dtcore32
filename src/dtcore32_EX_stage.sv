@@ -33,9 +33,9 @@ module dtcore32_EX_stage (
     output logic [1:0] EX_result_src_o,
     output logic [2:0] EX_load_size_o,
     output logic [1:0] EX_mem_wr_size_o,
-    output logic [19:15] EX_src_reg_1_o,
-    output logic [24:20] EX_src_reg_2_o,
-    output logic [11:7] EX_dest_reg_o,
+    output logic [4:0] EX_src_reg_1_o,
+    output logic [4:0] EX_src_reg_2_o,
+    output logic [4:0] EX_dest_reg_o,
     output logic [31:0] EX_pc_plus_4_o,
     output logic [31:0] EX_dmem_wr_data_o,
     output logic EX_dmem_read_o,
@@ -199,14 +199,14 @@ module dtcore32_EX_stage (
 
   // alu
   dtcore32_alu # (
-                 .WIDTH(32)
-               )
-               dtcore32_alu_inst (
-                 .control(EX_alu_control),
-                 .a(EX_src_a),
-                 .b(EX_src_b),
-                 .y(EX_alu_result_o),
-                 .BranchCond(EX_branch_cond)
-               );
+    .WIDTH(32)
+  )
+  dtcore32_alu_inst (
+    .control(EX_alu_control),
+    .a(EX_src_a),
+    .b(EX_src_b),
+    .alu_result(EX_alu_result_o),
+    .branch_condition(EX_branch_cond)
+  );
 
 endmodule

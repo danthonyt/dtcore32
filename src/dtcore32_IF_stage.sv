@@ -30,6 +30,9 @@ module dtcore32_IF_stage (
       1'b1:begin
         IF_pc_tick = EX_pc_target_i;
       end
+      default: begin
+      IF_pc_tick = 0;
+      end 
     endcase
   end
   

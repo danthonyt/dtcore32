@@ -40,23 +40,11 @@ module dtcore32_hazard_unit(
   logic DMEM_read_stall;
   always_ff @(posedge clk_i)
   begin
-    if (rst_i)
-    begin
-      DMEM_read_stall <= 0;
-    end
+    if (rst_i) DMEM_read_stall <= 0;
     else
     begin
-      // if stalled last cycle stop stalling
-      if (DMEM_read_stall == 1)
-      begin
-        DMEM_read_stall <= 0;
-      // else if current DM stage instruction is a DMEM read
-      end
-      else if (EX_dmem_read_i)
-      begin
-        DMEM_read_stall <= 1;
-
-      end
+      if (DMEM_read_stall) DMEM_read_stall <= 0; // if stalled last cycle stop stalling
+      else if (EX_dmem_read_i) DMEM_read_stall <= 1;
     end
   end
   //if either source register matches a register we are writing to in a previous
@@ -64,16 +52,16 @@ module dtcore32_hazard_unit(
   //value is used.
   always_comb
   begin
-    if ( ( (EX_src_reg_1_i == MEM_dest_reg_i) & MEM_reg_wr_en_i ) & (EX_src_reg_1_i != 0) )
+    if ( ( (EX_src_reg_1_i == MEM_dest_reg_i) && MEM_reg_wr_en_i ) && (EX_src_reg_1_i != 0) )
       EX_forward_a =  2'b10;		//Forward from memory stage
-    else if ( ( (EX_src_reg_1_i == WB_dest_reg_i) & WB_reg_wr_en_i ) & (EX_src_reg_1_i != 0) )
+    else if ( ( (EX_src_reg_1_i == WB_dest_reg_i) && WB_reg_wr_en_i ) && (EX_src_reg_1_i != 0) )
       EX_forward_a = 2'b01;	//Forward from Writeback stage
     else
       EX_forward_a = 2'b00;														//No Forwarding
 
-    if ( ( (EX_src_reg_2_i == MEM_dest_reg_i) & MEM_reg_wr_en_i ) & (EX_src_reg_2_i != 0) )
+    if ( ( (EX_src_reg_2_i == MEM_dest_reg_i) && MEM_reg_wr_en_i ) && (EX_src_reg_2_i != 0) )
       EX_forward_b =  2'b10;
-    else if ( ( (EX_src_reg_2_i == WB_dest_reg_i) & WB_reg_wr_en_i ) & (EX_src_reg_2_i != 0))
+    else if ( ( (EX_src_reg_2_i == WB_dest_reg_i) && WB_reg_wr_en_i ) && (EX_src_reg_2_i != 0))
       EX_forward_b = 2'b01;
     else
       EX_forward_b = 2'b00;
@@ -82,13 +70,13 @@ module dtcore32_hazard_unit(
   always_comb
   begin
     //We must stall if a load instruction is in the execute stage while another instruction has a matching source register to that write register in the decode stage
-    if ((EX_result_src_b0_i & ((ID_src_reg_1_i == EX_dest_reg_i) | (ID_src_reg_2_i == EX_dest_reg_i))) )
+    if ((EX_result_src_b0_i && ((ID_src_reg_1_i == EX_dest_reg_i) || (ID_src_reg_2_i == EX_dest_reg_i))) )
       {IF_stall, ID_stall} = 2'b1_1;
     else
       {IF_stall, ID_stall} = 2'b0_0;
   end
 
-  assign ID_flush = EX_pc_src_i ;
+  assign ID_flush = EX_pc_src_i;
   assign EX_flush = ID_stall | EX_pc_src_i;
   assign EX_stall = DMEM_read_stall;
   assign MEM_stall = DMEM_read_stall;

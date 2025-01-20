@@ -1,0 +1,1052 @@
+#-----------------------------------------------------------
+# Vivado v2024.2 (64-bit)
+# SW Build 5239630 on Fri Nov 08 22:34:34 MST 2024
+# IP Build 5239520 on Sun Nov 10 16:12:51 MST 2024
+# SharedData Build 5239561 on Fri Nov 08 14:39:27 MST 2024
+# Start of session at: Sun Jan 19 22:31:51 2025
+# Process ID         : 155138
+# Current directory  : /home/david/Documents/work/dtcore32/vivado
+# Command line       : vivado
+# Log file           : /home/david/Documents/work/dtcore32/vivado/vivado.log
+# Journal file       : /home/david/Documents/work/dtcore32/vivado/vivado.jou
+# Running On         : david-MS-7D46
+# Platform           : Ubuntu
+# Operating System   : Ubuntu 24.04.1 LTS
+# Processor Detail   : 12th Gen Intel(R) Core(TM) i5-12400F
+# CPU Frequency      : 3364.364 MHz
+# CPU Physical cores : 6
+# CPU Logical cores  : 12
+# Host memory        : 16620 MB
+# Swap memory        : 4294 MB
+# Total Virtual      : 20915 MB
+# Available Virtual  : 15187 MB
+#-----------------------------------------------------------
+start_gui
+create_project dtcore32 /home/david/Documents/work/dtcore32/vivado/dtcore32 -part xc7a35ticsg324-1L
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/opt/Xilinx/Vivado/2024.2/data/ip'.
+add_files {/home/david/Documents/work/dtcore32/scripts/mem/hex/xori.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lbu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srl.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xori.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srai.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/auipc.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/auipc.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/andi.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lbu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slt.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/andi.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slt.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sra.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sll.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltiu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/addi.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bgeu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lw.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slli.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sw.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sh.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srli.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xor.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srl.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lb.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lhu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ma_data.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ori.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/add.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/beq.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/blt.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sb.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jalr.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bltu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lui.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bge.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slti.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/and.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/simple.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lhu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sub.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/and.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bne.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bne.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lh.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/simple.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/or.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/or.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/addi.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/fence_i.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lh.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sub.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bge.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jal.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/fence_i.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jal.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slti.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srli.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xor.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sll.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/add.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srai.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sw.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slli.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bgeu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ori.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltiu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/blt.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sh.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lw.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ma_data.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lui.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bltu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lb.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sra.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jalr.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/beq.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sb.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltu.dmem.mem}
+add_files {/home/david/Documents/work/dtcore32/src/macros.svh /home/david/Documents/work/dtcore32/src/dtcore32_decode_unit.sv /home/david/Documents/work/dtcore32/src/dtcore32.sv /home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv /home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv /home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv /home/david/Documents/work/dtcore32/src/dtcore32_alu.sv /home/david/Documents/work/dtcore32/src/dtcore32_imem.sv /home/david/Documents/work/dtcore32/src/dtcore32_top.sv /home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv /home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv /home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv /home/david/Documents/work/dtcore32/src/dtcore32_hazard_unit.sv /home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv}
+add_files -fileset sim_1 /home/david/Documents/work/dtcore32/sim/dtcore32_tb.sv
+add_files -fileset constrs_1 -norecurse /home/david/Documents/work/dtcore32/constr/arty.xdc
+update_compile_order -fileset sources_1
+update_compile_order -fileset sim_1
+launch_runs impl_1 -jobs 12
+[Sun Jan 19 22:34:31 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+[Sun Jan 19 22:34:31 2025] Launched impl_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/impl_1/runme.log
+open_run impl_1
+INFO: [Device 21-403] Loading part xc7a35ticsg324-1L
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 774 ; free virtual = 11068
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 687 ; free virtual = 10980
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 1762 ; free virtual = 12055
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 1762 ; free virtual = 12055
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 1762 ; free virtual = 12055
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 1762 ; free virtual = 12055
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 1762 ; free virtual = 12055
+Read Physdb Files: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 1762 ; free virtual = 12055
+Restored from archive | CPU: 0.000000 secs | Memory: 0.028290 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 1762 ; free virtual = 12055
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 1762 ; free virtual = 12055
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+open_run: Time (s): cpu = 00:00:11 ; elapsed = 00:00:07 . Memory (MB): peak = 8946.984 ; gain = 0.000 ; free physical = 1434 ; free virtual = 11731
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+reset_run synth_1
+INFO: [Project 1-1160] Copying file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/dtcore32_top.dcp to /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.srcs/utils_1/imports/synth_1 and adding it to utils fileset
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+launch_runs synth_1 -jobs 12
+[Sun Jan 19 22:51:06 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+reset_run synth_1
+launch_runs synth_1 -jobs 12
+[Sun Jan 19 22:52:40 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+remove_files  {/home/david/Documents/work/dtcore32/scripts/mem/hex/add.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/addi.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/addi.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/and.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/and.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/andi.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/andi.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/auipc.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/auipc.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/beq.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/beq.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bge.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bge.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bgeu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bgeu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/blt.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/blt.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bltu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bltu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bne.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bne.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/fence_i.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/fence_i.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jal.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jal.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jalr.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jalr.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lb.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lb.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lbu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lbu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lh.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lh.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lhu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lhu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lui.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lui.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lw.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lw.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ma_data.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ma_data.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/or.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/or.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ori.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ori.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sb.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sb.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sh.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sh.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/simple.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/simple.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sll.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sll.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slli.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slli.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slt.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slt.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slti.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slti.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltiu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltiu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltu.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltu.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sra.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sra.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srai.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srai.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srl.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srl.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srli.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srli.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sub.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sub.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sw.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sw.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xor.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xor.imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xori.dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xori.imem.mem}
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+remove_files  /home/david/Documents/work/dtcore32/scripts/mem/hex/add.dmem.mem
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+add_files -norecurse {/home/david/Documents/work/dtcore32/scripts/mem/hex/lui_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sra_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bltu_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/andi_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/auipc_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jal_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xori_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lw_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xor_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xor_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sw_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/andi_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/auipc_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/fence_i_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sw_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srli_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lbu_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sub_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sll_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sll_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srli_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/xori_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srl_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lh_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/fence_i_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lb_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slt_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ori_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lw_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltu_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sb_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/blt_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jal_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/or_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/and_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lhu_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sra_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bltu_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/beq_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bne_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jalr_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/add_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slli_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sh_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltiu_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bgeu_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srai_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/addi_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/add_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/addi_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ma_data_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bge_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ma_data_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/simple_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slti_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/simple_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slt_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slti_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lbu_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sub_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/beq_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/blt_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bne_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bge_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltiu_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sh_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sltu_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/sb_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/bgeu_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/jalr_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/ori_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lh_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lui_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/and_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lhu_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/or_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/slli_imem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srl_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/lb_dmem.mem /home/david/Documents/work/dtcore32/scripts/mem/hex/srai_dmem.mem}
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+reset_run synth_1
+launch_runs synth_1 -jobs 12
+[Sun Jan 19 22:57:19 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+reset_run synth_1
+launch_runs impl_1 -jobs 12
+[Sun Jan 19 22:58:25 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+[Sun Jan 19 22:58:25 2025] Launched impl_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/impl_1/runme.log
+set_property top dtcore32 [current_fileset]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+update_compile_order -fileset sources_1
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+set_property top dtcore32_tb [get_filesets sim_1]
+set_property top_lib xil_defaultlib [get_filesets sim_1]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+update_compile_order -fileset sim_1
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+launch_simulation
+Command: launch_simulation 
+INFO: [Vivado 12-12493] Simulation top is 'dtcore32_tb'
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from '/opt/Xilinx/Vivado/2024.2/tps/boost_1_72_0'
+INFO: [SIM-utils-54] Inspecting design source files for 'dtcore32_tb' in fileset 'sim_1'...
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lui_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sra_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/bltu_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/andi_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/auipc_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/jal_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/xori_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lw_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/xor_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/xor_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sw_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/andi_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/auipc_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/fence_i_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sw_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/srli_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lbu_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sub_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sll_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sll_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/srli_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/xori_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/srl_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lh_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/fence_i_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lb_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/slt_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/ori_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lw_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sltu_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sb_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/blt_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/jal_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/or_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/and_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lhu_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sra_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/bltu_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/beq_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/bne_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/jalr_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/add_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/slli_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sh_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sltiu_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/bgeu_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/srai_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/addi_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/add_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/addi_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/ma_data_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/bge_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/ma_data_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/simple_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/slti_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/simple_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/slt_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/slti_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lbu_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sub_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/beq_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/blt_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/bne_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/bge_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sltiu_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sh_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sltu_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sb_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/bgeu_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/jalr_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/ori_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lh_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lui_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/and_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lhu_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/or_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/slli_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/srl_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lb_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/srai_dmem.mem'
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim'
+xvlog --incr --relax -L uvm -prj dtcore32_tb_vlog.prj
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_EX_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_ID_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_IF_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_MEM_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_WB_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_alu
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_decode_unit.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_decode_unit
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_hazard_unit.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_hazard_unit
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_regfile
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "/home/david/Documents/work/dtcore32/sim/dtcore32_tb.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dtcore32_tb
+INFO: [VRFC 10-2263] Analyzing Verilog file "/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/glbl.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module glbl
+Waiting for jobs to finish...
+No pending jobs, compilation finished.
+INFO: [USF-XSim-69] 'compile' step finished in '1' seconds
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim'
+xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot dtcore32_tb_behav xil_defaultlib.dtcore32_tb xil_defaultlib.glbl -log elaborate.log
+Vivado Simulator v2024.2.0
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /opt/Xilinx/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot dtcore32_tb_behav xil_defaultlib.dtcore32_tb xil_defaultlib.glbl -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+Starting simulation data flow analysis
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32.sv" Line 2. Module dtcore32 doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv" Line 2. Module dtcore32_IF_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv" Line 2. Module dtcore32_ID_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_decode_unit.sv" Line 2. Module dtcore32_decode_unit doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv" Line 1. Module dtcore32_regfile doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv" Line 2. Module dtcore32_EX_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv" Line 2. Module dtcore32_alu doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv" Line 2. Module dtcore32_MEM_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv" Line 1. Module dtcore32_WB_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_hazard_unit.sv" Line 1. Module dtcore32_hazard_unit doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32.sv" Line 2. Module dtcore32 doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_IF_stage.sv" Line 2. Module dtcore32_IF_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_ID_stage.sv" Line 2. Module dtcore32_ID_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_decode_unit.sv" Line 2. Module dtcore32_decode_unit doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_regfile.sv" Line 1. Module dtcore32_regfile doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_EX_stage.sv" Line 2. Module dtcore32_EX_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_alu.sv" Line 2. Module dtcore32_alu doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_MEM_stage.sv" Line 2. Module dtcore32_MEM_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_WB_stage.sv" Line 1. Module dtcore32_WB_stage doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/home/david/Documents/work/dtcore32/src/dtcore32_hazard_unit.sv" Line 1. Module dtcore32_hazard_unit doesn't have a timescale but at least one module in design has a timescale.
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling module xil_defaultlib.dtcore32_IF_stage
+Compiling module xil_defaultlib.dtcore32_decode_unit
+Compiling module xil_defaultlib.dtcore32_regfile
+Compiling module xil_defaultlib.dtcore32_ID_stage
+Compiling module xil_defaultlib.dtcore32_alu
+Compiling module xil_defaultlib.dtcore32_EX_stage
+Compiling module xil_defaultlib.dtcore32_MEM_stage
+Compiling module xil_defaultlib.dtcore32_WB_stage
+Compiling module xil_defaultlib.dtcore32_hazard_unit
+Compiling module xil_defaultlib.dtcore32
+Compiling module xil_defaultlib.dtcore32_tb
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot dtcore32_tb_behav
+INFO: [USF-XSim-69] 'elaborate' step finished in '2' seconds
+INFO: [USF-XSim-4] XSim::Simulate design
+INFO: [USF-XSim-61] Executing 'SIMULATE' step in '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim'
+INFO: [USF-XSim-98] *** Running xsim
+   with args "dtcore32_tb_behav -key {Behavioral:sim_1:Functional:dtcore32_tb} -tclbatch {dtcore32_tb.tcl} -log {simulate.log}"
+INFO: [USF-XSim-8] Loading simulator feature
+Time resolution is 1 ps
+source dtcore32_tb.tcl
+# set curr_wave [current_wave_config]
+# if { [string length $curr_wave] == 0 } {
+#   if { [llength [get_objects]] > 0} {
+#     add_wave /
+#     set_property needs_save false [current_wave_config]
+#   } else {
+#      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+#   }
+# }
+WARNING: [Wavedata 42-489] Can't add object "/dtcore32_tb/IMEM" to the wave window because it has 131072 bits, which exceeds the display limit of 65536 bits.  To change the display limit, use the command "set_property display_limit <new limit> [current_wave_config]".
+WARNING: [Wavedata 42-489] Can't add object "/dtcore32_tb/DMEM" to the wave window because it has 131072 bits, which exceeds the display limit of 65536 bits.  To change the display limit, use the command "set_property display_limit <new limit> [current_wave_config]".
+# run 1000ns
+Running all tests.
+***********************************
+Running Test ID: 0
+INFO: [USF-XSim-96] XSim completed. Design snapshot 'dtcore32_tb_behav' loaded.
+INFO: [USF-XSim-97] XSim simulation ran for 1000ns
+launch_simulation: Time (s): cpu = 00:00:06 ; elapsed = 00:00:05 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 2354 ; free virtual = 12315
+set_property -name {xsim.simulate.runtime} -value {all} -objects [get_filesets sim_1]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+relaunch_sim
+Command: launch_simulation -step compile -simset sim_1 -mode behavioral
+INFO: [Vivado 12-12493] Simulation top is 'dtcore32_tb'
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from '/opt/Xilinx/Vivado/2024.2/tps/boost_1_72_0'
+INFO: [SIM-utils-54] Inspecting design source files for 'dtcore32_tb' in fileset 'sim_1'...
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lui_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sra_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/bltu_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/andi_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/auipc_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/jal_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/xori_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lw_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/xor_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/xor_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sw_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/andi_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/auipc_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/fence_i_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sw_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/srli_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/lbu_imem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sub_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sll_dmem.mem'
+INFO: [SIM-utils-43] Exported '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim/sll_imem.mem'
+INFO: [Common 17-14] Message 'SIM-utils 43' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim'
+xvlog --incr --relax -L uvm -prj dtcore32_tb_vlog.prj
+Waiting for jobs to finish...
+No pending jobs, compilation finished.
+INFO: [USF-XSim-69] 'compile' step finished in '1' seconds
+Command: launch_simulation -step elaborate -simset sim_1 -mode behavioral
+INFO: [Vivado 12-12493] Simulation top is 'dtcore32_tb'
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in '/home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.sim/sim_1/behav/xsim'
+xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot dtcore32_tb_behav xil_defaultlib.dtcore32_tb xil_defaultlib.glbl -log elaborate.log
+Vivado Simulator v2024.2.0
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /opt/Xilinx/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot dtcore32_tb_behav xil_defaultlib.dtcore32_tb xil_defaultlib.glbl -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+INFO: [XSIM 43-4323] No Change in HDL. Linking previously generated obj files to create kernel
+INFO: [USF-XSim-69] 'elaborate' step finished in '1' seconds
+Time resolution is 1 ps
+Running all tests.
+***********************************
+Running Test ID: 0
+run all
+TEST PASSED; ID: 0
+***********************************
+Running Test ID: 1
+TEST PASSED; ID: 1
+***********************************
+Running Test ID: 2
+TEST PASSED; ID: 2
+***********************************
+Running Test ID: 3
+TEST PASSED; ID: 3
+***********************************
+Running Test ID: 4
+TEST PASSED; ID: 4
+***********************************
+Running Test ID: 5
+TEST PASSED; ID: 5
+***********************************
+Running Test ID: 6
+TEST PASSED; ID: 6
+***********************************
+Running Test ID: 7
+TEST PASSED; ID: 7
+***********************************
+Running Test ID: 8
+TEST PASSED; ID: 8
+***********************************
+Running Test ID: 9
+TEST PASSED; ID: 9
+***********************************
+Running Test ID: 10
+TEST PASSED; ID: 10
+***********************************
+Running Test ID: 11
+TEST PASSED; ID: 11
+***********************************
+Running Test ID: 12
+TEST PASSED; ID: 12
+***********************************
+Running Test ID: 13
+TEST PASSED; ID: 13
+***********************************
+Running Test ID: 14
+TEST PASSED; ID: 14
+***********************************
+Running Test ID: 15
+TEST PASSED; ID: 15
+***********************************
+Running Test ID: 16
+TEST PASSED; ID: 16
+***********************************
+Running Test ID: 17
+TEST PASSED; ID: 17
+***********************************
+Running Test ID: 18
+TEST PASSED; ID: 18
+***********************************
+Running Test ID: 19
+TEST PASSED; ID: 19
+***********************************
+Running Test ID: 20
+TEST PASSED; ID: 20
+***********************************
+Running Test ID: 21
+TEST PASSED; ID: 21
+***********************************
+Running Test ID: 22
+TEST PASSED; ID: 22
+***********************************
+Running Test ID: 23
+TEST PASSED; ID: 23
+***********************************
+Running Test ID: 24
+TEST PASSED; ID: 24
+***********************************
+Running Test ID: 25
+TEST PASSED; ID: 25
+***********************************
+Running Test ID: 26
+TEST PASSED; ID: 26
+***********************************
+Running Test ID: 27
+TEST PASSED; ID: 27
+***********************************
+Running Test ID: 28
+TEST PASSED; ID: 28
+***********************************
+Running Test ID: 29
+TEST PASSED; ID: 29
+***********************************
+Running Test ID: 30
+TEST PASSED; ID: 30
+***********************************
+Running Test ID: 31
+TEST PASSED; ID: 31
+***********************************
+Running Test ID: 32
+TEST PASSED; ID: 32
+***********************************
+Running Test ID: 33
+TEST PASSED; ID: 33
+***********************************
+Running Test ID: 34
+TEST PASSED; ID: 34
+***********************************
+Running Test ID: 35
+TEST PASSED; ID: 35
+
+***********************************
+ALL TESTS PASSED !
+$finish called at time : 291930 ns : File "/home/david/Documents/work/dtcore32/sim/dtcore32_tb.sv" Line 426
+reset_run synth_1
+INFO: [Project 1-1161] Replacing file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.srcs/utils_1/imports/synth_1/dtcore32_top.dcp with file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/dtcore32_top.dcp
+launch_runs impl_1 -jobs 12
+[Sun Jan 19 23:05:37 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+[Sun Jan 19 23:05:37 2025] Launched impl_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/impl_1/runme.log
+reset_run synth_1
+INFO: [Project 1-1161] Replacing file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.srcs/utils_1/imports/synth_1/dtcore32_top.dcp with file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/dtcore32.dcp
+launch_runs impl_1 -jobs 12
+[Sun Jan 19 23:08:27 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+[Sun Jan 19 23:08:27 2025] Launched impl_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/impl_1/runme.log
+reset_run synth_1
+INFO: [Project 1-1161] Replacing file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.srcs/utils_1/imports/synth_1/dtcore32_top.dcp with file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/dtcore32.dcp
+launch_runs synth_1 -jobs 12
+[Sun Jan 19 23:14:33 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+launch_runs impl_1 -jobs 12
+[Sun Jan 19 23:16:12 2025] Launched impl_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/impl_1/runme.log
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35ticsg324-1L
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 1735 ; free virtual = 8428
+INFO: [Netlist 29-17] Analyzing 367 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+Finished Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 1687 ; free virtual = 8380
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+check_timing -verbose -name timing_1
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_2
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1L, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/constr/arty.xdc] -no_script -reset -force -quiet
+remove_files  -fileset constrs_1 /home/david/Documents/work/dtcore32/constr/arty.xdc
+add_files -fileset constrs_1 -norecurse /home/david/Documents/work/dtcore32/constr/arty.xdc
+close_design
+export_ip_user_files -of_objects  [get_files /home/david/Documents/work/dtcore32/constr/arty.xdc] -no_script -reset -force -quiet
+remove_files  -fileset constrs_1 /home/david/Documents/work/dtcore32/constr/arty.xdc
+add_files -fileset constrs_1 -norecurse /home/david/Documents/work/dtcore32/constr/arty.xdc
+reset_run synth_1
+INFO: [Project 1-1161] Replacing file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.srcs/utils_1/imports/synth_1/dtcore32_top.dcp with file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/dtcore32.dcp
+launch_runs synth_1 -jobs 12
+[Sun Jan 19 23:21:18 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35ticsg324-1L
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 1696 ; free virtual = 8104
+INFO: [Netlist 29-17] Analyzing 367 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+Finished Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 1693 ; free virtual = 8102
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_1
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1L, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+set_property top dtcore32_top [current_fileset]
+update_compile_order -fileset sources_1
+reset_run synth_1
+INFO: [Project 1-1161] Replacing file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.srcs/utils_1/imports/synth_1/dtcore32_top.dcp with file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/dtcore32.dcp
+launch_runs synth_1 -jobs 12
+[Sun Jan 19 23:23:06 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+close_design
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35ticsg324-1L
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 1529 ; free virtual = 7938
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+Finished Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 1529 ; free virtual = 7938
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_1
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1L, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+reset_run synth_1
+INFO: [Project 1-1161] Replacing file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.srcs/utils_1/imports/synth_1/dtcore32_top.dcp with file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/dtcore32_top.dcp
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+launch_runs synth_1 -jobs 12
+[Mon Jan 20 02:23:19 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+close_design
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35ticsg324-1L
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 5477 ; free virtual = 10806
+INFO: [Netlist 29-17] Analyzing 490 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+Finished Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 5477 ; free virtual = 10807
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_1
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1L, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+reset_run synth_1
+INFO: [Project 1-1161] Replacing file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.srcs/utils_1/imports/synth_1/dtcore32_top.dcp with file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/dtcore32_top.dcp
+launch_runs synth_1 -jobs 12
+[Mon Jan 20 02:27:08 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+close_design
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35ticsg324-1L
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 5283 ; free virtual = 10657
+INFO: [Netlist 29-17] Analyzing 490 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+WARNING: [Vivado 12-584] No ports matched 'exception_o'. [/home/david/Documents/work/dtcore32/constr/arty.xdc:17]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [/home/david/Documents/work/dtcore32/constr/arty.xdc:17]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+Finished Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 5283 ; free virtual = 10657
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_1
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1L, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+reset_run synth_1
+INFO: [Project 1-1161] Replacing file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.srcs/utils_1/imports/synth_1/dtcore32_top.dcp with file /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/dtcore32_top.dcp
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+launch_runs synth_1 -jobs 12
+[Mon Jan 20 02:32:52 2025] Launched synth_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/synth_1/runme.log
+close_design
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35ticsg324-1L
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.02 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 4211 ; free virtual = 9965
+INFO: [Netlist 29-17] Analyzing 490 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2024.2
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+WARNING: [Vivado 12-584] No ports matched 'exception_o'. [/home/david/Documents/work/dtcore32/constr/arty.xdc:17]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [/home/david/Documents/work/dtcore32/constr/arty.xdc:17]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+Finished Parsing XDC File [/home/david/Documents/work/dtcore32/constr/arty.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 4188 ; free virtual = 9942
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_1
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1L, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+launch_runs impl_1 -jobs 12
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 3596 ; free virtual = 10032
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 3596 ; free virtual = 10032
+Writing XDEF routing.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 3596 ; free virtual = 10032
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:00.22 ; elapsed = 00:00:00.19 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 3580 ; free virtual = 10033
+Wrote Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 3580 ; free virtual = 10033
+Wrote Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 3576 ; free virtual = 10029
+Write Physdb Complete: Time (s): cpu = 00:00:00.23 ; elapsed = 00:00:00.19 . Memory (MB): peak = 10412.836 ; gain = 0.000 ; free physical = 3576 ; free virtual = 10029
+[Mon Jan 20 08:54:44 2025] Launched impl_1...
+Run output will be captured here: /home/david/Documents/work/dtcore32/vivado/dtcore32/dtcore32.runs/impl_1/runme.log
+report_utilization -name utilization_1
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_top.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_imem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]
+WARNING: [filemgmt 56-199] Attempt to get parsing info during refresh. "On-the-fly" syntax checking information may be incorrect. [/home/david/Documents/work/dtcore32/src/dtcore32_dmem.sv:]

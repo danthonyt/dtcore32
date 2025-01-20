@@ -58,11 +58,12 @@ module dtcore32(
 
   // data memory signals
   logic MEM_reg_wr_en;
-  logic [1:0] MEM_result_src;
+  //logic [1:0] MEM_result_src;
   logic [31:0] MEM_alu_result;
   logic [11:7] MEM_dest_reg;
-  logic [31:0] MEM_pc_plus_4;
-  logic [31:0] MEM_dmem_rd_data;
+  //logic [31:0] MEM_pc_plus_4;
+  //logic [31:0] MEM_dmem_rd_data;
+  logic [31:0] MEM_result;
 
   // write back signals
   logic WB_reg_wr_en;
@@ -188,24 +189,20 @@ module dtcore32(
     .EX_pc_plus_4_i(EX_pc_plus_4),
     .MEM_stall_i(MEM_stall),
     .MEM_reg_wr_en_o(MEM_reg_wr_en),
-    .MEM_result_src_o(MEM_result_src),
     .MEM_alu_result_o(MEM_alu_result),
     .MEM_dest_reg_o(MEM_dest_reg),
-    .MEM_pc_plus_4_o(MEM_pc_plus_4),
-    .MEM_dmem_rd_data_o(MEM_dmem_rd_data),
-    .MEM_exception_o(MEM_exception)
+    .MEM_exception_o(MEM_exception),
+    .MEM_result_o(MEM_result)
   );
+  
   // writeback stage
   dtcore32_WB_stage  dtcore32_WB_stage_inst (
     .clk_i(clk_i),
     .rst_i(rst_i),
     .WB_stall_i(WB_stall),
     .MEM_reg_wr_en_i(MEM_reg_wr_en),
-    .MEM_result_src_i(MEM_result_src),
-    .DMEM_addr(DMEM_addr_o),
-    .MEM_dmem_rd_data_i(MEM_dmem_rd_data),
     .MEM_dest_reg_i(MEM_dest_reg),
-    .MEM_pc_plus_4_i(MEM_pc_plus_4),
+    .MEM_result_i(MEM_result),
     .WB_reg_wr_en_o(WB_reg_wr_en),
     .WB_dest_reg_o(WB_dest_reg),
     .WB_result_o(WB_result)

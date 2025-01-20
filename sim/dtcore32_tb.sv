@@ -162,195 +162,195 @@ module dtcore32_tb();
         // R-R [0:9]
         `RR_ADD:
         begin
-          $readmemh("add.imem.mem", IMEM);
-          $readmemh("add.dmem.mem", DMEM);
+          $readmemh("add_imem.mem", IMEM);
+          $readmemh("add_dmem.mem", DMEM);
         end
         `RR_SUB:
         begin
-          $readmemh("sub.imem.mem", IMEM);
-          $readmemh("sub.dmem.mem", DMEM);
+          $readmemh("sub_imem.mem", IMEM);
+          $readmemh("sub_dmem.mem", DMEM);
         end
         `RR_AND:
         begin
-          $readmemh("and.imem.mem", IMEM);
-          $readmemh("and.dmem.mem", DMEM);
+          $readmemh("and_imem.mem", IMEM);
+          $readmemh("and_dmem.mem", DMEM);
         end
         `RR_OR:
         begin
-          $readmemh("or.imem.mem", IMEM);
-          $readmemh("or.dmem.mem", DMEM);
+          $readmemh("or_imem.mem", IMEM);
+          $readmemh("or_dmem.mem", DMEM);
         end
         `RR_XOR:
         begin
-          $readmemh("xor.imem.mem", IMEM);
-          $readmemh("xor.dmem.mem", DMEM);
+          $readmemh("xor_imem.mem", IMEM);
+          $readmemh("xor_dmem.mem", DMEM);
         end
         `RR_SLT:
         begin
-          $readmemh("slt.imem.mem", IMEM);
-          $readmemh("slt.dmem.mem", DMEM);
+          $readmemh("slt_imem.mem", IMEM);
+          $readmemh("slt_dmem.mem", DMEM);
         end
         `RR_SLTU:
         begin
-          $readmemh("sltu.imem.mem", IMEM);
-          $readmemh("sltu.dmem.mem", DMEM);
+          $readmemh("sltu_imem.mem", IMEM);
+          $readmemh("sltu_dmem.mem", DMEM);
         end
         `RR_SLL:
         begin
-          $readmemh("sll.imem.mem", IMEM);
-          $readmemh("sll.dmem.mem", DMEM);
+          $readmemh("sll_imem.mem", IMEM);
+          $readmemh("sll_dmem.mem", DMEM);
         end
         `RR_SRL:
         begin
-          $readmemh("srl.imem.mem", IMEM);
-          $readmemh("srl.dmem.mem", DMEM);
+          $readmemh("srl_imem.mem", IMEM);
+          $readmemh("srl_dmem.mem", DMEM);
         end
         `RR_SRA:
         begin
-          $readmemh("sra.imem.mem", IMEM);
-          $readmemh("sra.dmem.mem", DMEM);
+          $readmemh("sra_imem.mem", IMEM);
+          $readmemh("sra_dmem.mem", DMEM);
         end
 
         // R-I [10:17]
         `I_ADDI:
         begin
-          $readmemh("addi.imem.mem", IMEM);
-          $readmemh("addi.dmem.mem", DMEM);
+          $readmemh("addi_imem.mem", IMEM);
+          $readmemh("addi_dmem.mem", DMEM);
         end
         `I_ANDI:
         begin
-          $readmemh("andi.imem.mem", IMEM);
-          $readmemh("andi.dmem.mem", DMEM);
+          $readmemh("andi_imem.mem", IMEM);
+          $readmemh("andi_dmem.mem", DMEM);
         end
         `I_ORI:
         begin
-          $readmemh("ori.imem.mem", IMEM);
-          $readmemh("ori.dmem.mem", DMEM);
+          $readmemh("ori_imem.mem", IMEM);
+          $readmemh("ori_dmem.mem", DMEM);
         end
         `I_XORI:
         begin
-          $readmemh("xori.imem.mem", IMEM);
-          $readmemh("xori.dmem.mem", DMEM);
+          $readmemh("xori_imem.mem", IMEM);
+          $readmemh("xori_dmem.mem", DMEM);
         end
         `I_SLTI:
         begin
-          $readmemh("slti.imem.mem", IMEM);
-          $readmemh("slti.dmem.mem", DMEM);
+          $readmemh("slti_imem.mem", IMEM);
+          $readmemh("slti_dmem.mem", DMEM);
         end
         `I_SLLI:
         begin
-          $readmemh("slli.imem.mem", IMEM);
-          $readmemh("slli.dmem.mem", DMEM);
+          $readmemh("slli_imem.mem", IMEM);
+          $readmemh("slli_dmem.mem", DMEM);
         end
         `I_SRLI:
         begin
-          $readmemh("srli.imem.mem", IMEM);
-          $readmemh("srli.dmem.mem", DMEM);
+          $readmemh("srli_imem.mem", IMEM);
+          $readmemh("srli_dmem.mem", DMEM);
         end
         `I_SRAI:
         begin
-          $readmemh("srai.imem.mem", IMEM);
-          $readmemh("srai.dmem.mem", DMEM);
+          $readmemh("srai_imem.mem", IMEM);
+          $readmemh("srai_dmem.mem", DMEM);
         end
 
         // Conditional Branches [18:23]
         `B_BEQ:
         begin
-          $readmemh("beq.imem.mem", IMEM);
-          $readmemh("beq.dmem.mem", DMEM);
+          $readmemh("beq_imem.mem", IMEM);
+          $readmemh("beq_dmem.mem", DMEM);
         end
         `B_BNE:
         begin
-          $readmemh("bne.imem.mem", IMEM);
-          $readmemh("bne.dmem.mem", DMEM);
+          $readmemh("bne_imem.mem", IMEM);
+          $readmemh("bne_dmem.mem", DMEM);
         end
         `B_BLT:
         begin
-          $readmemh("blt.imem.mem", IMEM);
-          $readmemh("blt.dmem.mem", DMEM);
+          $readmemh("blt_imem.mem", IMEM);
+          $readmemh("blt_dmem.mem", DMEM);
         end
         `B_BGE:
         begin
-          $readmemh("bge.imem.mem", IMEM);
-          $readmemh("bge.dmem.mem", DMEM);
+          $readmemh("bge_imem.mem", IMEM);
+          $readmemh("bge_dmem.mem", DMEM);
         end
         `B_BLTU:
         begin
-          $readmemh("bltu.imem.mem", IMEM);
-          $readmemh("bltu.dmem.mem", DMEM);
+          $readmemh("bltu_imem.mem", IMEM);
+          $readmemh("bltu_dmem.mem", DMEM);
         end
         `B_BGEU:
         begin
-          $readmemh("bgeu.imem.mem", IMEM);
-          $readmemh("bgeu.dmem.mem", DMEM);
+          $readmemh("bgeu_imem.mem", IMEM);
+          $readmemh("bgeu_dmem.mem", DMEM);
         end
 
         // Upper Imm [24:25]
         `UI_LUI:
         begin
-          $readmemh("lui.imem.mem", IMEM);
-          $readmemh("lui.dmem.mem", DMEM);
+          $readmemh("lui_imem.mem", IMEM);
+          $readmemh("lui_dmem.mem", DMEM);
         end
         `UI_AUIPC:
         begin
-          $readmemh("auipc.imem.mem", IMEM);
-          $readmemh("auipc.dmem.mem", DMEM);
+          $readmemh("auipc_imem.mem", IMEM);
+          $readmemh("auipc_dmem.mem", DMEM);
         end
 
         // Jumps [26:27]
         `J_JAL:
         begin
-          $readmemh("jal.imem.mem", IMEM);
-          $readmemh("jal.dmem.mem", DMEM);
+          $readmemh("jal_imem.mem", IMEM);
+          $readmemh("jal_dmem.mem", DMEM);
         end
         `J_JALR:
         begin
-          $readmemh("jalr.imem.mem", IMEM);
-          $readmemh("jalr.dmem.mem", DMEM);
+          $readmemh("jalr_imem.mem", IMEM);
+          $readmemh("jalr_dmem.mem", DMEM);
         end
 
         // Loads [28:32]
         `L_LB:
         begin
-          $readmemh("lb.imem.mem", IMEM);
-          $readmemh("lb.dmem.mem", DMEM);
+          $readmemh("lb_imem.mem", IMEM);
+          $readmemh("lb_dmem.mem", DMEM);
         end
         `L_LH:
         begin
-          $readmemh("lh.imem.mem", IMEM);
-          $readmemh("lh.dmem.mem", DMEM);
+          $readmemh("lh_imem.mem", IMEM);
+          $readmemh("lh_dmem.mem", DMEM);
         end
         `L_LW:
         begin
-          $readmemh("lw.imem.mem", IMEM);
-          $readmemh("lw.dmem.mem", DMEM);
+          $readmemh("lw_imem.mem", IMEM);
+          $readmemh("lw_dmem.mem", DMEM);
         end
         `L_LBU:
         begin
-          $readmemh("lbu.imem.mem", IMEM);
-          $readmemh("lbu.dmem.mem", DMEM);
+          $readmemh("lbu_imem.mem", IMEM);
+          $readmemh("lbu_dmem.mem", DMEM);
         end
         `L_LHU:
         begin
-          $readmemh("lhu.imem.mem", IMEM);
-          $readmemh("lhu.dmem.mem", DMEM);
+          $readmemh("lhu_imem.mem", IMEM);
+          $readmemh("lhu_dmem.mem", DMEM);
         end
 
         // Stores [33:35]
         `S_SB:
         begin
-          $readmemh("sb.imem.mem", IMEM);
-          $readmemh("sb.dmem.mem", DMEM);
+          $readmemh("sb_imem.mem", IMEM);
+          $readmemh("sb_dmem.mem", DMEM);
         end
         `S_SH:
         begin
-          $readmemh("sh.imem.mem", IMEM);
-          $readmemh("sh.dmem.mem", DMEM);
+          $readmemh("sh_imem.mem", IMEM);
+          $readmemh("sh_dmem.mem", DMEM);
         end
         `S_SW:
         begin
-          $readmemh("sw.imem.mem", IMEM);
-          $readmemh("sw.dmem.mem", DMEM);
+          $readmemh("sw_imem.mem", IMEM);
+          $readmemh("sw_dmem.mem", DMEM);
         end
 
 

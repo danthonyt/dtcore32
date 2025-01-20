@@ -52,9 +52,10 @@ for eachfile in "$TESTDIR"/*.S; do
       print swapped;
     }' > "$eachfile.dmem.hex"
 
-    # Rename .hex files to .mem for instruction and data memory
-    memfile_imem="$HEXDIR/$(basename "${eachfile%.S}.imem.mem")"
-    memfile_dmem="$HEXDIR/$(basename "${eachfile%.S}.dmem.mem")"
+    # Rename .hex files to .mem for instruction and data memory with updated naming convention
+    base_name=$(basename "${eachfile%.S}")
+    memfile_imem="$HEXDIR/${base_name}_imem.mem"
+    memfile_dmem="$HEXDIR/${base_name}_dmem.mem"
     
     mv "$eachfile.imem.hex" "$memfile_imem"
     mv "$eachfile.dmem.hex" "$memfile_dmem"
