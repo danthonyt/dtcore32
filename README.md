@@ -15,7 +15,19 @@
 - **MEM (Memory):** Accesses data memory for loads/stores.
 - **WB (Write Back):** Writes results back to the register file.
 
-Includes basic forwarding and hazard detection (if applicable).
+---
+
+## 🔧 Hazard Detection
+
+Hazard detection is crucial to ensured that intstructions are executed correctly in the 5-stage pipeline. If either source 
+register being written to in the previous instruction matches the read register in a subsequent one, that new value must be forwarded 
+so that the old value is not used. This is called a RAW (read-after-write) data hazard. Another data hazard is when a load instruction is
+in the execute stage, while another instruction's source register matches the destination register of the load is in the decode stage. In this case, the pipeline must be stalled.
+
+Another type of data hazard is a control hazard. This occurs when pipelines do not know the outcome of a branch, in this immplementation, 
+the branch is always assumed to be taken. In the event the branch is found to be not taken, the erroneous instructions will be flushed, and 
+the proper branch will then be taken.
+
 
 ---
 
