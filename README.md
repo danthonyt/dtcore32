@@ -1,12 +1,12 @@
 # dtcore32 - A 5-Stage Pipelined RV32I CPU Core in Verilog
 
-**dtcore32** is a RISC-V CPU core implementing the **RV32I** base instruction set architecture with a classic **5-stage pipeline**, written from scratch in Verilog. Designed as a clean, modular, and educational project, it provides a solid foundation for learning, simulation, or extension.
+**dtcore32** is a RISC-V CPU core implementing the **RV32I** base instruction set architecture with a classic **5-stage pipeline**, written from scratch in Verilog. It passes timing with a maximum frequency of approximately 333 MHz on the Artix A7-35t FPGA.
 
 ![RISC-V](https://img.shields.io/badge/RISC--V-RV32I-blue) ![Pipeline](https://img.shields.io/badge/Pipeline-5--Stage-success) ![Language](https://img.shields.io/badge/Language-Verilog-orange)
 
 ---
 
-## 🔧 Pipeline Stages
+## Pipeline Stages
 
 
 - **IF (Instruction Fetch):** Fetches instruction from instruction memory.
@@ -17,7 +17,7 @@
 
 ---
 
-## 🔧 Hazard Detection
+## Hazard Detection
 
 Hazard detection is crucial to ensured that intstructions are executed correctly in the 5-stage pipeline. If either source 
 register being written to in the previous instruction matches the read register in a subsequent one, that new value must be forwarded 
@@ -28,10 +28,16 @@ Another type of data hazard is a control hazard. This occurs when pipelines do n
 the branch is always assumed to be taken. In the event the branch is found to be not taken, the erroneous instructions will be flushed, and 
 the proper branch will then be taken.
 
+---
+
+## Testing
+
+Testing was done using riscv-tests. This is a github repository containing assembly unit tests for the RV32I instruction set. 
+Passes testing for the rv32ui test virtual machine.
 
 ---
 
-## ✅ Features
+## Features
 
 - Full **RV32I** instruction set (no compressed or extensions yet)
 - **5-stage pipeline** with clean stage separation
