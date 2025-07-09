@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 import shutil
 
-def write_generic_test(instr_name, operator_func, num_test_cases):
+def write_generic_test(instr_name, operator_func, num_test_cases, is_immediate=False, is_shift=False):
     """
     Generate the assembly file for a binary instruction (add, sub, or, etc.)
 
@@ -14,6 +14,7 @@ def write_generic_test(instr_name, operator_func, num_test_cases):
         instr_name (str): The RISC-V instruction name (e.g., 'add', 'sub', 'or')
         operator_func (function): Function that takes two ints and returns the result
         num_test_cases (int): Number of test cases to generate
+        is_immediate (bool): indicates whether or not the instruction uses immediates
     """
     filename = f"{instr_name}.S"
     with open(filename, "w") as f:
@@ -21,11 +22,19 @@ def write_generic_test(instr_name, operator_func, num_test_cases):
         for test_code in range(num_test_cases):
             a = utils.rand_32bit_signed()
             b = utils.rand_32bit_signed()
-            result = utils.trunc_32bits(operator_func(a, b))
             f.write(f"# Test Case {test_code}\n")
             f.write(f"  li t0, {utils.to_hex32_str(a)}   # input1\n")
-            f.write(f"  li t1, {utils.to_hex32_str(b)}   # input2\n")
-            f.write(f"  {instr_name} t2, t0, t1     # t2 = t0 {instr_name} t1\n")
+
+            if is_immediate:
+                imm = utils.to_12signed(b)
+                if is_shift:
+                    imm = imm & 0x1F
+                result = utils.trunc_32bits(operator_func(a, imm))
+                f.write(f"  {instr_name} t2, t0, {imm}    # t2 = t0 {instr_name} {imm}\n")
+            else:
+                result = utils.trunc_32bits(operator_func(a, b))
+                f.write(f"  li t1, {utils.to_hex32_str(b)}   # input2\n")
+                f.write(f"  {instr_name} t2, t0, t1     # t2 = t0 {instr_name} t1\n")
             f.write(f"  li t3, {utils.to_hex32_str(result)}  # expected\n")
             f.write(f"  li x11, {utils.to_hex32_str(test_code)}  # test case id\n")
             f.write(f"  bne t2, t3, fail\n\n")
@@ -64,6 +73,24 @@ def lt_unsigned(a, b):
         return 1
     else:
         return 0
+    
+def sra_func(a, b):
+    """
+    calculates SRA instruction result for assembly test
+
+    Args:
+        a (int): signed 32-bit number on LHS
+        b (int): signed 32-bit number on RHS
+    Returns:
+        int: arithmetic shifts a to the right by the value held by the lower 5 bits of b. 
+    """
+    unsigned_a = a & 0xFFFFFFFF
+    unsigned_b = b & 0xFFFFFFFF
+
+    if utils.to_32unsigned(a) < utils.to_32unsigned(b):
+        return 1
+    else:
+        return 0
 
 
 # Setup paths
@@ -79,16 +106,27 @@ asm_dir.mkdir(parents=True, exist_ok=True)
 hex_dir.mkdir(parents=True, exist_ok=True)
 dump_dir.mkdir(parents=True, exist_ok=True)
 
-write_generic_test("add", lambda a, b: a + b, 100)
-write_generic_test("sub", lambda a, b: a - b, 100)
-write_generic_test("and", lambda a, b: a & b, 100)
-write_generic_test("or", lambda a, b: a | b, 100)
-write_generic_test("xor", lambda a, b: a ^ b, 100)
-write_generic_test("sll", lambda a, b: (a << (b & 0x1F)), 100)
+write_generic_test("add", lambda a, b: a + b, 100, False)
+write_generic_test("sub", lambda a, b: a - b, 100, False)
+write_generic_test("and", lambda a, b: a & b, 100, False)
+write_generic_test("or", lambda a, b: a | b, 100, False)
+write_generic_test("xor", lambda a, b: a ^ b, 100, False)
+write_generic_test("sll", lambda a, b: (a << (b & 0x1F)), 100, False)
+write_generic_test("slt", lt_signed, 100, False)
+write_generic_test("sltu", lt_unsigned, 100, False)
+write_generic_test("srl", lambda a, b: (utils.to_32unsigned(a) >> (b & 0x1F)), 100, False)
+write_generic_test("sra", lambda a, b: (a >> (b & 0x1F)), 100, False)
 
-write_generic_test("slt", lt_signed, 100)
-write_generic_test("sltu", lt_unsigned, 100)
-
+write_generic_test("addi", lambda a, b: (a + b), 100, True)
+write_generic_test("andi", lambda a, b: (a & b), 100, True)
+write_generic_test("ori", lambda a, b: (a | b), 100, True)
+write_generic_test("andi", lambda a, b: (a & b), 100, True)
+write_generic_test("xori", lambda a, b: (a ^ b), 100, True)
+write_generic_test("slli", lambda a, b: (a << (b & 0x1F)), 100, True, True)
+write_generic_test("slti", lt_signed, 100, True)
+write_generic_test("sltiu", lt_unsigned, 100, True)
+write_generic_test("srli", lambda a, b: (utils.to_32unsigned(a) >> (b & 0x1F)), 100, True, True)
+write_generic_test("srai", lambda a, b: (a >> (b & 0x1F)), 100, True, True)
 
 # Process each .S file in the test directory
 for asm_file in asm_dir.glob("*.S"):

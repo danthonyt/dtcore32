@@ -386,8 +386,8 @@ module dtcore32_decode_unit(
           ID_alu_control = `EX_L_SHIFT_ALU_CONTROL; //sll
         `FUNCT3_SLT:
           ID_alu_control = `EX_LT_ALU_CONTROL; //slt
-        `FUNCT3_SLTU:
-          ID_alu_control = `EX_LTU_ALU_CONTROL; //sltu
+        `FUNCT3_SLTU_SLTIU:
+          ID_alu_control = `EX_LTU_ALU_CONTROL; //sltu, sltiu
         `FUNCT3_XOR:
           ID_alu_control = `EX_XOR_ALU_CONTROL; //xor
         `FUNCT3_SRA_SRL:

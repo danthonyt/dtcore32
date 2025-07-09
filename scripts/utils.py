@@ -82,3 +82,9 @@ def to_32unsigned(a):
     Reinterpret a number as 32-bit unsigned
     """
     return a & 0xFFFF_FFFF
+def to_12signed(a):
+    """
+    Reinterpret a number as 12-bit signed
+    """
+    ret = a & 0xFFF # truncate to 12 bits
+    return ret if ret < 0x800 else ret - 0x1000

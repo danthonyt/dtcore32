@@ -55,6 +55,7 @@ module dtcore32_tb();
     ORI,
     XORI,
     SLTI,
+    SLTIU,
     SLLI,
     SRLI,
     SRAI,
@@ -96,6 +97,7 @@ function string testid_to_string(TESTID_t id);
         ORI:    return "ORI";
         XORI:   return "XORI";
         SLTI:   return "SLTI";
+        SLTIU:  return "SLTIU";
         SLLI:   return "SLLI";
         SRLI:   return "SRLI";
         SRAI:   return "SRAI";
@@ -268,6 +270,11 @@ endfunction
         begin
           $readmemh("slti_imem.mem", IMEM);
           $readmemh("slti_dmem.mem", DMEM);
+        end
+        SLTIU:
+        begin
+          $readmemh("sltiu_imem.mem", IMEM);
+          $readmemh("sltiu_dmem.mem", DMEM);
         end
         SLLI:
         begin
