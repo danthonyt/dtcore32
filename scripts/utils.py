@@ -72,3 +72,13 @@ def to_hex32_str(val):
 
 def trunc_32bits(a):
     return  a & 0xFFFFFFFF
+def to_32signed(a):
+    """
+    Reinterpret a number as 32 bit signed
+    """
+    return a if a < 0x8000_0000 else a - 0x1_0000_0000
+def to_32unsigned(a):
+    """
+    Reinterpret a number as 32-bit unsigned
+    """
+    return a & 0xFFFF_FFFF
