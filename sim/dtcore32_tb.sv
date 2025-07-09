@@ -20,59 +20,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 //import   RV32I_definitions::*;
 
-// Register-Register
-`define RR_ADD   0
-`define RR_SUB   1
-`define RR_AND   2
-`define RR_OR    3
-`define RR_XOR   4
-`define RR_SLT   5
-`define RR_SLTU  6
-`define RR_SLL   7
-`define RR_SRL   8
-`define RR_SRA   9
 
-// Register-Immediate
-`define I_ADDI   10
-`define I_ANDI   11
-`define I_ORI    12
-`define I_XORI   13
-`define I_SLTI   14
-`define I_SLLI   15
-`define I_SRLI   16
-`define I_SRAI   17
-
-// Conditional Branches
-`define B_BEQ    18
-`define B_BNE    19
-`define B_BLT    20
-`define B_BGE    21
-`define B_BLTU   22
-`define B_BGEU   23
-
-// Upper Immediate
-`define UI_LUI   24
-`define UI_AUIPC 25
-
-// Jumps
-`define J_JAL    26
-`define J_JALR   27
-
-// Loads
-`define L_LB     28
-`define L_LH     29
-`define L_LW     30
-`define L_LBU    31
-`define L_LHU    32
-
-// Stores
-`define S_SB     33
-`define S_SH     34
-`define S_SW     35
-
-// INDIVIDUAL TEST TO RUN
-`define TEST_TO_RUN 0
-
+// Data Hazard tests
+// Control Hazard tests
 
 module dtcore32_tb();
 
@@ -88,6 +38,88 @@ module dtcore32_tb();
   logic [3:0]  DMEM_wr_byte_en;
   logic [31:0] DMEM_wr_data;
   logic        Exception;
+
+  typedef enum int {
+    ADD,
+    SUB,
+    AND,
+    OR,
+    XOR,
+    SLT,
+    SLTU,
+    SLL,
+    SRL,
+    SRA,
+    ADDI,
+    ANDI,
+    ORI,
+    XORI,
+    SLTI,
+    SLLI,
+    SRLI,
+    SRAI,
+    BEQ,
+    BNE,
+    BLT,
+    BGE,
+    BLTU,
+    BGEU,
+    LUI,
+    AUIPC,
+    JAL,
+    JALR,
+    LB,
+    LH,
+    LW,
+    LBU,
+    LHU,
+    SB,
+    SH,
+    SW,
+    TESTID_NUM_TESTS
+  } TESTID_t;
+
+function string testid_to_string(TESTID_t id);
+    case (id)
+        ADD:    return "ADD";
+        SUB:    return "SUB";
+        AND:    return "AND";
+        OR:     return "OR";
+        XOR:    return "XOR";
+        SLT:    return "SLT";
+        SLTU:   return "SLTU";
+        SLL:    return "SLL";
+        SRL:    return "SRL";
+        SRA:    return "SRA";
+        ADDI:   return "ADDI";
+        ANDI:   return "ANDI";
+        ORI:    return "ORI";
+        XORI:   return "XORI";
+        SLTI:   return "SLTI";
+        SLLI:   return "SLLI";
+        SRLI:   return "SRLI";
+        SRAI:   return "SRAI";
+        BEQ:    return "BEQ";
+        BNE:    return "BNE";
+        BLT:    return "BLT";
+        BGE:    return "BGE";
+        BLTU:   return "BLTU";
+        BGEU:   return "BGEU";
+        LUI:    return "LUI";
+        AUIPC:  return "AUIPC";
+        JAL:    return "JAL";
+        JALR:   return "JALR";
+        LB:     return "LB";
+        LH:     return "LH";
+        LW:     return "LW";
+        LBU:    return "LBU";
+        LHU:    return "LHU";
+        SB:     return "SB";
+        SH:     return "SH";
+        SW:     return "SW";
+        default: return "UNKNOWN_TEST";
+    endcase
+endfunction
 
 
   dtcore32  UUT (
@@ -147,11 +179,11 @@ module dtcore32_tb();
   //
   integer i;
   task LOAD_TEST;
-    input integer TESTID;
+    input TESTID_t TESTID;
     begin
       rst = 1;
       #10;
-      for (i=0; i<= MEMORY_DEPTH; i=i+1)
+      for (i=0; i<= TESTID_NUM_TESTS; i=i+1)
       begin
         //MEMORY[i] = 0;
         DMEM[i] = 0;
@@ -160,194 +192,194 @@ module dtcore32_tb();
       case(TESTID)
 
         // R-R [0:9]
-        `RR_ADD:
+        ADD:
         begin
           $readmemh("add_imem.mem", IMEM);
           $readmemh("add_dmem.mem", DMEM);
         end
-        `RR_SUB:
+        SUB:
         begin
           $readmemh("sub_imem.mem", IMEM);
           $readmemh("sub_dmem.mem", DMEM);
         end
-        `RR_AND:
+        AND:
         begin
           $readmemh("and_imem.mem", IMEM);
           $readmemh("and_dmem.mem", DMEM);
         end
-        `RR_OR:
+        OR:
         begin
           $readmemh("or_imem.mem", IMEM);
           $readmemh("or_dmem.mem", DMEM);
         end
-        `RR_XOR:
+        XOR:
         begin
           $readmemh("xor_imem.mem", IMEM);
           $readmemh("xor_dmem.mem", DMEM);
         end
-        `RR_SLT:
+        SLT:
         begin
           $readmemh("slt_imem.mem", IMEM);
           $readmemh("slt_dmem.mem", DMEM);
         end
-        `RR_SLTU:
+        SLTU:
         begin
           $readmemh("sltu_imem.mem", IMEM);
           $readmemh("sltu_dmem.mem", DMEM);
         end
-        `RR_SLL:
+        SLL:
         begin
           $readmemh("sll_imem.mem", IMEM);
           $readmemh("sll_dmem.mem", DMEM);
         end
-        `RR_SRL:
+        SRL:
         begin
           $readmemh("srl_imem.mem", IMEM);
           $readmemh("srl_dmem.mem", DMEM);
         end
-        `RR_SRA:
+        SRA:
         begin
           $readmemh("sra_imem.mem", IMEM);
           $readmemh("sra_dmem.mem", DMEM);
         end
 
         // R-I [10:17]
-        `I_ADDI:
+        ADDI:
         begin
           $readmemh("addi_imem.mem", IMEM);
           $readmemh("addi_dmem.mem", DMEM);
         end
-        `I_ANDI:
+        ANDI:
         begin
           $readmemh("andi_imem.mem", IMEM);
           $readmemh("andi_dmem.mem", DMEM);
         end
-        `I_ORI:
+        ORI:
         begin
           $readmemh("ori_imem.mem", IMEM);
           $readmemh("ori_dmem.mem", DMEM);
         end
-        `I_XORI:
+        XORI:
         begin
           $readmemh("xori_imem.mem", IMEM);
           $readmemh("xori_dmem.mem", DMEM);
         end
-        `I_SLTI:
+        SLTI:
         begin
           $readmemh("slti_imem.mem", IMEM);
           $readmemh("slti_dmem.mem", DMEM);
         end
-        `I_SLLI:
+        SLLI:
         begin
           $readmemh("slli_imem.mem", IMEM);
           $readmemh("slli_dmem.mem", DMEM);
         end
-        `I_SRLI:
+        SRLI:
         begin
           $readmemh("srli_imem.mem", IMEM);
           $readmemh("srli_dmem.mem", DMEM);
         end
-        `I_SRAI:
+        SRAI:
         begin
           $readmemh("srai_imem.mem", IMEM);
           $readmemh("srai_dmem.mem", DMEM);
         end
 
         // Conditional Branches [18:23]
-        `B_BEQ:
+        BEQ:
         begin
           $readmemh("beq_imem.mem", IMEM);
           $readmemh("beq_dmem.mem", DMEM);
         end
-        `B_BNE:
+        BNE:
         begin
           $readmemh("bne_imem.mem", IMEM);
           $readmemh("bne_dmem.mem", DMEM);
         end
-        `B_BLT:
+        BLT:
         begin
           $readmemh("blt_imem.mem", IMEM);
           $readmemh("blt_dmem.mem", DMEM);
         end
-        `B_BGE:
+        BGE:
         begin
           $readmemh("bge_imem.mem", IMEM);
           $readmemh("bge_dmem.mem", DMEM);
         end
-        `B_BLTU:
+        BLTU:
         begin
           $readmemh("bltu_imem.mem", IMEM);
           $readmemh("bltu_dmem.mem", DMEM);
         end
-        `B_BGEU:
+        BGEU:
         begin
           $readmemh("bgeu_imem.mem", IMEM);
           $readmemh("bgeu_dmem.mem", DMEM);
         end
 
         // Upper Imm [24:25]
-        `UI_LUI:
+        LUI:
         begin
           $readmemh("lui_imem.mem", IMEM);
           $readmemh("lui_dmem.mem", DMEM);
         end
-        `UI_AUIPC:
+        AUIPC:
         begin
           $readmemh("auipc_imem.mem", IMEM);
           $readmemh("auipc_dmem.mem", DMEM);
         end
 
         // Jumps [26:27]
-        `J_JAL:
+        JAL:
         begin
           $readmemh("jal_imem.mem", IMEM);
           $readmemh("jal_dmem.mem", DMEM);
         end
-        `J_JALR:
+        JALR:
         begin
           $readmemh("jalr_imem.mem", IMEM);
           $readmemh("jalr_dmem.mem", DMEM);
         end
 
         // Loads [28:32]
-        `L_LB:
+        LB:
         begin
           $readmemh("lb_imem.mem", IMEM);
           $readmemh("lb_dmem.mem", DMEM);
         end
-        `L_LH:
+        LH:
         begin
           $readmemh("lh_imem.mem", IMEM);
           $readmemh("lh_dmem.mem", DMEM);
         end
-        `L_LW:
+        LW:
         begin
           $readmemh("lw_imem.mem", IMEM);
           $readmemh("lw_dmem.mem", DMEM);
         end
-        `L_LBU:
+        LBU:
         begin
           $readmemh("lbu_imem.mem", IMEM);
           $readmemh("lbu_dmem.mem", DMEM);
         end
-        `L_LHU:
+        LHU:
         begin
           $readmemh("lhu_imem.mem", IMEM);
           $readmemh("lhu_dmem.mem", DMEM);
         end
 
         // Stores [33:35]
-        `S_SB:
+        SB:
         begin
           $readmemh("sb_imem.mem", IMEM);
           $readmemh("sb_dmem.mem", DMEM);
         end
-        `S_SH:
+        SH:
         begin
           $readmemh("sh_imem.mem", IMEM);
           $readmemh("sh_dmem.mem", DMEM);
         end
-        `S_SW:
+        SW:
         begin
           $readmemh("sw_imem.mem", IMEM);
           $readmemh("sw_dmem.mem", DMEM);
@@ -362,7 +394,7 @@ module dtcore32_tb();
 
   integer t;
   task EVAL_TEST;
-    input integer TESTID;
+    input TESTID_t TESTID;
     begin
       rst = 0;
       for(t=0; t<=1000000; t=t+1)
@@ -376,21 +408,22 @@ module dtcore32_tb();
                (UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[17] == 93) &&
                (UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[10] == 0))
            begin
-             $display("TEST PASSED; ID: %0d", TESTID);
+             $display("TEST PASSED; ID: %s", testid_to_string(TESTID));
              t=1000000;
 
            end
            else if (Exception == 1)
            begin
              $display("EXCEPTION ASSERTED, TEST FAILED");
-             $display("FAILED TEST ID: %0d", TESTID);
+             $display("FAILED TEST ID: %s", testid_to_string(TESTID));
              $finish;
 
            end
            else if (t==999999)
            begin
              $display("TEST FAILED: TIMED OUT");
-             $display("FAILED TEST ID: %0d", TESTID);
+             $display("FAILED TEST ID: %s", testid_to_string(TESTID));
+             $display("FAILED TEST CASE: %0d", UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[11]);
              $finish;
            end
 
@@ -408,13 +441,12 @@ module dtcore32_tb();
   begin
     rst = 1;
     #100;
-    if(1)
     begin
       $display("Running all tests.");
-      for(j=`RR_ADD; j<=`S_SW; j=j+1)
+      for(j=0; j<=TESTID_NUM_TESTS; j=j+1)
       begin
         $display("***********************************");
-        $display("Running Test ID: %0d", j);
+        $display("Running Test ID: %s", testid_to_string(TESTID_t'(j)));
         LOAD_TEST(j);
         #100;
         EVAL_TEST(j);
@@ -425,16 +457,6 @@ module dtcore32_tb();
       $display("ALL TESTS PASSED !");
       $finish;
 
-    end
-
-    else
-    begin
-      $display("Running Test ID: %0d", `TEST_TO_RUN);
-      LOAD_TEST(`TEST_TO_RUN);
-      EVAL_TEST(`TEST_TO_RUN);
-      $display("***********************************");
-      $display("TEST PASSED !");
-      $finish;
     end
   end
 endmodule

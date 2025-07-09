@@ -51,6 +51,17 @@ Passes testing for the rv32ui test virtual machine.
 
 ## 🚀 Getting Started
 
+### Install the riscv-gnu-toolchain
+https://github.com/riscv-collab/riscv-gnu-toolchain
+choose the rv32i architecture
+version 2.2
+make sure PATH/TO/INSTALL/bin is added to PATH
+
+## Install riscv-test
+set the RISCV environment variable to PATH/TO/INSTALL
+https://github.com/riscv-software-src/riscv-tests?tab=readme-ov-file
+
+
 ### Clone the repo
 
 ```bash
