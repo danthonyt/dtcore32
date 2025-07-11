@@ -7,7 +7,7 @@ module dtcore32_dmem (
     output logic [31:0] DMEM_rd_data_o
   );
 
-  parameter DMEM_DEPTH = 32'hf;
+  parameter DMEM_DEPTH = 32'h0_1000;
   logic [31:0] DMEM[0:DMEM_DEPTH];
   always_ff@(posedge clk_i)
   begin//write

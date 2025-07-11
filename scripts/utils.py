@@ -5,7 +5,10 @@ import subprocess
 import random
 from pathlib import Path
 import shutil
+import numpy as np
+import math
 
+from typing import List, Tuple, Dict, Callable
 class AsmWriter:
     def __init__(self, file_handle, asm_dir, start_address=0x0):
         self.f = file_handle
@@ -17,6 +20,10 @@ class AsmWriter:
 
         # exclude x0 from dest reg selection
         self.dest_registers = [f"x{i}" for i in range(1,32)]
+        # assume 4 KB data memory - word addressable
+        self.dmem_size = 1024  # 4 KB
+        self.dmem_buffer = np.zeros(self.dmem_size, dtype=np.uint32)
+        self.dmem_base_addr = 0x0000_2000
 
         self.named_regs = {
             "zero": "x0",
@@ -77,6 +84,71 @@ class AsmWriter:
     def get_label_address(self, name):
         return self.labels.get(name, None)
     
+    def check_addr_oob(self, addr):
+        """
+        checks if the address used is out of bounds of the data memory configuration
+        Args:
+            addr (int): The address to check
+        """
+        if ((addr - self.dmem_base_addr) > ((self.dmem_size - 1) * 4)) or (addr < self.dmem_base_addr):
+            raise Exception(f"accessed address does not exist! {addr}")
+        
+    def read_dmem(self, address, instr_name="lw"):
+        """
+        Reads data memory. 
+        Args:
+            address (int): address to read from data memory
+            instr_name (str): load instruction used
+        """
+        self.check_addr_oob(address)
+        rd_data = self.dmem_buffer[(address- self.dmem_base_addr) >> 2]
+        match instr_name:
+            case "lb":
+                byte_encoding = address & 0x3
+                match byte_encoding:
+                    case 0x0:
+                        rd_data = reinterpret_signed(rd_data & 0xFF, 8)
+                    case 0x1:
+                        rd_data = reinterpret_signed((rd_data & 0xFF00) >> 8, 8)
+                    case 0x2:
+                        rd_data = reinterpret_signed((rd_data & 0xFF_0000) >> 16, 8)
+                    case 0x3:
+                        rd_data = reinterpret_signed((rd_data & 0xFF00_0000) >> 24, 8)
+            case "lh":
+                half_encoding = address & 0x2 
+                match half_encoding:
+                    case 0x0:
+                        rd_data = reinterpret_signed(rd_data & 0xFFFF, 16)
+                    case 0x2:
+                        rd_data = reinterpret_signed(((rd_data & 0xFFFF_0000) >> 16), 16)
+            case "lw":
+                rd_data = self.dmem_buffer[(address- self.dmem_base_addr) >> 2]
+            case "lbu":
+                byte_encoding = address & 0x3
+                match byte_encoding:
+                    case 0x0:
+                        rd_data = reinterpret_unsigned(rd_data & 0xFF, 8)
+                    case 0x1:
+                        rd_data = reinterpret_unsigned((rd_data & 0xFF00) >> 8, 8)
+                    case 0x2:
+                        rd_data = reinterpret_unsigned((rd_data & 0xFF_0000) >> 16, 8)
+                    case 0x3:
+                        rd_data = reinterpret_unsigned((rd_data & 0xFF00_0000) >> 24, 8)
+            case "lhu":
+                half_encoding = address & 0x2 
+                match half_encoding:
+                    case 0x0:
+                        rd_data = reinterpret_unsigned(rd_data & 0xFFFF, 16)
+                    case 0x2:
+                        rd_data = reinterpret_unsigned(((rd_data & 0xFFFF_0000) >> 16), 16)
+            case _:
+                raise Exception(f"unknown instruction read type! {instr_name}")
+        return rd_data
+    
+    def write_dmem(self, address, value):
+        self.check_addr_oob(address)
+        self.dmem_buffer[(address- self.dmem_base_addr) >> 2] = value
+    
     def write_test_start(self):
         """
         Initialize all registers to zero for the start of each test
@@ -108,6 +180,23 @@ class AsmWriter:
         self.write_instr("ecall")
         self.write_instr("j fail")
 
+    def write_generate_random_dmem(self):
+        """
+        Initialize data memory of a specified size to random values
+        Args:
+            depth: depth of the data memory
+        """
+        self.write_directive(".data")
+        array_str = ""
+        for i in range(self.dmem_size):
+            rand_32bit = rand_nbit(32, False)
+            self.write_dmem(self.dmem_base_addr + i * 4, rand_32bit)
+            if i == self.dmem_size-1:
+                array_str += f"{to_hex32_str(rand_32bit)}"
+            else:
+                array_str += f"{to_hex32_str(rand_32bit)},"
+        self.write_directive(f"array: .word {array_str}")
+
     def test_write_check_eq(self, reg1, reg2):
         for reg in {reg1, reg2}:
             if reg not in self.named_regs:
@@ -135,16 +224,6 @@ class AsmWriter:
         # Emit instructions
         self.write_instr(f"lui {rd}, {upper}")
         self.write_instr(f"addi {rd}, {rd}, {lower}")
-
-    def to_hex32_str(self, val):
-        """
-        Converts value to a 32 bit hex string
-        Args:
-            val: the value to convert to a 32 bit hex string
-        Returns:
-            str: the 32 bit hex string
-        """
-        return f"0x{val & 0xFFFF_FFFF:08x}"
     
     def gen_r_itype_test(self, instr_name, operator_func, num_test_cases, is_immediate=False, is_shift=False):
         """
@@ -159,20 +238,20 @@ class AsmWriter:
         """
         self.write_test_start()
         for test_case_number in range(num_test_cases):
-            a = self.rand_nbit(32, True)
+            a = rand_nbit(32, True)
             self.comment(f"test case {test_case_number}")
             self.emit_li("t0", a) # input 1
 
             if is_immediate:
                 # generate random 12-bit signed immediate
-                imm = self.rand_nbit(12, True)
+                imm = rand_nbit(12, True)
                 if is_shift:
                     imm = imm & 0x1F
-                expected_value = self.trunc_32bits(operator_func(a, imm))
+                expected_value = trunc_32bits(operator_func(a, imm))
                 self.write_instr(f"{instr_name} t2, t0, {imm}")
             else:
-                b = self.rand_nbit(32, True)
-                expected_value = self.trunc_32bits(operator_func(a, b))
+                b = rand_nbit(32, True)
+                expected_value = trunc_32bits(operator_func(a, b))
                 self.emit_li("t1", b) # input 2
                 self.write_instr(f"{instr_name} t2, t0, t1")
 
@@ -196,10 +275,10 @@ class AsmWriter:
         for test_code in range(num_test_cases):
             # give equal weight to equal and nonequal values
             if random.randint(0, 1) == 1:
-                a = self.rand_nbit(32, True)
-                b = self.rand_nbit(32, True)
+                a = rand_nbit(32, True)
+                b = rand_nbit(32, True)
             else:
-                a = self.rand_nbit(32, True)
+                a = rand_nbit(32, True)
                 b = a
             should_branch = condition_func(a, b)
             label1 = f"test_case_{test_code}_branch"
@@ -232,11 +311,11 @@ class AsmWriter:
 
         for test_code in range(num_test_cases):
             # 20-bit unsigned immediate
-            imm = self.rand_nbit(20, False)
+            imm = rand_nbit(20, False)
             if is_auipc:
-                expected_value = self.trunc_32bits((imm << 12) + self.current_pc())
+                expected_value = trunc_32bits((imm << 12) + self.current_pc())
             else:
-                expected_value = self.trunc_32bits(imm << 12)
+                expected_value = trunc_32bits(imm << 12)
 
             self.comment(f"Test Case: {test_code}")
             self.write_instr(f"{instr_name} t2, {imm}")
@@ -261,7 +340,7 @@ class AsmWriter:
         for test_code in range(num_test_cases):
             # 12-bit signed immediate
             #offset = utils.reinterpret_signed(utils.rand_nbit(12, True) & ~3) # mask lower 2 bits so it is word aligned
-            offset = self.rand_nbit(6, False) & ~3 # use only positive offsets for now in a small range
+            offset = rand_nbit(6, False) & ~3 # use only positive offsets for now in a small range
             rd = "ra" # register to store the actual return address 
             test_case_reg = "a1" # register to hold the current test case number
             expected_reg = "t2" # register to store the expected return address
@@ -271,18 +350,18 @@ class AsmWriter:
             # jump to address and place return address in rd
             if is_jalr:
                 rs1 = "t1" # register value added to immediate offset
-                #rs1_value = self.reinterpret_signed(self.rand_nbit(32, True) & ~3)
-                rs1_value = (self.rand_nbit(6, False) & ~3) + self.current_pc() # use only positive values for now in a small range, add current pc for easier testing
+                #rs1_value = reinterpret_signed(rand_nbit(32, True) & ~3)
+                rs1_value = (rand_nbit(6, False) & ~3) + self.current_pc() # use only positive values for now in a small range, add current pc for easier testing
                 self.emit_li(rs1, rs1_value)
                 jump_offset = offset + rs1_value - self.current_pc() # assume always a forward jump
                 expected_return_addr = self.current_pc() + 4
-                self.comment(f"tracked pc = {self.to_hex32_str(self.current_pc())}")
+                self.comment(f"tracked pc = {to_hex32_str(self.current_pc())}")
                 self.write_instr(f"{instr_name} {rd}, {rs1}, {offset}")
                 
             else:
                 jump_offset = offset
                 expected_return_addr = self.current_pc() + 4
-                self.comment(f"tracked pc = {self.to_hex32_str(self.current_pc())}")
+                self.comment(f"tracked pc = {to_hex32_str(self.current_pc())}")
                 self.write_instr(f"{instr_name} {rd}, {jump_label}")
 
             if (jump_offset - 4) > 0:    # only pad if the offset results in a jump further than the instruction immediately after jalr 
@@ -303,23 +382,64 @@ class AsmWriter:
         filename = f"{instr_name}.S"
         shutil.move(filename, self.asm_dir / filename) 
 
-    def reinterpret_signed(self, value, bits):
+    def gen_ltype_test(self, instr_name, num_test_cases):
         """
-        Reinterpret a value as a signed N-bit integer.
-        Example: reinterpret_signed(0xFFF, 12) → -1
-        """
-        mask = (1 << bits) - 1
-        value &= mask
-        sign_bit = 1 << (bits - 1)
-        return value if value < sign_bit else value - (1 << bits)
+        Generate the assembly file for a load instruction (lb, lh, lw, etc.)
 
-    def reinterpret_unsigned(self, value, bits):
+        Args:
+            instr_name (str): The RISC-V instruction name 
+            operator_func (function): Function that takes two ints and returns the result
+            num_test_cases (int): Number of test cases to generate
         """
-        Reinterpret a value as an unsigned N-bit integer.
-        Example: reinterpret_unsigned(-1, 32) → 0xFFFFFFFF
-        """
-        mask = (1 << bits) - 1
-        return value & mask
+        self.write_generate_random_dmem()
+        self.write_test_start()
+        rd = "t1"
+        rs1 = "t0"
+        expected_memdata_reg = "t2"
+        for test_case_number in range(num_test_cases):
+            self.comment(f"test case {test_case_number}")
+            # offset + value(rs1) should not exceed the memory depth-1 of the data memory
+            # in this instance we have a depth of 1024, so random_addr = imm_offset + value(rs1) < 1024 10 bit limit
+            match instr_name:
+                case "lb":
+                    imm_offset = rand_nbit(8, False)
+                    base_addr = rand_nbit(9, False) + self.dmem_base_addr
+                    random_addr = imm_offset + base_addr
+                    expected_memdata = self.read_dmem(random_addr, "lb")   # 8 bit signed
+                case "lh":
+                    imm_offset = (rand_nbit(8, False) & ~0x1)
+                    base_addr = (rand_nbit(9, False) & ~0x1) + self.dmem_base_addr
+                    random_addr = imm_offset + base_addr
+                    expected_memdata = self.read_dmem(random_addr, "lh")    # 16 bit signed
+                    # addr must be half-word aligned
+                case "lw":
+                    imm_offset = (rand_nbit(8, False) & ~0x3)
+                    base_addr = (rand_nbit(9, False) & ~0x3) + self.dmem_base_addr
+                    random_addr = imm_offset + base_addr
+                    expected_memdata = self.read_dmem(random_addr, "lw")    # 32 bit signed
+                    # addr must be word aligned
+                case "lbu":
+                    imm_offset = rand_nbit(8, False)
+                    base_addr = rand_nbit(9, False) + self.dmem_base_addr
+                    random_addr = imm_offset + base_addr
+                    expected_memdata = self.read_dmem(random_addr, "lbu")    # 8 bit unsigned
+                case "lhu":
+                    imm_offset = (rand_nbit(8, False) & ~0x1)
+                    base_addr = (rand_nbit(9, False) & ~0x1) + self.dmem_base_addr
+                    random_addr = imm_offset + base_addr
+                    expected_memdata = self.read_dmem(random_addr, "lhu")    # 16 bit unsigned
+                case _:
+                    raise Exception("Unknown load instruction!")   
+            
+            self.emit_li(expected_memdata_reg, expected_memdata)  
+            self.emit_li(rs1, base_addr)
+            self.write_instr(f"{instr_name} {rd}, {imm_offset}({rs1})")
+            self.emit_li("a1", test_case_number) # test case id
+            self.test_write_check_eq(expected_memdata_reg, rd)
+        self.write_test_end()
+        
+        filename = f"{instr_name}.S"
+        shutil.move(filename, self.asm_dir / filename)
 
     # instruction specific conversion functions for finding expected result
     def slt_signed(self, a, b):
@@ -347,36 +467,63 @@ class AsmWriter:
         Returns:
             int: returns 1 if a is less than b, else 0 when interpreting numbers as unsigned
         """
-        if self.reinterpret_unsigned(a, 32) < self.reinterpret_unsigned(b, 32):
+        if reinterpret_unsigned(a, 32) < reinterpret_unsigned(b, 32):
             return 1
         else:
             return 0
-    def rand_nbit(self, num_bits, is_signed):
-        """
-        Returns a random n-bit number
-        Args:
-            num_bits (int): number of bits of the random number
-            is_signed (bool): returns a signed number if true, else unsigned
-        Returns:
-            int: the random number
-        """
-        return random.randint(-2 ** (num_bits - 1), (2 ** (num_bits - 1) - 1) ) if is_signed else random.randint(0, (2 ** (num_bits - 1)))
-    
-    def trunc_32bits(self, a):
-        """
-        Truncate number 32-bits 
-        Args:
-            a (int): the number to truncate
-        """
-        return  a & 0xFFFF_FFFF
-    
 
+def to_hex32_str(val):
+    """
+    Converts value to a 32 bit hex string
+    Args:
+        val: the value to convert to a 32 bit hex string
+    Returns:
+        str: the 32 bit hex string
+    """
+    return f"0x{val & 0xFFFF_FFFF:08x}"
+    
+def reinterpret_signed(value, bits):
+    """
+    Reinterpret a value as a signed N-bit integer.
+    Example: reinterpret_signed(0xFFF, 12) → -1
+    """
+    mask = (1 << bits) - 1
+    value &= mask
+    sign_bit = 1 << (bits - 1)
+    return value if value < sign_bit else value - (1 << bits)
+
+def reinterpret_unsigned(value, bits):
+    """
+    Reinterpret a value as an unsigned N-bit integer.
+    Example: reinterpret_unsigned(-1, 32) → 0xFFFFFFFF
+    """
+    mask = (1 << bits) - 1
+    return value & mask
+
+def rand_nbit(num_bits, is_signed):
+    """
+    Returns a random n-bit number
+    Args:
+        num_bits (int): number of bits of the random number
+        is_signed (bool): returns a signed number if true, else unsigned
+    Returns:
+        int: the random number
+    """
+    return random.randint(-2 ** (num_bits - 1), (2 ** (num_bits - 1) - 1) ) if is_signed else random.randint(0, (2 ** (num_bits - 1)))
+    
+def trunc_32bits(a):
+    """
+    Truncate number 32-bits 
+    Args:
+        a (int): the number to truncate
+    """
+    return  a & 0xFFFF_FFFF
 
 def create_all_tests(asm_dir):
     for name in ["add", "sub", "and", "or", "xor", "sll", "slt", "sltu", "srl", "sra",
                  "addi", "andi", "ori", "xori", "slli", "slti", "sltiu", "srli", "srai",
-                 "beq", "bne", "blt", "bge", "bltu", "bgeu", "lui", "auipc", "jal", "jalr"
-                
+                 "beq", "bne", "blt", "bge", "bltu", "bgeu", "lui", "auipc", "jal", "jalr",
+                 "lb", "lh", "lw", "lbu", "lhu"
                 ]:
         with open(f"{name}.S", "w") as f:
             gen = AsmWriter(f, asm_dir)  # new generator and new writer for each file
@@ -398,7 +545,7 @@ def create_all_tests(asm_dir):
                 case "sltu":
                     gen.gen_r_itype_test(name, gen.slt_unsigned, 10)
                 case "srl":
-                    gen.gen_r_itype_test(name, lambda a, b: (gen.reinterpret_unsigned(a, 32) >> (b & 0x1F)), 10, False, True)
+                    gen.gen_r_itype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) >> (b & 0x1F)), 10, False, True)
                 case "sra":
                     gen.gen_r_itype_test(name, lambda a, b: (a >> (b & 0x1F)), 10)
                 case "addi":
@@ -416,7 +563,7 @@ def create_all_tests(asm_dir):
                 case "sltiu":
                     gen.gen_r_itype_test(name, gen.slt_unsigned, 10, True)
                 case "srli":
-                    gen.gen_r_itype_test(name, lambda a, b: (gen.reinterpret_unsigned(a, 32) >> (b & 0x1F)), 10, True, True)
+                    gen.gen_r_itype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) >> (b & 0x1F)), 10, True, True)
                 case "srai":
                     gen.gen_r_itype_test(name, lambda a, b: (a >> (b & 0x1F)), 10, True, True)
                 case "beq":
@@ -428,9 +575,9 @@ def create_all_tests(asm_dir):
                 case "bge":
                     gen.gen_btype_test(name, lambda a, b: (a >= b), 100)
                 case "bltu":
-                    gen.gen_btype_test(name, lambda a, b: (gen.reinterpret_unsigned(a, 32) < gen.reinterpret_unsigned(b, 32)), 100)
+                    gen.gen_btype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) < reinterpret_unsigned(b, 32)), 100)
                 case "bgeu":
-                    gen.gen_btype_test(name, lambda a, b: (gen.reinterpret_unsigned(a, 32) >= gen.reinterpret_unsigned(b, 32)), 100) 
+                    gen.gen_btype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) >= reinterpret_unsigned(b, 32)), 100) 
                 case "lui":
                     gen.write_utype_test(name, 10, False)
                 case "auipc":
@@ -438,9 +585,19 @@ def create_all_tests(asm_dir):
                 case "jal":
                     gen.write_jtype_test(name, 4, False)
                 case "jalr":
-                    gen.write_jtype_test(name, 4, True)   
+                    gen.write_jtype_test(name, 4, True)
+                case "lb":
+                    gen.gen_ltype_test(name, 10)
+                case "lh":
+                    gen.gen_ltype_test(name, 10)
+                case "lw":
+                    gen.gen_ltype_test(name, 10)
+                case "lbu":
+                    gen.gen_ltype_test(name, 10)
+                case "lhu":
+                    gen.gen_ltype_test(name, 10)      
                 case _:
-                    raise Exception("unknown assembly test!")
+                    raise Exception(f"unknown assembly test! {name}")
                 
 def process_tests(asm_dir, hex_dir, dump_dir):
     """
