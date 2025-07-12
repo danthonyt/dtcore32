@@ -101,7 +101,8 @@ class AsmWriter:
             instr_name (str): load instruction used
         """
         self.check_addr_oob(address)
-        rd_data = self.dmem_buffer[(address- self.dmem_base_addr) >> 2]
+        rd_idx = (address- self.dmem_base_addr) >> 2
+        rd_data = self.dmem_buffer[rd_idx]
         match instr_name:
             case "lb":
                 byte_encoding = address & 0x3
@@ -122,7 +123,7 @@ class AsmWriter:
                     case 0x2:
                         rd_data = reinterpret_signed(((rd_data & 0xFFFF_0000) >> 16), 16)
             case "lw":
-                rd_data = self.dmem_buffer[(address- self.dmem_base_addr) >> 2]
+                rd_data = rd_data
             case "lbu":
                 byte_encoding = address & 0x3
                 match byte_encoding:
@@ -145,9 +146,40 @@ class AsmWriter:
                 raise Exception(f"unknown instruction read type! {instr_name}")
         return rd_data
     
-    def write_dmem(self, address, value):
+    def write_dmem(self, address, value, instr_name="sw"):
+        """
+        writes to data memory. 
+        Args:
+            address (int): address to read from data memory
+            value (int): value to write
+            instr_name (str): store instruction used
+        """
         self.check_addr_oob(address)
-        self.dmem_buffer[(address- self.dmem_base_addr) >> 2] = value
+        write_idx = (address- self.dmem_base_addr) >> 2
+        old_value = self.read_dmem(address)
+        match instr_name:
+            case "sb":
+                byte_encoding = address & 0x3
+                match byte_encoding:
+                    case 0x0:
+                        self.dmem_buffer[write_idx] = (old_value & 0xFFFF_FF00) | (value & 0xFF)
+                    case 0x1:
+                        self.dmem_buffer[write_idx] = (old_value & 0xFFFF_00FF) | ((value << 8) & 0xFF00)
+                    case 0x2:
+                        self.dmem_buffer[write_idx] = (old_value & 0xFF00_FFFF) | ((value << 16) & 0xFF_0000)
+                    case 0x3:
+                        self.dmem_buffer[write_idx] = (old_value & 0x00FF_FFFF) | ((value << 24) & 0xFF00_0000)
+            case "sh":
+                half_encoding = address & 0x2 
+                match half_encoding:
+                    case 0x0:
+                        self.dmem_buffer[write_idx] = (old_value & 0xFFFF_0000) | (value & 0x0000_FFFF)
+                    case 0x2:
+                        self.dmem_buffer[write_idx] = (old_value & 0x0000_FFFF) | ((value << 16) & 0xFFFF_0000)
+            case "sw":
+                self.dmem_buffer[write_idx] = value
+            case _:
+                raise Exception(f"unknown instruction read type! {instr_name}")
     
     def write_test_start(self):
         """
@@ -351,7 +383,7 @@ class AsmWriter:
             if is_jalr:
                 rs1 = "t1" # register value added to immediate offset
                 #rs1_value = reinterpret_signed(rand_nbit(32, True) & ~3)
-                rs1_value = (rand_nbit(6, False) & ~3) + self.current_pc() # use only positive values for now in a small range, add current pc for easier testing
+                rs1_value = (rand_nbit(6, False) & ~3) + self.current_pc() + 8  # use only positive values for now in a small range, add pc of load instruction for easier testing
                 self.emit_li(rs1, rs1_value)
                 jump_offset = offset + rs1_value - self.current_pc() # assume always a forward jump
                 expected_return_addr = self.current_pc() + 4
@@ -441,6 +473,55 @@ class AsmWriter:
         filename = f"{instr_name}.S"
         shutil.move(filename, self.asm_dir / filename)
 
+    def gen_stype_test(self, instr_name, num_test_cases):
+        """
+        Generate the assembly file for a store instruction (sb, sh, etc.)
+
+        Args:
+            instr_name (str): The RISC-V instruction name 
+            operator_func (function): Function that takes two ints and returns the result
+            num_test_cases (int): Number of test cases to generate
+        """
+        self.write_generate_random_dmem()
+        self.write_test_start()
+        rs1 = "t0" # holds base address to store data 
+        rs2 = "t1" # register data is taken from here
+        test_case_reg = "a1" 
+        expected_memdata_reg = "t2" # register that holds expected data memory load value after store
+        actual_memdata_reg = "t3" # register that holds data memory load to check if store was correct
+        random_wr_data = rand_nbit(32, False)
+        for test_case_number in range(num_test_cases):
+            self.comment(f"test case {test_case_number}")
+            # offset + value(rs1) should not exceed the memory depth-1 of the data memory
+            # in this instance we have a depth of 1024, so random_addr = imm_offset + value(rs1) < 1024 10 bit limit
+            
+            match instr_name:
+                case "sb":
+                    imm_offset = rand_nbit(8, False)
+                    base_addr = rand_nbit(9, False) + self.dmem_base_addr
+                case "sh":
+                    imm_offset = rand_nbit(8, False) & ~0x1
+                    base_addr = (rand_nbit(9, False) + self.dmem_base_addr) & ~0x1
+                case "sw":
+                    imm_offset = rand_nbit(8, False) & ~0x3
+                    base_addr = (rand_nbit(9, False) + self.dmem_base_addr) & ~0x3
+                case _:
+                    raise Exception("Unknown load instruction!")   
+            random_addr = imm_offset + base_addr
+            self.write_dmem(random_addr, random_wr_data, instr_name)
+            expected_memdata = self.read_dmem(random_addr)   # 8 bits
+            self.emit_li(rs2, random_wr_data)  
+            self.emit_li(expected_memdata_reg, expected_memdata)  
+            self.emit_li(rs1, base_addr)
+            self.write_instr(f"{instr_name} {rs2}, {imm_offset}({rs1})") # store instruction
+            self.write_instr(f"lw {actual_memdata_reg}, {imm_offset}({rs1})") # load data memory location to check if store was successful
+            self.emit_li(test_case_reg, test_case_number) # test case id
+            self.test_write_check_eq(expected_memdata_reg, actual_memdata_reg)
+        self.write_test_end()
+        
+        filename = f"{instr_name}.S"
+        shutil.move(filename, self.asm_dir / filename)
+
     # instruction specific conversion functions for finding expected result
     def slt_signed(self, a, b):
         """
@@ -523,7 +604,7 @@ def create_all_tests(asm_dir):
     for name in ["add", "sub", "and", "or", "xor", "sll", "slt", "sltu", "srl", "sra",
                  "addi", "andi", "ori", "xori", "slli", "slti", "sltiu", "srli", "srai",
                  "beq", "bne", "blt", "bge", "bltu", "bgeu", "lui", "auipc", "jal", "jalr",
-                 "lb", "lh", "lw", "lbu", "lhu"
+                 "lb", "lh", "lw", "lbu", "lhu", "sb", "sh", "sw"
                 ]:
         with open(f"{name}.S", "w") as f:
             gen = AsmWriter(f, asm_dir)  # new generator and new writer for each file
@@ -595,7 +676,13 @@ def create_all_tests(asm_dir):
                 case "lbu":
                     gen.gen_ltype_test(name, 10)
                 case "lhu":
-                    gen.gen_ltype_test(name, 10)      
+                    gen.gen_ltype_test(name, 10)
+                case "sb":
+                    gen.gen_stype_test(name, 10)
+                case "sh":
+                    gen.gen_stype_test(name, 10)
+                case "sw":
+                    gen.gen_stype_test(name, 10)     
                 case _:
                     raise Exception(f"unknown assembly test! {name}")
                 
