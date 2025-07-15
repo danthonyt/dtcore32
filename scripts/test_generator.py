@@ -1,5 +1,6 @@
 # test_generator.py
-import utils
+import asm_writer
+import rv32i_reference
 from pathlib import Path
 
 # Setup paths
@@ -15,6 +16,11 @@ asm_dir.mkdir(parents=True, exist_ok=True)
 hex_dir.mkdir(parents=True, exist_ok=True)
 dump_dir.mkdir(parents=True, exist_ok=True)
 
-utils.create_all_tests(asm_dir)
-utils.process_tests(asm_dir, hex_dir, dump_dir)
+asm_writer.create_all_tests(asm_dir)
+asm_writer.process_tests(asm_dir, hex_dir, dump_dir)
+cpu_ref = rv32i_reference.rv32i_cpu()
+cpu_ref.load_program('addi_imem', hex_dir)
+cpu_ref.run()
+print(cpu_ref.dump_memory())
+print(cpu_ref.dump_registers())
 
