@@ -20,7 +20,5 @@ asm_writer.create_all_tests(asm_dir)
 asm_writer.process_tests(asm_dir, hex_dir, dump_dir)
 cpu_ref = rv32i_reference.rv32i_cpu()
 cpu_ref.load_program('addi_imem', hex_dir)
-cpu_ref.run()
-print(cpu_ref.dump_memory())
-print(cpu_ref.dump_registers())
+cpu_ref.run(False)
 

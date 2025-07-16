@@ -8,7 +8,7 @@ module dtcore32_MEM_stage (
     output logic [31:0] DMEM_wr_data_o,
     output logic [3:0] DMEM_wr_byte_en_o,
 
-    // WB stage
+    // EX stage
     input logic EX_reg_wr_en_i,
     input logic [1:0] EX_result_src_i,
     input logic [2:0] EX_load_size_i,
@@ -17,6 +17,7 @@ module dtcore32_MEM_stage (
     input logic [31:0] EX_dmem_wr_data_i,
     input logic [11:7] EX_dest_reg_i,
     input logic [31:0] EX_pc_plus_4_i,
+    input logic EX_is_ecall_i,
 
     // MEM stage
     input logic MEM_stall_i,
@@ -27,7 +28,8 @@ module dtcore32_MEM_stage (
     //output logic [31:0] MEM_pc_plus_4_o,
     //output logic [31:0] MEM_dmem_rd_data_o,
     output logic MEM_exception_o,
-    output logic [31:0] MEM_result_o
+    output logic [31:0] MEM_result_o,
+    output logic MEM_is_ecall_o
 
   );
 
@@ -58,6 +60,7 @@ module dtcore32_MEM_stage (
       MEM_dmem_wr_data <= 0;
       MEM_dest_reg_o <= 0;
       MEM_pc_plus_4 <= 0;
+      MEM_is_ecall_o <= 0;
     end
     else if (!MEM_stall_i)
     begin
@@ -69,6 +72,7 @@ module dtcore32_MEM_stage (
       MEM_dmem_wr_data <= EX_dmem_wr_data_i;
       MEM_dest_reg_o <= EX_dest_reg_i;
       MEM_pc_plus_4 <= EX_pc_plus_4_i;
+      MEM_is_ecall_o <= EX_is_ecall_i;
     end
   end
   // logic to determine which bytes are written to data memory for store instructions

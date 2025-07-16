@@ -30,6 +30,7 @@ class rv32i_cpu:
         self.pc = 0
         self.memory = bytearray(mem_size) 
         self.instructions = []  # parsed instructions
+        self.is_halted = False
 
     def reset(self):
         self.regs = [0] * 32
@@ -54,16 +55,17 @@ class rv32i_cpu:
         self.pc = 0  # Optionally reset program counter
         # print(f"Loaded {len(instructions)} instructions from {file_path}")
 
-    def run(self):
-        while self.pc < len(self.instructions) * 4:
+    def run(self, is_print_statements_enabled):
+        while (self.pc < len(self.instructions) * 4) and not (self.is_halted):
             if (self.pc & 0x3) != 0:
                 raise Exception(f"Misaligned PC! {self.pc}")
             else:
                 instr = self.instructions[self.pc // 4]
             self.fetch()
             decoded_instr = self.decode(instr)
-            print(f'decoded instruction:{decoded_instr.get('op')}!')
-            print(f'current pc: {hex(self.pc)} instruction number: {self.pc // 4}')
+            if is_print_statements_enabled:
+                print(f'decoded instruction:{decoded_instr.get('op')}!')
+                print(f'current pc: {hex(self.pc)} instruction number: {self.pc // 4}')
             self.execute(decoded_instr)
 
     def dump_registers(self):
@@ -72,10 +74,21 @@ class rv32i_cpu:
         Returns:
             a 32 element array holding all register states
         """
+        for index in range(0,32):
+            print(f'register x{index}: {hex(self.regs[index])}')
         return self.regs.copy()
+    
+    def dump_memory(self):
+        """
+        Dumps the memory state, used after running a test for comparison to a rv32i cpu implementation
+        Returns:
+            an array holding all memory values
+        """
+        return dict(self.memory)
     
     def incr_pc(self, incr_val=4):
         self.pc += incr_val
+
     def set_pc(self, pc_val):
         self.pc = pc_val
 
@@ -394,6 +407,12 @@ class rv32i_cpu:
                     "rd": get_rd(),
                     "imm": get_imm_jal()  
                 }
+            case 0x73: # environment instructions
+                if (instr & 0xFFFF_FF80) == 0:  # ecall
+                    return {
+                        "op": "ecall",
+                        "instr_type": "environment",  
+                    }
 
     def execute(self, instr_dict: dict):
         """
@@ -416,11 +435,10 @@ class rv32i_cpu:
                 self.exec_jtype(instr_dict)
             case "branch":
                 self.exec_btype(instr_dict)
+            case "environment":
+                self.is_halted = True
             case _:
                 raise Exception(f"Unknown instruction! {op}")
-
-    def dump_memory(self):
-        return dict(self.memory)
     
     # INSTRUCTION EXECUTE FUNCTIONS
     

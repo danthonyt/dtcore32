@@ -23,6 +23,7 @@ module dtcore32_EX_stage (
     input logic [31:0] ID_imm_ext_i,
     input logic [31:0] ID_pc_plus_4_i,
     input logic ID_reg_wr_en_i,
+    input logic ID_is_ecall_i,
 
     // EX stage
     input logic [1:0] EX_forward_a_i,
@@ -42,6 +43,7 @@ module dtcore32_EX_stage (
     output logic [31:0] EX_alu_result_o,
     output logic EX_pc_src_o,
     output logic [31:0] EX_pc_target_o,
+    output logic EX_is_ecall_o,
 
     // MEM stage
     input logic [31:0] MEM_alu_result_i,
@@ -90,6 +92,7 @@ module dtcore32_EX_stage (
       EX_imm_ext <= 0;
       EX_pc_plus_4_o <= 0;
       EX_dmem_read_o <= 0;
+      EX_is_ecall_o <= 0;
     end
     else if (!EX_stall_i)
     begin
@@ -112,6 +115,7 @@ module dtcore32_EX_stage (
       EX_imm_ext <= ID_imm_ext_i;
       EX_pc_plus_4_o <= ID_pc_plus_4_i;
       EX_dmem_read_o <= ID_dmem_read_i;
+      EX_is_ecall_o <= ID_is_ecall_i;
     end
   end
 

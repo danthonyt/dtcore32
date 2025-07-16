@@ -54,6 +54,25 @@ class AsmWriter:
             "t5": "x30",
             "t6": "x31"
         }
+        self.test_case_reg = self.named_regs["a1"]
+        self.reserved_regs = {
+            self.test_case_reg
+        }
+
+    def random_regs_unique(self):
+        # Candidates for rd: exclude x0 + reserved
+        rd_candidates = [i for i in range(1, 32) if i not in self.reserved_regs]
+        rs_candidates = [i for i in range(0, 32) if i not in self.reserved_regs]
+
+        rd_num = random.choice(rd_candidates)
+        rs_candidates.remove(rd_num)
+
+        rs1_num = random.choice(rs_candidates)
+        rs_candidates.remove(rs1_num)
+
+        rs2_num = random.choice(rs_candidates)
+
+        return f'x{rd_num}', f'x{rs1_num}', f'x{rs2_num}'
 
     def write_instr(self, line):
         """Write a real instruction and increment PC."""
@@ -99,36 +118,22 @@ class AsmWriter:
         self.write_directive(".global norvc")
         self.label("_start")
         # reset all registers to 0 at the start of the test
+        # or load all registers with a random value
         for name in self.dest_registers:
-            self.write_instr(f"addi {name}, x0, 0")
+            #self.write_instr(f"addi {name}, x0, 0")
+            self.emit_li(name, rand_nbit(32, False))
 
     def write_test_end(self):
         """
         Generate the pass and fail loops at the end of an assembly test
         """
-        '''
-        # pass and fail codes and loop forever
-        self.label("pass")
-        self.write_instr("addi a0, x0, 0")
-        self.write_instr("addi a7, x0, 93")
-        self.write_instr("addi gp, x0, 1")
         self.write_instr("ecall")
-        self.write_instr("j pass")
-        self.label("fail")
-        self.write_instr("addi a0, x0, 0")
-        self.write_instr("addi a7, x0, 93")
-        self.write_instr("addi gp, x0, 0")
-        self.write_instr("ecall")
-        self.write_instr("j fail")
-        '''
 
-    def track_test_case(self, reg):
+    def track_test_case(self):
         """
         stores the current test case id into a register for error checking
-        Args:
-            reg (str): the register to store the test case id in
         """
-        self.emit_li(reg, self.test_case_id) # test case id
+        self.emit_li(self.test_case_reg, self.test_case_id) # test case id
         self.test_case_id += 1
 
     def comment_test_case(self):
@@ -179,13 +184,12 @@ class AsmWriter:
         self.write_instr(f"lui {rd}, {upper}")
         self.write_instr(f"addi {rd}, {rd}, {lower}")
     
-    def gen_r_itype_test(self, instr_name, operator_func, num_test_cases, is_immediate=False, is_shift=False):
+    def gen_r_itype_test(self, instr_name, num_test_cases, is_immediate=False, is_shift=False):
         """
         Generate the assembly file for an R-type or I-type instruction (add, sub, or, etc.)
 
         Args:
             instr_name (str): The RISC-V instruction name (e.g., 'add', 'sub', 'or')
-            operator_func (function): Function that takes two ints and returns the result
             num_test_cases (int): Number of test cases to generate
             is_immediate (bool): indicates whether or not the instruction uses immediates
             is_shift (bool): indicates whether or not the instruction is a shift instruction
@@ -194,10 +198,8 @@ class AsmWriter:
         for _ in range(num_test_cases):
             a = rand_nbit(32, True)
             self.comment_test_case()
-            rs1 = "t0"
-            rd = "t2"
-            test_case_id_reg = "a1"
-
+            self.track_test_case()
+            rd, rs1, rs2 = self.random_regs_unique()
             self.emit_li(rs1, a) 
             if is_immediate:
                 # generate random 12-bit signed immediate
@@ -206,11 +208,9 @@ class AsmWriter:
                     imm = imm & 0x1F
                 self.write_instr(f"{instr_name} {rd}, {rs1}, {imm}")
             else:
-                rs2 = "t1"
                 b = rand_nbit(32, True)
                 self.emit_li(rs2, b) 
                 self.write_instr(f"{instr_name} {rd}, {rs1}, {rs2}")
-            self.track_test_case(test_case_id_reg)
         self.write_test_end()
         self.move_asm_file(f"{instr_name}.S")
 
@@ -224,10 +224,10 @@ class AsmWriter:
             num_test_cases (int): Number of test cases to generate
         """
         self.write_test_start()
-        rs1 = "t0"
-        rs2 = "t1"
-        test_case_id_reg = "a1"
+        
         for _ in range(num_test_cases):
+            rd, rs1, rs2 = self.random_regs_unique()
+            self.track_test_case()
             # give equal weight to equal and nonequal values
             if random.randint(0, 1) == 1:
                 a = rand_nbit(32, True)
@@ -239,17 +239,17 @@ class AsmWriter:
             label1 = f"test_case_{self.test_case_id}_branch"
             label2 = f"test_case_{self.test_case_id}_branch_correct_skip"
             self.emit_li(rs1, a)   
-            self.emit_li(rs2, b)   
-            self.track_test_case(test_case_id_reg)
+            self.emit_li(rs2, b)
             self.write_instr(f"{instr_name} {rs1}, {rs2}, {label1}\n")    # test instruction
             if should_branch:
-                self.write_instr("j fail")
+                self.emit_li(rd, 0xFBAD)    # store this value for correct branch
                 self.label(label1)
             else:
                 self.write_instr(f"j {label2}")
                 self.label(label1)
-                self.write_instr(f"j fail")
+                self.emit_li(rd, 0xFBAD)
                 self.label(label2)
+                self.emit_li(rd, 0xDAAD)    # store this value for wrong branch
         self.write_test_end()
         self.move_asm_file(f"{instr_name}.S")
 
@@ -262,16 +262,15 @@ class AsmWriter:
             num_test_cases (int): Number of test cases to generate
         """
         self.write_test_start()
-        rd = "t2"
-        test_case_id_reg = "a1"
         for _ in range(num_test_cases):
+            rd, _, _ = self.random_regs_unique()
+            self.comment_test_case()
+            self.track_test_case()
             # 20-bit unsigned immediate
             imm = rand_nbit(20, False)
             if instr_name != "auipc" and instr_name != "lui":
                 raise Exception(f"unknown utype instruction: {instr_name}")
-            self.comment_test_case()
             self.write_instr(f"{instr_name} {rd}, {imm}")
-            self.track_test_case(test_case_id_reg)
         self.write_test_end()
         self.move_asm_file(f"{instr_name}.S")
 
@@ -288,13 +287,11 @@ class AsmWriter:
             # 12-bit signed immediate
             #offset = utils.reinterpret_signed(utils.rand_nbit(12, True) & ~3) # mask lower 2 bits so it is word aligned
             offset = rand_nbit(6, False) & ~3 # use only positive offsets for now in a small range
-            rd = "ra" # register to store the actual return address 
-            test_case_id_reg = "a1" # register to hold the current test case number
+            rd, rs1, _ = self.random_regs_unique()
             self.comment_test_case()
             jump_label = f"skip_{self.test_case_id}"
             # jump to address and place return address in rd
             if instr_name == "jalr":
-                rs1 = "t1" # register value added to immediate offset
                 #rs1_value = reinterpret_signed(rand_nbit(32, True) & ~3)
                 rs1_value = (rand_nbit(6, False) & ~3) + self.current_pc() + 8  # use only positive values for now in a small range, add pc of load instruction for easier testing
                 self.emit_li(rs1, rs1_value)
@@ -312,11 +309,12 @@ class AsmWriter:
                 num_pad_instructions = 0
             #print(f"jump offset: {jump_offset}, num_pad_instrs: {num_pad_instructions}")
             for _ in range(num_pad_instructions):   # pad with jump instructions to fail loop up to the jump address
-                self.write_instr(f"j fail") # catches if the cpu does not jump
+                random_result_reg, _, _ = self.random_regs_unique() 
+                self.emit_li(random_result_reg, 0xFBAD) # load for an incorrect jump
             self.label(jump_label) # should jump to here
             # return address should be the next instruction
             # should fail if jump does not happen
-            self.track_test_case(test_case_id_reg)
+            self.track_test_case()
         self.write_test_end()
         self.move_asm_file(f"{instr_name}.S")
 
@@ -329,9 +327,7 @@ class AsmWriter:
             num_test_cases (int): Number of test cases to generate
         """
         self.write_test_start()
-        rd = "t1"
-        rs1 = "t0"
-        test_case_id_reg = "a1"
+        rd, rs1, _ = self.random_regs_unique()
         for _ in range(num_test_cases):
             self.comment_test_case()
             # offset + value(rs1) should not exceed the memory depth-1 of the data memory
@@ -358,7 +354,7 @@ class AsmWriter:
                     raise Exception("Unknown load instruction!")   
             self.emit_li(rs1, base_addr)
             self.write_instr(f"{instr_name} {rd}, {imm_offset}({rs1})")
-            self.track_test_case(test_case_id_reg)
+            self.track_test_case()
         self.write_test_end()
         self.move_asm_file(f"{instr_name}.S")
 
@@ -371,9 +367,7 @@ class AsmWriter:
             num_test_cases (int): Number of test cases to generate
         """
         self.write_test_start()
-        rs1 = "t0" # holds base address to store data 
-        rs2 = "t1" # register data is taken from here
-        test_case_reg = "a1" 
+        _, rs1, rs2 = self.random_regs_unique()
         random_wr_data = rand_nbit(32, False)
         for _ in range(num_test_cases):
             self.comment_test_case()
@@ -393,7 +387,7 @@ class AsmWriter:
             self.emit_li(rs2, random_wr_data)  
             self.emit_li(rs1, base_addr)
             self.write_instr(f"{instr_name} {rs2}, {imm_offset}({rs1})") # store instruction
-            self.track_test_case(test_case_reg)
+            self.track_test_case()
         self.write_test_end()
         self.move_asm_file(f"{instr_name}.S")
     '''
@@ -458,36 +452,6 @@ class AsmWriter:
     
     '''
 
-    # instruction specific conversion functions for finding expected result
-    def slt_signed(self, a, b):
-        """
-        calculates SLT instruction result for assembly test
-
-        Args:
-            a (int): signed 32-bit number on LHS
-            b (int): signed 32-bit number on RHS
-        Returns:
-            int: returns 1 if a is less than b, else 0
-        """
-        if a < b:
-            return 1
-        else:
-            return 0
-        
-    def slt_unsigned(self, a, b):
-        """
-        calculates SLTU instruction result for assembly test
-
-        Args:
-            a (int): signed 32-bit number on LHS
-            b (int): signed 32-bit number on RHS
-        Returns:
-            int: returns 1 if a is less than b, else 0 when interpreting numbers as unsigned
-        """
-        if reinterpret_unsigned(a, 32) < reinterpret_unsigned(b, 32):
-            return 1
-        else:
-            return 0
 
 def to_hex32_str(val):
     """
@@ -546,51 +510,51 @@ def create_all_tests(asm_dir):
             gen = AsmWriter(f, asm_dir)  # new generator and new writer for each file
             match name:
                 case "add":
-                    gen.gen_r_itype_test(name, lambda a, b: a + b, 10)
+                    gen.gen_r_itype_test(name, 10)
                 case "sub":
-                    gen.gen_r_itype_test(name, lambda a, b: a - b, 10)
+                    gen.gen_r_itype_test(name, 10)
                 case "and":
-                    gen.gen_r_itype_test(name, lambda a, b: a & b, 10)
+                    gen.gen_r_itype_test(name, 10)
                 case "or":
-                    gen.gen_r_itype_test(name, lambda a, b: a | b, 10)
+                    gen.gen_r_itype_test(name, 10)
                 case "xor":
-                    gen.gen_r_itype_test(name, lambda a, b: a ^ b, 10)
+                    gen.gen_r_itype_test(name, 10)
                 case "sll":
-                    gen.gen_r_itype_test(name, lambda a, b: (a << (b & 0x1F)), 10, False, True)
+                    gen.gen_r_itype_test(name, 10, False, True)
                 case "slt":
-                    gen.gen_r_itype_test(name, gen.slt_signed, 10)
+                    gen.gen_r_itype_test(name, 10)
                 case "sltu":
-                    gen.gen_r_itype_test(name, gen.slt_unsigned, 10)
+                    gen.gen_r_itype_test(name, 10)
                 case "srl":
-                    gen.gen_r_itype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) >> (b & 0x1F)), 10, False, True)
+                    gen.gen_r_itype_test(name, 10, False, True)
                 case "sra":
-                    gen.gen_r_itype_test(name, lambda a, b: (a >> (b & 0x1F)), 10)
+                    gen.gen_r_itype_test(name, 10)
                 case "addi":
-                    gen.gen_r_itype_test(name, lambda a, b: a + b, 10, True)
+                    gen.gen_r_itype_test(name, 10, True)
                 case "andi":
-                    gen.gen_r_itype_test(name, lambda a, b: a & b, 10, True)
+                    gen.gen_r_itype_test(name, 10, True)
                 case "ori":
-                    gen.gen_r_itype_test(name, lambda a, b: a | b, 10, True)
+                    gen.gen_r_itype_test(name, 10, True)
                 case "xori":
-                    gen.gen_r_itype_test(name, lambda a, b: a ^ b, 10, True)
+                    gen.gen_r_itype_test(name, 10, True)
                 case "slli":
-                    gen.gen_r_itype_test(name, lambda a, b: (a << (b & 0x1F)), 10, True, True)
+                    gen.gen_r_itype_test(name, 10, True, True)
                 case "slti":
-                    gen.gen_r_itype_test(name, gen.slt_signed, 10, True)
+                    gen.gen_r_itype_test(name, 10, True)
                 case "sltiu":
-                    gen.gen_r_itype_test(name, gen.slt_unsigned, 10, True)
+                    gen.gen_r_itype_test(name, 10, True)
                 case "srli":
-                    gen.gen_r_itype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) >> (b & 0x1F)), 10, True, True)
+                    gen.gen_r_itype_test(name, 10, True, True)
                 case "srai":
-                    gen.gen_r_itype_test(name, lambda a, b: (a >> (b & 0x1F)), 10, True, True)
+                    gen.gen_r_itype_test(name, 10, True, True)
                 case "beq":
-                    gen.gen_btype_test(name, lambda a, b: (a == b), 100)
+                    gen.gen_btype_test(name, lambda a, b: (a == b), 10)
                 case "bne":
-                    gen.gen_btype_test(name, lambda a, b: (a != b), 100)
+                    gen.gen_btype_test(name, lambda a, b: (a != b), 10)
                 case "blt":
-                    gen.gen_btype_test(name, lambda a, b: (a < b), 100)
+                    gen.gen_btype_test(name, lambda a, b: (a < b), 10)
                 case "bge":
-                    gen.gen_btype_test(name, lambda a, b: (a >= b), 100)
+                    gen.gen_btype_test(name, lambda a, b: (a >= b), 10)
                 case "bltu":
                     gen.gen_btype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) < reinterpret_unsigned(b, 32)), 100)
                 case "bgeu":

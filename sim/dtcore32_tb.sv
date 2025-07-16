@@ -136,12 +136,13 @@ endfunction
               .exception_o(Exception)
             );
   always#(10) clk = ~clk;
-  assign DMEM_addr_actual = DMEM_addr - 32'h2000;
-  parameter MEMORY_DEPTH  = 32'hFFF;
+  assign DMEM_addr_actual = DMEM_addr - DMEM_BASE_ADDR;
+  parameter MEMORY_DEPTH  = 32'h400;  // data memory depth of 1024
+  parameter DMEM_BASE_ADDR = 32'h2000;
   // MEMORY SIMULATION
   //logic [31:0] MEMORY [0:MEMORY_DEPTH];
   logic [31:0] IMEM [0:MEMORY_DEPTH];
-  logic [31:0] DMEM [0:MEMORY_DEPTH];
+  logic [7:0] DMEM [0:MEMORY_DEPTH];
   /*
       $readmemh loads program data into consecutive addresses, however 
       RISC-V uses byte-addressable memory (i.e. a word at every fourth address)
@@ -166,13 +167,13 @@ endfunction
       //IMEM_data = MEMORY[IMEM_addr[31:2]];
       DMEM_rd_data <= DMEM[DMEM_addr_actual[31:2]];
       if (DMEM_wr_byte_en[0])
-        DMEM[DMEM_addr_actual[31:2]][7:0]   <= DMEM_wr_data[7:0];
+        DMEM[DMEM_addr_actual[31:2]]   <= DMEM_wr_data[7:0];
       if (DMEM_wr_byte_en[1])
-        DMEM[DMEM_addr_actual[31:2]][15:8]   <= DMEM_wr_data[15:8];
+        DMEM[DMEM_addr_actual[31:2] + 1]   <= DMEM_wr_data[15:8];
       if (DMEM_wr_byte_en[2])
-        DMEM[DMEM_addr_actual[31:2]][23:16]   <= DMEM_wr_data[23:16];
+        DMEM[DMEM_addr_actual[31:2] + 2]   <= DMEM_wr_data[23:16];
       if (DMEM_wr_byte_en[3])
-        DMEM[DMEM_addr_actual[31:2]][31:24]   <= DMEM_wr_data[31:24];
+        DMEM[DMEM_addr_actual[31:2] + 3]   <= DMEM_wr_data[31:24];
     end
 
   end
@@ -409,28 +410,24 @@ endfunction
         @(posedge clk)
          begin
 
-           // Check if test pass
-           // pass condition: GP=1 , A7=93, A0=0
-           if((UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[3] == 1) &&
-               (UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[17] == 93) &&
-               (UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[10] == 0))
+           // Run test and dump registers and data memory
+           if(UUT.dtcore32_WB_stage_inst.is_cpu_halted_o == 1/* check rv32i cpu is halted */)
            begin
-             $display("TEST PASSED; ID: %s", testid_to_string(TESTID));
+             $display("TEST RAN; ID: %s", testid_to_string(TESTID));
+             DUMP_DMEM();
+             DUMP_REGISTERS();
              t=1000000;
 
            end
            else if (Exception == 1)
            begin
              $display("EXCEPTION ASSERTED, TEST FAILED");
-             $display("FAILED TEST ID: %s", testid_to_string(TESTID));
              $finish;
 
            end
            else if (t==999999)
            begin
              $display("TEST FAILED: TIMED OUT");
-             $display("FAILED TEST ID: %s", testid_to_string(TESTID));
-             $display("FAILED TEST CASE: %0d", UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[11]);
              $finish;
            end
 
@@ -438,6 +435,51 @@ endfunction
        end
      end
    endtask // EVAL_TEST
+
+  task DUMP_REGISTERS;
+    int fd_w;
+
+    fd_w = $fopen ("./dtcore32_regdump.txt", "w"); 	// Open a new file
+
+    if (fd_w) 
+      $display("File was opened successfully: %0d", fd_w);
+    else begin
+      $display("File was NOT opened successfully: %0d", fd_w);
+      return;
+    end
+
+    for (int reg_num = 0; reg_num < 32; reg_num++) begin
+      // Write the register number and value to the file
+      $fwrite(fd_w, "x%0d = 0x%08x\n", 
+              reg_num, 
+              UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[reg_num]);
+    end
+
+    $fclose(fd_w);
+  endtask
+
+
+  task DUMP_DMEM;
+    int fd_w;
+
+    fd_w = $fopen ("./dtcore32_dmemdump.txt", "w"); 	// Open a new file
+
+    if (fd_w) 
+      $display("File was opened successfully: %0d", fd_w);
+    else begin
+      $display("File was NOT opened successfully: %0d", fd_w);
+      return;
+    end
+
+    for (int dmem_addr = 0; dmem_addr < MEMORY_DEPTH; dmem_addr++) begin
+      // Write the register number and value to the file
+      $fwrite(fd_w, "0x%08h = 0x%08x\n", 
+              dmem_addr, 
+              DMEM[dmem_addr]);
+    end
+
+    $fclose(fd_w);
+  endtask
 
 
    //
@@ -461,7 +503,7 @@ endfunction
       end
       $display("");
       $display("***********************************");
-      $display("ALL TESTS PASSED !");
+      $display("ALL TESTS RAN !");
       $finish;
 
     end

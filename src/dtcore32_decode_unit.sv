@@ -19,7 +19,8 @@ module dtcore32_decode_unit(
     output logic [4:0] ID_src_reg_1_o,
     output logic [4:0] ID_src_reg_2_o,
     output logic [4:0] ID_dest_reg_o,
-    output logic [31:0] ID_imm_ext_o
+    output logic [31:0] ID_imm_ext_o,
+    output logic ID_is_ecall_o
   );
   // ===========================================================================
   // 			          Parameters, Registers, and Wires
@@ -43,6 +44,7 @@ module dtcore32_decode_unit(
   logic [3:0]  ID_alu_control;
 
   logic ID_is_nop;
+
 
   // ===========================================================================
   // 			          Implementation
@@ -100,6 +102,7 @@ module dtcore32_decode_unit(
   always_comb
   begin
     ID_is_nop = 0;
+    ID_is_ecall_o = 0;
     opcode_exception = 0;
     ID_dmem_read_o = 0;
     case (op)
@@ -136,58 +139,24 @@ module dtcore32_decode_unit(
       end
 
 
-      // FENCE, ECALL, EBREAK are all NOPs
-      `OPCODE_FENCE:
+      // ECALL should halt the cpu
+      `OPCODE_ECALL:
       begin
-        ID_reg_wr_en_o = `REGFILE_WRITE_ENABLE;
-        ID_alu_a_src_o = `ALU_A_SRC_SELECT_REG_DATA;
-        ID_alu_b_src_o = `ALU_B_SRC_SELECT_IMM;
+        ID_reg_wr_en_o = `REGFILE_WRITE_DISABLE;
+        //ID_alu_a_src_o = `ALU_A_SRC_SELECT_REG_DATA;
+        //ID_alu_b_src_o = `ALU_B_SRC_SELECT_IMM;
         ID_mem_wr_size_o = `MEM_NO_DMEM_WR;
-        ID_result_src_o = `RESULT_SRC_SELECT_ALU_RESULT;
+        //ID_result_src_o = `RESULT_SRC_SELECT_ALU_RESULT;
         ID_branch_o = `IS_NOT_BRANCH_INSTR;
-        ID_alu_op = `ALU_OP_IALU_ISHIFT_R_TYPE;
+        //ID_alu_op = `ALU_OP_IALU_ISHIFT_R_TYPE;
         ID_jump_o = `IS_NOT_JUMP_INSTR;
         ID_load_size_o = `DMEM_LOAD_SIZE_NO_LOAD;
-        ID_pc_target_alu_src_o = `PC_TARGET_ALU_SRC_SELECT_PC;
-        ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
-        ID_is_nop = 1; //addi x0,x0,0
+        //ID_pc_target_alu_src_o = `PC_TARGET_ALU_SRC_SELECT_PC;
+        //ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
+        //ID_is_nop = 0; 
+        ID_is_ecall_o = 1;
       end
       //  ECALL should jump to the start
-      `OPCODE_SYSTEM_ZICSR:
-      begin
-        ID_reg_wr_en_o = `REGFILE_WRITE_ENABLE;
-        // ECALL - treat as an uncond jump to adress 0x00
-        if (ID_instr_i == 32'h00000073)
-        begin
-          //ID_reg_wr_en_o = `REGFILE_WRITE_ENABLE;
-          ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
-          ID_alu_a_src_o = `ALU_A_SRC_SELECT_REG_DATA;
-          ID_alu_b_src_o = `ALU_B_SRC_SELECT_IMM;
-          ID_mem_wr_size_o = `MEM_NO_DMEM_WR;
-          ID_result_src_o = `RESULT_SRC_SELECT_NEXT_INSTR_ADDR;
-          ID_branch_o = `IS_NOT_BRANCH_INSTR;
-          ID_alu_op = `ALU_OP_ILOAD_S_U_TYPE;
-          ID_jump_o = `IS_JUMP_INSTR;
-          ID_load_size_o = `DMEM_LOAD_SIZE_NO_LOAD;
-          ID_pc_target_alu_src_o = `PC_TARGET_ALU_SRC_SELECT_REG_DATA;
-        end
-        else
-        begin
-
-          //ID_reg_wr_en_o = `REGFILE_WRITE_ENABLE;
-          ID_alu_a_src_o = `ALU_A_SRC_SELECT_REG_DATA;
-          ID_alu_b_src_o = `ALU_B_SRC_SELECT_IMM;
-          ID_mem_wr_size_o = `MEM_NO_DMEM_WR;
-          ID_result_src_o = `RESULT_SRC_SELECT_ALU_RESULT;
-          ID_branch_o = `IS_NOT_BRANCH_INSTR;
-          ID_alu_op = `ALU_OP_IALU_ISHIFT_R_TYPE;
-          ID_jump_o = `IS_NOT_JUMP_INSTR;
-          ID_load_size_o = `DMEM_LOAD_SIZE_NO_LOAD;
-          ID_pc_target_alu_src_o = `PC_TARGET_ALU_SRC_SELECT_PC;
-          ID_imm_src = `ID_I_ALU_TYPE_IMM_SRC;
-          ID_is_nop = 1; //addi x0,x0,0
-        end
-      end
 
       `OPCODE_STORE:
       begin
@@ -401,21 +370,6 @@ module dtcore32_decode_unit(
           ID_alu_control = 0; //unknown
           ID_alu_op_exception = 1;
         end
-      endcase
-      `ALU_OP_ZICSR:
-      case (funct3)
-        `FUNCT3_CSRRW,`FUNCT3_CSRRWI:
-          ID_alu_control = `EX_ADD_ALU_CONTROL;
-        `FUNCT3_CSRRS,`FUNCT3_CSRRSI:
-          ID_alu_control = `EX_OR_ALU_CONTROL;
-        `FUNCT3_CSRRC,`FUNCT3_CSRRCI:
-          ID_alu_control = `EX_ADD_ALU_CONTROL;
-        default:
-        begin
-          ID_alu_control = 0; //unknown
-          ID_alu_op_exception = 1;
-        end
-
       endcase
       default:
       begin

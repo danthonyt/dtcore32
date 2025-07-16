@@ -34,7 +34,9 @@ module dtcore32_ID_stage (
     output logic [31:0] ID_reg_data_1_o,
     output logic [31:0] ID_reg_data_2_o,
     // extend unit
-    output logic [31:0] ID_imm_ext_o
+    output logic [31:0] ID_imm_ext_o,
+
+    output logic ID_is_ecall_o
   );
   logic [31:0] ID_instr;
   // IF/ID register
@@ -74,7 +76,8 @@ module dtcore32_ID_stage (
                           .ID_src_reg_1_o(ID_src_reg_1_o),
                           .ID_src_reg_2_o(ID_src_reg_2_o),
                           .ID_dest_reg_o(ID_dest_reg_o),
-                          .ID_imm_ext_o(ID_imm_ext_o)
+                          .ID_imm_ext_o(ID_imm_ext_o),
+                          .ID_is_ecall_o(ID_is_ecall_o)
                         );
   // register file
   dtcore32_regfile  dtcore32_regfile_inst (

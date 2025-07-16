@@ -39,6 +39,7 @@ module dtcore32(
   logic [31:0] ID_imm_ext;
   logic [31:0] ID_pc_plus_4;
   logic ID_dmem_read;
+  logic ID_is_ecall_o;
 
   // Instruction execute signals
   logic EX_pc_src;
@@ -55,6 +56,7 @@ module dtcore32(
   logic [31:0] EX_alu_result;
   logic [31:0] EX_pc_target;
   logic EX_dmem_read;
+  logic EX_is_ecall_o;
 
   // data memory signals
   logic MEM_reg_wr_en;
@@ -64,11 +66,13 @@ module dtcore32(
   //logic [31:0] MEM_pc_plus_4;
   //logic [31:0] MEM_dmem_rd_data;
   logic [31:0] MEM_result;
+  logic MEM_is_ecall_o;
 
   // write back signals
   logic WB_reg_wr_en;
   logic [11:7] WB_dest_reg;
   logic [31:0] WB_result;
+  logic is_cpu_halted;
 
   // hazard unit signals
   logic IF_stall;
@@ -125,7 +129,8 @@ module dtcore32(
     .ID_pc_plus_4_o(ID_pc_plus_4),
     .ID_reg_data_1_o(ID_reg_data_1),
     .ID_reg_data_2_o(ID_reg_data_2),
-    .ID_imm_ext_o(ID_imm_ext)
+    .ID_imm_ext_o(ID_imm_ext),
+    .ID_is_ecall_o(ID_is_ecall_o)
   );
   // execute stage
   dtcore32_EX_stage  dtcore32_EX_stage_inst (
@@ -168,7 +173,9 @@ module dtcore32(
     .EX_pc_src_o(EX_pc_src),
     .EX_pc_target_o(EX_pc_target),
     .MEM_alu_result_i(MEM_alu_result),
-    .WB_result_i(WB_result)
+    .WB_result_i(WB_result),
+    .EX_is_ecall_o(EX_is_ecall_o),
+    .ID_is_ecall_i(ID_is_ecall_o)
   );
 
   // Data Memory stage
@@ -192,7 +199,9 @@ module dtcore32(
     .MEM_alu_result_o(MEM_alu_result),
     .MEM_dest_reg_o(MEM_dest_reg),
     .MEM_exception_o(MEM_exception),
-    .MEM_result_o(MEM_result)
+    .MEM_result_o(MEM_result),
+    .EX_is_ecall_i(EX_is_ecall_o),
+    .MEM_is_ecall_o(MEM_is_ecall_o)
   );
   
   // writeback stage
@@ -205,7 +214,9 @@ module dtcore32(
     .MEM_result_i(MEM_result),
     .WB_reg_wr_en_o(WB_reg_wr_en),
     .WB_dest_reg_o(WB_dest_reg),
-    .WB_result_o(WB_result)
+    .WB_result_o(WB_result),
+    .MEM_is_ecall_i(MEM_is_ecall_o),
+    .is_cpu_halted_o(is_cpu_halted)
   );
 
   // Hazard Unit
@@ -233,6 +244,11 @@ module dtcore32(
     .ID_flush_o(ID_flush),
     .EX_stall_o(EX_stall),
     .MEM_stall_o(MEM_stall),
-    .WB_stall_o(WB_stall)
+    .WB_stall_o(WB_stall),
+    .ID_is_ecall_i(ID_is_ecall_o),
+    .EX_is_ecall_i(EX_is_ecall_o),
+    .MEM_is_ecall_i(MEM_is_ecall_o),
+    .is_cpu_halted_i(is_cpu_halted)
+
   );
 endmodule
