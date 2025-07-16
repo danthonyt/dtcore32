@@ -37,6 +37,7 @@ class rv32i_cpu:
         self.pc = 0
         self.memory.clear()
         self.instructions.clear()
+        self.is_halted = False
 
     def load_program(self, test_name, test_dir):
         instructions = []
@@ -86,6 +87,27 @@ class rv32i_cpu:
         """
         return dict(self.memory)
     
+    def compare_cpu_regdumps(self, base_filename, dir, testname):
+        """
+        Compares the register and data memory dumps from the reference rv32i cpu and the 
+        actual implementation of a rv32i cpu 
+        Args:
+            rv32i_regdump_filename(str): The file holding the implementation cpu's register dumps
+            rv32i_dmemdump_filename(str): The file holding the implementation cpu's data memory dumps
+        """
+        file_str = dir + testname + base_filename
+        with open(file_str, "r") as f:
+            regnum = 0
+            for line in f:
+                line = line.strip()
+                if line:  # Skip empty lines
+                    ref_reg_value = self.regs[regnum]
+                    impl_reg_value = int(line, 16)
+                    if ref_reg_value != impl_reg_value:
+                        raise Exception(f"test {testname} register x{regnum} does not match with the reference! reference: 0x{ref_reg_value:08x}, implementation: 0x{impl_reg_value:08x}")
+                regnum = regnum + 1
+            print(f"all registers match! test: {testname}")
+    
     def incr_pc(self, incr_val=4):
         self.pc += incr_val
 
@@ -115,8 +137,8 @@ class rv32i_cpu:
         """
         if (reg != 0) and self.check_valid_reg(reg):
             self.regs[reg] = value & 0xFFFF_FFFF
-        else:
-            raise Exception("Error! Tried to write to the zero register!")
+            #print("tried to write to the zero register")
+            #raise Exception("Error! Tried to write to the zero register!")
         
     def read_reg(self, reg):
         """
@@ -333,7 +355,7 @@ class rv32i_cpu:
                         match get_funct7():
                             case 0x0:
                                 return get_rtype("add")
-                            case 0x30:
+                            case 0x20:
                                 return get_rtype("sub")
                     case 0x1:
                         return get_rtype("sll")
@@ -377,7 +399,7 @@ class rv32i_cpu:
                                 return get_itype_shift("srli")
                             case 0x20:
                                 return get_itype_shift("srai")
-            case 0x77: # jalr
+            case 0x67: # jalr
                 return {
                     "op": "jalr",
                     "instr_type": "jump",
@@ -425,6 +447,8 @@ class rv32i_cpu:
                 self.exec_itype(instr_dict)
             case "i_shift":
                 self.exec_itype_shift(instr_dict)
+            case "r":
+                self.exec_rtype(instr_dict)
             case "load":
                 self.exec_ltype(instr_dict)
             case "u":
@@ -438,7 +462,7 @@ class rv32i_cpu:
             case "environment":
                 self.is_halted = True
             case _:
-                raise Exception(f"Unknown instruction! {op}")
+                raise Exception(f"Unknown instruction: {op}, instr_type: {instr_type}")
     
     # INSTRUCTION EXECUTE FUNCTIONS
     
@@ -507,7 +531,7 @@ class rv32i_cpu:
             "slt":  lambda a, b: 1 if (reinterpret_signed(a, 32) < reinterpret_signed(b, 32)) else 0,
             "sltu": lambda a, b: 1 if (reinterpret_unsigned(a, 32) < reinterpret_unsigned(b, 32)) else 0,
             "xor": lambda a, b: a ^ b,
-            "srl": lambda a, b: reinterpret_signed(a, 32) >> (b & 0x1F),
+            "srl": lambda a, b: reinterpret_unsigned(a, 32) >> (b & 0x1F),
             "sra": lambda a, b: reinterpret_signed(a, 32) >> (b & 0x1F),
             "or": lambda a, b: a | b,
             "and": lambda a, b: a & b,

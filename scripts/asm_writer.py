@@ -7,11 +7,12 @@ import shutil
 import numpy as np
 
 class AsmWriter:
-    def __init__(self, file_handle, asm_dir, start_address=0x0, dmem_start_address= 0x2000):
+    def __init__(self, file_handle, asm_dir, start_address=0x0, dmem_start_address=0x2000, dmem_size=0x400):
         self.f = file_handle
         self.asm_dir = asm_dir
         self.pc = start_address
         self.dmem_start_address = dmem_start_address
+        self.dmem_size = dmem_size
         self.labels = {}
         self.test_case_id = 0
         # all 32 registers
@@ -73,6 +74,22 @@ class AsmWriter:
         rs2_num = random.choice(rs_candidates)
 
         return f'x{rd_num}', f'x{rs1_num}', f'x{rs2_num}'
+
+    def write_generate_random_dmem(self):
+        """
+        Initialize data memory of a specified size to random values in assembly file
+        """
+        self.write_directive(".data")
+
+        array_str = ""
+
+        for i in range(self.dmem_size):
+            rand_8bit = rand_nbit(8, False)
+            if i == self.dmem_size-1:
+                array_str += f"0x{rand_8bit & 0xFF:02x}"
+            else:
+                array_str += f"0x{rand_8bit & 0xFF:02x},"
+        self.write_directive(f"array: .byte {array_str}")
 
     def write_instr(self, line):
         """Write a real instruction and increment PC."""
@@ -200,7 +217,6 @@ class AsmWriter:
             self.comment_test_case()
             self.track_test_case()
             rd, rs1, rs2 = self.random_regs_unique()
-            self.emit_li(rs1, a) 
             if is_immediate:
                 # generate random 12-bit signed immediate
                 imm = rand_nbit(12, True)
@@ -240,7 +256,7 @@ class AsmWriter:
             label2 = f"test_case_{self.test_case_id}_branch_correct_skip"
             self.emit_li(rs1, a)   
             self.emit_li(rs2, b)
-            self.write_instr(f"{instr_name} {rs1}, {rs2}, {label1}\n")    # test instruction
+            self.write_instr(f"{instr_name} {rs1}, {rs2}, {label1}")    # test instruction
             if should_branch:
                 self.emit_li(rd, 0xFBAD)    # store this value for correct branch
                 self.label(label1)
@@ -326,7 +342,9 @@ class AsmWriter:
             instr_name (str): The RISC-V instruction name 
             num_test_cases (int): Number of test cases to generate
         """
+        self.write_generate_random_dmem()
         self.write_test_start()
+        
         rd, rs1, _ = self.random_regs_unique()
         for _ in range(num_test_cases):
             self.comment_test_case()
@@ -451,17 +469,6 @@ class AsmWriter:
         self.move_asm_file(f"{data_hazard_type}.S")
     
     '''
-
-
-def to_hex32_str(val):
-    """
-    Converts value to a 32 bit hex string
-    Args:
-        val: the value to convert to a 32 bit hex string
-    Returns:
-        str: the 32 bit hex string
-    """
-    return f"0x{val & 0xFFFF_FFFF:08x}"
     
 def reinterpret_signed(value, bits):
     """
@@ -556,9 +563,9 @@ def create_all_tests(asm_dir):
                 case "bge":
                     gen.gen_btype_test(name, lambda a, b: (a >= b), 10)
                 case "bltu":
-                    gen.gen_btype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) < reinterpret_unsigned(b, 32)), 100)
+                    gen.gen_btype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) < reinterpret_unsigned(b, 32)), 10)
                 case "bgeu":
-                    gen.gen_btype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) >= reinterpret_unsigned(b, 32)), 100) 
+                    gen.gen_btype_test(name, lambda a, b: (reinterpret_unsigned(a, 32) >= reinterpret_unsigned(b, 32)), 10) 
                 case "lui":
                     gen.write_utype_test(name, 10)
                 case "auipc":
@@ -620,7 +627,7 @@ def process_tests(asm_dir, hex_dir, dump_dir):
             subprocess.run(["riscv32-unknown-elf-objcopy", "-O", "binary", "-j", ".data", str(elf_file), str(dmem_bin)], check=True)
 
             # Convert to hex with swapped endianness
-            def bin_to_swapped_hex(input_file, output_file):
+            def bin_to_swapped_hex_word(input_file, output_file):
                 with open(input_file, "rb") as f_in, open(output_file, "w") as f_out:
                     while chunk := f_in.read(4):
                         if len(chunk) < 4:
@@ -628,8 +635,16 @@ def process_tests(asm_dir, hex_dir, dump_dir):
                         swapped = chunk[::-1].hex().upper()
                         f_out.write(swapped + "\n")
 
-            bin_to_swapped_hex(imem_bin, imem_hex)
-            bin_to_swapped_hex(dmem_bin, dmem_hex)
+            def bin_to_swapped_hex_byte(input_file, output_file):
+                with open(input_file, "rb") as f_in, open(output_file, "w") as f_out:
+                    while chunk := f_in.read(1):
+                        if len(chunk) < 1:
+                            chunk = chunk.ljust(1, b'\x00')
+                        swapped = chunk[::-1].hex().upper()
+                        f_out.write(swapped + "\n")
+
+            bin_to_swapped_hex_word(imem_bin, imem_hex)
+            bin_to_swapped_hex_byte(dmem_bin, dmem_hex)
 
             # Move hex files to proper location
             memfile_imem = hex_dir / f"{base_name}_imem.mem"

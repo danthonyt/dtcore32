@@ -26,7 +26,10 @@ module dtcore32_regfile(
     end
     else if (regfile_wr_en_i)
     begin
-      reg_array[dest_reg_i] <= reg_wr_data_i;
+      if (dest_reg_i != 0)
+      begin
+        reg_array[dest_reg_i] <= reg_wr_data_i;
+      end
     end
   end
   assign src_reg_1_rd_data_o = (src_reg_1_i != 0) ? reg_array[src_reg_1_i] : 0;

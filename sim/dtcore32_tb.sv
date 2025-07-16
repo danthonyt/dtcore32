@@ -25,7 +25,9 @@
 // Control Hazard tests
 
 module dtcore32_tb();
-
+  parameter MEMORY_DEPTH  = 32'h400;  // data memory depth of 1024
+  parameter DMEM_BASE_ADDR = 32'h2000;
+  
   logic         clk = 0;
   logic         rst;
   logic  [31:0] IMEM_data;
@@ -40,88 +42,126 @@ module dtcore32_tb();
   logic        Exception;
 
   typedef enum int {
-    ADD,
-    SUB,
-    AND,
-    OR,
-    XOR,
-    SLT,
-    SLTU,
-    SLL,
-    SRL,
-    SRA,
-    ADDI,
-    ANDI,
-    ORI,
-    XORI,
-    SLTI,
-    SLTIU,
-    SLLI,
-    SRLI,
-    SRAI,
-    BEQ,
-    BNE,
-    BLT,
-    BGE,
-    BLTU,
-    BGEU,
-    LUI,
-    AUIPC,
-    JAL,
-    JALR,
-    LB,
-    LH,
-    LW,
-    LBU,
-    LHU,
-    SB,
-    SH,
-    SW,
-    TESTID_NUM_TESTS
-  } TESTID_t;
+            ADD,
+            SUB,
+            AND,
+            OR,
+            XOR,
+            SLT,
+            SLTU,
+            SLL,
+            SRL,
+            SRA,
+            ADDI,
+            ANDI,
+            ORI,
+            XORI,
+            SLTI,
+            SLTIU,
+            SLLI,
+            SRLI,
+            SRAI,
+            BEQ,
+            BNE,
+            BLT,
+            BGE,
+            BLTU,
+            BGEU,
+            LUI,
+            AUIPC,
+            JAL,
+            JALR,
+            LB,
+            LH,
+            LW,
+            LBU,
+            LHU,
+            SB,
+            SH,
+            SW,
+            TESTID_NUM_TESTS
+          } TESTID_t;
 
-function string testid_to_string(TESTID_t id);
+  function string testid_to_string(TESTID_t id);
     case (id)
-        ADD:    return "ADD";
-        SUB:    return "SUB";
-        AND:    return "AND";
-        OR:     return "OR";
-        XOR:    return "XOR";
-        SLT:    return "SLT";
-        SLTU:   return "SLTU";
-        SLL:    return "SLL";
-        SRL:    return "SRL";
-        SRA:    return "SRA";
-        ADDI:   return "ADDI";
-        ANDI:   return "ANDI";
-        ORI:    return "ORI";
-        XORI:   return "XORI";
-        SLTI:   return "SLTI";
-        SLTIU:  return "SLTIU";
-        SLLI:   return "SLLI";
-        SRLI:   return "SRLI";
-        SRAI:   return "SRAI";
-        BEQ:    return "BEQ";
-        BNE:    return "BNE";
-        BLT:    return "BLT";
-        BGE:    return "BGE";
-        BLTU:   return "BLTU";
-        BGEU:   return "BGEU";
-        LUI:    return "LUI";
-        AUIPC:  return "AUIPC";
-        JAL:    return "JAL";
-        JALR:   return "JALR";
-        LB:     return "LB";
-        LH:     return "LH";
-        LW:     return "LW";
-        LBU:    return "LBU";
-        LHU:    return "LHU";
-        SB:     return "SB";
-        SH:     return "SH";
-        SW:     return "SW";
-        default: return "UNKNOWN_TEST";
+      ADD:
+        return "ADD";
+      SUB:
+        return "SUB";
+      AND:
+        return "AND";
+      OR:
+        return "OR";
+      XOR:
+        return "XOR";
+      SLT:
+        return "SLT";
+      SLTU:
+        return "SLTU";
+      SLL:
+        return "SLL";
+      SRL:
+        return "SRL";
+      SRA:
+        return "SRA";
+      ADDI:
+        return "ADDI";
+      ANDI:
+        return "ANDI";
+      ORI:
+        return "ORI";
+      XORI:
+        return "XORI";
+      SLTI:
+        return "SLTI";
+      SLTIU:
+        return "SLTIU";
+      SLLI:
+        return "SLLI";
+      SRLI:
+        return "SRLI";
+      SRAI:
+        return "SRAI";
+      BEQ:
+        return "BEQ";
+      BNE:
+        return "BNE";
+      BLT:
+        return "BLT";
+      BGE:
+        return "BGE";
+      BLTU:
+        return "BLTU";
+      BGEU:
+        return "BGEU";
+      LUI:
+        return "LUI";
+      AUIPC:
+        return "AUIPC";
+      JAL:
+        return "JAL";
+      JALR:
+        return "JALR";
+      LB:
+        return "LB";
+      LH:
+        return "LH";
+      LW:
+        return "LW";
+      LBU:
+        return "LBU";
+      LHU:
+        return "LHU";
+      SB:
+        return "SB";
+      SH:
+        return "SH";
+      SW:
+        return "SW";
+      default:
+        return "UNKNOWN_TEST";
     endcase
-endfunction
+  endfunction
 
 
   dtcore32  UUT (
@@ -137,8 +177,7 @@ endfunction
             );
   always#(10) clk = ~clk;
   assign DMEM_addr_actual = DMEM_addr - DMEM_BASE_ADDR;
-  parameter MEMORY_DEPTH  = 32'h400;  // data memory depth of 1024
-  parameter DMEM_BASE_ADDR = 32'h2000;
+  
   // MEMORY SIMULATION
   //logic [31:0] MEMORY [0:MEMORY_DEPTH];
   logic [31:0] IMEM [0:MEMORY_DEPTH];
@@ -415,7 +454,7 @@ endfunction
            begin
              $display("TEST RAN; ID: %s", testid_to_string(TESTID));
              DUMP_DMEM();
-             DUMP_REGISTERS();
+             DUMP_REGISTERS(TESTID);
              t=1000000;
 
            end
@@ -436,50 +475,58 @@ endfunction
      end
    endtask // EVAL_TEST
 
-  task DUMP_REGISTERS;
-    int fd_w;
+   task DUMP_REGISTERS;
+     input TESTID_t testid;
+     begin
+         string filename_base = "_dtcore32_regdump.txt";
+         string testid_name = testid_to_string(testid);
+         string filename =  {testid_name, filename_base};
+         int fd_w;
+    
+         fd_w = $fopen(filename, "w"); 	// Open a new file
+    
+         if (fd_w)
+           $display("File was opened successfully: %0d", fd_w);
+         else
+         begin
+           $display("File was NOT opened successfully: %0d", fd_w);
+           return;
+         end
+    
+         for (int reg_num = 0; reg_num < 32; reg_num++)
+         begin
+           // Write the register number and value to the file
+           $fwrite(fd_w, "%08x\n",
+                   UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[reg_num]);
+         end
+    
+         $fclose(fd_w);
+     end
+   endtask
 
-    fd_w = $fopen ("./dtcore32_regdump.txt", "w"); 	// Open a new file
 
-    if (fd_w) 
-      $display("File was opened successfully: %0d", fd_w);
-    else begin
-      $display("File was NOT opened successfully: %0d", fd_w);
-      return;
-    end
+   task DUMP_DMEM;
+     int fd_w;
 
-    for (int reg_num = 0; reg_num < 32; reg_num++) begin
-      // Write the register number and value to the file
-      $fwrite(fd_w, "x%0d = 0x%08x\n", 
-              reg_num, 
-              UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[reg_num]);
-    end
+     fd_w = $fopen ("./dtcore32_dmemdump.txt", "w"); 	// Open a new file
 
-    $fclose(fd_w);
-  endtask
+     if (fd_w)
+       $display("File was opened successfully: %0d", fd_w);
+     else
+     begin
+       $display("File was NOT opened successfully: %0d", fd_w);
+       return;
+     end
 
+     for (int dmem_addr = 0; dmem_addr < MEMORY_DEPTH; dmem_addr++)
+     begin
+       // Write the register number and value to the file
+       $fwrite(fd_w, "%02x\n",
+               DMEM[dmem_addr]);
+     end
 
-  task DUMP_DMEM;
-    int fd_w;
-
-    fd_w = $fopen ("./dtcore32_dmemdump.txt", "w"); 	// Open a new file
-
-    if (fd_w) 
-      $display("File was opened successfully: %0d", fd_w);
-    else begin
-      $display("File was NOT opened successfully: %0d", fd_w);
-      return;
-    end
-
-    for (int dmem_addr = 0; dmem_addr < MEMORY_DEPTH; dmem_addr++) begin
-      // Write the register number and value to the file
-      $fwrite(fd_w, "0x%08h = 0x%08x\n", 
-              dmem_addr, 
-              DMEM[dmem_addr]);
-    end
-
-    $fclose(fd_w);
-  endtask
+     $fclose(fd_w);
+   endtask
 
 
    //
