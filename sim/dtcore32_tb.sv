@@ -180,8 +180,8 @@ module dtcore32_tb();
   
   // MEMORY SIMULATION
   //logic [31:0] MEMORY [0:MEMORY_DEPTH];
-  logic [31:0] IMEM [0:MEMORY_DEPTH];
-  logic [7:0] DMEM [0:MEMORY_DEPTH];
+  logic [31:0] IMEM [0:MEMORY_DEPTH-1];
+  logic [7:0] DMEM [0:MEMORY_DEPTH-1];
   /*
       $readmemh loads program data into consecutive addresses, however 
       RISC-V uses byte-addressable memory (i.e. a word at every fourth address)
@@ -204,7 +204,7 @@ module dtcore32_tb();
     else
     begin
       //IMEM_data = MEMORY[IMEM_addr[31:2]];
-      DMEM_rd_data <= DMEM[DMEM_addr_actual] | (DMEM[DMEM_addr_actual] << 8) | (DMEM[DMEM_addr_actual] << 16) | (DMEM[DMEM_addr_actual] << 24);
+      DMEM_rd_data <= {DMEM[{DMEM_addr_actual[31:2], 2'b11}], DMEM[{DMEM_addr_actual[31:2], 2'b10}], DMEM[{DMEM_addr_actual[31:2], 2'b01}], DMEM[{DMEM_addr_actual[31:2], 2'b00}]};
       if (DMEM_wr_byte_en[0])
         DMEM[DMEM_addr_actual]   <= DMEM_wr_data[7:0];
       if (DMEM_wr_byte_en[1])

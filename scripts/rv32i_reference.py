@@ -210,7 +210,7 @@ class rv32i_cpu:
         if (addr & 0x1) != 0:
             raise Exception("misaligned halfword read!")
         if self.dmem_access_is_valid(addr):
-            print(f"address: {addr- self.dmem_base_addr}")
+            #print(f"address: {addr- self.dmem_base_addr}")
             byte0 = self.read_byte(addr)
             byte1 = self.read_byte(addr + 1)
             halfword = byte0 | (byte1 << 8)
@@ -628,7 +628,7 @@ class rv32i_cpu:
         rs1 = instr_dict.get('rs1')
         rs2 = instr_dict.get('rs2')
         # specific store-type instruction
-        memory_addr = self.read_reg(rs1) + offset - self.dmem_base_addr
+        memory_addr = self.read_reg(rs1) + offset
         match instr_dict.get('op'):
             case "sb":
                 write_data = self.read_reg(rs2) & 0xFF
