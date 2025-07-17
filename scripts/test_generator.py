@@ -34,7 +34,8 @@ def run_tests():
                  "lb", "lh", "lw", "lbu", "lhu", "sb", "sh", "sw"
                 ]:
         cpu_ref.reset()
-        cpu_ref.load_program(f'{test}_imem', hex_dir)
+        is_dmem_load = test in ["lb", "lh", "lw", "lbu", "lhu"]
+        cpu_ref.load_program(f'{test}', hex_dir, is_dmem_load)
         cpu_ref.run(False)
         cpu_ref.compare_cpu_regdumps("_dtcore32_regdump.txt","/home/dtorres/Documents/work/dtcore32/build/riscv.sim/sim_1/behav/xsim/", f'{test.upper()}' )
 

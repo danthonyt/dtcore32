@@ -60,10 +60,11 @@ class AsmWriter:
             self.test_case_reg
         }
 
-    def random_regs_unique(self):
+    def random_regs_unique(self, is_zero_src_allowed=False):
         # Candidates for rd: exclude x0 + reserved
         rd_candidates = [i for i in range(1, 32) if i not in self.reserved_regs]
-        rs_candidates = [i for i in range(0, 32) if i not in self.reserved_regs]
+        
+        rs_candidates = [i for i in range(0, 32) if i not in self.reserved_regs] if is_zero_src_allowed else rd_candidates
 
         rd_num = random.choice(rd_candidates)
         rs_candidates.remove(rd_num)
@@ -137,7 +138,7 @@ class AsmWriter:
         # reset all registers to 0 at the start of the test
         # or load all registers with a random value
         for name in self.dest_registers:
-            #self.write_instr(f"addi {name}, x0, 0")
+            self.write_instr(f"addi {name}, x0, 0")
             self.emit_li(name, rand_nbit(32, False))
 
     def write_test_end(self):
@@ -150,7 +151,7 @@ class AsmWriter:
         """
         stores the current test case id into a register for error checking
         """
-        self.emit_li(self.test_case_reg, self.test_case_id) # test case id
+        #self.emit_li(self.test_case_reg, self.test_case_id) # test case id
         self.test_case_id += 1
 
     def comment_test_case(self):
@@ -217,6 +218,7 @@ class AsmWriter:
             self.comment_test_case()
             self.track_test_case()
             rd, rs1, rs2 = self.random_regs_unique()
+            self.emit_li(rs1, a)
             if is_immediate:
                 # generate random 12-bit signed immediate
                 imm = rand_nbit(12, True)
@@ -303,7 +305,7 @@ class AsmWriter:
             # 12-bit signed immediate
             #offset = utils.reinterpret_signed(utils.rand_nbit(12, True) & ~3) # mask lower 2 bits so it is word aligned
             offset = rand_nbit(6, False) & ~3 # use only positive offsets for now in a small range
-            rd, rs1, _ = self.random_regs_unique()
+            rd, rs1, _ = self.random_regs_unique(False)
             self.comment_test_case()
             jump_label = f"skip_{self.test_case_id}"
             # jump to address and place return address in rd
@@ -326,7 +328,7 @@ class AsmWriter:
             #print(f"jump offset: {jump_offset}, num_pad_instrs: {num_pad_instructions}")
             for _ in range(num_pad_instructions):   # pad with jump instructions to fail loop up to the jump address
                 random_result_reg, _, _ = self.random_regs_unique() 
-                self.emit_li(random_result_reg, 0xFBAD) # load for an incorrect jump
+                self.emit_li(random_result_reg, 0xABAD) # load for an incorrect jump
             self.label(jump_label) # should jump to here
             # return address should be the next instruction
             # should fail if jump does not happen
@@ -345,8 +347,8 @@ class AsmWriter:
         self.write_generate_random_dmem()
         self.write_test_start()
         
-        rd, rs1, _ = self.random_regs_unique()
         for _ in range(num_test_cases):
+            rd, rs1, _ = self.random_regs_unique()
             self.comment_test_case()
             # offset + value(rs1) should not exceed the memory depth-1 of the data memory
             # in this instance we have a depth of 1024, so random_addr = imm_offset + value(rs1) < 1024 10 bit limit
@@ -385,9 +387,9 @@ class AsmWriter:
             num_test_cases (int): Number of test cases to generate
         """
         self.write_test_start()
-        _, rs1, rs2 = self.random_regs_unique()
-        random_wr_data = rand_nbit(32, False)
         for _ in range(num_test_cases):
+            _, rs1, rs2 = self.random_regs_unique()
+            random_wr_data = rand_nbit(32, False)
             self.comment_test_case()
             
             match instr_name:

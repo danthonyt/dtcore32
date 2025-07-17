@@ -25,25 +25,28 @@ def reinterpret_unsigned(value, bits):
     return value & mask
     
 class rv32i_cpu:
-    def __init__(self, mem_size=4096):
+    def __init__(self, dmem_size=0x400, dmem_base_addr=0x2000):
         self.regs = [0] * 32
         self.pc = 0
-        self.memory = bytearray(mem_size) 
+        self.memory = bytearray(dmem_size) 
+        self.dmem_size = dmem_size
         self.instructions = []  # parsed instructions
+        self.dmem_base_addr = dmem_base_addr
         self.is_halted = False
 
     def reset(self):
         self.regs = [0] * 32
         self.pc = 0
-        self.memory.clear()
-        self.instructions.clear()
+        self.memory = bytearray(self.dmem_size) 
+        self.instructions = []
         self.is_halted = False
 
-    def load_program(self, test_name, test_dir):
+    def load_program(self, test_name, test_dir, is_dmem_load=False):
         instructions = []
-        file_path = Path(test_dir) / f"{test_name}.mem"
+        file_path_imem = Path(test_dir) / f"{test_name}_imem.mem"
+        file_path_dmem = Path(test_dir) / f"{test_name}_dmem.mem"
 
-        with open(file_path, "r") as f:
+        with open(file_path_imem, "r") as f:
             for line in f:
                 line = line.strip()
                 if line:  # Skip empty lines
@@ -54,7 +57,20 @@ class rv32i_cpu:
 
         self.instructions = instructions
         self.pc = 0  # Optionally reset program counter
+        if is_dmem_load:
+            dmem_idx = 0
+            with open(file_path_dmem, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if line:  # Skip empty lines
+                        try:
+                            self.memory[dmem_idx] = int(line, 16)
+                            dmem_idx = dmem_idx + 1
+                        except ValueError:
+                            raise ValueError(f"Invalid line in hex file: '{line}'")
+            
         # print(f"Loaded {len(instructions)} instructions from {file_path}")
+    
 
     def run(self, is_print_statements_enabled):
         while (self.pc < len(self.instructions) * 4) and not (self.is_halted):
@@ -96,6 +112,7 @@ class rv32i_cpu:
             rv32i_dmemdump_filename(str): The file holding the implementation cpu's data memory dumps
         """
         file_str = dir + testname + base_filename
+        failed_test = False
         with open(file_str, "r") as f:
             regnum = 0
             for line in f:
@@ -104,8 +121,12 @@ class rv32i_cpu:
                     ref_reg_value = self.regs[regnum]
                     impl_reg_value = int(line, 16)
                     if ref_reg_value != impl_reg_value:
-                        raise Exception(f"test {testname} register x{regnum} does not match with the reference! reference: 0x{ref_reg_value:08x}, implementation: 0x{impl_reg_value:08x}")
+                        failed_test = True
+                        print(f"test {testname} register x{regnum} does not match with the reference! reference: 0x{ref_reg_value:08x}, implementation: 0x{impl_reg_value:08x}")
                 regnum = regnum + 1
+        if failed_test:
+            raise Exception("test failed")
+        else:
             print(f"all registers match! test: {testname}")
     
     def incr_pc(self, incr_val=4):
@@ -152,44 +173,59 @@ class rv32i_cpu:
             return self.regs[reg]
         else:
             raise Exception("Register read error!") 
+    
+    def dmem_access_is_valid(self, addr):
+        if (addr > (self.dmem_base_addr + (self.dmem_size - 1))) or (addr < self.dmem_base_addr):
+            raise Exception(f"out of bounds data memory access! address: {addr}")
+        else:
+            return True
         
     def write_byte(self, addr, value):
-        self.memory[addr] = value
+        if self.dmem_access_is_valid(addr):
+            self.memory[addr - self.dmem_base_addr] = value
 
     def write_halfword(self, addr, value):
         if (addr & 0x1) != 0:
             raise Exception("misaligned halfword write!")
-        self.memory[addr] = value & 0xFF
-        self.memory[addr + 1] = (value >> 8) & 0xFF
+        if self.dmem_access_is_valid(addr):
+            self.memory[addr - self.dmem_base_addr] = value & 0xFF
+            self.memory[addr - self.dmem_base_addr + 1] = (value >> 8) & 0xFF
 
     def write_word(self, addr, value):
         if (addr & 0x3) != 0:
             raise Exception("misaligned word write!")
-        self.memory[addr] = value & 0xFF
-        self.memory[addr + 1] = (value >> 8) & 0xFF
-        self.memory[addr + 2] = (value >> 16) & 0xFF
-        self.memory[addr + 3] = (value >> 24) & 0xFF
+        if self.dmem_access_is_valid(addr):
+            self.memory[addr - self.dmem_base_addr] = value & 0xFF
+            self.memory[addr - self.dmem_base_addr + 1] = (value >> 8) & 0xFF
+            self.memory[addr - self.dmem_base_addr + 2] = (value >> 16) & 0xFF
+            self.memory[addr - self.dmem_base_addr + 3] = (value >> 24) & 0xFF
 
     def read_byte(self, addr):
-        return self.memory[addr]
+        if self.dmem_access_is_valid(addr):
+            #print(f'index value: {addr - self.dmem_base_addr}')
+            #print(f'index: {addr - self.dmem_base_addr} data = {self.memory[addr - self.dmem_base_addr]}')
+            return self.memory[addr - self.dmem_base_addr]
     
     def read_halfword(self, addr):
         if (addr & 0x1) != 0:
             raise Exception("misaligned halfword read!")
-        byte0 = self.read_byte(addr)
-        byte1 = self.read_byte(addr + 1)
-        halfword = byte0 | (byte1 << 8)
-        return halfword
+        if self.dmem_access_is_valid(addr):
+            print(f"address: {addr- self.dmem_base_addr}")
+            byte0 = self.read_byte(addr)
+            byte1 = self.read_byte(addr + 1)
+            halfword = byte0 | (byte1 << 8)
+            return halfword
     
     def read_word(self, addr):
         if (addr & 0x3) != 0:
             raise Exception("misaligned word read!")
-        byte0 = self.read_byte(addr)
-        byte1 = self.read_byte(addr + 1)
-        byte2 = self.read_byte(addr + 2)
-        byte3 = self.read_byte(addr + 3)
-        word = byte0 | (byte1 << 8) | (byte2 << 16) | (byte3 << 24)
-        return word
+        if self.dmem_access_is_valid(addr):
+            byte0 = self.read_byte(addr)
+            byte1 = self.read_byte(addr + 1)
+            byte2 = self.read_byte(addr + 2)
+            byte3 = self.read_byte(addr + 3)
+            word = byte0 | (byte1 << 8) | (byte2 << 16) | (byte3 << 24)
+            return word
     
     def fetch(self): 
         """
@@ -553,17 +589,19 @@ class rv32i_cpu:
         offset = instr_dict.get("imm")
         rs1 = instr_dict["rs1"]
         # specific Load-type instruction
+        addr = self.read_reg(rs1) + offset
+        #print(f'ltype decode address: {addr:08x} size = {len(self.memory)}')
         match instr_dict.get('op'):
             case "lb":
-                write_value = sign_extend(self.read_byte(self.read_reg(rs1) + offset), 32)
+                write_value = sign_extend(self.read_byte(addr), 32)
             case "lh":
-                write_value = sign_extend(self.read_halfword(self.read_reg(rs1) + offset), 32)
+                write_value = sign_extend(self.read_halfword(addr), 32)
             case "lw":
-                write_value = sign_extend(self.read_word(self.read_reg(rs1) + offset), 32)
+                write_value = sign_extend(self.read_word(addr), 32)
             case "lbu":
-                write_value = self.read_byte(self.read_reg(rs1) + offset)
+                write_value = self.read_byte(addr)
             case "lhu":
-                write_value = self.read_halfword(self.read_reg(rs1) + offset)
+                write_value = self.read_halfword(addr)
         self.write_reg(rd, write_value)
         self.incr_pc()
 
@@ -590,7 +628,7 @@ class rv32i_cpu:
         rs1 = instr_dict.get('rs1')
         rs2 = instr_dict.get('rs2')
         # specific store-type instruction
-        memory_addr = self.read_reg(rs1) + offset
+        memory_addr = self.read_reg(rs1) + offset - self.dmem_base_addr
         match instr_dict.get('op'):
             case "sb":
                 write_data = self.read_reg(rs2) & 0xFF

@@ -36,8 +36,8 @@ module dtcore32_hazard_unit(
 
   logic [1:0] EX_forward_a;
   logic [1:0] EX_forward_b;
-  logic IF_stall;
-  logic ID_stall;
+  logic IF_load_use_stall;
+  logic ID_load_use_stall;
   logic EX_flush;
   logic ID_flush;
   logic EX_stall;
@@ -77,24 +77,24 @@ module dtcore32_hazard_unit(
   begin
     //We must stall if a load instruction is in the execute stage while another instruction has a matching source register to that write register in the decode stage
     if ((EX_result_src_b0_i && ((ID_src_reg_1_i == EX_dest_reg_i) || (ID_src_reg_2_i == EX_dest_reg_i))) )
-      {IF_stall, ID_stall} = 2'b1_1;
+      {IF_load_use_stall, ID_load_use_stall} = 2'b1_1;
     else
-      {IF_stall, ID_stall} = 2'b0_0;
+      {IF_load_use_stall, ID_load_use_stall} = 2'b0_0;
   end
 
-  assign ID_flush = EX_pc_src_i | (ID_is_ecall_i | EX_is_ecall_i | MEM_is_ecall_i | is_cpu_halted_i);
-  assign EX_flush = ID_stall | EX_pc_src_i | (EX_is_ecall_i | MEM_is_ecall_i | is_cpu_halted_i);
+  assign ID_flush = EX_pc_src_i |(ID_is_ecall_i | EX_is_ecall_i | MEM_is_ecall_i | is_cpu_halted_i);
+  assign EX_flush = EX_pc_src_i;
   assign EX_stall = DMEM_read_stall;
-  assign MEM_stall = DMEM_read_stall;
-  assign WB_stall = DMEM_read_stall;
+  assign MEM_stall = DMEM_read_stall | is_cpu_halted_i;
+  assign WB_stall = DMEM_read_stall | is_cpu_halted_i;
 
   assign EX_forward_a_o = EX_forward_a;
   assign EX_forward_b_o = EX_forward_b;
-  assign IF_stall_o = IF_stall | DMEM_read_stall;
-  assign ID_stall_o = ID_stall | DMEM_read_stall | (ID_is_ecall_i | EX_is_ecall_i | MEM_is_ecall_i | is_cpu_halted_i);
-  assign EX_stall_o = EX_stall | (EX_is_ecall_i | MEM_is_ecall_i | is_cpu_halted_i);
-  assign MEM_stall_o = MEM_stall | (MEM_is_ecall_i | is_cpu_halted_i);
-  assign WB_stall_o = WB_stall | is_cpu_halted_i;
+  assign IF_stall_o = IF_load_use_stall | DMEM_read_stall | (ID_is_ecall_i | EX_is_ecall_i | MEM_is_ecall_i | is_cpu_halted_i);
+  assign ID_stall_o = ID_load_use_stall | DMEM_read_stall | (EX_is_ecall_i | MEM_is_ecall_i | is_cpu_halted_i);
+  assign EX_stall_o = EX_stall | (MEM_is_ecall_i | is_cpu_halted_i);
+  assign MEM_stall_o = MEM_stall;
+  assign WB_stall_o = WB_stall;
   assign EX_flush_o = EX_flush;
   assign ID_flush_o = ID_flush;
 endmodule

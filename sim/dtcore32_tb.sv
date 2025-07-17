@@ -204,15 +204,15 @@ module dtcore32_tb();
     else
     begin
       //IMEM_data = MEMORY[IMEM_addr[31:2]];
-      DMEM_rd_data <= DMEM[DMEM_addr_actual[31:2]];
+      DMEM_rd_data <= DMEM[DMEM_addr_actual] | (DMEM[DMEM_addr_actual] << 8) | (DMEM[DMEM_addr_actual] << 16) | (DMEM[DMEM_addr_actual] << 24);
       if (DMEM_wr_byte_en[0])
-        DMEM[DMEM_addr_actual[31:2]]   <= DMEM_wr_data[7:0];
+        DMEM[DMEM_addr_actual]   <= DMEM_wr_data[7:0];
       if (DMEM_wr_byte_en[1])
-        DMEM[DMEM_addr_actual[31:2] + 1]   <= DMEM_wr_data[15:8];
+        DMEM[DMEM_addr_actual + 1]   <= DMEM_wr_data[15:8];
       if (DMEM_wr_byte_en[2])
-        DMEM[DMEM_addr_actual[31:2] + 2]   <= DMEM_wr_data[23:16];
+        DMEM[DMEM_addr_actual + 2]   <= DMEM_wr_data[23:16];
       if (DMEM_wr_byte_en[3])
-        DMEM[DMEM_addr_actual[31:2] + 3]   <= DMEM_wr_data[31:24];
+        DMEM[DMEM_addr_actual + 3]   <= DMEM_wr_data[31:24];
     end
 
   end
@@ -542,7 +542,7 @@ module dtcore32_tb();
       for(j=0; j<=TESTID_NUM_TESTS; j=j+1)
       begin
         $display("***********************************");
-        $display("Running Test ID: %s", testid_to_string(TESTID_t'(j)));
+        $display("Running Test ID: %s index number:%0d", testid_to_string(TESTID_t'(j)),j);
         LOAD_TEST(j);
         #100;
         EVAL_TEST(j);
