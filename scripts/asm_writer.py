@@ -75,6 +75,31 @@ class AsmWriter:
         rs2_num = random.choice(rs_candidates)
 
         return f'x{rd_num}', f'x{rs1_num}', f'x{rs2_num}'
+    def random_regs_data_hazard(self):
+        # Candidates for rd: exclude x0 + reserved
+        reg_candidates = [i for i in range(1, 32) if i not in self.reserved_regs]
+
+        instr1_rd_num = random.choice(reg_candidates)
+        reg_candidates.remove(instr1_rd_num)
+
+        instr1_rs1_num = random.choice(reg_candidates)
+        reg_candidates.remove(instr1_rs1_num)
+
+        instr1_rs2_num = random.choice(reg_candidates)
+        reg_candidates.remove(instr1_rs2_num)
+
+        instr2_rd_num = random.choice(reg_candidates)
+        reg_candidates.remove(instr2_rd_num)
+
+        instr2_rs1_num = random.choice(reg_candidates)
+        reg_candidates.remove(instr2_rs1_num)
+
+        instr2_rs2_num = random.choice(reg_candidates)
+        reg_candidates.remove(instr2_rs2_num)
+
+
+
+        return f'x{instr1_rd_num}', f'x{instr1_rs1_num}', f'x{instr1_rs2_num}', f'x{instr2_rd_num}', f'x{instr2_rs1_num}', f'x{instr2_rs2_num}'
 
     def write_generate_random_dmem(self):
         """
@@ -130,6 +155,7 @@ class AsmWriter:
         """
         Initialize all registers to zero for the start of each test
         """
+        self.write_generate_random_dmem()
         self.write_directive(".section .text")
         self.write_directive(".global _start")
         self.write_directive(".global norelax")
@@ -344,7 +370,6 @@ class AsmWriter:
             instr_name (str): The RISC-V instruction name 
             num_test_cases (int): Number of test cases to generate
         """
-        self.write_generate_random_dmem()
         self.write_test_start()
         
         for _ in range(num_test_cases):
@@ -410,7 +435,7 @@ class AsmWriter:
             self.track_test_case()
         self.write_test_end()
         self.move_asm_file(f"{instr_name}.S")
-    '''
+    
     def gen_data_hazard_test(self, data_hazard_type, num_test_cases):
         """
         Generate the assembly file for testing data hazards
@@ -421,56 +446,53 @@ class AsmWriter:
         """
         self.write_test_start()
         for _ in range(num_test_cases):
-            self.comment_test_case()
-            test_case_reg = "a1"
+            instr1_rd, instr1_rs1, instr1_rs2, instr2_rd, instr2_rs1, instr2_rs2 = self.random_regs_data_hazard()
             match data_hazard_type:
                 case "data_hazard_alu_to_alu":
-                    instr1_rd = "t0"
-                    instr1_rs1 = "t1"
-                    instr1_rs2 = "t2"
-                    instr2_rd = "t3"
-                    expected_result_reg = "t4"
-
-                    self.emit_li(instr1_rs1, instr1_rs1_value)
-                    self.emit_li(instr1_rs2, instr1_rs2_value)
-
-
-                    instr1_rs1_value = rand_nbit(32, False)
-                    instr1_rs2_value = rand_nbit(32, False)
-                    instr1_rd_value = instr1_rs1_value + instr1_rs2_value
+                    # get random source values for instruction 1
+                    self.emit_li(instr1_rs1, rand_nbit(32, False))
+                    self.emit_li(instr1_rs2, rand_nbit(32, False))
                     # randomly choose rs1 or rs2 for the dependent register
-                    if random.randint(0,1) == 1:
+                    if random.randint(0, 1) == 1:
                         instr2_rs1 = instr1_rd
-                        instr2_rs2 = "t5"
-                        instr2_rs1_value = instr1_rd_value
-                        instr2_rs2_value = rand_nbit(32, False)
-                        self.emit_li(instr2_rs2, instr2_rs2_value)
+                        self.emit_li(instr2_rs2, rand_nbit(32, False))
                     else:
-                        instr2_rs1 = "t5"
                         instr2_rs2 = instr1_rd
-                        instr2_rs1_value = rand_nbit(32, False)
-                        instr2_rs2_value = instr1_rd_value
-                        self.emit_li(instr2_rs1, instr2_rs1_value)
-                    expected_instr2_rd_value = instr2_rs1_value - instr2_rs2_value
-                    
-                    self.emit_li(expected_result_reg, expected_instr2_rd_value)
-                    # use add and sub instruction for 1st and 2nd instruction respectively, for now
+                        self.emit_li(instr2_rs1, rand_nbit(32, False))
                     self.write_instr(f"add {instr1_rd}, {instr1_rs1}, {instr1_rs2}")
                     self.write_instr(f"sub {instr2_rd}, {instr2_rs1}, {instr2_rs2}")
-                    self.test_write_check_eq(expected_result_reg, instr2_rd)
                 case "data_hazard_load_to_alu":
-                    load_instr_rd = "t0"
-                    load_instr_rs1 = "t1"
-                    load_instr_offset = rand_nbit(6, False)
+                    self.emit_li(instr1_rs1, (rand_nbit(8, False) & ~0x3) + self.dmem_start_address)
+                    # randomly choose rs1 or rs2 for the dependent register
+                    if random.randint(0, 1) == 1:
+                        instr2_rs1 = instr1_rd
+                        self.emit_li(instr2_rs2, rand_nbit(32, False))
+                    else:
+                        instr2_rs2 = instr1_rd
+                        self.emit_li(instr2_rs1, rand_nbit(32, False))
+                    self.write_instr(f"lw {instr1_rd}, {(rand_nbit(8, False) & ~0x3) }({instr1_rs1})")
+                    self.write_instr(f"add {instr2_rd}, {instr2_rs1}, {instr2_rs2}")
                 case "data_hazard_alu_to_store":
+                    # get random source values for instruction 1
+                    self.emit_li(instr1_rs1, rand_nbit(8, False))
+                    self.emit_li(instr1_rs2, rand_nbit(8, False))
+                    # rs2 is dependent register
+                    instr2_rs2 = instr1_rd
+                    self.emit_li(instr2_rs1, (rand_nbit(8, False) & ~0x3) + self.dmem_start_address)
+                    self.write_instr(f"add {instr1_rd}, {instr1_rs1}, {instr1_rs2}")
+                    self.write_instr(f"sw {instr2_rs2}, {(rand_nbit(8, False) & ~0x3)}({instr2_rs1})")
                 case "data_hazard_load_to_store":
+                    self.emit_li(instr1_rs1, (rand_nbit(8, False) & ~0x3) + self.dmem_start_address)
+                    # rs2 will be the dependent register
+                    self.emit_li(instr2_rs1, (rand_nbit(8, False) & ~0x3) + self.dmem_start_address)
+                    self.write_instr(f"lw {instr1_rd}, {(rand_nbit(8, False) & ~0x3)}({instr1_rs1})")
+                    self.write_instr(f"sw {instr2_rs2}, {(rand_nbit(8, False) & ~0x3) }({instr2_rs1})")
                 case _:
-                    raise Exception("Unknown load instruction!")   
-            self.track_test_case(test_case_reg)
+                    raise Exception("Unknown data hazard test!")   
         self.write_test_end()
         self.move_asm_file(f"{data_hazard_type}.S")
     
-    '''
+    
     
 def reinterpret_signed(value, bits):
     """
@@ -513,7 +535,8 @@ def create_all_tests(asm_dir):
     for name in ["add", "sub", "and", "or", "xor", "sll", "slt", "sltu", "srl", "sra",
                  "addi", "andi", "ori", "xori", "slli", "slti", "sltiu", "srli", "srai",
                  "beq", "bne", "blt", "bge", "bltu", "bgeu", "lui", "auipc", "jal", "jalr",
-                 "lb", "lh", "lw", "lbu", "lhu", "sb", "sh", "sw"
+                 "lb", "lh", "lw", "lbu", "lhu", "sb", "sh", "sw",
+                 "data_hazard_alu_to_alu", "data_hazard_load_to_alu", "data_hazard_alu_to_store", "data_hazard_load_to_store"
                 ]:
         with open(f"{name}.S", "w") as f:
             gen = AsmWriter(f, asm_dir)  # new generator and new writer for each file
@@ -591,7 +614,15 @@ def create_all_tests(asm_dir):
                 case "sh":
                     gen.gen_stype_test(name, 10)
                 case "sw":
-                    gen.gen_stype_test(name, 10)     
+                    gen.gen_stype_test(name, 10)
+                case "data_hazard_alu_to_alu":
+                    gen.gen_data_hazard_test(name, 10)
+                case "data_hazard_load_to_alu":
+                    gen.gen_data_hazard_test(name, 10)
+                case "data_hazard_alu_to_store":
+                    gen.gen_data_hazard_test(name, 10)
+                case "data_hazard_load_to_store":
+                    gen.gen_data_hazard_test(name, 10)         
                 case _:
                     raise Exception(f"unknown assembly test! {name}")
                 

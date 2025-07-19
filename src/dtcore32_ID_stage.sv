@@ -39,6 +39,7 @@ module dtcore32_ID_stage (
     output logic ID_is_ecall_o
   );
   logic [31:0] ID_instr;
+  logic ID_exception;
   // IF/ID register
   always_ff @(posedge clk_i)
   begin
@@ -47,6 +48,7 @@ module dtcore32_ID_stage (
       ID_instr <= `NOP_INSTRUCTION;
       ID_pc_o <= 0;
       ID_pc_plus_4_o <= 0 ;
+      ID_exception_o <= 0;
     end
     // allow 1 clock delay after a reset to prevent registering invalid instruction read data
     else if (!ID_stall_i)
@@ -54,6 +56,7 @@ module dtcore32_ID_stage (
       ID_instr <= IMEM_rd_data_i;
       ID_pc_o <= IMEM_addr_i;
       ID_pc_plus_4_o <= IF_pc_plus_4_i;
+      ID_exception_o <= ID_exception;
     end
   end
   // decoder unit
@@ -72,7 +75,7 @@ module dtcore32_ID_stage (
                           .ID_jump_o(ID_jump_o),
                           .ID_branch_o(ID_branch_o),
                           .ID_pc_target_alu_src_o(ID_pc_target_alu_src_o),
-                          .ID_exception_o(ID_exception_o),
+                          .ID_exception_o(ID_exception),
                           .ID_src_reg_1_o(ID_src_reg_1_o),
                           .ID_src_reg_2_o(ID_src_reg_2_o),
                           .ID_dest_reg_o(ID_dest_reg_o),

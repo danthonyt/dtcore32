@@ -41,11 +41,11 @@ class rv32i_cpu:
         self.instructions = []
         self.is_halted = False
 
-    def load_program(self, test_name, test_dir, is_dmem_load=False):
+    def load_program(self, test_name, test_dir):
         instructions = []
         file_path_imem = Path(test_dir) / f"{test_name}_imem.mem"
         file_path_dmem = Path(test_dir) / f"{test_name}_dmem.mem"
-
+        # Load the instruction memory of the program
         with open(file_path_imem, "r") as f:
             for line in f:
                 line = line.strip()
@@ -57,17 +57,17 @@ class rv32i_cpu:
 
         self.instructions = instructions
         self.pc = 0  # Optionally reset program counter
-        if is_dmem_load:
-            dmem_idx = 0
-            with open(file_path_dmem, "r") as f:
-                for line in f:
-                    line = line.strip()
-                    if line:  # Skip empty lines
-                        try:
-                            self.memory[dmem_idx] = int(line, 16)
-                            dmem_idx = dmem_idx + 1
-                        except ValueError:
-                            raise ValueError(f"Invalid line in hex file: '{line}'")
+        dmem_idx = 0
+        # load th data memory of the program
+        with open(file_path_dmem, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line:  # Skip empty lines
+                    try:
+                        self.memory[dmem_idx] = int(line, 16)
+                        dmem_idx = dmem_idx + 1
+                    except ValueError:
+                        raise ValueError(f"Invalid line in hex file: '{line}'")
             
         # print(f"Loaded {len(instructions)} instructions from {file_path}")
     
@@ -105,11 +105,12 @@ class rv32i_cpu:
     
     def compare_cpu_regdumps(self, base_filename, dir, testname):
         """
-        Compares the register and data memory dumps from the reference rv32i cpu and the 
+        Compares the register dumps from the reference rv32i cpu and the 
         actual implementation of a rv32i cpu 
         Args:
-            rv32i_regdump_filename(str): The file holding the implementation cpu's register dumps
-            rv32i_dmemdump_filename(str): The file holding the implementation cpu's data memory dumps
+            base_filename(str): The base filename holding the implementation cpu's register dumps.
+            dir(str): the directory of the implementation cpu's register dump file
+            testname(str): The name of the test being ran
         """
         file_str = dir + testname + base_filename
         failed_test = False
@@ -128,6 +129,34 @@ class rv32i_cpu:
             raise Exception("test failed")
         else:
             print(f"all registers match! test: {testname}")
+
+    def compare_cpu_dmemdumps(self, base_filename, dir, testname):
+        """
+        Compares the data memory dumps from the reference rv32i cpu and the 
+        actual implementation of a rv32i cpu 
+        Args:
+            base_filename(str): The base filename holding the implementation cpu's data memory dumps.
+            dir(str): the directory of the implementation cpu's data memory dump file
+            testname(str): The name of the test being ran
+        """
+        file_str = dir + testname + base_filename
+        failed_test = False
+        with open(file_str, "r") as f:
+            dmem_idx = 0
+            for line in f:
+                line = line.strip()
+                if line:  # Skip empty lines
+                    ref_dmem_rd_value = self.memory[dmem_idx]
+                    impl_dmem_value = int(line, 16)
+                    #print(f"impl: {impl_dmem_value}, ref: {ref_dmem_rd_value}")
+                    if ref_dmem_rd_value != impl_dmem_value:
+                        failed_test = True
+                        print(f"test {testname} data memory element 0x{(dmem_idx + self.dmem_base_addr):08x} does not match with the reference! reference: 0x{ref_dmem_rd_value:08x}, implementation: 0x{impl_dmem_value:08x}")
+                dmem_idx = dmem_idx + 1
+        if failed_test:
+            raise Exception(f"test {testname} failed!")
+        else:
+            print(f"all data memory elements match match! test: {testname}")
     
     def incr_pc(self, incr_val=4):
         self.pc += incr_val
@@ -633,6 +662,7 @@ class rv32i_cpu:
             case "sb":
                 write_data = self.read_reg(rs2) & 0xFF
                 self.write_byte(memory_addr, write_data)
+                #print(f"wrote {write_data:02x} to mem address {memory_addr:08x}")
             case "sh":
                 write_data = self.read_reg(rs2) & 0xFFFF
                 self.write_halfword(memory_addr, write_data)

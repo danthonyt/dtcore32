@@ -31,13 +31,14 @@ def run_tests():
     for test in ["add", "sub", "and", "or", "xor", "sll", "slt", "sltu", "srl", "sra",
                  "addi", "andi", "ori", "xori", "slli", "slti", "sltiu", "srli", "srai",
                  "beq", "bne", "blt", "bge", "bltu", "bgeu", "lui", "auipc", "jal", "jalr",
-                 "lb", "lh", "lw", "lbu", "lhu", "sb", "sh", "sw"
+                 "lb", "lh", "lw", "lbu", "lhu", "sb", "sh", "sw",
+                 "data_hazard_alu_to_alu", "data_hazard_load_to_alu", "data_hazard_alu_to_store", "data_hazard_load_to_store"
                 ]:
         cpu_ref.reset()
-        is_dmem_load = test in ["lb", "lh", "lw", "lbu", "lhu"]
-        cpu_ref.load_program(f'{test}', hex_dir, is_dmem_load)
+        cpu_ref.load_program(f'{test}', hex_dir)
         cpu_ref.run(False)
         cpu_ref.compare_cpu_regdumps("_dtcore32_regdump.txt","/home/dtorres/Documents/work/dtcore32/build/riscv.sim/sim_1/behav/xsim/", f'{test.upper()}' )
+        cpu_ref.compare_cpu_dmemdumps("_dtcore32_dmemdump.txt","/home/dtorres/Documents/work/dtcore32/build/riscv.sim/sim_1/behav/xsim/", f'{test.upper()}')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test generator and runner")

@@ -82,7 +82,7 @@ module dtcore32_hazard_unit(
       {IF_load_use_stall, ID_load_use_stall} = 2'b0_0;
   end
 
-  assign ID_flush = EX_pc_src_i |(ID_is_ecall_i | EX_is_ecall_i | MEM_is_ecall_i | is_cpu_halted_i);
+  assign ID_flush = EX_pc_src_i |(EX_is_ecall_i | MEM_is_ecall_i | is_cpu_halted_i);
   assign EX_flush = EX_pc_src_i;
   assign EX_stall = DMEM_read_stall;
   assign MEM_stall = DMEM_read_stall | is_cpu_halted_i;

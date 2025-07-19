@@ -27,7 +27,7 @@
 module dtcore32_tb();
   parameter MEMORY_DEPTH  = 32'h400;  // data memory depth of 1024
   parameter DMEM_BASE_ADDR = 32'h2000;
-  
+
   logic         clk = 0;
   logic         rst;
   logic  [31:0] IMEM_data;
@@ -79,6 +79,10 @@ module dtcore32_tb();
             SB,
             SH,
             SW,
+            DATA_HAZARD_ALU_TO_ALU,
+            DATA_HAZARD_LOAD_TO_ALU,
+            DATA_HAZARD_ALU_TO_STORE,
+            DATA_HAZARD_LOAD_TO_STORE,
             TESTID_NUM_TESTS
           } TESTID_t;
 
@@ -158,6 +162,14 @@ module dtcore32_tb();
         return "SH";
       SW:
         return "SW";
+      DATA_HAZARD_ALU_TO_ALU:
+        return "DATA_HAZARD_ALU_TO_ALU";
+      DATA_HAZARD_LOAD_TO_ALU:
+        return "DATA_HAZARD_LOAD_TO_ALU";
+      DATA_HAZARD_ALU_TO_STORE:
+        return "DATA_HAZARD_ALU_TO_STORE";
+      DATA_HAZARD_LOAD_TO_STORE:
+        return "DATA_HAZARD_LOAD_TO_STORE";
       default:
         return "UNKNOWN_TEST";
     endcase
@@ -177,7 +189,7 @@ module dtcore32_tb();
             );
   always#(10) clk = ~clk;
   assign DMEM_addr_actual = DMEM_addr - DMEM_BASE_ADDR;
-  
+
   // MEMORY SIMULATION
   //logic [31:0] MEMORY [0:MEMORY_DEPTH];
   logic [31:0] IMEM [0:MEMORY_DEPTH-1];
@@ -206,13 +218,13 @@ module dtcore32_tb();
       //IMEM_data = MEMORY[IMEM_addr[31:2]];
       DMEM_rd_data <= {DMEM[{DMEM_addr_actual[31:2], 2'b11}], DMEM[{DMEM_addr_actual[31:2], 2'b10}], DMEM[{DMEM_addr_actual[31:2], 2'b01}], DMEM[{DMEM_addr_actual[31:2], 2'b00}]};
       if (DMEM_wr_byte_en[0])
-        DMEM[DMEM_addr_actual]   <= DMEM_wr_data[7:0];
+        DMEM[{DMEM_addr_actual[31:2], 2'b00}]   <= DMEM_wr_data[7:0];
       if (DMEM_wr_byte_en[1])
-        DMEM[DMEM_addr_actual + 1]   <= DMEM_wr_data[15:8];
+        DMEM[{DMEM_addr_actual[31:2], 2'b01}]   <= DMEM_wr_data[15:8];
       if (DMEM_wr_byte_en[2])
-        DMEM[DMEM_addr_actual + 2]   <= DMEM_wr_data[23:16];
+        DMEM[{DMEM_addr_actual[31:2], 2'b10}]   <= DMEM_wr_data[23:16];
       if (DMEM_wr_byte_en[3])
-        DMEM[DMEM_addr_actual + 3]   <= DMEM_wr_data[31:24];
+        DMEM[{DMEM_addr_actual[31:2], 2'b11}]   <= DMEM_wr_data[31:24];
     end
 
   end
@@ -431,6 +443,26 @@ module dtcore32_tb();
           $readmemh("sw_imem.mem", IMEM);
           $readmemh("sw_dmem.mem", DMEM);
         end
+        DATA_HAZARD_ALU_TO_ALU:
+        begin
+          $readmemh("data_hazard_alu_to_alu_imem.mem", IMEM);
+          $readmemh("data_hazard_alu_to_alu_dmem.mem", DMEM);
+        end
+        DATA_HAZARD_LOAD_TO_ALU:
+        begin
+          $readmemh("data_hazard_load_to_alu_imem.mem", IMEM);
+          $readmemh("data_hazard_load_to_alu_dmem.mem", DMEM);
+        end
+        DATA_HAZARD_ALU_TO_STORE:
+        begin
+          $readmemh("data_hazard_alu_to_store_imem.mem", IMEM);
+          $readmemh("data_hazard_alu_to_store_dmem.mem", DMEM);
+        end
+        DATA_HAZARD_LOAD_TO_STORE:
+        begin
+          $readmemh("data_hazard_load_to_store_imem.mem", IMEM);
+          $readmemh("data_hazard_load_to_store_dmem.mem", DMEM);
+        end
 
 
       endcase
@@ -453,7 +485,7 @@ module dtcore32_tb();
            if(UUT.dtcore32_WB_stage_inst.is_cpu_halted_o == 1/* check rv32i cpu is halted */)
            begin
              $display("TEST RAN; ID: %s", testid_to_string(TESTID));
-             DUMP_DMEM();
+             DUMP_DMEM(TESTID);
              DUMP_REGISTERS(TESTID);
              t=1000000;
 
@@ -478,54 +510,60 @@ module dtcore32_tb();
    task DUMP_REGISTERS;
      input TESTID_t testid;
      begin
-         string filename_base = "_dtcore32_regdump.txt";
-         string testid_name = testid_to_string(testid);
-         string filename =  {testid_name, filename_base};
-         int fd_w;
-    
-         fd_w = $fopen(filename, "w"); 	// Open a new file
-    
-         if (fd_w)
-           $display("File was opened successfully: %0d", fd_w);
-         else
-         begin
-           $display("File was NOT opened successfully: %0d", fd_w);
-           return;
-         end
-    
-         for (int reg_num = 0; reg_num < 32; reg_num++)
-         begin
-           // Write the register number and value to the file
-           $fwrite(fd_w, "%08x\n",
-                   UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[reg_num]);
-         end
-    
-         $fclose(fd_w);
+       string filename_base = "_dtcore32_regdump.txt";
+       string testid_name = testid_to_string(testid);
+       string filename =  {testid_name, filename_base};
+       int fd_w;
+
+       fd_w = $fopen(filename, "w"); 	// Open a new file
+
+       if (fd_w)
+         $display("File was opened successfully: %0d", fd_w);
+       else
+       begin
+         $display("File was NOT opened successfully: %0d", fd_w);
+         return;
+       end
+
+       for (int reg_num = 0; reg_num < 32; reg_num++)
+       begin
+         // Write the register number and value to the file
+         $fwrite(fd_w, "%08x\n",
+                 UUT.dtcore32_ID_stage_inst.dtcore32_regfile_inst.reg_array[reg_num]);
+       end
+
+       $fclose(fd_w);
      end
    endtask
 
 
    task DUMP_DMEM;
-     int fd_w;
-
-     fd_w = $fopen ("./dtcore32_dmemdump.txt", "w"); 	// Open a new file
-
-     if (fd_w)
-       $display("File was opened successfully: %0d", fd_w);
-     else
+     input TESTID_t testid;
      begin
-       $display("File was NOT opened successfully: %0d", fd_w);
-       return;
-     end
+       string filename_base = "_dtcore32_dmemdump.txt";
+       string testid_name = testid_to_string(testid);
+       string filename =  {testid_name, filename_base};
+       int fd_w;
 
-     for (int dmem_addr = 0; dmem_addr < MEMORY_DEPTH; dmem_addr++)
-     begin
-       // Write the register number and value to the file
-       $fwrite(fd_w, "%02x\n",
-               DMEM[dmem_addr]);
-     end
+       fd_w = $fopen (filename, "w"); 	// Open a new file
 
-     $fclose(fd_w);
+       if (fd_w)
+         $display("File was opened successfully: %0d", fd_w);
+       else
+       begin
+         $display("File was NOT opened successfully: %0d", fd_w);
+         return;
+       end
+
+       for (int dmem_addr = 0; dmem_addr < MEMORY_DEPTH; dmem_addr++)
+       begin
+         // Write the register number and value to the file
+         $fwrite(fd_w, "%02x\n",
+                 DMEM[dmem_addr]);
+       end
+
+       $fclose(fd_w);
+     end
    endtask
 
 

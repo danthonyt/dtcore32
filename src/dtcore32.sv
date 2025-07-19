@@ -18,6 +18,7 @@ module dtcore32(
 
   // Instruction fetch signals 
   logic [31:0] IF_pc_plus_4;
+  logic IF_stall;
 
   // Instruction decode signals
   logic ID_reg_wr_en;
