@@ -352,8 +352,8 @@ class AsmWriter:
             else:
                 num_pad_instructions = 0
             #print(f"jump offset: {jump_offset}, num_pad_instrs: {num_pad_instructions}")
+            random_result_reg, _, _ = self.random_regs_unique()
             for _ in range(num_pad_instructions):   # pad with jump instructions to fail loop up to the jump address
-                random_result_reg, _, _ = self.random_regs_unique() 
                 self.emit_li(random_result_reg, 0xABAD) # load for an incorrect jump
             self.label(jump_label) # should jump to here
             # return address should be the next instruction
