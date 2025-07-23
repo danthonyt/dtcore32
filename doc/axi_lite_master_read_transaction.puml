@@ -1,0 +1,14 @@
+@startuml MASTER_READ
+[*] --> IDLE
+IDLE --> IDLE : else
+IDLE --> ADDRESS_SEND : [start = 1] \ \nM_ARVALID = 1 \nM_RREADY = 1 \nM_AXI_ARADDR = READ_ADDR
+
+ADDRESS_SEND --> ADDRESS_SEND : else
+ADDRESS_SEND --> WAIT : [S_ARREADY = 1] \ \nM_ARVALID = 0 
+
+WAIT --> WAIT : else
+WAIT --> IDLE : [S_RVALID = 1] \ \nREAD_RESPONSE = S_RRESP \nM_RREADY = 0 \nREAD_DATA = S_RDATA
+
+
+
+@enduml
