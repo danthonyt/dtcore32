@@ -181,6 +181,26 @@ module dtcore32 (
   localparam logic [2:0] FUNCT3_CSRRWI = 3'b101;
   localparam logic [2:0] FUNCT3_CSRRSI = 3'b110;
   localparam logic [2:0] FUNCT3_CSRRCI = 3'b111;
+  // FUNCT7
+  localparam logic [6:0] FUNCT7_ADD = 7'h00;
+  localparam logic [6:0] FUNCT7_SUB = 7'h20;
+  localparam logic [6:0] FUNCT7_SLL = 7'h00;
+  localparam logic [6:0] FUNCT7_SLT = 7'h00;
+
+  localparam logic [6:0] FUNCT7_SLTU = 7'h00;
+  localparam logic [6:0] FUNCT7_XOR = 7'h00;
+  localparam logic [6:0] FUNCT7_SRL = 7'h00;
+  localparam logic [6:0] FUNCT7_SRA = 7'h20;
+  localparam logic [6:0] FUNCT7_OR = 7'h00;
+  localparam logic [6:0] FUNCT7_AND = 7'h00;
+
+  localparam logic [6:0] FUNCT7_SLLI = 7'h00;
+  localparam logic [6:0] FUNCT7_SRLI = 7'h00;
+  localparam logic [6:0] FUNCT7_SRAI = 7'h20;
+
+  // FUNCT12
+  localparam logic [6:0] FUNCT12_ECALL = 12'h000;
+  localparam logic [6:0] FUNCT12_EBREAK = 12'h001;
 
 
   localparam logic [31:0] NOP_INSTRUCTION = 32'h00000013;  // addi x0, x0, 0
@@ -360,6 +380,7 @@ module dtcore32 (
   logic [1:0] EX_alu_a_src;
 
   // 0 = not an actual instruction; used for resets or flushes
+  logic IF_valid_instr;
   logic ID_valid_instr;
   logic EX_valid_instr;
   logic MEM_valid_instr;
@@ -382,7 +403,9 @@ module dtcore32 (
   logic [6:0] ID_op;
   logic [2:0] ID_funct3;
   logic ID_funct7b5;
+  logic [6:0] ID_funct7;
   logic ID_alu_op_exception;
+  logic ID_funct7_exception;
   logic ID_unknown_instruction;
   logic [1:0] ID_alu_op;
   logic ID_r_type_sub;
@@ -451,12 +474,15 @@ module dtcore32 (
     if (rst_i) begin
       IF_pc   <= 0;
       IF_intr <= 0;
+      IF_valid_instr <= 0;
     end else if (WB_trap.valid) begin  // jump to trap handler if retired instrucion has a trap
       IF_pc   <= {csr_mtvec[31:2], 2'd0};
       IF_intr <= 1;
+      IF_valid_instr <= 1;
     end else if (!IF_stall) begin
       IF_pc   <= IF_pc_tick;
       IF_intr <= 0;
+      IF_valid_instr <= 1;
     end
   end
 
@@ -503,7 +529,7 @@ module dtcore32 (
       ID_pc <= IF_pc;
       ID_pc_plus_4 <= IF_pc_plus_4;
       ID_prev_trap <= IF_trap;
-      ID_valid_instr <= 1;
+      ID_valid_instr <= IF_valid_instr;
       ID_intr <= IF_intr;
     end
   end
@@ -516,6 +542,7 @@ module dtcore32 (
   assign ID_op = ID_instr[6:0];
   assign ID_funct3 = ID_instr[14:12];
   assign ID_funct7b5 = ID_instr[30];
+  assign ID_funct7 = ID_instr[31:25];
   assign ID_r_type_sub = ID_op[5] & ID_funct7b5;
   assign ID_i_type_sub = ~ID_op[5] & ID_funct7b5;
   assign ID_alu_control = ID_valid_instr ? ID_alu_control_int : 0;
@@ -524,7 +551,12 @@ module dtcore32 (
   assign ID_dest_reg = ID_valid_instr ? ID_instr[11:7] : 0;
   assign ID_imm_ext = ID_valid_instr ? ID_imm_ext_tmp : 0;
   assign ID_csr_addr = ID_valid_instr ? ID_instr[31:20] : 0;
-  assign ID_unknown_instruction = ID_opcode_exception | ID_alu_op_exception;
+  assign ID_unknown_instruction = ID_opcode_exception | ID_alu_op_exception | ID_funct7_exception;
+
+  // funct7 should be all zeroes for all rtype instructions, except for SUB and SRA
+  // for shift i type instructions, zero if not srai
+  assign ID_funct7_exception = (ID_op == OPCODE_R_TYPE) & ~((ID_funct7 == 7'h00) | ((ID_funct7 == 7'h20) & ((ID_funct3 == FUNCT3_SRA_SRL) || (ID_funct3 == FUNCT3_ADD_SUB))))
+                                || ((ID_op == OPCODE_I_TYPE) & ~((ID_funct7 == 7'h00) | ((ID_funct7 == 7'h20) & ((ID_funct3 == FUNCT3_SRA_SRL)))));
   // determine if the instruction generates a trap
   always_comb begin
     if (ID_is_ecall) begin
@@ -769,24 +801,19 @@ module dtcore32 (
         end
       endcase
       //R-type, I-type ALU,I-type logical shift
-      ALU_OP_IALU_ISHIFT_R_TYPE:
-      case (ID_funct3)
-        FUNCT3_ADD_SUB:
-        ID_alu_control_int = (ID_r_type_sub) ? SUB_ALU_CONTROL  /*sub*/ : ADD_ALU_CONTROL  /*add*/;
-        FUNCT3_SLL: ID_alu_control_int = L_SHIFT_ALU_CONTROL;  //sll
-        FUNCT3_SLT: ID_alu_control_int = LT_ALU_CONTROL;  //slt
-        FUNCT3_SLTU_SLTIU: ID_alu_control_int = LTU_ALU_CONTROL;  //sltu, sltiu
-        FUNCT3_XOR: ID_alu_control_int = XOR_ALU_CONTROL;  //xor
-        FUNCT3_SRA_SRL:
-        ID_alu_control_int = (ID_r_type_sub || ID_i_type_sub) ? R_SHIFT_A_ALU_CONTROL /*sra*/ : R_SHIFT_L_ALU_CONTROL /*srl*/;
-        FUNCT3_OR: ID_alu_control_int = OR_ALU_CONTROL;  //or
-        FUNCT3_AND: ID_alu_control_int = AND_ALU_CONTROL;  //and
-        default: begin
-          ID_alu_op_exception = 1;
-        end
-      endcase
-      default: begin
-        ID_alu_op_exception = 1;
+      ALU_OP_IALU_ISHIFT_R_TYPE: begin
+        case (ID_funct3)
+          FUNCT3_ADD_SUB: ID_alu_control_int = (ID_r_type_sub) ? SUB_ALU_CONTROL  /*sub*/ : ADD_ALU_CONTROL  /*add*/;
+          FUNCT3_SLL: ID_alu_control_int = L_SHIFT_ALU_CONTROL;  //sll
+          FUNCT3_SLT: ID_alu_control_int = LT_ALU_CONTROL;  //slt
+          FUNCT3_SLTU_SLTIU: ID_alu_control_int = LTU_ALU_CONTROL;  //sltu, sltiu
+          FUNCT3_XOR: ID_alu_control_int = XOR_ALU_CONTROL;  //xor
+          FUNCT3_SRA_SRL:
+          ID_alu_control_int = (ID_r_type_sub || ID_i_type_sub) ? R_SHIFT_A_ALU_CONTROL /*sra*/ : R_SHIFT_L_ALU_CONTROL /*srl*/;
+          FUNCT3_OR: ID_alu_control_int = OR_ALU_CONTROL;  //or
+          FUNCT3_AND: ID_alu_control_int = AND_ALU_CONTROL;  //and
+          default: ID_alu_op_exception = 1;
+        endcase
       end
     endcase
   end
@@ -997,8 +1024,8 @@ module dtcore32 (
       MEM_valid_instr <= EX_valid_instr;
       MEM_intr <= EX_intr;
       MEM_dmem_read <= EX_dmem_read;
-      MEM_reg_data_1 <= EX_reg_data_1;
-      MEM_reg_data_2 <= EX_reg_data_2;
+      MEM_reg_data_1 <= EX_src_a_tick;
+      MEM_reg_data_2 <= EX_dmem_wr_data;
       MEM_src_reg_1 <= EX_src_reg_1;
       MEM_src_reg_2 <= EX_src_reg_2;
     end
@@ -1314,9 +1341,9 @@ module dtcore32 (
     else csr_current_value = 0;
     // then use it in the csr instruction
     case (WB_csr_wr_type)
-      2'b01:   csr_wr_data = WB_csr_wr_operand;
-      2'b10:   csr_wr_data = csr_current_value & ~WB_csr_wr_operand;
-      2'b11:   csr_wr_data = csr_current_value | WB_csr_wr_operand;
+      CSR_WRITE_RAW_VALUE:   csr_wr_data = WB_csr_wr_operand;
+      CSR_WRITE_CLEAR_BIT_MASK:   csr_wr_data = csr_current_value & ~WB_csr_wr_operand;
+      CSR_WRITE_SET_BIT_MASK:   csr_wr_data = csr_current_value | WB_csr_wr_operand;
       default: csr_wr_data = 0;
     endcase
   end
@@ -1369,6 +1396,7 @@ module dtcore32 (
     if (rst_i) begin
       csr_mtvec <= 0;
       csr_mscratch <= 0;
+      csr_mtval <= 0;
     end 
     else if (is_csr_mtvec) csr_mtvec <= csr_wr_data & 32'hffff_fffc;
     else if (is_csr_mscratch) csr_mscratch <= csr_wr_data;
@@ -1396,42 +1424,80 @@ module dtcore32 (
   logic [3:0] dmem_word_mask;
 
   always_ff @(posedge clk_i) begin
-    rvfi_valid <= WB_valid_instr & ~WB_stall;
-    rvfi_order <= WB_pc;
-    rvfi_insn <= WB_instr;
-    rvfi_trap <= WB_trap.valid;
-    rvfi_halt <= 0;
-    rvfi_intr <= WB_intr;
-    rvfi_mode <= 3;
-    rvfi_ixl <= 1;
+    if (rst_i) begin
+      rvfi_valid <= 0;
+      rvfi_order <= 0;
+      rvfi_insn <= 0;
+      rvfi_trap <= 0;
+      rvfi_halt <= 0;
+      rvfi_intr <= 0;
+      rvfi_mode <= 3;
+      rvfi_ixl <= 1;
 
-    rvfi_rs1_addr <= WB_src_reg_1;
-    rvfi_rs2_addr <= WB_src_reg_2;
-    rvfi_rs1_rdata <= WB_reg_data_1;
-    rvfi_rs2_rdata <= WB_reg_data_2;
+      rvfi_rs1_addr <= 0;
+      rvfi_rs2_addr <= 0;
+      rvfi_rs1_rdata <= 0;
+      rvfi_rs2_rdata <= 0;
 
-    rvfi_rd_addr <= WB_dest_reg;
-    rvfi_rd_wdata <= WB_result;
+      rvfi_rd_addr <= 0;
+      rvfi_rd_wdata <= 0;
 
-    rvfi_pc_rdata <= WB_pc;
-    rvfi_pc_wdata <= WB_trap.valid ? {csr_mtvec[31:2], 2'd0} : (MEM_valid_instr ? MEM_pc : (EX_valid_instr ? EX_pc : (ID_valid_instr ? ID_pc : IF_pc)));
+      rvfi_pc_rdata <= 0;
+      rvfi_pc_wdata <= 0;
 
-    rvfi_mem_addr <= WB_alu_result;
-    rvfi_mem_rmask <= rvfi_mem_rmask_int;
-    rvfi_mem_wmask <= rvfi_mem_wmask_int;
-    rvfi_mem_rdata <= WB_mem_rdata;
-    rvfi_mem_wdata <= WB_mem_wdata;
+      rvfi_mem_addr <= 0;
+      rvfi_mem_rmask <= 0;
+      rvfi_mem_wmask <= 0;
+      rvfi_mem_rdata <= 0;
+      rvfi_mem_wdata <= 0;
 
-    rvfi_csr_mcycle_rmask <= is_csr_mcycle ? 32'hffff_ffff : 0;
-    rvfi_csr_mcycle_wmask <= is_csr_mcycle ? 32'hffff_ffff : 0;
-    rvfi_csr_mcycle_rdata <= csr_current_value;
-    rvfi_csr_mcycle_wdata <= csr_wr_data;
+      rvfi_csr_mcycle_rmask <= 0;
+      rvfi_csr_mcycle_wmask <= 0;
+      rvfi_csr_mcycle_rdata <= 0;
+      rvfi_csr_mcycle_wdata <= 0;
 
-    rvfi_csr_minstret_rmask <= is_csr_minstret ? 32'hffff_ffff : 0;
-    rvfi_csr_minstret_wmask <= is_csr_minstret ? 32'hffff_ffff : 0;
-    rvfi_csr_minstret_rdata <= csr_current_value;
-    rvfi_csr_minstret_wdata <= csr_wr_data;
+      rvfi_csr_minstret_rmask <= 0;
+      rvfi_csr_minstret_wmask <= 0;
+      rvfi_csr_minstret_rdata <= 0;
+      rvfi_csr_minstret_wdata <= 0;
+    end
+    else begin
+      rvfi_valid <= WB_valid_instr & ~WB_stall;
+      if (WB_valid_instr & ~WB_stall) rvfi_order <= rvfi_order + 1;
+      rvfi_insn <= WB_instr;
+      rvfi_trap <= WB_trap.valid;
+      rvfi_halt <= 0;
+      rvfi_intr <= WB_intr;
+      rvfi_mode <= 3;
+      rvfi_ixl <= 1;
 
+      rvfi_rs1_addr <= WB_src_reg_1;
+      rvfi_rs2_addr <= WB_src_reg_2;
+      rvfi_rs1_rdata <= WB_reg_data_1;
+      rvfi_rs2_rdata <= WB_reg_data_2;
+
+      rvfi_rd_addr <= WB_dest_reg;
+      rvfi_rd_wdata <= WB_result;
+
+      rvfi_pc_rdata <= WB_pc;
+      rvfi_pc_wdata <= WB_trap.valid ? {csr_mtvec[31:2], 2'd0} : (MEM_valid_instr ? MEM_pc : (EX_valid_instr ? EX_pc : (ID_valid_instr ? ID_pc : IF_pc)));
+
+      rvfi_mem_addr <= WB_alu_result;
+      rvfi_mem_rmask <= rvfi_mem_rmask_int;
+      rvfi_mem_wmask <= rvfi_mem_wmask_int;
+      rvfi_mem_rdata <= WB_mem_rdata;
+      rvfi_mem_wdata <= WB_mem_wdata;
+
+      rvfi_csr_mcycle_rmask <= is_csr_mcycle ? 32'hffff_ffff : 0;
+      rvfi_csr_mcycle_wmask <= is_csr_mcycle ? 32'hffff_ffff : 0;
+      rvfi_csr_mcycle_rdata <= csr_current_value;
+      rvfi_csr_mcycle_wdata <= csr_wr_data;
+
+      rvfi_csr_minstret_rmask <= is_csr_minstret ? 32'hffff_ffff : 0;
+      rvfi_csr_minstret_wmask <= is_csr_minstret ? 32'hffff_ffff : 0;
+      rvfi_csr_minstret_rdata <= csr_current_value;
+      rvfi_csr_minstret_wdata <= csr_wr_data;
+    end
   end
 
   always_comb begin

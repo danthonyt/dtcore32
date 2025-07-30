@@ -5,9 +5,16 @@ module rvfi_wrapper (
 );
 
 
+(* keep *) `rvformal_rand_reg [31:0] IMEM_rd_data_i;
+(* keep *) `rvformal_rand_reg [31:0] DMEM_rd_data_i;
+(* keep *) logic [31:0] IMEM_addr_o;
+(* keep *) logic [31:0] DMEM_addr_o;
+(* keep *) logic [31:0] DMEM_wr_data_o;
+(* keep *) logic [3:0] DMEM_wr_byte_en_o;
+
     dtcore32  dtcore32_inst (
-    .clk_i(clk_i),
-    .rst_i(rst_i),
+    .clk_i(clock),
+    .rst_i(reset),
     .IMEM_rd_data_i(IMEM_rd_data_i),
     .DMEM_rd_data_i(DMEM_rd_data_i),
     .rvfi_valid(rvfi_valid),
