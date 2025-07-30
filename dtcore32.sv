@@ -31,15 +31,15 @@ module dtcore32 (
     output logic [31:0] rvfi_mem_rdata,
     output logic [31:0] rvfi_mem_wdata,
 
-    output logic [31:0] rvfi_csr_mcycle_rmask,
-    output logic [31:0] rvfi_csr_mcycle_wmask,
-    output logic [31:0] rvfi_csr_mcycle_rdata,
-    output logic [31:0] rvfi_csr_mcycle_wdata,
+    output logic [63:0] rvfi_csr_mcycle_rmask,
+    output logic [63:0] rvfi_csr_mcycle_wmask,
+    output logic [63:0] rvfi_csr_mcycle_rdata,
+    output logic [63:0] rvfi_csr_mcycle_wdata,
 
-    output logic [31:0] rvfi_csr_minstret_rmask,
-    output logic [31:0] rvfi_csr_minstret_wmask,
-    output logic [31:0] rvfi_csr_minstret_rdata,
-    output logic [31:0] rvfi_csr_minstret_wdata,
+    output logic [63:0] rvfi_csr_minstret_rmask,
+    output logic [63:0] rvfi_csr_minstret_wmask,
+    output logic [63:0] rvfi_csr_minstret_rdata,
+    output logic [63:0] rvfi_csr_minstret_wdata,
 `endif
     output logic [31:0] IMEM_addr_o,
     output logic [31:0] DMEM_addr_o,
@@ -196,11 +196,6 @@ module dtcore32 (
   logic [31:0] DMEM_addr_int;
   logic [31:0] DMEM_wr_data_int;
   logic [ 3:0] DMEM_wr_byte_en_int;
-  assign DMEM_addr_int = MEM_alu_result;
-  assign DMEM_addr_o = DMEM_addr_int;
-  assign IMEM_addr_o = IF_pc;
-  assign DMEM_wr_data_o = DMEM_wr_data_int;
-  assign DMEM_wr_byte_en_o = DMEM_wr_byte_en_int;
   // hazard unit signals
   // stops signals from propagating through the pipeline
   logic IF_stall;
@@ -417,6 +412,34 @@ module dtcore32 (
   logic [31:0] WB_mem_rdata;
   logic [31:0] WB_mem_wdata;
 
+  logic [31:0] csr_mtvec;
+  logic [31:0] csr_mscratch;
+  logic [31:0] csr_mepc;
+  logic [31:0] csr_mcause;
+  logic [31:0] csr_mtval;
+  logic [63:0] csr_mcycle;
+  logic [63:0] csr_minstret;
+  logic [31:0] csr_wr_data;
+  logic [31:0] csr_current_value;
+
+  logic is_csr_mstatus;
+  logic is_csr_misa;
+  logic is_csr_mie;
+  logic is_csr_mtvec;
+  logic is_csr_mscratch;
+  logic is_csr_mepc;
+  logic is_csr_mcause;
+  logic is_csr_mtval;
+  logic is_csr_mip;
+  logic is_csr_mcycle;
+  logic is_csr_mcycleh;
+  logic is_csr_minstret;
+  logic is_csr_minstreth;
+  logic is_csr_mvendorid;
+  logic is_csr_marchid;
+  logic is_csr_mimpid;
+  logic is_csr_mhartid;
+  logic is_csr_mconfigptr;
 
   //////////////////////////////////////
   //
@@ -1179,7 +1202,7 @@ module dtcore32 (
   //
   ///////////////////////////////////////
   assign WB_reg_wr_en   = WB_reg_wr_en_int & ~WB_stall;
-  assign WB_csr_wr_type = (!WB_stall) ? WB_csr_wr_type : 0;
+  assign WB_csr_wr_type = (!WB_stall) ? WB_csr_wr_type_int : 0;
   always_comb begin
     unique case (WB_result_src)
       2'b00: WB_result = WB_alu_result;
@@ -1235,33 +1258,6 @@ module dtcore32 (
   //
   ///////////////////////////////////////
 
-  logic [31:0] csr_mtvec;
-  logic [31:0] csr_mscratch;
-  logic [31:0] csr_mepc;
-  logic [31:0] csr_mcause;
-  logic [31:0] csr_mtval;
-  logic [63:0] csr_mcycle;
-  logic [63:0] csr_minstret;
-  logic [31:0] csr_wr_data;
-  logic [31:0] csr_current_value;
-
-  logic is_csr_mstatus;
-  logic is_csr_misa;
-  logic is_csr_mie;
-  logic is_csr_mtvec;
-  logic is_csr_mscratch;
-  logic is_csr_mepc;
-  logic is_csr_mcause;
-  logic is_csr_mtval;
-  logic is_csr_mip;
-  logic is_csr_mcycle;
-  logic is_csr_minstret;
-  logic is_csr_mvendorid;
-  logic is_csr_marchid;
-  logic is_csr_mimpid;
-  logic is_csr_mhartid;
-  logic is_csr_mconfigptr;
-
   always_comb begin
     is_csr_mstatus = 0;
     is_csr_misa = 0;
@@ -1273,7 +1269,9 @@ module dtcore32 (
     is_csr_mtval = 0;
     is_csr_mip = 0;
     is_csr_mcycle = 0;
+    is_csr_mcycleh = 0;
     is_csr_minstret = 0;
+    is_csr_minstreth = 0;
     is_csr_mvendorid = 0;
     is_csr_marchid = 0;
     is_csr_mimpid = 0;
@@ -1290,7 +1288,9 @@ module dtcore32 (
       12'h343: is_csr_mtval = 1;
       12'h344: is_csr_mip = 1;
       12'hB00: is_csr_mcycle = 1;
+      12'hb80: is_csr_mcycleh = 1;
       12'hB02: is_csr_minstret = 1;
+      12'hb82: is_csr_minstreth = 1;
       12'hf11: is_csr_mvendorid = 1;
       12'hf12: is_csr_marchid = 1;
       12'hf13: is_csr_mimpid = 1;
@@ -1308,7 +1308,9 @@ module dtcore32 (
     else if (is_csr_mcause) csr_current_value = csr_mcause;
     else if (is_csr_mtval) csr_current_value = csr_mtval;
     else if (is_csr_mcycle) csr_current_value = csr_mcycle[31:0];
+    else if (is_csr_mcycleh) csr_current_value = csr_mcycle[63:32];
     else if (is_csr_minstret) csr_current_value = csr_minstret[31:0];
+    else if (is_csr_minstreth) csr_current_value = csr_mcycle[63:32];
     else csr_current_value = 0;
     // then use it in the csr instruction
     case (WB_csr_wr_type)
@@ -1327,7 +1329,9 @@ module dtcore32 (
     else if (is_csr_mcause) WB_csr_rd_data = csr_mcause;
     else if (is_csr_mtval) WB_csr_rd_data = csr_mtval;
     else if (is_csr_mcycle) WB_csr_rd_data = csr_mcycle[31:0];
+    else if (is_csr_mcycleh) WB_csr_rd_data = csr_mcycle[63:32];
     else if (is_csr_minstret) WB_csr_rd_data = csr_minstret[31:0];
+    else if (is_csr_minstreth) WB_csr_rd_data = csr_minstret[63:32];
     else WB_csr_rd_data = 0;
   end
 
@@ -1339,30 +1343,25 @@ module dtcore32 (
     end else if (WB_valid_instr && WB_trap.valid) begin
       csr_mepc   <= WB_pc;
       csr_mcause <= {WB_trap.is_interrupt, WB_trap.mcause};
-    end else if (is_csr_mepc) csr_mepc <= csr_wr_data;
+    end
+    else if (is_csr_mepc) csr_mepc <= csr_wr_data;
     else if (is_csr_mcause) csr_mcause <= csr_wr_data;
   end
 
   // the mcycle register increments on every clock cycle
   always_ff @(posedge clk_i) begin
-    if (rst_i) begin
-      csr_mcycle <= 0;
-    end else if (is_csr_mcycle) begin
-      csr_mcycle <= {32'd0, csr_wr_data};
-    end else begin
-      csr_mcycle <= csr_mcycle + 1;
-    end
+    if (rst_i) csr_mcycle <= 0;
+    else if (is_csr_mcycle) csr_mcycle[31:0] <= csr_wr_data;
+    else if (is_csr_mcycleh) csr_mcycle[63:32] <= csr_wr_data;
+    else csr_mcycle <= csr_mcycle + 1;
   end
 
   // the minstret register increments every time a valid instruction is retired
   always_ff @(posedge clk_i) begin
-    if (rst_i) begin
-      csr_minstret <= 0;
-    end else if (is_csr_minstret) begin
-      csr_minstret <= {32'd0, csr_wr_data};
-    end else if (WB_valid_instr) begin
-      csr_minstret <= csr_minstret + 1;
-    end
+    if (rst_i) csr_minstret <= 0;
+    else if (is_csr_minstret) csr_minstret[31:0] <= csr_wr_data;
+    else if (is_csr_minstreth) csr_minstret[63:32] <= csr_wr_data;
+    else if (WB_valid_instr) csr_minstret <= csr_minstret + 1;
   end
 
 
@@ -1370,9 +1369,16 @@ module dtcore32 (
     if (rst_i) begin
       csr_mtvec <= 0;
       csr_mscratch <= 0;
-    end else if (is_csr_mtvec) csr_mtvec <= csr_wr_data & 32'hffff_fffc;
+    end 
+    else if (is_csr_mtvec) csr_mtvec <= csr_wr_data & 32'hffff_fffc;
     else if (is_csr_mscratch) csr_mscratch <= csr_wr_data;
   end
+
+  assign DMEM_addr_int = MEM_alu_result;
+  assign DMEM_addr_o = DMEM_addr_int;
+  assign IMEM_addr_o = IF_pc;
+  assign DMEM_wr_data_o = DMEM_wr_data_int;
+  assign DMEM_wr_byte_en_o = DMEM_wr_byte_en_int;
 
   //////////////////////////////////////
   //
@@ -1389,7 +1395,7 @@ module dtcore32 (
   logic [3:0] dmem_half_mask;
   logic [3:0] dmem_word_mask;
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk_i) begin
     rvfi_valid <= WB_valid_instr & ~WB_stall;
     rvfi_order <= WB_pc;
     rvfi_insn <= WB_instr;
@@ -1408,7 +1414,7 @@ module dtcore32 (
     rvfi_rd_wdata <= WB_result;
 
     rvfi_pc_rdata <= WB_pc;
-    rvfi_pc_wdata <= wb_trap.valid ? {csr_mtvec[31:2], 2'd0} : (MEM_valid_instr ? MEM_pc : (EX_valid_instr ? EX_pc : (ID_valid_instr ? ID_pc : IF_pc)));
+    rvfi_pc_wdata <= WB_trap.valid ? {csr_mtvec[31:2], 2'd0} : (MEM_valid_instr ? MEM_pc : (EX_valid_instr ? EX_pc : (ID_valid_instr ? ID_pc : IF_pc)));
 
     rvfi_mem_addr <= WB_alu_result;
     rvfi_mem_rmask <= rvfi_mem_rmask_int;
