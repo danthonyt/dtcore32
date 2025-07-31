@@ -202,6 +202,14 @@ module dtcore32 (
   localparam logic [6:0] FUNCT12_ECALL = 12'h000;
   localparam logic [6:0] FUNCT12_EBREAK = 12'h001;
 
+  // Exception types
+  localparam logic [30:0] EXCEPT_INSTR_ADDR_MISALIGNED = 31'd0;
+  localparam logic [30:0] EXCEPT_ILLEGAL_INSTR = 31'd2;
+  localparam logic [30:0] EXCEPT_BREAKPOINT = 31'd3;
+  localparam logic [30:0] EXCEPT_LOAD_ADDR_MISALIGNED = 31'd4;
+  localparam logic [30:0] EXCEPT_STORE_ADDR_MISALIGNED = 31'd6;
+  localparam logic [30:0] EXCEPT_ECALL_M_MODE = 31'd11;
+
 
   localparam logic [31:0] NOP_INSTRUCTION = 32'h00000013;  // addi x0, x0, 0
 
@@ -237,6 +245,8 @@ module dtcore32 (
   logic [31:0] EX_pc;
   logic [31:0] MEM_pc;
   logic [31:0] WB_pc;
+  
+  logic [31:0] exception_handler_addr;
 
   logic [31:0] IF_pc_plus_4;
   logic [31:0] ID_pc_plus_4;
@@ -434,6 +444,15 @@ module dtcore32 (
   logic [31:0] WB_result;
   logic [31:0] WB_mem_rdata;
   logic [31:0] WB_mem_wdata;
+  logic [31:0] WB_reg_wdata;
+
+  logic ID_csr_rd_en;
+  logic EX_csr_rd_en;
+  logic MEM_csr_rd_en;
+  logic WB_csr_rd_en;
+
+  logic WB_csr_rd_en_int;
+  
 
   logic [31:0] csr_mtvec;
   logic [31:0] csr_mscratch;
@@ -475,8 +494,8 @@ module dtcore32 (
       IF_pc   <= 0;
       IF_intr <= 0;
       IF_valid_instr <= 0;
-    end else if (WB_trap.valid) begin  // jump to trap handler if retired instrucion has a trap
-      IF_pc   <= {csr_mtvec[31:2], 2'd0};
+    end else if (/*WB_trap.valid*/0) begin  // jump to trap handler if retired instrucion has a trap
+      IF_pc   <= exception_handler_addr;
       IF_intr <= 1;
       IF_valid_instr <= 1;
     end else if (!IF_stall) begin
@@ -510,7 +529,7 @@ module dtcore32 (
     if (~(IF_pc_tick[1] | IF_pc_tick[0])) begin  // properly aligned instruction address
       IF_trap = '{0, 0, 0, 0};
     end else begin  // misaligned instruction address triggerst a trap
-      IF_trap = '{1, 0, 0, IF_pc_tick};
+      IF_trap = '{1, 0, EXCEPT_INSTR_ADDR_MISALIGNED, IF_pc_tick};
     end
   end
 
@@ -560,11 +579,11 @@ module dtcore32 (
   // determine if the instruction generates a trap
   always_comb begin
     if (ID_is_ecall) begin
-      ID_trap = '{1, 0, 11, ID_pc};
+      ID_trap = '{1, 0, EXCEPT_ECALL_M_MODE, ID_pc};
     end else if (ID_is_ebreak) begin
-      ID_trap = '{1, 0, 3, ID_pc};
+      ID_trap = '{1, 0, EXCEPT_BREAKPOINT, ID_pc};
     end else if (ID_unknown_instruction) begin
-      ID_trap = '{1, 0, 2, ID_pc};
+      ID_trap = '{1, 0, EXCEPT_ILLEGAL_INSTR, ID_pc};
     end else if (ID_prev_trap.valid) begin
       ID_trap = ID_prev_trap;
     end else begin
@@ -601,6 +620,7 @@ module dtcore32 (
     ID_is_ecall = 0;
     ID_opcode_exception = 0;
     ID_dmem_read = 0;
+    ID_csr_rd_en = 0;
     // instructions should default to a nop
     ID_reg_wr_en = 0;
     ID_imm_src = I_ALU_TYPE_IMM_SRC;
@@ -648,18 +668,21 @@ module dtcore32 (
             ID_result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
             ID_csr_wr_type = CSR_WRITE_RAW_VALUE;
             ID_csr_wr_operand_src = CSR_SRC_SELECT_REG_DATA;
+            ID_csr_rd_en = 1;
           end
           FUNCT3_CSRRS: begin
             ID_reg_wr_en = REGFILE_WRITE_ENABLE;
             ID_result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
-            ID_csr_wr_type = CSR_WRITE_SET_BIT_MASK;
+            ID_csr_wr_type = (ID_src_reg_1 == 0) ? CSR_WRITE_DISABLE : CSR_WRITE_SET_BIT_MASK;
             ID_csr_wr_operand_src = CSR_SRC_SELECT_REG_DATA;
+            ID_csr_rd_en = 1;
           end
           FUNCT3_CSRRC: begin
             ID_reg_wr_en = REGFILE_WRITE_ENABLE;
             ID_result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
-            ID_csr_wr_type = CSR_WRITE_CLEAR_BIT_MASK;
+            ID_csr_wr_type = (ID_src_reg_1 == 0) ? CSR_WRITE_DISABLE : CSR_WRITE_CLEAR_BIT_MASK;
             ID_csr_wr_operand_src = CSR_SRC_SELECT_REG_DATA;
+            ID_csr_rd_en = 1;
           end
           FUNCT3_CSRRWI: begin
             ID_reg_wr_en = REGFILE_WRITE_ENABLE;
@@ -667,20 +690,23 @@ module dtcore32 (
             ID_imm_src = CSR_TYPE_IMM_SRC;
             ID_csr_wr_type = CSR_WRITE_RAW_VALUE;
             ID_csr_wr_operand_src = CSR_SRC_SELECT_IMM;
+            ID_csr_rd_en = 1;
           end
           FUNCT3_CSRRSI: begin
             ID_reg_wr_en = REGFILE_WRITE_ENABLE;
             ID_result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
             ID_imm_src = CSR_TYPE_IMM_SRC;
-            ID_csr_wr_type = CSR_WRITE_SET_BIT_MASK;
+            ID_csr_wr_type = (ID_src_reg_1 == 0) ? CSR_WRITE_DISABLE : CSR_WRITE_SET_BIT_MASK;
             ID_csr_wr_operand_src = CSR_SRC_SELECT_IMM;
+            ID_csr_rd_en = 1;
           end
           FUNCT3_CSRRCI: begin
             ID_reg_wr_en = REGFILE_WRITE_ENABLE;
             ID_result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
             ID_imm_src = CSR_TYPE_IMM_SRC;
-            ID_csr_wr_type = CSR_WRITE_CLEAR_BIT_MASK;
+            ID_csr_wr_type = (ID_src_reg_1 == 0) ? CSR_WRITE_DISABLE : CSR_WRITE_CLEAR_BIT_MASK;
             ID_csr_wr_operand_src = CSR_SRC_SELECT_IMM;
+            ID_csr_rd_en = 1;
           end
           default: begin
             ID_opcode_exception = 1;
@@ -825,7 +851,7 @@ module dtcore32 (
       .src_reg_1_i(ID_src_reg_1),
       .src_reg_2_i(ID_src_reg_2),
       .dest_reg_i(WB_dest_reg),
-      .reg_wr_data_i(WB_result),
+      .reg_wr_data_i(WB_reg_wdata),
       .src_reg_1_rd_data_o(ID_reg_data_1),
       .src_reg_2_rd_data_o(ID_reg_data_2)
   );
@@ -859,6 +885,7 @@ module dtcore32 (
       EX_csr_wr_type <= 0;
       EX_valid_instr <= 0;
       EX_intr <= 0;
+      EX_csr_rd_en <= 0;
     end else if (!EX_stall) begin
       EX_reg_wr_en <= ID_reg_wr_en;
       EX_result_src <= ID_result_src;
@@ -886,6 +913,7 @@ module dtcore32 (
       EX_csr_wr_type <= ID_csr_wr_type;
       EX_valid_instr <= ID_valid_instr;
       EX_intr <= ID_intr;
+      EX_csr_rd_en <= ID_csr_rd_en;
     end
   end
 
@@ -1006,6 +1034,7 @@ module dtcore32 (
       MEM_reg_data_2 <= 0;
       MEM_src_reg_1 <= 0;
       MEM_src_reg_2 <= 0;
+      MEM_csr_rd_en <= 0;
     end else if (!MEM_stall) begin
       MEM_reg_wr_en <= EX_reg_wr_en;
       MEM_result_src <= EX_result_src;
@@ -1028,6 +1057,7 @@ module dtcore32 (
       MEM_reg_data_2 <= EX_dmem_wr_data;
       MEM_src_reg_1 <= EX_src_reg_1;
       MEM_src_reg_2 <= EX_src_reg_2;
+      MEM_csr_rd_en <= EX_csr_rd_en;
     end
   end
 
@@ -1041,9 +1071,9 @@ module dtcore32 (
     if (MEM_prev_trap.valid) begin
       MEM_trap = MEM_prev_trap;
     end else if (MEM_misaligned_load) begin
-      MEM_trap = '{1, 0, 4, MEM_pc};
+      MEM_trap = '{1, 0, EXCEPT_LOAD_ADDR_MISALIGNED, MEM_pc};
     end else if (MEM_misaligned_store) begin
-      MEM_trap = '{1, 0, 6, MEM_pc};
+      MEM_trap = '{1, 0, EXCEPT_STORE_ADDR_MISALIGNED, MEM_pc};
     end else begin
       MEM_trap = '{0, 0, 0, 0};
     end
@@ -1194,6 +1224,7 @@ module dtcore32 (
       WB_load_size <= 0;
       WB_mem_rdata <= 0;
       WB_mem_wdata <= 0;
+      WB_csr_rd_en_int <= 0;
 
     end else if (!WB_stall) begin
       WB_reg_wr_en_int <= MEM_reg_wr_en;
@@ -1219,6 +1250,7 @@ module dtcore32 (
       WB_load_size <= MEM_load_size;
       WB_mem_rdata <= DMEM_rd_data_i;
       WB_mem_wdata <= DMEM_wr_data_int;
+      WB_csr_rd_en_int <= MEM_csr_rd_en;
     end
   end
 
@@ -1228,8 +1260,11 @@ module dtcore32 (
   //
   //
   ///////////////////////////////////////
-  assign WB_reg_wr_en   = WB_reg_wr_en_int & ~WB_stall;
-  assign WB_csr_wr_type = (!WB_stall) ? WB_csr_wr_type_int : 0;
+  // disable register and csr writes for an excepted instruction
+  assign WB_reg_wr_en   = (~WB_stall & ~WB_trap.valid) ? WB_reg_wr_en_int : 0;
+  assign WB_csr_wr_type = (~WB_stall & ~WB_trap.valid) ? WB_csr_wr_type_int : 0;
+  assign WB_csr_rd_en = (~WB_stall & ~WB_trap.valid) ? WB_csr_rd_en_int : 0;
+  assign WB_reg_wdata = (WB_dest_reg != 0) ? WB_result : 0;
   always_comb begin
     unique case (WB_result_src)
       2'b00: WB_result = WB_alu_result;
@@ -1238,7 +1273,7 @@ module dtcore32 (
       2'b11: WB_result = WB_csr_rd_data;
     endcase
   end
-  assign WB_trap = WB_prev_trap;
+  assign WB_trap = WB_prev_trap.valid ? WB_prev_trap : '{0, 0, 0, 0};
 
   //////////////////////////////////////
   //
@@ -1326,7 +1361,8 @@ module dtcore32 (
       default: ;
     endcase
   end
-
+  // asserted when writing to a read only register
+  
   always_comb begin
     // get the current csr value for write operation
     if (is_csr_mtvec) csr_current_value = csr_mtvec;
@@ -1378,16 +1414,12 @@ module dtcore32 (
   // the mcycle register increments on every clock cycle
   always_ff @(posedge clk_i) begin
     if (rst_i) csr_mcycle <= 0;
-    else if (is_csr_mcycle) csr_mcycle[31:0] <= csr_wr_data;
-    else if (is_csr_mcycleh) csr_mcycle[63:32] <= csr_wr_data;
     else csr_mcycle <= csr_mcycle + 1;
   end
 
   // the minstret register increments every time a valid instruction is retired
   always_ff @(posedge clk_i) begin
     if (rst_i) csr_minstret <= 0;
-    else if (is_csr_minstret) csr_minstret[31:0] <= csr_wr_data;
-    else if (is_csr_minstreth) csr_minstret[63:32] <= csr_wr_data;
     else if (WB_valid_instr) csr_minstret <= csr_minstret + 1;
   end
 
@@ -1401,6 +1433,8 @@ module dtcore32 (
     else if (is_csr_mtvec) csr_mtvec <= csr_wr_data & 32'hffff_fffc;
     else if (is_csr_mscratch) csr_mscratch <= csr_wr_data;
   end
+
+  assign exception_handler_addr = {csr_mtvec[31:2], 2'd0};
 
   assign DMEM_addr_int = MEM_alu_result;
   assign DMEM_addr_o = DMEM_addr_int;
@@ -1480,7 +1514,7 @@ module dtcore32 (
       rvfi_rd_wdata <= WB_result;
 
       rvfi_pc_rdata <= WB_pc;
-      rvfi_pc_wdata <= WB_trap.valid ? {csr_mtvec[31:2], 2'd0} : (MEM_valid_instr ? MEM_pc : (EX_valid_instr ? EX_pc : (ID_valid_instr ? ID_pc : IF_pc)));
+      rvfi_pc_wdata <= /*WB_trap.valid*/0 ? exception_handler_addr : (MEM_valid_instr ? MEM_pc : (EX_valid_instr ? EX_pc : (ID_valid_instr ? ID_pc : IF_pc)));
 
       rvfi_mem_addr <= WB_alu_result;
       rvfi_mem_rmask <= rvfi_mem_rmask_int;
@@ -1488,15 +1522,28 @@ module dtcore32 (
       rvfi_mem_rdata <= WB_mem_rdata;
       rvfi_mem_wdata <= WB_mem_wdata;
 
-      rvfi_csr_mcycle_rmask <= is_csr_mcycle ? 32'hffff_ffff : 0;
-      rvfi_csr_mcycle_wmask <= is_csr_mcycle ? 32'hffff_ffff : 0;
+      // make rmask and wmask cleared if an exception
+      if(WB_csr_wr_type != 0) begin
+        rvfi_csr_mcycle_wmask <= is_csr_mcycleh ? 64'hffff_ffff_0000_0000 : is_csr_mcycle ? 64'h0000_0000_ffff_ffff : 64'd0;
+        rvfi_csr_minstret_wmask <= is_csr_minstreth ? 64'hffff_ffff_0000_0000 : is_csr_minstret ? 64'h0000_0000_ffff_ffff : 64'd0;
+      end else begin
+        rvfi_csr_mcycle_wmask <= 64'd0;
+        rvfi_csr_minstret_wmask <= 64'd0;
+      end
+
+      if(WB_csr_rd_en == 1) begin
+        rvfi_csr_mcycle_rmask <= is_csr_mcycleh ? 64'hffff_ffff_0000_0000 : (is_csr_mcycle ? 64'h0000_0000_ffff_ffff : 64'd0);
+        rvfi_csr_minstret_rmask <= is_csr_minstreth ? 64'hffff_ffff_0000_0000 : is_csr_minstret ? 64'h0000_0000_ffff_ffff : 64'd0;
+      end else begin
+        rvfi_csr_mcycle_rmask <= 64'd0;
+        rvfi_csr_minstret_rmask <= 64'd0;
+      end
       rvfi_csr_mcycle_rdata <= csr_current_value;
       rvfi_csr_mcycle_wdata <= csr_wr_data;
 
-      rvfi_csr_minstret_rmask <= is_csr_minstret ? 32'hffff_ffff : 0;
-      rvfi_csr_minstret_wmask <= is_csr_minstret ? 32'hffff_ffff : 0;
       rvfi_csr_minstret_rdata <= csr_current_value;
       rvfi_csr_minstret_wdata <= csr_wr_data;
+      
     end
   end
 
