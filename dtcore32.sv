@@ -250,12 +250,10 @@ module dtcore32 (
   logic ID_stall;
   logic EX_stall;
   logic MEM_stall;
-  logic WB_stall;
 
   // resets the pipeline to control signals of a NOP instruction
   logic ID_flush;
   logic EX_flush;
-  logic MEM_flush;
 
   logic [31:0] IF_pc_tick;
 
@@ -439,6 +437,7 @@ module dtcore32 (
   logic [2:0] ID_funct3;
   logic ID_funct7b5;
   logic [6:0] ID_funct7;
+  logic [11:0] ID_funct12;
   logic ID_alu_op_exception;
   logic ID_funct7_exception;
   logic ID_unknown_instruction;
@@ -527,16 +526,13 @@ module dtcore32 (
     if (rst_i) begin
       IF_pc   <= 0;
       IF_intr <= 0;
-      IF_valid_instr <= 0;
-    end else if (/*WB_trap.valid*/0) begin  // jump to trap handler if retired instrucion has a trap
+      IF_valid_instr <= 1;
+    end else if (WB_trap.valid) begin  // jump to trap handler if retired instrucion has a trap
       IF_pc   <= exception_handler_addr;
       IF_intr <= 1;
       IF_valid_instr <= 1;
     end 
-    else if (IF_stall) begin
-      IF_valid_instr <= 0;
-    end
-    else begin
+    else if (!IF_stall) begin
       IF_pc   <= IF_pc_tick;
       IF_intr <= 0;
       IF_valid_instr <= 1;
@@ -572,7 +568,7 @@ module dtcore32 (
   end
 
   always_ff @(posedge clk_i) begin
-    if (rst_i || ID_flush) begin
+    if (rst_i || ID_flush || (!ID_stall & IF_stall)) begin
       ID_instr <= NOP_INSTRUCTION;
       ID_pc <= 0;
       ID_pc_plus_4 <= 0;
@@ -580,10 +576,7 @@ module dtcore32 (
       ID_valid_instr <= 0;
       ID_intr <= 0;
     end  // allow 1 clock delay after a reset to prevent registering invalid instruction read data
-    else if (ID_stall) begin
-      ID_valid_instr <= 0;
-    end
-    else begin
+    else if (!ID_stall) begin
       ID_instr <= IMEM_rd_data_i;
       ID_pc <= IF_pc;
       ID_pc_plus_4 <= IF_pc_plus_4;
@@ -602,6 +595,8 @@ module dtcore32 (
   assign ID_funct3 = ID_instr[14:12];
   assign ID_funct7b5 = ID_instr[30];
   assign ID_funct7 = ID_instr[31:25];
+  assign ID_funct12 = ID_instr[31:20];
+
   assign ID_r_type_sub = ID_op[5] & ID_funct7b5;
   assign ID_i_type_sub = ~ID_op[5] & ID_funct7b5;
   assign ID_alu_control = ID_valid_instr ? ID_alu_control_int : 0;
@@ -711,8 +706,11 @@ module dtcore32 (
       OPCODE_SYSCALL_CSR: begin
         case (ID_funct3)
           FUNCT3_ECALL_EBREAK: begin
-            if (ID_instr[20]) ID_is_ebreak = 1;
-            else ID_is_ecall = 1;
+            if ((ID_src_reg_1 != 0) && (ID_dest_reg != 0)) begin
+              if (ID_funct12 == 12'h001) ID_is_ebreak = 1;
+              else if (ID_funct12 == 12'h000) ID_is_ecall = 1;
+              else ID_opcode_exception = 1;
+            end
           end
           FUNCT3_CSRRW: begin
             ID_reg_wr_en = REGFILE_WRITE_ENABLE;
@@ -910,7 +908,7 @@ module dtcore32 (
 
   // ID/EX register
   always_ff @(posedge clk_i) begin
-    if (rst_i || EX_flush) begin
+    if (rst_i || EX_flush || (!EX_stall & ID_stall)) begin
       EX_reg_wr_en <= 0;
       EX_result_src <= 0;
       EX_load_size <= 0;
@@ -939,10 +937,7 @@ module dtcore32 (
       EX_intr <= 0;
       EX_csr_rd_en <= 0;
     end 
-    else if (EX_stall) begin
-      EX_valid_instr <= 0;
-    end
-    else begin
+    else if (!EX_stall) begin
       EX_reg_wr_en <= ID_reg_wr_en;
       EX_result_src <= ID_result_src;
       EX_load_size <= ID_load_size;
@@ -1073,7 +1068,7 @@ module dtcore32 (
 
   // EX/MEM register
   always_ff @(posedge clk_i) begin
-    if (rst_i || MEM_flush) begin
+    if (rst_i || (!MEM_stall & EX_stall)) begin
       MEM_reg_wr_en <= 0;
       MEM_result_src <= 0;
       MEM_load_size <= 0;
@@ -1098,10 +1093,7 @@ module dtcore32 (
       MEM_csr_rd_en <= 0;
       MEM_pc_wdata <= 0;
     end 
-    else if (MEM_stall) begin
-      MEM_valid_instr <= 0;
-    end 
-    else begin
+    else if (!MEM_stall) begin
       MEM_reg_wr_en <= EX_reg_wr_en;
       MEM_result_src <= EX_result_src;
       MEM_load_size <= EX_load_size;
@@ -1267,7 +1259,7 @@ module dtcore32 (
   end
   // pipeline to WB stage
   always_ff @(posedge clk_i) begin
-    if (rst_i) begin
+    if (rst_i || MEM_stall) begin
       WB_reg_wr_en_int <= 0;
       WB_dest_reg <= 0;
       WB_instr <= NOP_INSTRUCTION;
@@ -1294,9 +1286,6 @@ module dtcore32 (
       WB_csr_rd_en_int <= 0;
       WB_pc_wdata <= 0;
     end 
-    else if (WB_stall) begin
-      WB_valid_instr <= 0;
-    end
     else begin
       WB_reg_wr_en_int <= MEM_reg_wr_en;
       WB_dest_reg <= MEM_dest_reg;
@@ -1333,9 +1322,9 @@ module dtcore32 (
   //
   ///////////////////////////////////////
   // disable register and csr writes for an excepted instruction
-  assign WB_reg_wr_en   = (~WB_stall & ~WB_trap.valid) ? WB_reg_wr_en_int : 0;
-  assign WB_csr_wr_type = (~WB_stall & ~WB_trap.valid) ? WB_csr_wr_type_int : 0;
-  assign WB_csr_rd_en = (~WB_stall & ~WB_trap.valid) ? WB_csr_rd_en_int : 0;
+  assign WB_reg_wr_en   = (~WB_trap.valid) ? WB_reg_wr_en_int : 0;
+  assign WB_csr_wr_type = (~WB_trap.valid) ? WB_csr_wr_type_int : 0;
+  assign WB_csr_rd_en = (~WB_trap.valid) ? WB_csr_rd_en_int : 0;
   assign WB_reg_wdata = (WB_dest_reg != 0) ? WB_result : 0;
   always_comb begin
     unique case (WB_result_src)
@@ -1374,12 +1363,11 @@ module dtcore32 (
       .EX_forward_b_o(EX_forward_b),
       .ID_flush_o(ID_flush),
       .EX_flush_o(EX_flush),
-      .MEM_flush_o(MEM_flush),
       .IF_stall_o(IF_stall),
       .ID_stall_o(ID_stall),
       .EX_stall_o(EX_stall),
       .MEM_stall_o(MEM_stall),
-      .WB_stall_o(WB_stall),
+      .ID_trap_valid_i(ID_trap.valid),
       .EX_trap_valid_i(EX_trap.valid),
       .MEM_trap_valid_i(MEM_trap.valid),
       .WB_trap_valid_i(WB_trap.valid)
@@ -1583,8 +1571,8 @@ module dtcore32 (
       rvfi_csr_mepc_wdata <= 0;
     end
     else begin
-      rvfi_valid <= WB_valid_instr & ~WB_stall;
-      if (WB_valid_instr & ~WB_stall) rvfi_order <= rvfi_order + 1;
+      rvfi_valid <= WB_valid_instr;
+      if (WB_valid_instr) rvfi_order <= rvfi_order + 1;
       rvfi_insn <= WB_instr;
       rvfi_trap <= WB_trap.valid;
       rvfi_halt <= 0;
@@ -1601,8 +1589,13 @@ module dtcore32 (
       rvfi_rd_wdata <= WB_reg_wdata;
 
       rvfi_pc_rdata <= WB_pc;
-      rvfi_pc_wdata <= /*WB_trap.valid*/0 ? exception_handler_addr :
-                       WB_pc_wdata;
+      rvfi_pc_wdata <= WB_trap.valid   ? exception_handler_addr :
+                       WB_valid_instr  ? WB_pc_wdata :
+                       MEM_valid_instr ? MEM_pc :
+                       EX_valid_instr  ? EX_pc :
+                       ID_valid_instr  ? ID_pc :
+                       IF_valid_instr  ? IF_pc :
+                       0;
 
       rvfi_mem_addr <= WB_alu_result;
       rvfi_mem_rmask <= rvfi_mem_rmask_int;
