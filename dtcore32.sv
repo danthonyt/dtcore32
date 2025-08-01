@@ -40,6 +40,21 @@ module dtcore32 (
     output logic [63:0] rvfi_csr_minstret_wmask,
     output logic [63:0] rvfi_csr_minstret_rdata,
     output logic [63:0] rvfi_csr_minstret_wdata,
+    
+    output logic [31:0] rvfi_csr_mcause_rmask,
+    output logic [31:0] rvfi_csr_mcause_wmask,
+    output logic [31:0] rvfi_csr_mcause_rdata,
+    output logic [31:0] rvfi_csr_mcause_wdata,
+
+    output logic [31:0] rvfi_csr_mepc_rmask,
+    output logic [31:0] rvfi_csr_mepc_wmask,
+    output logic [31:0] rvfi_csr_mepc_rdata,
+    output logic [31:0] rvfi_csr_mepc_wdata,
+
+    output logic [31:0] rvfi_csr_mtvec_rmask,
+    output logic [31:0] rvfi_csr_mtvec_wmask,
+    output logic [31:0] rvfi_csr_mtvec_rdata,
+    output logic [31:0] rvfi_csr_mtvec_wdata,
 `endif
     output logic [31:0] IMEM_addr_o,
     output logic [31:0] DMEM_addr_o,
@@ -164,12 +179,17 @@ module dtcore32 (
   localparam logic [2:0] FUNCT3_BLTU = 3'b110;
   localparam logic [2:0] FUNCT3_BGEU = 3'b111;
 
-  localparam logic [2:0] FUNCT3_ADD_SUB = 3'b000;
+  localparam logic [2:0] FUNCT3_ADD = 3'b000;
+  localparam logic [2:0] FUNCT3_SUB = 3'b000;
   localparam logic [2:0] FUNCT3_SLL = 3'b001;
   localparam logic [2:0] FUNCT3_SLT = 3'b010;
   localparam logic [2:0] FUNCT3_SLTU_SLTIU = 3'b011;
   localparam logic [2:0] FUNCT3_XOR = 3'b100;
-  localparam logic [2:0] FUNCT3_SRA_SRL = 3'b101;
+  localparam logic [2:0] FUNCT3_SRA = 3'b101;
+  localparam logic [2:0] FUNCT3_SRL = 3'b101;
+  localparam logic [2:0] FUNCT3_SRLI = 3'b101;
+  localparam logic [2:0] FUNCT3_SRAI = 3'b101;
+  localparam logic [2:0] FUNCT3_SLLI = 3'b001;
   localparam logic [2:0] FUNCT3_OR = 3'b110;
   localparam logic [2:0] FUNCT3_AND = 3'b111;
 
@@ -245,6 +265,11 @@ module dtcore32 (
   logic [31:0] EX_pc;
   logic [31:0] MEM_pc;
   logic [31:0] WB_pc;
+
+  // the pc of the next instruction
+  logic [31:0] EX_pc_wdata;
+  logic [31:0] MEM_pc_wdata;
+  logic [31:0] WB_pc_wdata;
   
   logic [31:0] exception_handler_addr;
 
@@ -389,7 +414,7 @@ module dtcore32 (
   logic [1:0] ID_alu_a_src;
   logic [1:0] EX_alu_a_src;
 
-  // 0 = not an actual instruction; used for resets or flushes
+  // 0 = not an actual instruction, or stalled.
   logic IF_valid_instr;
   logic ID_valid_instr;
   logic EX_valid_instr;
@@ -420,6 +445,14 @@ module dtcore32 (
   logic [1:0] ID_alu_op;
   logic ID_r_type_sub;
   logic ID_i_type_sub;
+  logic ID_is_itype;
+  logic ID_is_rtype;
+  logic ID_is_SRA_or_SUB_funct3;
+  logic ID_is_SLLI_or_SRLI_funct3;
+  logic ID_is_SRAI_funct3;
+  logic ID_unknown_itype;
+  logic ID_unknown_rtype;
+  logic ID_is_shift_itype;
 
 
   // EXECUTE stage specific signals
@@ -433,6 +466,7 @@ module dtcore32 (
   logic [31:0] EX_pc_target_src_a;
   logic EX_branch_cond;
   logic EX_result_src_b0;
+  logic EX_misaligned_jump_or_branch;
 
   // DATA MEMORY stage specific signals
   logic MEM_misaligned_store;
@@ -498,7 +532,11 @@ module dtcore32 (
       IF_pc   <= exception_handler_addr;
       IF_intr <= 1;
       IF_valid_instr <= 1;
-    end else if (!IF_stall) begin
+    end 
+    else if (IF_stall) begin
+      IF_valid_instr <= 0;
+    end
+    else begin
       IF_pc   <= IF_pc_tick;
       IF_intr <= 0;
       IF_valid_instr <= 1;
@@ -542,8 +580,10 @@ module dtcore32 (
       ID_valid_instr <= 0;
       ID_intr <= 0;
     end  // allow 1 clock delay after a reset to prevent registering invalid instruction read data
-    else if (!ID_stall)
-    begin
+    else if (ID_stall) begin
+      ID_valid_instr <= 0;
+    end
+    else begin
       ID_instr <= IMEM_rd_data_i;
       ID_pc <= IF_pc;
       ID_pc_plus_4 <= IF_pc_plus_4;
@@ -571,11 +611,22 @@ module dtcore32 (
   assign ID_imm_ext = ID_valid_instr ? ID_imm_ext_tmp : 0;
   assign ID_csr_addr = ID_valid_instr ? ID_instr[31:20] : 0;
   assign ID_unknown_instruction = ID_opcode_exception | ID_alu_op_exception | ID_funct7_exception;
+  
+  assign ID_is_itype = (ID_op == OPCODE_I_TYPE) ? 1 : 0;
+  assign ID_is_rtype = (ID_op == OPCODE_R_TYPE) ? 1 : 0;
+  assign ID_is_SRAI_funct3 = (ID_funct3 == FUNCT3_SRAI) ? 1 : 0;
+  assign ID_is_SRA_or_SUB_funct3 = ((ID_funct3 == FUNCT3_SRA) || (ID_funct3 == FUNCT3_SUB)) ? 1 : 0;
+  assign ID_is_SLLI_or_SRLI_funct3 = ((ID_funct3 == FUNCT3_SLLI) || (ID_funct3 == FUNCT3_SRLI)) ? 1 : 0;
+  assign ID_is_shift_itype = ID_is_SLLI_or_SRLI_funct3 | ID_is_SRAI_funct3;
+  assign ID_unknown_rtype = ID_is_rtype 
+                            & (ID_funct7 != 7'h00) 
+                            & ~((ID_funct7 == 7'h20) & ID_is_SRA_or_SUB_funct3);
+  assign ID_unknown_itype = ID_is_itype 
+                            & ID_is_shift_itype
+                            & ~(ID_is_SLLI_or_SRLI_funct3 & (ID_funct7 == 7'h00))
+                            & ~(ID_is_SRAI_funct3 & (ID_funct7 == 7'h20));
 
-  // funct7 should be all zeroes for all rtype instructions, except for SUB and SRA
-  // for shift i type instructions, zero if not srai
-  assign ID_funct7_exception = (ID_op == OPCODE_R_TYPE) & ~((ID_funct7 == 7'h00) | ((ID_funct7 == 7'h20) & ((ID_funct3 == FUNCT3_SRA_SRL) || (ID_funct3 == FUNCT3_ADD_SUB))))
-                                || ((ID_op == OPCODE_I_TYPE) & ~((ID_funct7 == 7'h00) | ((ID_funct7 == 7'h20) & ((ID_funct3 == FUNCT3_SRA_SRL)))));
+  assign ID_funct7_exception =  ID_unknown_rtype | ID_unknown_itype;
   // determine if the instruction generates a trap
   always_comb begin
     if (ID_is_ecall) begin
@@ -829,18 +880,19 @@ module dtcore32 (
       //R-type, I-type ALU,I-type logical shift
       ALU_OP_IALU_ISHIFT_R_TYPE: begin
         case (ID_funct3)
-          FUNCT3_ADD_SUB: ID_alu_control_int = (ID_r_type_sub) ? SUB_ALU_CONTROL  /*sub*/ : ADD_ALU_CONTROL  /*add*/;
+          FUNCT3_ADD: ID_alu_control_int = (ID_r_type_sub) ? SUB_ALU_CONTROL  /*sub*/ : ADD_ALU_CONTROL  /*add*/;
           FUNCT3_SLL: ID_alu_control_int = L_SHIFT_ALU_CONTROL;  //sll
           FUNCT3_SLT: ID_alu_control_int = LT_ALU_CONTROL;  //slt
           FUNCT3_SLTU_SLTIU: ID_alu_control_int = LTU_ALU_CONTROL;  //sltu, sltiu
           FUNCT3_XOR: ID_alu_control_int = XOR_ALU_CONTROL;  //xor
-          FUNCT3_SRA_SRL:
+          FUNCT3_SRA:
           ID_alu_control_int = (ID_r_type_sub || ID_i_type_sub) ? R_SHIFT_A_ALU_CONTROL /*sra*/ : R_SHIFT_L_ALU_CONTROL /*srl*/;
           FUNCT3_OR: ID_alu_control_int = OR_ALU_CONTROL;  //or
           FUNCT3_AND: ID_alu_control_int = AND_ALU_CONTROL;  //and
           default: ID_alu_op_exception = 1;
         endcase
       end
+      default: ;
     endcase
   end
   // register file
@@ -886,7 +938,11 @@ module dtcore32 (
       EX_valid_instr <= 0;
       EX_intr <= 0;
       EX_csr_rd_en <= 0;
-    end else if (!EX_stall) begin
+    end 
+    else if (EX_stall) begin
+      EX_valid_instr <= 0;
+    end
+    else begin
       EX_reg_wr_en <= ID_reg_wr_en;
       EX_result_src <= ID_result_src;
       EX_load_size <= ID_load_size;
@@ -929,7 +985,12 @@ module dtcore32 (
   //
   ///////////////////////////////////////
   assign EX_pc_src = EX_jump | (EX_branch & EX_branch_cond);
-  assign EX_trap   = EX_prev_trap;
+  assign EX_trap   = EX_prev_trap.valid           ? EX_prev_trap : 
+                     EX_misaligned_jump_or_branch ? '{1, 0, EXCEPT_INSTR_ADDR_MISALIGNED, EX_pc} :
+                     '{0, 0, 0, 0};
+  assign EX_pc_wdata = EX_pc_src ? EX_pc_target : EX_pc_plus_4;
+  // trap if a jump or branch address is misaligned
+  assign EX_misaligned_jump_or_branch = EX_pc_src & (IF_pc_tick[1] | IF_pc_tick[0]);
   // alu input 1 data path
   // select reg 1 data or data forwarded from WB or MEM stage
   always_comb begin
@@ -1035,7 +1096,12 @@ module dtcore32 (
       MEM_src_reg_1 <= 0;
       MEM_src_reg_2 <= 0;
       MEM_csr_rd_en <= 0;
-    end else if (!MEM_stall) begin
+      MEM_pc_wdata <= 0;
+    end 
+    else if (MEM_stall) begin
+      MEM_valid_instr <= 0;
+    end 
+    else begin
       MEM_reg_wr_en <= EX_reg_wr_en;
       MEM_result_src <= EX_result_src;
       MEM_load_size <= EX_load_size;
@@ -1058,6 +1124,7 @@ module dtcore32 (
       MEM_src_reg_1 <= EX_src_reg_1;
       MEM_src_reg_2 <= EX_src_reg_2;
       MEM_csr_rd_en <= EX_csr_rd_en;
+      MEM_pc_wdata <= EX_pc_wdata;
     end
   end
 
@@ -1225,8 +1292,12 @@ module dtcore32 (
       WB_mem_rdata <= 0;
       WB_mem_wdata <= 0;
       WB_csr_rd_en_int <= 0;
-
-    end else if (!WB_stall) begin
+      WB_pc_wdata <= 0;
+    end 
+    else if (WB_stall) begin
+      WB_valid_instr <= 0;
+    end
+    else begin
       WB_reg_wr_en_int <= MEM_reg_wr_en;
       WB_dest_reg <= MEM_dest_reg;
       WB_instr <= MEM_instr;
@@ -1251,6 +1322,7 @@ module dtcore32 (
       WB_mem_rdata <= DMEM_rd_data_i;
       WB_mem_wdata <= DMEM_wr_data_int;
       WB_csr_rd_en_int <= MEM_csr_rd_en;
+      WB_pc_wdata <= MEM_pc_wdata;
     end
   end
 
@@ -1494,6 +1566,21 @@ module dtcore32 (
       rvfi_csr_minstret_wmask <= 0;
       rvfi_csr_minstret_rdata <= 0;
       rvfi_csr_minstret_wdata <= 0;
+
+      rvfi_csr_mcause_rmask <= 0;
+      rvfi_csr_mcause_wmask <= 0;
+      rvfi_csr_mcause_rdata <= 0;
+      rvfi_csr_mcause_wdata <= 0;
+
+      rvfi_csr_mtvec_rmask <= 0;
+      rvfi_csr_mtvec_wmask <= 0;
+      rvfi_csr_mtvec_rdata <= 0;
+      rvfi_csr_mtvec_wdata <= 0;
+
+      rvfi_csr_mepc_rmask <= 0;
+      rvfi_csr_mepc_wmask <= 0;
+      rvfi_csr_mepc_rdata <= 0;
+      rvfi_csr_mepc_wdata <= 0;
     end
     else begin
       rvfi_valid <= WB_valid_instr & ~WB_stall;
@@ -1511,10 +1598,11 @@ module dtcore32 (
       rvfi_rs2_rdata <= WB_reg_data_2;
 
       rvfi_rd_addr <= WB_dest_reg;
-      rvfi_rd_wdata <= WB_result;
+      rvfi_rd_wdata <= WB_reg_wdata;
 
       rvfi_pc_rdata <= WB_pc;
-      rvfi_pc_wdata <= /*WB_trap.valid*/0 ? exception_handler_addr : (MEM_valid_instr ? MEM_pc : (EX_valid_instr ? EX_pc : (ID_valid_instr ? ID_pc : IF_pc)));
+      rvfi_pc_wdata <= /*WB_trap.valid*/0 ? exception_handler_addr :
+                       WB_pc_wdata;
 
       rvfi_mem_addr <= WB_alu_result;
       rvfi_mem_rmask <= rvfi_mem_rmask_int;
@@ -1524,25 +1612,72 @@ module dtcore32 (
 
       // make rmask and wmask cleared if an exception
       if(WB_csr_wr_type != 0) begin
-        rvfi_csr_mcycle_wmask <= is_csr_mcycleh ? 64'hffff_ffff_0000_0000 : is_csr_mcycle ? 64'h0000_0000_ffff_ffff : 64'd0;
-        rvfi_csr_minstret_wmask <= is_csr_minstreth ? 64'hffff_ffff_0000_0000 : is_csr_minstret ? 64'h0000_0000_ffff_ffff : 64'd0;
+        rvfi_csr_mcycle_wmask <= is_csr_mcycleh ? 64'hffff_ffff_0000_0000 : 
+                                 is_csr_mcycle  ? 64'h0000_0000_ffff_ffff : 
+                                 64'd0;
+        rvfi_csr_minstret_wmask <= is_csr_minstreth ? 64'hffff_ffff_0000_0000 :
+                                   is_csr_minstret  ? 64'h0000_0000_ffff_ffff : 
+                                   64'd0;
+        rvfi_csr_mcause_wmask <= is_csr_mcause ? 32'hffff_ffff :
+                                 32'd0;
+        rvfi_csr_mepc_wmask <= is_csr_mepc ? 32'hffff_ffff :
+                                 32'd0;
+        rvfi_csr_mtvec_wmask <= is_csr_mtvec ? 32'hffff_ffff :
+                                 32'd0;
       end else begin
         rvfi_csr_mcycle_wmask <= 64'd0;
         rvfi_csr_minstret_wmask <= 64'd0;
+        rvfi_csr_mcause_wmask <= 32'd0;
+        rvfi_csr_mepc_wmask <= 32'd0;
+        rvfi_csr_mtvec_wmask <= 32'd0;
       end
 
       if(WB_csr_rd_en == 1) begin
-        rvfi_csr_mcycle_rmask <= is_csr_mcycleh ? 64'hffff_ffff_0000_0000 : (is_csr_mcycle ? 64'h0000_0000_ffff_ffff : 64'd0);
-        rvfi_csr_minstret_rmask <= is_csr_minstreth ? 64'hffff_ffff_0000_0000 : is_csr_minstret ? 64'h0000_0000_ffff_ffff : 64'd0;
+        rvfi_csr_mcycle_rmask <= is_csr_mcycleh ? 64'hffff_ffff_0000_0000 : 
+                                 is_csr_mcycle  ? 64'h0000_0000_ffff_ffff : 
+                                 64'd0;
+        rvfi_csr_minstret_rmask <= is_csr_minstreth ? 64'hffff_ffff_0000_0000 : 
+                                   is_csr_minstret  ? 64'h0000_0000_ffff_ffff : 
+                                   64'd0;
+        rvfi_csr_mcause_rmask <= is_csr_mcause ? 32'hffff_ffff :
+                                 32'd0;
+        rvfi_csr_mtvec_rmask <= is_csr_mtvec ? 32'hffff_ffff :
+                                 32'd0;
+        rvfi_csr_mepc_rmask <= is_csr_mepc ? 32'hffff_ffff :
+                                 32'd0;
+        
       end else begin
         rvfi_csr_mcycle_rmask <= 64'd0;
         rvfi_csr_minstret_rmask <= 64'd0;
+        rvfi_csr_mcause_rmask <= 32'd0;
+        rvfi_csr_mtvec_rmask <= 32'd0;
+        rvfi_csr_mepc_rmask <= 32'd0;
       end
-      rvfi_csr_mcycle_rdata <= csr_current_value;
-      rvfi_csr_mcycle_wdata <= csr_wr_data;
+      rvfi_csr_mcycle_rdata <= is_csr_mcycleh ? {csr_current_value, 32'd0} :
+                               is_csr_mcycle  ? {32'd0, csr_current_value} :
+                               64'd0;
+      rvfi_csr_minstret_rdata <= is_csr_minstreth ? {csr_current_value, 32'd0} :
+                                 is_csr_minstret  ? {32'd0, csr_current_value} :
+                                 64'd0;
+      rvfi_csr_mcause_rdata <= is_csr_mcause ? csr_current_value :
+                               32'd0;
+      rvfi_csr_mtvec_rdata <= is_csr_mtvec ? csr_current_value :
+                               32'd0;
+      rvfi_csr_mepc_rdata <= is_csr_mepc ? csr_current_value :
+                               32'd0;
 
-      rvfi_csr_minstret_rdata <= csr_current_value;
-      rvfi_csr_minstret_wdata <= csr_wr_data;
+      rvfi_csr_mcycle_wdata <= is_csr_mcycleh ? {csr_wr_data, 32'd0} :
+                               is_csr_mcycle  ? {32'd0, csr_wr_data} :
+                               64'd0;
+      rvfi_csr_minstret_wdata <= is_csr_minstreth ? {csr_wr_data, 32'd0} :
+                                 is_csr_minstret  ? {32'd0, csr_wr_data} :
+                                 64'd0;
+      rvfi_csr_mcause_wdata <= is_csr_mcause ? csr_wr_data:
+                                 32'd0;
+      rvfi_csr_mtvec_wdata <= is_csr_mtvec ? csr_wr_data:
+                                 32'd0;
+      rvfi_csr_mepc_wdata <= is_csr_mepc ? csr_wr_data:
+                                 32'd0;
       
     end
   end
