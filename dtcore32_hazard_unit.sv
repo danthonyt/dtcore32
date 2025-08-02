@@ -21,6 +21,8 @@ module dtcore32_hazard_unit(
 
     output logic ID_flush_o,
     output logic EX_flush_o,
+    output logic MEM_flush_o,
+    output logic WB_flush_o,
 
     output logic IF_stall_o,
     output logic ID_stall_o,
@@ -80,11 +82,18 @@ module dtcore32_hazard_unit(
   assign EX_forward_a_o = EX_forward_a;
   assign EX_forward_b_o = EX_forward_b;
 
-  // if there is a trap only flush when there isnt a stall so the trap propagates to the next stage
-  // jump or trap 
-  //
-  assign ID_flush_o = EX_pc_src_i | EX_trap_valid_i | MEM_trap_valid_i | WB_trap_valid_i;
-  assign EX_flush_o = EX_pc_src_i | MEM_trap_valid_i | WB_trap_valid_i;
+// dmem read
+// stall IF to MEM to allow a data memory read
+// load use stall
+// stall IF to ID, creating a NOP at EX stage
+// jump
+// flush ID to EX,  
+  // flush on jump, 
+  // dmem stalls everything before WB, so flush must be disabled so instructions arent lost
+  assign ID_flush_o = (EX_pc_src_i | (ID_trap_valid_i & ~ID_stall_o) | (EX_trap_valid_i | MEM_trap_valid_i | WB_trap_valid_i)) & ~DMEM_read_stall;
+  assign EX_flush_o = (((EX_pc_src_i | EX_trap_valid_i) & ~EX_stall_o)  | MEM_trap_valid_i | WB_trap_valid_i) & ~DMEM_read_stall;
+  assign MEM_flush_o = (MEM_trap_valid_i & ~DMEM_read_stall)| WB_trap_valid_i ;
+  assign WB_flush_o = WB_trap_valid_i;
 
   assign IF_stall_o = IF_load_use_stall | DMEM_read_stall;
   assign ID_stall_o = ID_load_use_stall | DMEM_read_stall;

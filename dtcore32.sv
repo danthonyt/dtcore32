@@ -254,6 +254,8 @@ module dtcore32 (
   // resets the pipeline to control signals of a NOP instruction
   logic ID_flush;
   logic EX_flush;
+  logic MEM_flush;
+  logic WB_flush;
 
   logic [31:0] IF_pc_tick;
 
@@ -1068,7 +1070,7 @@ module dtcore32 (
 
   // EX/MEM register
   always_ff @(posedge clk_i) begin
-    if (rst_i || (!MEM_stall & EX_stall)) begin
+    if (rst_i || MEM_flush || (!MEM_stall & EX_stall)) begin
       MEM_reg_wr_en <= 0;
       MEM_result_src <= 0;
       MEM_load_size <= 0;
@@ -1259,7 +1261,7 @@ module dtcore32 (
   end
   // pipeline to WB stage
   always_ff @(posedge clk_i) begin
-    if (rst_i || MEM_stall) begin
+    if (rst_i || MEM_stall || WB_flush) begin
       WB_reg_wr_en_int <= 0;
       WB_dest_reg <= 0;
       WB_instr <= NOP_INSTRUCTION;
@@ -1363,6 +1365,8 @@ module dtcore32 (
       .EX_forward_b_o(EX_forward_b),
       .ID_flush_o(ID_flush),
       .EX_flush_o(EX_flush),
+      .MEM_flush_o(MEM_flush),
+      .WB_flush_o(WB_flush),
       .IF_stall_o(IF_stall),
       .ID_stall_o(ID_stall),
       .EX_stall_o(EX_stall),
