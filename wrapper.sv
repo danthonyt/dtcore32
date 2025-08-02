@@ -5,18 +5,17 @@ module rvfi_wrapper (
 );
 
 
-(* keep *) `rvformal_rand_reg [31:0] IMEM_rd_data_i;
-(* keep *) `rvformal_rand_reg [31:0] DMEM_rd_data_i;
+(* keep *) `rvformal_rand_reg [31:0] IMEM_rdata_i;
+(* keep *) `rvformal_rand_reg [31:0] DMEM_rdata_i;
 (* keep *) logic [31:0] IMEM_addr_o;
 (* keep *) logic [31:0] DMEM_addr_o;
-(* keep *) logic [31:0] DMEM_wr_data_o;
-(* keep *) logic [3:0] DMEM_wr_byte_en_o;
-
-    dtcore32  dtcore32_inst (
+(* keep *) logic [31:0] DMEM_wdata_o;
+(* keep *) logic [3:0] DMEM_wmask_o;
+  dtcore32  dtcore32_inst (
     .clk_i(clock),
     .rst_i(reset),
-    .IMEM_rd_data_i(IMEM_rd_data_i),
-    .DMEM_rd_data_i(DMEM_rd_data_i),
+    .IMEM_rdata_i(IMEM_rdata_i),
+    .DMEM_rdata_i(DMEM_rdata_i),
     .rvfi_valid(rvfi_valid),
     .rvfi_order(rvfi_order),
     .rvfi_insn(rvfi_insn),
@@ -50,18 +49,18 @@ module rvfi_wrapper (
     .rvfi_csr_mcause_wmask(rvfi_csr_mcause_wmask),
     .rvfi_csr_mcause_rdata(rvfi_csr_mcause_rdata),
     .rvfi_csr_mcause_wdata(rvfi_csr_mcause_wdata),
-    .rvfi_csr_mtvec_rmask(rvfi_csr_mtvec_rmask),
-    .rvfi_csr_mtvec_wmask(rvfi_csr_mtvec_wmask),
-    .rvfi_csr_mtvec_rdata(rvfi_csr_mtvec_rdata),
-    .rvfi_csr_mtvec_wdata(rvfi_csr_mtvec_wdata),
     .rvfi_csr_mepc_rmask(rvfi_csr_mepc_rmask),
     .rvfi_csr_mepc_wmask(rvfi_csr_mepc_wmask),
     .rvfi_csr_mepc_rdata(rvfi_csr_mepc_rdata),
     .rvfi_csr_mepc_wdata(rvfi_csr_mepc_wdata),
+    .rvfi_csr_mtvec_rmask(rvfi_csr_mtvec_rmask),
+    .rvfi_csr_mtvec_wmask(rvfi_csr_mtvec_wmask),
+    .rvfi_csr_mtvec_rdata(rvfi_csr_mtvec_rdata),
+    .rvfi_csr_mtvec_wdata(rvfi_csr_mtvec_wdata),
     .IMEM_addr_o(IMEM_addr_o),
     .DMEM_addr_o(DMEM_addr_o),
-    .DMEM_wr_data_o(DMEM_wr_data_o),
-    .DMEM_wr_byte_en_o(DMEM_wr_byte_en_o)
+    .DMEM_wdata_o(DMEM_wdata_o),
+    .DMEM_wmask_o(DMEM_wmask_o)
   );
 endmodule
 

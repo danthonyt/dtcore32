@@ -2,18 +2,18 @@ module dtcore32_hazard_unit(
     //Forwarding
     input logic clk_i,
     input logic rst_i,
-    input logic [4:0] EX_src_reg_1_i,
-    input logic [4:0] EX_src_reg_2_i,
-    input logic [4:0] MEM_dest_reg_i,
-    input logic [4:0] WB_dest_reg_i,
+    input logic [4:0] EX_rs1_addr_i,
+    input logic [4:0] EX_rs2_addr_i,
+    input logic [4:0] MEM_rd_addr_i,
+    input logic [4:0] WB_rd_addr_i,
     input logic MEM_reg_wr_en_i,
     input logic WB_reg_wr_en_i,
     //Stalling
     input logic EX_result_src_b0_i,
-    input logic [4:0] ID_src_reg_1_i,
-    input logic [4:0] ID_src_reg_2_i,
-    input logic [4:0] EX_dest_reg_i,
-    input logic EX_dmem_read_i,
+    input logic [4:0] ID_rs1_addr_i,
+    input logic [4:0] ID_rs2_addr_i,
+    input logic [4:0] EX_rd_addr_i,
+    input logic EX_dmem_rd_en_i,
     //branch control hazard
     input logic EX_pc_src_i,
     output logic [1:0] EX_forward_a_o,
@@ -48,7 +48,7 @@ module dtcore32_hazard_unit(
     else
     begin
       if (DMEM_read_stall) DMEM_read_stall <= 0; // if stalled last cycle stop stalling
-      else if (EX_dmem_read_i) DMEM_read_stall <= 1;
+      else if (EX_dmem_rd_en_i) DMEM_read_stall <= 1;
     end
   end
   //if either source register matches a register we are writing to in a previous
@@ -56,16 +56,16 @@ module dtcore32_hazard_unit(
   //value is used.
   always_comb
   begin
-    if ( ( (EX_src_reg_1_i == MEM_dest_reg_i) && MEM_reg_wr_en_i ) && (EX_src_reg_1_i != 0) )
+    if ( ( (EX_rs1_addr_i == MEM_rd_addr_i) && MEM_reg_wr_en_i ) && (EX_rs1_addr_i != 0) )
       EX_forward_a =  2'b10;		//Forward from memory stage
-    else if ( ( (EX_src_reg_1_i == WB_dest_reg_i) && WB_reg_wr_en_i ) && (EX_src_reg_1_i != 0) )
+    else if ( ( (EX_rs1_addr_i == WB_rd_addr_i) && WB_reg_wr_en_i ) && (EX_rs1_addr_i != 0) )
       EX_forward_a = 2'b01;	//Forward from Writeback stage
     else
       EX_forward_a = 2'b00;														//No Forwarding
 
-    if ( ( (EX_src_reg_2_i == MEM_dest_reg_i) && MEM_reg_wr_en_i ) && (EX_src_reg_2_i != 0) )
+    if ( ( (EX_rs2_addr_i == MEM_rd_addr_i) && MEM_reg_wr_en_i ) && (EX_rs2_addr_i != 0) )
       EX_forward_b =  2'b10;
-    else if ( ( (EX_src_reg_2_i == WB_dest_reg_i) && WB_reg_wr_en_i ) && (EX_src_reg_2_i != 0))
+    else if ( ( (EX_rs2_addr_i == WB_rd_addr_i) && WB_reg_wr_en_i ) && (EX_rs2_addr_i != 0))
       EX_forward_b = 2'b01;
     else
       EX_forward_b = 2'b00;
@@ -74,7 +74,7 @@ module dtcore32_hazard_unit(
   always_comb
   begin
     //We must stall if a load instruction is in the execute stage while another instruction has a matching source register to that write register in the decode stage
-    if ((EX_result_src_b0_i && ((ID_src_reg_1_i == EX_dest_reg_i) || (ID_src_reg_2_i == EX_dest_reg_i))) )
+    if ((EX_result_src_b0_i && ((ID_rs1_addr_i == EX_rd_addr_i) || (ID_rs2_addr_i == EX_rd_addr_i))) )
       {IF_load_use_stall, ID_load_use_stall} = 2'b1_1;
     else
       {IF_load_use_stall, ID_load_use_stall} = 2'b0_0;
