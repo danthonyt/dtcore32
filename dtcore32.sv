@@ -320,11 +320,15 @@ module dtcore32 (
   logic EX_jump;
 
   logic [31:0] ID_rs1_rdata;
+  logic [31:0] ID_rs1_regfile_rdata;
+  logic [31:0] EX_rs1_rdata_unforwarded;
   logic [31:0] EX_rs1_rdata;
   logic [31:0] MEM_rs1_rdata;
   logic [31:0] WB_rs1_rdata;
 
   logic [31:0] ID_rs2_rdata;
+  logic [31:0] ID_rs2_regfile_rdata;
+  logic [31:0] EX_rs2_rdata_unforwarded;
   logic [31:0] EX_rs2_rdata;
   logic [31:0] MEM_rs2_rdata;
   logic [31:0] WB_rs2_rdata;
@@ -384,7 +388,7 @@ module dtcore32 (
   logic [4:0] ID_rd_addr;
   logic [4:0] EX_rd_addr;
   logic [4:0] MEM_rd_addr;
-  logic [4:0] WB_rd_addr;
+  logic [4:0] WB_rd_addr,WB_rd_addr_int;
 
   // result of alu operation depending on the instruction type
   logic [31:0] EX_alu_result;
@@ -463,6 +467,8 @@ module dtcore32 (
   logic ID_unknown_itype;
   logic ID_unknown_rtype;
   logic ID_is_shift_itype;
+  logic ID_forward_a;
+  logic ID_forward_b;
 
 
   // EXECUTE stage specific signals
@@ -487,7 +493,7 @@ module dtcore32 (
   logic [31:0] WB_csr_rd_data;  // reads the csr value before a write
   logic [31:0] WB_result;
   
-  logic [31:0] WB_reg_wdata;
+  logic [31:0] WB_rd_wdata;
 
   logic ID_csr_rd_en;
   logic EX_csr_rd_en;
@@ -605,13 +611,16 @@ module dtcore32 (
   assign ID_funct7b5 = ID_insn[30];
   assign ID_funct7 = ID_insn[31:25];
   assign ID_funct12 = ID_insn[31:20];
+  logic ID_valid_rs1_addr;
+  logic ID_valid_rs2_addr;
+  logic ID_valid_rd_addr;
 
   assign ID_r_type_sub = ID_op[5] & ID_funct7b5;
   assign ID_i_type_sub = ~ID_op[5] & ID_funct7b5;
   assign ID_alu_control = ID_valid_insn ? ID_alu_control_int : 0;
-  assign ID_rs1_addr = ID_valid_insn ? ID_insn[19:15] : 0;
-  assign ID_rs2_addr = ID_valid_insn ? ID_insn[24:20] : 0;
-  assign ID_rd_addr = ID_valid_insn ? ID_insn[11:7] : 0;
+  assign ID_rs1_addr = (ID_valid_insn & ID_valid_rs1_addr) ? ID_insn[19:15] : 0;
+  assign ID_rs2_addr = (ID_valid_insn & ID_valid_rs2_addr) ? ID_insn[24:20] : 0;
+  assign ID_rd_addr = (ID_valid_insn & ID_valid_rd_addr) ? ID_insn[11:7] : 0;
   assign ID_imm_ext = ID_valid_insn ? ID_imm_ext_tmp : 0;
   assign ID_csr_addr = ID_valid_insn ? ID_insn[31:20] : 0;
   assign ID_unknown_insn = ID_opcode_exception | ID_alu_op_exception | ID_funct7_exception;
@@ -631,6 +640,11 @@ module dtcore32 (
                             & ~(ID_is_SRAI_funct3 & (ID_funct7 == 7'h20));
 
   assign ID_funct7_exception = ID_unknown_rtype | ID_unknown_itype;
+  // select forwarded rs1 or rs2 rdata if needed
+  assign ID_rs1_rdata = ID_forward_a ? WB_rd_wdata :
+                        ID_rs1_regfile_rdata;
+  assign ID_rs2_rdata = ID_forward_b ? WB_rd_wdata :
+                        ID_rs2_regfile_rdata;                     
   // determine if the instruction generates a trap
   always_comb begin
     if (ID_is_ecall) begin
@@ -671,6 +685,9 @@ module dtcore32 (
 
   // Decode the control signals for the specific instruction
   always_comb begin
+    ID_valid_rd_addr = 0;
+    ID_valid_rs1_addr = 0;
+    ID_valid_rs2_addr = 0;
     ID_is_ebreak = 0;
     ID_is_ecall = 0;
     ID_opcode_exception = 0;
@@ -692,6 +709,8 @@ module dtcore32 (
     ID_csr_wr_operand_src = CSR_SRC_SELECT_REG_DATA;
     case (ID_op)
       OPCODE_LOAD: begin
+        ID_valid_rs1_addr = 1;
+        ID_valid_rd_addr = 1;
         ID_dmem_rd_en = 1;
         ID_reg_wr_en = REGFILE_WRITE_ENABLE;
         ID_imm_src = I_ALU_TYPE_IMM_SRC;
@@ -713,6 +732,8 @@ module dtcore32 (
       end
 
       OPCODE_SYSCALL_CSR: begin
+        ID_valid_rs1_addr = 1;
+        ID_valid_rd_addr = 1;
         case (ID_funct3)
           FUNCT3_ECALL_EBREAK: begin
             if ((ID_rs1_addr != 0) && (ID_rd_addr != 0)) begin
@@ -772,6 +793,8 @@ module dtcore32 (
         endcase
       end
       OPCODE_STORE: begin
+        ID_valid_rs1_addr = 1;
+        ID_valid_rs2_addr = 1;
         ID_imm_src = S_TYPE_IMM_SRC;
         ID_alu_a_src = ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = ALU_B_SRC_SELECT_IMM;
@@ -787,6 +810,9 @@ module dtcore32 (
         endcase
       end
       OPCODE_R_TYPE: begin
+        ID_valid_rs1_addr = 1;
+        ID_valid_rs2_addr = 1;
+        ID_valid_rd_addr = 1;
         ID_reg_wr_en = REGFILE_WRITE_ENABLE;
         ID_alu_a_src = ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = ALU_B_SRC_SELECT_REG_DATA;
@@ -795,6 +821,9 @@ module dtcore32 (
         ID_pc_target_alu_src = PC_TARGET_ALU_SRC_SELECT_PC;
       end
       OPCODE_B_TYPE: begin
+        ID_valid_rs1_addr = 1;
+        ID_valid_rs2_addr = 1;
+        ID_reg_wr_en = 0;
         ID_imm_src = B_TYPE_IMM_SRC;
         ID_alu_a_src = ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = ALU_B_SRC_SELECT_REG_DATA;
@@ -804,6 +833,8 @@ module dtcore32 (
       end
       //I-type ALU or shift
       OPCODE_I_TYPE: begin
+        ID_valid_rs1_addr = 1;
+        ID_valid_rd_addr = 1;
         ID_reg_wr_en = REGFILE_WRITE_ENABLE;
         ID_alu_a_src = ALU_A_SRC_SELECT_REG_DATA;
         ID_alu_b_src = ALU_B_SRC_SELECT_IMM;
@@ -821,6 +852,7 @@ module dtcore32 (
         endcase  //I-type shift
       end
       OPCODE_JAL: begin
+        ID_valid_rd_addr = 1;
         ID_reg_wr_en = REGFILE_WRITE_ENABLE;
         ID_imm_src = J_TYPE_IMM_SRC;
         ID_alu_a_src = ALU_A_SRC_SELECT_REG_DATA;
@@ -831,6 +863,7 @@ module dtcore32 (
         ID_pc_target_alu_src = PC_TARGET_ALU_SRC_SELECT_PC;
       end
       OPCODE_U_TYPE_LUI: begin
+        ID_valid_rd_addr = 1;
         ID_reg_wr_en = REGFILE_WRITE_ENABLE;
         ID_imm_src = U_TYPE_IMM_SRC;
         ID_alu_a_src = ALU_A_SRC_SELECT_ZERO;
@@ -840,6 +873,7 @@ module dtcore32 (
         ID_pc_target_alu_src = PC_TARGET_ALU_SRC_SELECT_PC;
       end
       OPCODE_U_TYPE_AUIPC: begin
+        ID_valid_rd_addr = 1;
         ID_reg_wr_en = REGFILE_WRITE_ENABLE;
         ID_imm_src = U_TYPE_IMM_SRC;
         ID_alu_a_src = ALU_A_SRC_SELECT_PC;
@@ -849,6 +883,8 @@ module dtcore32 (
         ID_pc_target_alu_src = PC_TARGET_ALU_SRC_SELECT_PC;
       end
       OPCODE_JALR: begin
+        ID_valid_rs1_addr = 1;
+        ID_valid_rd_addr = 1;
         ID_reg_wr_en = REGFILE_WRITE_ENABLE;
         ID_imm_src = I_ALU_TYPE_IMM_SRC;
         ID_alu_a_src = ALU_A_SRC_SELECT_REG_DATA;
@@ -911,9 +947,9 @@ module dtcore32 (
       .rs1_addr_i(ID_rs1_addr),
       .rs2_addr_i(ID_rs2_addr),
       .rd_addr_i(WB_rd_addr),
-      .reg_wr_data_i(WB_reg_wdata),
-      .rs1_rdata_o(ID_rs1_rdata),
-      .rs2_rdata_o(ID_rs2_rdata)
+      .reg_wr_data_i(WB_rd_wdata),
+      .rs1_rdata_o(ID_rs1_regfile_rdata),
+      .rs2_rdata_o(ID_rs2_regfile_rdata)
   );
 
   // ID/EX register
@@ -929,8 +965,8 @@ module dtcore32 (
       EX_alu_a_src <= 0;
       EX_alu_b_src <= 1;
       EX_pc_target_alu_src <= 0;
-      EX_rs1_rdata <= 0;
-      EX_rs2_rdata <= 0;
+      EX_rs1_rdata_unforwarded <= 0;
+      EX_rs2_rdata_unforwarded <= 0;
       EX_pc_rdata <= 0;
       EX_rs1_addr <= 0;
       EX_rs2_addr <= 0;
@@ -957,8 +993,8 @@ module dtcore32 (
       EX_alu_a_src <= ID_alu_a_src;
       EX_alu_b_src <= ID_alu_b_src;
       EX_pc_target_alu_src <= ID_pc_target_alu_src;
-      EX_rs1_rdata <= ID_rs1_rdata;
-      EX_rs2_rdata <= ID_rs2_rdata;
+      EX_rs1_rdata_unforwarded <= ID_rs1_rdata;
+      EX_rs2_rdata_unforwarded <= ID_rs2_rdata;
       EX_pc_rdata <= ID_pc_rdata;
       EX_rs1_addr <= ID_rs1_addr;
       EX_rs2_addr <= ID_rs2_addr;
@@ -988,6 +1024,8 @@ module dtcore32 (
   //
   //
   ///////////////////////////////////////
+  assign EX_rs1_rdata = EX_src_a_tick;
+  assign EX_rs2_rdata = EX_dmem_wr_data;
   assign EX_insn_en = ~EX_prev_trap.valid;
   assign EX_pc_src = (EX_jump | (EX_branch & EX_branch_cond)) & EX_insn_en;
   assign EX_trap = EX_prev_trap.valid ? EX_prev_trap : EX_misaligned_jump_or_branch ?
@@ -1000,7 +1038,7 @@ module dtcore32 (
   // select reg 1 data or data forwarded from WB or MEM stage
   always_comb begin
     case (EX_forward_a)
-      2'b00:   EX_src_a_tick = EX_rs1_rdata;
+      2'b00:   EX_src_a_tick = EX_rs1_rdata_unforwarded;
       2'b01:   EX_src_a_tick = WB_result;
       2'b10:   EX_src_a_tick = MEM_alu_result;
       default: EX_src_a_tick = 0;
@@ -1019,7 +1057,7 @@ module dtcore32 (
   // select reg 2 data or data forwarded from WB or MEM stage
   always_comb begin
     case (EX_forward_b)
-      2'b00:   EX_dmem_wr_data = EX_rs2_rdata;
+      2'b00:   EX_dmem_wr_data = EX_rs2_rdata_unforwarded;
       2'b01:   EX_dmem_wr_data = WB_result;
       2'b10:   EX_dmem_wr_data = MEM_alu_result;
       default: EX_dmem_wr_data = 0;
@@ -1120,8 +1158,8 @@ module dtcore32 (
       MEM_valid_insn <= EX_valid_insn;
       MEM_intr <= EX_intr;
       MEM_dmem_rd_en <= EX_dmem_rd_en;
-      MEM_rs1_rdata <= EX_src_a_tick;
-      MEM_rs2_rdata <= EX_dmem_wr_data;
+      MEM_rs1_rdata <= EX_rs1_rdata;
+      MEM_rs2_rdata <= EX_rs2_rdata;
       MEM_rs1_addr <= EX_rs1_addr;
       MEM_rs2_addr <= EX_rs2_addr;
       MEM_csr_rd_en <= EX_csr_rd_en;
@@ -1287,7 +1325,7 @@ module dtcore32 (
   always_ff @(posedge clk_i) begin
     if (rst_i || MEM_stall || WB_flush) begin
       WB_reg_wr_en_int <= 0;
-      WB_rd_addr <= 0;
+      WB_rd_addr_int <= 0;
       WB_insn <= NOP_INSTRUCTION;
       WB_alu_result <= 0;
       WB_mem_rdata <= 0;
@@ -1313,7 +1351,7 @@ module dtcore32 (
       WB_pc_wdata <= 0;
     end else begin
       WB_reg_wr_en_int <= MEM_reg_wr_en;
-      WB_rd_addr <= MEM_rd_addr;
+      WB_rd_addr_int <= MEM_rd_addr;
       WB_insn <= MEM_insn;
       WB_alu_result <= MEM_alu_result;
       WB_mem_rdata <= MEM_mem_rdata;
@@ -1351,7 +1389,9 @@ module dtcore32 (
   assign WB_reg_wr_en = WB_insn_en ? WB_reg_wr_en_int : 0;
   assign WB_csr_wr_type = WB_insn_en ? WB_csr_wr_type_int : 0;
   assign WB_csr_rd_en = WB_insn_en ? WB_csr_rd_en_int : 0;
-  assign WB_reg_wdata = (WB_insn_en & (WB_rd_addr != 0)) ? WB_result : 0;
+  // make sure that instructions that dont write to any register address have x0 as rd and 0 as rd_wdata
+  assign WB_rd_wdata = ((WB_rd_addr != 0) & WB_reg_wr_en) ? WB_result : 0;
+  assign WB_rd_addr = ( WB_reg_wr_en) ? WB_rd_addr_int: 0;
   always_comb begin
     unique case (WB_result_src)
       2'b00: WB_result = WB_alu_result;
@@ -1387,6 +1427,8 @@ module dtcore32 (
       .EX_pc_src_i(EX_pc_src),
       .EX_forward_a_o(EX_forward_a),
       .EX_forward_b_o(EX_forward_b),
+      .ID_forward_a_o(ID_forward_a),
+      .ID_forward_b_o(ID_forward_b),
       .ID_flush_o(ID_flush),
       .EX_flush_o(EX_flush),
       .MEM_flush_o(MEM_flush),
@@ -1605,7 +1647,7 @@ module dtcore32 (
       rvfi_rs2_rdata <= WB_rs2_rdata;
 
       rvfi_rd_addr <= WB_rd_addr;
-      rvfi_rd_wdata <= WB_reg_wdata;
+      rvfi_rd_wdata <= WB_rd_wdata;
 
       rvfi_pc_rdata <= WB_pc_rdata;
       rvfi_pc_wdata <= WB_trap.valid   ? exception_handler_addr :

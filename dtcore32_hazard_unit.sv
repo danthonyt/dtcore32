@@ -18,6 +18,8 @@ module dtcore32_hazard_unit(
     input logic EX_pc_src_i,
     output logic [1:0] EX_forward_a_o,
     output logic [1:0] EX_forward_b_o,
+    output logic ID_forward_a_o,
+    output logic ID_forward_b_o,
 
     output logic ID_flush_o,
     output logic EX_flush_o,
@@ -39,8 +41,9 @@ module dtcore32_hazard_unit(
 
   logic [1:0] EX_forward_a;
   logic [1:0] EX_forward_b;
-  logic IF_load_use_stall;
-  logic ID_load_use_stall;
+  logic ID_forward_a;
+  logic ID_forward_b;
+  logic load_use_stall;
   logic DMEM_read_stall;
   always_ff @(posedge clk_i)
   begin
@@ -75,28 +78,29 @@ module dtcore32_hazard_unit(
   begin
     //We must stall if a load instruction is in the execute stage while another instruction has a matching source register to that write register in the decode stage
     if ((EX_result_src_b0_i && ((ID_rs1_addr_i == EX_rd_addr_i) || (ID_rs2_addr_i == EX_rd_addr_i))) )
-      {IF_load_use_stall, ID_load_use_stall} = 2'b1_1;
+      load_use_stall = 1;
     else
-      {IF_load_use_stall, ID_load_use_stall} = 2'b0_0;
+      load_use_stall = 0;
   end
   assign EX_forward_a_o = EX_forward_a;
   assign EX_forward_b_o = EX_forward_b;
+  always_comb begin
+    ID_forward_a = 0;
+    ID_forward_b = 0;
+    if ((ID_rs1_addr_i == WB_rd_addr_i) && (WB_reg_wr_en_i == 1))  ID_forward_a = 1;
+    if ((ID_rs2_addr_i == WB_rd_addr_i) && (WB_reg_wr_en_i == 1))  ID_forward_b = 1;
+  end
 
-// dmem read
-// stall IF to MEM to allow a data memory read
-// load use stall
-// stall IF to ID, creating a NOP at EX stage
-// jump
-// flush ID to EX,  
-  // flush on jump, 
-  // dmem stalls everything before WB, so flush must be disabled so instructions arent lost
+
+  assign ID_forward_a_o = ID_forward_a;
+  assign ID_forward_b_o = ID_forward_b;
   assign ID_flush_o = (EX_pc_src_i | (ID_trap_valid_i & ~ID_stall_o) | (EX_trap_valid_i | MEM_trap_valid_i | WB_trap_valid_i)) & ~DMEM_read_stall;
   assign EX_flush_o = (((EX_pc_src_i | EX_trap_valid_i) & ~EX_stall_o)  | MEM_trap_valid_i | WB_trap_valid_i) & ~DMEM_read_stall;
   assign MEM_flush_o = (MEM_trap_valid_i & ~DMEM_read_stall)| WB_trap_valid_i ;
   assign WB_flush_o = WB_trap_valid_i;
 
-  assign IF_stall_o = IF_load_use_stall | DMEM_read_stall;
-  assign ID_stall_o = ID_load_use_stall | DMEM_read_stall;
+  assign IF_stall_o = (load_use_stall & ~EX_pc_src_i) | DMEM_read_stall;
+  assign ID_stall_o = (load_use_stall & ~EX_pc_src_i) | DMEM_read_stall;
   assign EX_stall_o = DMEM_read_stall;
   assign MEM_stall_o = DMEM_read_stall;
 
