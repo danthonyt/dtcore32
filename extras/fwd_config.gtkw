@@ -1,0 +1,36 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Wed Aug  6 02:17:27 2025
+[*]
+[dumpfile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/checks/pc_fwd_ch0/engine_0/trace.vcd"
+[dumpfile_mtime] "Wed Aug  6 02:16:18 2025"
+[dumpfile_size] 336210
+[savefile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/extras/fwd_config.gtkw"
+[timestart] 0
+[size] 2494 1361
+[pos] -27 -24
+*-6.093493 170 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] rvfi_testbench.
+[treeopen] rvfi_testbench.wrapper.
+[treeopen] rvfi_testbench.wrapper.dtcore32_inst.
+[sst_width] 278
+[signals_width] 380
+[sst_expanded] 1
+[sst_vpaned_height] 422
+@29
+rvfi_testbench.clock
+@28
+rvfi_testbench.reset
+rvfi_testbench.checker_inst.check
+rvfi_testbench.rvfi_valid
+rvfi_testbench.rvfi_trap
+@22
+rvfi_testbench.checker_inst.expect_pc[31:0]
+rvfi_testbench.checker_inst.pc_rdata[31:0]
+rvfi_testbench.rvfi_insn[31:0]
+@28
+rvfi_testbench.wrapper.dtcore32_inst.dtcore32_hazard_unit_inst.IF_stall_o
+rvfi_testbench.wrapper.dtcore32_inst.dtcore32_hazard_unit_inst.ID_stall_o
+rvfi_testbench.wrapper.dtcore32_inst.dtcore32_hazard_unit_inst.load_use_stall
+[pattern_trace] 1
+[pattern_trace] 0

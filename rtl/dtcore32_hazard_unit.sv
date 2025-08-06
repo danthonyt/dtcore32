@@ -1,0 +1,91 @@
+module dtcore32_hazard_unit (
+    //Forwarding
+    input logic [4:0] EX_rs1_addr_i,
+    input logic [4:0] EX_rs2_addr_i,
+    input logic [4:0] MEM1_rd_addr_i,
+    input logic [4:0] MEM2_rd_addr_i,
+    input logic [4:0] WB_rd_addr_i,
+    //Stalling
+    input logic [1:0] EX_result_src_lsb2_i,
+    input logic [4:0] ID_rs1_addr_i,
+    input logic [4:0] ID_rs2_addr_i,
+    input logic [4:0] EX_rd_addr_i,
+    //branch control hazard
+    input logic EX_pc_src_i,
+    output logic [1:0] EX_forward_a_o,
+    output logic [1:0] EX_forward_b_o,
+    output logic ID_forward_a_o,
+    output logic ID_forward_b_o,
+
+    output logic ID_flush_o,
+    output logic EX_flush_o,
+    output logic MEM1_flush_o,
+    output logic MEM2_flush_o,
+    output logic WB_flush_o,
+
+    output logic IF_stall_o,
+    output logic ID_stall_o,
+
+    // trap logic
+    input logic ID_trap_valid_i,
+    input logic EX_trap_valid_i,
+    input logic MEM1_trap_valid_i,
+    input logic MEM2_trap_valid_i,
+    input logic WB_trap_valid_i
+
+);
+import params_pkg::*;
+  logic [1:0] EX_forward_a;
+  logic [1:0] EX_forward_b;
+  logic ID_forward_a;
+  logic ID_forward_b;
+  logic load_use_stall;
+  //if either source register matches a register we are writing to in a previous
+  //instruction we must forward that value from the previous instruction so the updated
+  //value is used.
+  always_comb begin
+    if ((EX_rs1_addr_i == MEM1_rd_addr_i) && (EX_rs1_addr_i != 0))
+      EX_forward_a = 2'b11;  //Forward from MEM1 stage
+    else if ((EX_rs1_addr_i == MEM2_rd_addr_i) && (EX_rs1_addr_i != 0))
+      EX_forward_a = 2'b10;  //Forward from MEM2 stage
+    else if ((EX_rs1_addr_i == WB_rd_addr_i) && (EX_rs1_addr_i != 0))
+      EX_forward_a = 2'b01;  //Forward from WB stage
+    else EX_forward_a = 2'b00;  //No Forwarding
+
+    if ((EX_rs2_addr_i == MEM1_rd_addr_i) && (EX_rs2_addr_i != 0))
+      EX_forward_b = 2'b11;  //Forward from MEM1 stage
+    else if ((EX_rs2_addr_i == MEM2_rd_addr_i) && (EX_rs2_addr_i != 0))
+      EX_forward_b = 2'b10;  //Forward from MEM2 stage
+    else if ((EX_rs2_addr_i == WB_rd_addr_i) && (EX_rs2_addr_i != 0))
+      EX_forward_b = 2'b01;  //Forward from WB stage
+    else EX_forward_b = 2'b00;  //No Forwarding
+  end
+
+  always_comb begin
+    //We must stall if a load instruction is in the execute stage while another instruction has a matching source register to that write register in the decode stage
+    if ((EX_result_src_lsb2_i == RESULT_SRC_SELECT_DMEM_RD_DATA) && (((ID_rs1_addr_i == EX_rd_addr_i) && (ID_rs1_addr_i != 0)) || (ID_rs2_addr_i == EX_rd_addr_i)  && (ID_rs1_addr_i != 0)))
+      load_use_stall = 1;
+    else load_use_stall = 0;
+  end
+  assign EX_forward_a_o = EX_forward_a;
+  assign EX_forward_b_o = EX_forward_b;
+  always_comb begin
+    ID_forward_a = 0;
+    ID_forward_b = 0;
+    if (ID_rs1_addr_i == WB_rd_addr_i) ID_forward_a = 1;
+    if (ID_rs2_addr_i == WB_rd_addr_i) ID_forward_b = 1;
+  end
+
+
+  assign ID_forward_a_o = ID_forward_a;
+  assign ID_forward_b_o = ID_forward_b;
+  assign ID_flush_o = EX_pc_src_i | (ID_trap_valid_i & ~ID_stall_o) | (EX_trap_valid_i | MEM1_trap_valid_i | MEM2_trap_valid_i | WB_trap_valid_i);
+  assign EX_flush_o = EX_pc_src_i | (EX_trap_valid_i | MEM1_trap_valid_i | MEM2_trap_valid_i | WB_trap_valid_i);
+  assign MEM1_flush_o = MEM1_trap_valid_i | MEM2_trap_valid_i | WB_trap_valid_i;
+  assign MEM2_flush_o = MEM2_trap_valid_i | WB_trap_valid_i;
+  assign WB_flush_o = WB_trap_valid_i;
+
+  assign IF_stall_o = load_use_stall;
+  assign ID_stall_o = load_use_stall;
+
+endmodule
