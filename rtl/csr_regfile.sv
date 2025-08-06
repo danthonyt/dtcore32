@@ -64,7 +64,7 @@ module csr_regfile
       csr_mepc   <= 0;
       csr_mcause <= 0;
     end else if (WB_valid_insn_i && WB_trap_i.valid) begin
-      csr_mepc   <= WB_trap_i.trap_pc;
+      csr_mepc   <= WB_trap_i.pc;
       csr_mcause <= {WB_trap_i.is_interrupt, WB_trap_i.mcause};
     end else if (csr_addr_i == CSR_ADDR_MEPC) csr_mepc <= csr_wdata;
     else if (csr_addr_i == CSR_ADDR_MCAUSE) csr_mcause <= csr_wdata;

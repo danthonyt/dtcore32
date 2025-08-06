@@ -10,8 +10,9 @@ package params_pkg;
   typedef struct {
     logic valid;
     logic is_interrupt;
+    logic [31:0] insn;
     logic [30:0] mcause;
-    logic [31:0] trap_pc;
+    logic [31:0] pc;
   } trap_info_t;
 
   localparam logic [3:0] ADD_ALU_CONTROL = 4'h0;

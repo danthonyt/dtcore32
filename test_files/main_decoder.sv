@@ -107,11 +107,12 @@ module main_decoder
         case (funct3_i)
           FUNCT3_ECALL_EBREAK: begin
             main_decoder_trap_valid = 1;
-            if ((rs1_addr_i != 0) && (rd_addr_i != 0)) begin
-              if (funct12_i == 12'h001) main_decoder_trap_code = TRAP_CODE_BREAKPOINT;
-              else if (funct12_i == 12'h000) main_decoder_trap_code = TRAP_CODE_ECALL_M_MODE;
+            if ((ID_rs1_addr == 0) && (ID_rd_addr == 0)) begin
+              if (ID_funct12 == 12'h001)  main_decoder_trap_code = TRAP_CODE_BREAKPOINT;
+              else if (ID_funct12 == 12'h000) main_decoder_trap_code = TRAP_CODE_ECALL_M_MODE;
               else main_decoder_trap_code = TRAP_CODE_ILLEGAL_INSTR;
-            end else main_decoder_trap_code = TRAP_CODE_ILLEGAL_INSTR;
+            end
+            else main_decoder_trap_code = TRAP_CODE_ILLEGAL_INSTR;
           end
           FUNCT3_CSRRW: begin
             main_decoder_trap_valid = 0;
