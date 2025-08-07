@@ -319,8 +319,8 @@ module dtcore32 (
 
 
   // EXECUTE stage specific signals
-  logic [1:0] EX_forward_a;
-  logic [1:0] EX_forward_b;
+  logic [2:0] EX_forward_a;
+  logic [2:0] EX_forward_b;
   logic EX_pc_src;
   logic [31:0] EX_pc_target;
   logic [31:0] EX_src_a_tick;
@@ -749,11 +749,12 @@ module dtcore32 (
   // select reg 1 data or data forwarded from WB or MEM stage
   always_comb begin
     case (EX_forward_a)
-      2'b00:   EX_src_a_tick = EX_rs1_rdata_unforwarded;
-      2'b01:   EX_src_a_tick = WB_result;
-      2'b10:   EX_src_a_tick = MEM2_alu_result;
-      2'b11:   EX_src_a_tick = MEM1_alu_result;
-      default: EX_src_a_tick = 0;
+      FORWARD_SEL_NO_FORWARD:        EX_src_a_tick = EX_rs1_rdata_unforwarded;
+      FORWARD_SEL_MEM1_ALU_RESULT:   EX_src_a_tick = MEM1_alu_result;
+      FORWARD_SEL_MEM2_ALU_RESULT:   EX_src_a_tick = MEM2_alu_result;
+      FORWARD_SEL_MEM2_MEM_RDATA:    EX_src_a_tick = MEM2_mem_rdata;
+      FORWARD_SEL_WB_RESULT:         EX_src_a_tick = WB_result;
+      default:                       EX_src_a_tick = 0;
     endcase
   end
   // select data from first mux, zero, or pc
@@ -769,11 +770,12 @@ module dtcore32 (
   // select reg 2 data or data forwarded from WB or MEM stage
   always_comb begin
     case (EX_forward_b)
-      2'b00:   EX_mem_wdata_raw = EX_rs2_rdata_unforwarded;
-      2'b01:   EX_mem_wdata_raw = WB_result;
-      2'b10:   EX_mem_wdata_raw = MEM2_alu_result;
-      2'b11:   EX_mem_wdata_raw = MEM1_alu_result;
-      default: EX_mem_wdata_raw = 0;
+      FORWARD_SEL_NO_FORWARD:        EX_mem_wdata_raw = EX_rs2_rdata_unforwarded;
+      FORWARD_SEL_MEM1_ALU_RESULT:   EX_mem_wdata_raw = MEM1_alu_result;
+      FORWARD_SEL_MEM2_ALU_RESULT:   EX_mem_wdata_raw = MEM2_alu_result;
+      FORWARD_SEL_MEM2_MEM_RDATA:    EX_mem_wdata_raw = MEM2_mem_rdata;
+      FORWARD_SEL_WB_RESULT:         EX_mem_wdata_raw = WB_result;
+      default:                       EX_mem_wdata_raw = 0;
     endcase
   end
   // select data from first mux, or extended immediate
@@ -850,8 +852,6 @@ module dtcore32 (
   //
   //
   ///////////////////////////////////////
-
-
   load_unit load_unit_inst (
       .load_type(MEM2_load_size),
       .addr_lsb2(MEM2_alu_result[1:0]),
@@ -1306,15 +1306,14 @@ module dtcore32 (
   //
   ///////////////////////////////////////
 
-
-  assign EX_result_src_lsb2_i = EX_result_src[1:0];
   dtcore32_hazard_unit dtcore32_hazard_unit_inst (
       .EX_rs1_addr_i(EX_rs1_addr),
       .EX_rs2_addr_i(EX_rs2_addr),
       .MEM1_rd_addr_i(MEM1_rd_addr),
       .MEM2_rd_addr_i(MEM2_rd_addr),
       .WB_rd_addr_i(WB_rd_addr),
-      .EX_result_src_lsb2_i(EX_result_src_lsb2_i),
+      .MEM2_result_src_i(MEM2_result_src),
+      .EX_result_src_i(EX_result_src),
       .ID_rs1_addr_i(ID_rs1_addr),
       .ID_rs2_addr_i(ID_rs2_addr),
       .EX_rd_addr_i(EX_rd_addr),

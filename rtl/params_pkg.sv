@@ -30,6 +30,14 @@ package params_pkg;
   localparam logic [3:0] GEU_ALU_CONTROL = 4'hB;
   localparam logic [3:0] NE_ALU_CONTROL = 4'hC;
 
+  localparam logic [2:0] FORWARD_SEL_NO_FORWARD = 3'h0;
+  localparam logic [2:0] FORWARD_SEL_MEM1_ALU_RESULT = 3'h1;
+  localparam logic [2:0] FORWARD_SEL_MEM2_ALU_RESULT = 3'h2;
+  localparam logic [2:0] FORWARD_SEL_MEM2_MEM_RDATA = 3'h3;
+  localparam logic [2:0] FORWARD_SEL_WB_RESULT = 3'h4;
+
+
+
   localparam logic REGFILE_WRITE_ENABLE = 1'b1;
 
   // extended immediate source types used by different instructions
