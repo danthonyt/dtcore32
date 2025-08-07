@@ -25,10 +25,12 @@ package params_pkg;
   localparam logic [3:0] XOR_ALU_CONTROL = 4'h7;
   localparam logic [3:0] R_SHIFT_A_ALU_CONTROL = 4'h8;
   localparam logic [3:0] R_SHIFT_L_ALU_CONTROL = 4'h9;
-  localparam logic [3:0] BNE_ALU_CONTROL = 4'hC;
   localparam logic [3:0] GE_ALU_CONTROL = 4'hA;
   localparam logic [3:0] GEU_ALU_CONTROL = 4'hB;
+  localparam logic [3:0] BNE_ALU_CONTROL = 4'hC;
   localparam logic [3:0] NE_ALU_CONTROL = 4'hC;
+  
+  
 
   localparam logic [2:0] FORWARD_SEL_NO_FORWARD = 3'h0;
   localparam logic [2:0] FORWARD_SEL_MEM1_ALU_RESULT = 3'h1;

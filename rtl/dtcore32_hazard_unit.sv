@@ -5,9 +5,10 @@ module dtcore32_hazard_unit (
     input logic [4:0] MEM1_rd_addr_i,
     input logic [4:0] MEM2_rd_addr_i,
     input logic [4:0] WB_rd_addr_i,
-    input logic [1:0] MEM2_result_src_i,
     //Stalling
     input logic [1:0] EX_result_src_i,
+    input logic [1:0] MEM1_result_src_i,
+    input logic [1:0] MEM2_result_src_i,
     input logic [4:0] ID_rs1_addr_i,
     input logic [4:0] ID_rs2_addr_i,
     input logic [4:0] EX_rd_addr_i,
@@ -41,6 +42,36 @@ import params_pkg::*;
   logic ID_forward_a;
   logic ID_forward_b;
   logic load_use_stall;
+  logic csr_read_use_stall;
+  logic nonzero_ID_rs1;
+  logic nonzero_ID_rs2;
+  logic ID_rs1_eq_EX_rd;
+  logic ID_rs1_eq_MEM1_rd;
+  logic ID_rs1_eq_MEM2_rd;
+  logic ID_rs2_eq_EX_rd;
+  logic ID_rs2_eq_MEM1_rd;
+  logic ID_rs2_eq_MEM2_rd;
+  logic ID_EX_csr_read_use_stall;
+  logic ID_MEM1_csr_read_use_stall;
+  logic ID_MEM2_csr_read_use_stall;
+  assign nonzero_ID_rs1 = |ID_rs1_addr_i;
+  assign nonzero_ID_rs2 = |ID_rs2_addr_i;
+  assign ID_rs1_eq_EX_rd = (ID_rs1_addr_i == EX_rd_addr_i) ? 1 : 0;
+  assign ID_rs1_eq_MEM1_rd = (ID_rs1_addr_i == MEM1_rd_addr_i) ? 1 : 0;
+  assign ID_rs1_eq_MEM2_rd = (ID_rs1_addr_i == MEM2_rd_addr_i) ? 1 : 0;
+  assign ID_rs2_eq_EX_rd = (ID_rs2_addr_i == EX_rd_addr_i) ? 1 : 0;
+  assign ID_rs2_eq_MEM1_rd = (ID_rs2_addr_i == MEM1_rd_addr_i) ? 1 : 0;
+  assign ID_rs2_eq_MEM2_rd = (ID_rs2_addr_i == MEM2_rd_addr_i) ? 1 : 0;
+
+
+  assign ID_EX_csr_read_use_stall = (EX_result_src_i == RESULT_SRC_SELECT_CSR_READ_DATA)
+  && ((ID_rs1_eq_EX_rd && nonzero_ID_rs1) || ID_rs2_eq_EX_rd  && nonzero_ID_rs2);
+
+  assign ID_MEM1_csr_read_use_stall = (MEM1_result_src_i == RESULT_SRC_SELECT_CSR_READ_DATA)
+  && ((ID_rs1_eq_MEM1_rd && nonzero_ID_rs1) || ID_rs2_eq_MEM1_rd  && nonzero_ID_rs2);
+
+  assign ID_MEM2_csr_read_use_stall = (MEM2_result_src_i == RESULT_SRC_SELECT_CSR_READ_DATA)
+  && ((ID_rs1_eq_MEM2_rd && nonzero_ID_rs1) || ID_rs2_eq_MEM2_rd  && nonzero_ID_rs2);
   //if either source register matches a register we are writing to in a previous
   //instruction we must forward that value from the previous instruction so the updated
   //value is used.
@@ -68,10 +99,12 @@ import params_pkg::*;
 
   always_comb begin
     //We must stall if a load instruction is in the execute stage while another instruction has a matching source register to that write register in the decode stage
-    if ((EX_result_src_i == RESULT_SRC_SELECT_DMEM_RD_DATA) && (((ID_rs1_addr_i == EX_rd_addr_i) && (ID_rs1_addr_i != 0)) || (ID_rs2_addr_i == EX_rd_addr_i)  && (ID_rs2_addr_i != 0)))
+    if ((EX_result_src_i == RESULT_SRC_SELECT_DMEM_RD_DATA) && ((ID_rs1_eq_EX_rd && nonzero_ID_rs1) || (ID_rs2_eq_EX_rd  && nonzero_ID_rs2)))
       load_use_stall = 1;
     else load_use_stall = 0;
   end
+
+  assign csr_read_use_stall = ID_EX_csr_read_use_stall | ID_MEM1_csr_read_use_stall | ID_MEM2_csr_read_use_stall;
   assign EX_forward_a_o = EX_forward_a;
   assign EX_forward_b_o = EX_forward_b;
   always_comb begin
@@ -90,7 +123,7 @@ import params_pkg::*;
   assign MEM2_flush_o = MEM2_trap_valid_i | WB_trap_valid_i;
   assign WB_flush_o = WB_trap_valid_i;
 
-  assign IF_stall_o = load_use_stall;
-  assign ID_stall_o = load_use_stall;
+  assign IF_stall_o = load_use_stall | csr_read_use_stall;
+  assign ID_stall_o = load_use_stall | csr_read_use_stall;
 
 endmodule

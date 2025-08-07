@@ -1,0 +1,59 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Thu Aug  7 11:23:50 2025
+[*]
+[dumpfile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/checks/insn_blt_ch0/engine_0/trace.vcd"
+[dumpfile_mtime] "Thu Aug  7 11:08:27 2025"
+[dumpfile_size] 209630
+[savefile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/extras/blt_config.gtkw"
+[timestart] 0
+[size] 2494 1361
+[pos] -27 -24
+*-5.166809 70 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] rvfi_testbench.
+[treeopen] rvfi_testbench.wrapper.
+[treeopen] rvfi_testbench.wrapper.dtcore32_inst.
+[sst_width] 278
+[signals_width] 322
+[sst_expanded] 1
+[sst_vpaned_height] 422
+@29
+rvfi_testbench.clock
+@28
+rvfi_testbench.reset
+@22
+rvfi_testbench.rvfi_insn[31:0]
+rvfi_testbench.checker_inst.spec_mem_addr[31:0]
+rvfi_testbench.rvfi_mem_addr[31:0]
+rvfi_testbench.checker_inst.spec_mem_rmask[3:0]
+rvfi_testbench.rvfi_mem_rmask[3:0]
+rvfi_testbench.checker_inst.spec_mem_wdata[31:0]
+rvfi_testbench.rvfi_mem_wdata[31:0]
+rvfi_testbench.checker_inst.spec_mem_wmask[3:0]
+rvfi_testbench.rvfi_mem_wmask[3:0]
+rvfi_testbench.checker_inst.spec_pc_wdata[31:0]
+rvfi_testbench.rvfi_pc_wdata[31:0]
+rvfi_testbench.checker_inst.spec_rd_addr[4:0]
+rvfi_testbench.rvfi_rd_addr[4:0]
+rvfi_testbench.checker_inst.spec_rd_wdata[31:0]
+rvfi_testbench.rvfi_rd_wdata[31:0]
+rvfi_testbench.checker_inst.spec_rs1_addr[4:0]
+rvfi_testbench.rvfi_rs1_addr[4:0]
+rvfi_testbench.checker_inst.spec_rs2_addr[4:0]
+rvfi_testbench.rvfi_rs2_addr[4:0]
+@28
+rvfi_testbench.checker_inst.spec_trap
+rvfi_testbench.rvfi_trap
+rvfi_testbench.checker_inst.spec_valid
+rvfi_testbench.rvfi_valid
+rvfi_testbench.wrapper.dtcore32_inst.ID_alu_op_exception
+rvfi_testbench.wrapper.dtcore32_inst.ID_funct7_exception
+rvfi_testbench.wrapper.dtcore32_inst.ID_opcode_exception
+@22
+rvfi_testbench.wrapper.dtcore32_inst.ID_insn[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.EX_insn[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.MEM1_insn[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.MEM2_insn[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.WB_insn[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

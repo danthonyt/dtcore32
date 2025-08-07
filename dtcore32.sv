@@ -1312,6 +1312,7 @@ module dtcore32 (
       .MEM1_rd_addr_i(MEM1_rd_addr),
       .MEM2_rd_addr_i(MEM2_rd_addr),
       .WB_rd_addr_i(WB_rd_addr),
+      .MEM1_result_src_i(MEM1_result_src),
       .MEM2_result_src_i(MEM2_result_src),
       .EX_result_src_i(EX_result_src),
       .ID_rs1_addr_i(ID_rs1_addr),
