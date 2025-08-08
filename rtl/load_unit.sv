@@ -25,72 +25,62 @@ module load_unit
         rmask = 4'hf;
       end
       //lb
-      DMEM_LOAD_SIZE_BYTE:
+      DMEM_LOAD_SIZE_BYTE: begin
+        rmask = 4'h1;
         unique case (addr_lsb2)
-          2'b00: begin
-            rdata_formatted = {{24{rdata_unformatted_i[7]}}, rdata_unformatted_i[7:0]};
-            rmask = 4'h1;
-          end
-          2'b01: begin
-            rdata_formatted = {{24{rdata_unformatted_i[15]}}, rdata_unformatted_i[15:8]};
-            rmask = 4'h2;
-          end
-          2'b10: begin
-            rdata_formatted = {{24{rdata_unformatted_i[23]}}, rdata_unformatted_i[23:16]};
-            rmask = 4'h4;
-          end
-          2'b11: begin
-            rdata_formatted = {{24{rdata_unformatted_i[31]}}, rdata_unformatted_i[31:24]};
-            rmask = 4'h8;
-          end
+          2'b00: rdata_formatted = {{24{rdata_unformatted_i[7]}}, rdata_unformatted_i[7:0]};
+          2'b01: rdata_formatted = {{24{rdata_unformatted_i[15]}}, rdata_unformatted_i[15:8]};
+          2'b10: rdata_formatted = {{24{rdata_unformatted_i[23]}}, rdata_unformatted_i[23:16]};
+          2'b11: rdata_formatted = {{24{rdata_unformatted_i[31]}}, rdata_unformatted_i[31:24]};
         endcase
+      end
       //lbu
-      DMEM_LOAD_SIZE_BYTEU:
+      DMEM_LOAD_SIZE_BYTEU: begin
+        rmask = 4'h1;
         unique case (addr_lsb2)
           2'b00: begin
             rdata_formatted = {{24{1'b0}}, rdata_unformatted_i[7:0]};
-            rmask = 4'h1;
+            
           end
           2'b01: begin
             rdata_formatted = {{24{1'b0}}, rdata_unformatted_i[15:8]};
-            rmask = 4'h2;
           end
           2'b10: begin
             rdata_formatted = {{24{1'b0}}, rdata_unformatted_i[23:16]};
-            rmask = 4'h4;
           end
           2'b11: begin
             rdata_formatted = {{24{1'b0}}, rdata_unformatted_i[31:24]};
-            rmask = 4'h8;
           end
         endcase
+      end
       //lh
-      DMEM_LOAD_SIZE_HALF:
-        case (addr_lsb2)
-          2'b00: begin
+      DMEM_LOAD_SIZE_HALF: begin
+        rmask = 4'h3;
+        case (addr_lsb2[1])
+          //2'b00: begin
+            0:
             rdata_formatted = {{16{rdata_unformatted_i[15]}}, rdata_unformatted_i[15:0]};
-            rmask = 4'h3;
-          end
-          2'b10: begin
+          //2'b10: begin
+            1:
             rdata_formatted = {{16{rdata_unformatted_i[31]}}, rdata_unformatted_i[31:16]};
-            rmask = 4'hc;
-          end
-          default: misaligned_load = 1;
+          //default: misaligned_load = 1;
         endcase
-
+      end
       //lhu
-      DMEM_LOAD_SIZE_HALFU:
-        case (addr_lsb2)
-          2'b00: begin
+      DMEM_LOAD_SIZE_HALFU: begin
+        rmask = 4'h3;
+        case (addr_lsb2[1])
+          //2'b00: begin
+          0:
             rdata_formatted = {{16{1'b0}}, rdata_unformatted_i[15:0]};
-            rmask = 4'h3;
-          end
-          2'b10: begin
+
+          //2'b10: begin
+          1:
             rdata_formatted = {{16{1'b0}}, rdata_unformatted_i[31:16]};
-            rmask = 4'hc;
-          end
-          default: misaligned_load = 1;
+
+          //default: misaligned_load = 1;
         endcase
+      end
       default:;
     endcase
   end

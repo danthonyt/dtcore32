@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
-[*] Thu Aug  7 11:23:50 2025
+[*] Fri Aug  8 01:51:08 2025
 [*]
-[dumpfile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/checks/insn_blt_ch0/engine_0/trace.vcd"
-[dumpfile_mtime] "Thu Aug  7 11:08:27 2025"
-[dumpfile_size] 209630
+[dumpfile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/checks/insn_jalr_ch0/engine_0/trace.vcd"
+[dumpfile_mtime] "Fri Aug  8 01:40:41 2025"
+[dumpfile_size] 210088
 [savefile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/extras/blt_config.gtkw"
 [timestart] 0
 [size] 2494 1361
 [pos] -27 -24
-*-5.166809 70 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-5.166809 60 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] rvfi_testbench.
 [treeopen] rvfi_testbench.wrapper.
 [treeopen] rvfi_testbench.wrapper.dtcore32_inst.
@@ -17,9 +17,8 @@
 [signals_width] 322
 [sst_expanded] 1
 [sst_vpaned_height] 422
-@29
-rvfi_testbench.clock
 @28
+rvfi_testbench.clock
 rvfi_testbench.reset
 @22
 rvfi_testbench.rvfi_insn[31:0]
@@ -55,5 +54,11 @@ rvfi_testbench.wrapper.dtcore32_inst.EX_insn[31:0]
 rvfi_testbench.wrapper.dtcore32_inst.MEM1_insn[31:0]
 rvfi_testbench.wrapper.dtcore32_inst.MEM2_insn[31:0]
 rvfi_testbench.wrapper.dtcore32_inst.WB_insn[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.EX_pc_target[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.dtcore32_regfile_inst.reg_array<01>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.EX_imm_ext[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.EX_pc_target_src_a[31:0]
+@29
+rvfi_testbench.wrapper.dtcore32_inst.dtcore32_hazard_unit_inst.EX_forward_a[2:0]
 [pattern_trace] 1
 [pattern_trace] 0

@@ -13,7 +13,15 @@ package params_pkg;
     logic [31:0] insn;
     logic [30:0] mcause;
     logic [31:0] pc;
+    logic [31:0] next_pc;
+    logic [4:0] rs1_addr;
+    logic [4:0] rs2_addr;
+    logic [4:0] rd_addr; 
+    logic [31:0] rs1_rdata;
+    logic [31:0] rs2_rdata;
+    logic [31:0] rd_wdata;
   } trap_info_t;
+
 
   localparam logic [3:0] ADD_ALU_CONTROL = 4'h0;
   localparam logic [3:0] SUB_ALU_CONTROL = 4'h1;
@@ -29,6 +37,7 @@ package params_pkg;
   localparam logic [3:0] GEU_ALU_CONTROL = 4'hB;
   localparam logic [3:0] BNE_ALU_CONTROL = 4'hC;
   localparam logic [3:0] NE_ALU_CONTROL = 4'hC;
+  localparam logic [3:0] JALR_ALU_CONTROL = 4'hD;
   
   
 
@@ -80,6 +89,7 @@ package params_pkg;
   localparam logic [1:0] ALU_OP_ILOAD_S_U_TYPE = 2'b00;
   localparam logic [1:0] ALU_OP_B_TYPE = 2'b01;
   localparam logic [1:0] ALU_OP_IALU_ISHIFT_R_TYPE = 2'b10;
+  localparam logic [1:0] ALU_OP_JALR = 2'b11;
 
   //ID_jump
   localparam logic IS_JUMP_INSTR = 1'b1;
@@ -96,7 +106,6 @@ package params_pkg;
   //ID_pc_target_alu_src
   localparam logic PC_TARGET_ALU_SRC_SELECT_PC = 1'b0;
   localparam logic PC_TARGET_ALU_SRC_SELECT_REG_DATA = 1'b1;
-
   // ID_csr_wr_type
   localparam logic [1:0] CSR_WRITE_DISABLE = 2'b00;
   localparam logic [1:0] CSR_WRITE_RAW_VALUE = 2'b01;
