@@ -68,7 +68,6 @@ module dtcore32 (
   ///////////////////////////////////////////////
 
   // IMEM AND DMEM SIGNALS
-  logic [31:0] DMEM_addr_int;
   logic [3:0] DMEM_mem_wmask;
   // hazard unit signals
   // stops signals from propagating through the pipeline
@@ -828,7 +827,6 @@ module dtcore32 (
   // disable register and csr writes for an excepted instruction
   // make sure that instructions that dont write to any register address have x0 as rd and 0 as rd_wdata
   assign WB_rd_wdata = (WB_rd_addr != 0) ? WB_result : 0;
-  assign WB_rd_addr  = WB_rd_addr_int;
   always_comb begin
     unique case (WB_result_src)
       2'b00: WB_result = WB_alu_result;
@@ -901,14 +899,14 @@ module dtcore32 (
       EX_csr_wr_operand_src <= 0;
       EX_csr_wr_type <= 0;
       EX_jalr <= 0;
-      if (ID_trap.valid) begin
-        EX_prev_trap <= ID_trap;
-        EX_valid_insn <= 1;
-        EX_intr <= IF_intr;
-      end else begin
+      if (rst_i || EX_flush || ID_stall) begin
         EX_prev_trap <= '{default: 0};
         EX_valid_insn <= 0;
         EX_intr <= 0;
+      end else if (ID_trap.valid) begin
+        EX_prev_trap <= ID_trap;
+        EX_valid_insn <= 1;
+        EX_intr <= ID_intr;
       end
     end else begin
       EX_result_src <= ID_result_src;
@@ -958,14 +956,14 @@ module dtcore32 (
       MEM1_rs1_addr <= 0;
       MEM1_rs2_addr <= 0;
       MEM1_pc_wdata <= 0;
-      if (EX_trap.valid) begin
-        MEM1_prev_trap <= EX_trap;
-        MEM1_valid_insn <= 1;
-        MEM1_intr <= EX_intr;
-      end else begin
+      if (rst_i || MEM1_flush) begin
         MEM1_prev_trap <= '{default:0};
         MEM1_valid_insn <= 0;
         MEM1_intr <= 0;
+      end else if (EX_trap.valid) begin
+        MEM1_prev_trap <= EX_trap;
+        MEM1_valid_insn <= 1;
+        MEM1_intr <= EX_intr;
       end
     end else begin
       MEM1_result_src <= EX_result_src;
@@ -1008,14 +1006,14 @@ module dtcore32 (
       MEM2_rs1_addr <= 0;
       MEM2_rs2_addr <= 0;
       MEM2_pc_wdata <= 0;
-      if (MEM1_trap.valid) begin
-        MEM2_prev_trap <= MEM1_trap;
-        MEM2_valid_insn <= 1;
-        MEM2_intr <= MEM1_intr;
-      end else begin
+      if (rst_i || MEM2_flush) begin
         MEM2_prev_trap <= '{default:0};
         MEM2_valid_insn <= 0;
         MEM2_intr <= 0;
+      end else if (MEM1_trap.valid) begin
+        MEM2_prev_trap <= MEM1_trap;
+        MEM2_valid_insn <= 1;
+        MEM2_intr <= MEM1_intr;
       end
     end else begin
       MEM2_result_src <= MEM1_result_src;
@@ -1043,7 +1041,7 @@ module dtcore32 (
   //MEM2/WB
   always_ff @(posedge clk_i) begin
     if (rst_i || WB_flush || MEM2_trap.valid) begin
-      WB_rd_addr_int <= 0;
+      WB_rd_addr <= 0;
       WB_insn <= NOP_INSTRUCTION;
       WB_alu_result <= 0;
       WB_mem_rdata <= 0;
@@ -1062,17 +1060,17 @@ module dtcore32 (
       WB_mem_wdata <= 0;
       WB_mem_wmask <= 0;
       WB_pc_wdata <= 0;
-      if (MEM2_trap.valid) begin
-        WB_prev_trap <= MEM2_trap;
-        WB_valid_insn <= 1;
-        WB_intr <= MEM2_intr;
-      end else begin
+      if(rst_i || WB_flush) begin
         WB_prev_trap <= '{default: 0};
         WB_valid_insn <= 0;
         WB_intr <= 0;
+      end else if (MEM2_trap.valid) begin
+        WB_prev_trap <= MEM2_trap;
+        WB_valid_insn <= 1;
+        WB_intr <= MEM2_intr;
       end
     end else begin
-      WB_rd_addr_int <= MEM2_rd_addr;
+      WB_rd_addr <= MEM2_rd_addr;
       WB_insn <= MEM2_insn;
       WB_alu_result <= MEM2_alu_result;
       WB_mem_rdata <= MEM2_mem_rdata;
@@ -1143,11 +1141,11 @@ module dtcore32 (
         mcause: TRAP_CODE_ILLEGAL_INSTR,
         pc: ID_pc_rdata,
         next_pc: trap_handler_addr,
-        rs1_addr: ID_rs1_addr,
-        rs2_addr: ID_rs2_addr,
-        rd_addr: ID_rd_addr,
-        rs1_rdata: ID_rs1_rdata,
-        rs2_rdata: ID_rs2_rdata,
+        rs1_addr: 0,
+        rs2_addr: 0,
+        rd_addr: 0,
+        rs1_rdata: 0,
+        rs2_rdata: 0,
         rd_wdata: 0
       };
     end else begin
@@ -1313,9 +1311,6 @@ module dtcore32 (
     endcase
   end
 
-
-
-
   assign DMEM_addr_o  = MEM1_alu_result;
   assign IMEM_addr_o  = IF_pc_rdata;
   assign DMEM_wdata_o = MEM1_mem_wdata;
@@ -1420,14 +1415,8 @@ module dtcore32 (
           rvfi_rd_wdata <= WB_rd_wdata;
 
           rvfi_pc_rdata <= WB_pc_rdata;
-          rvfi_pc_wdata <= WB_trap.valid   ? trap_handler_addr :
-            WB_valid_insn  ? WB_pc_wdata :
-            MEM2_valid_insn ? MEM2_pc_rdata :
-            MEM1_valid_insn ? MEM1_pc_rdata :
-            EX_valid_insn  ? EX_pc_rdata :
-            ID_valid_insn  ? ID_pc_rdata :
-            IF_valid_insn  ? IF_pc_rdata :
-            0;
+          rvfi_pc_wdata <= WB_trap.valid ? trap_handler_addr :
+          WB_pc_wdata;
 
           rvfi_mem_addr <= WB_alu_result;
           rvfi_mem_rmask <= WB_mem_rmask;

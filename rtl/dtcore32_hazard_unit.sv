@@ -122,8 +122,8 @@ import params_pkg::*;
   assign MEM1_flush_o = MEM1_trap_valid_i | MEM2_trap_valid_i | WB_trap_valid_i;
   assign MEM2_flush_o = MEM2_trap_valid_i | WB_trap_valid_i;
   assign WB_flush_o = WB_trap_valid_i;
-
-  assign IF_stall_o = load_use_stall | csr_read_use_stall;
-  assign ID_stall_o = load_use_stall | csr_read_use_stall;
+  // no need to stall if instructions are flushed anyway
+  assign IF_stall_o = (load_use_stall | csr_read_use_stall) & ~EX_pc_src_i;
+  assign ID_stall_o = (load_use_stall | csr_read_use_stall) & ~EX_pc_src_i;
 
 endmodule
