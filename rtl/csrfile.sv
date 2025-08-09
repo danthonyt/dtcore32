@@ -1,4 +1,4 @@
-module csr_regfile
+module csrfile
   import params_pkg::*;
 (
     input logic clk_i,

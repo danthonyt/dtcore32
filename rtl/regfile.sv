@@ -1,4 +1,4 @@
-module dtcore32_regfile (
+module regfile (
     input logic clk_i,
     input logic rst_i,
 

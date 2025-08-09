@@ -1,4 +1,4 @@
-module dtcore32_hazard_unit (
+module hazard_unit (
     //Forwarding
     input logic [4:0] EX_rs1_addr_i,
     input logic [4:0] EX_rs2_addr_i,
