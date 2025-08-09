@@ -1,0 +1,6 @@
+[submodule "uart"]
+	path = uart
+	url = git@github.com:danthonyt/UART.git
+[submodule "axi-lite"]
+	path = axi-lite
+	url = git@github.com:danthonyt/axi_lite_interface.git
