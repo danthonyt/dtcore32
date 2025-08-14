@@ -1,5 +1,9 @@
 
-module dtcore32 (
+module dtcore32 #(
+  parameter DMEM_ADDR_WIDTH = 10,
+  parameter IMEM_ADDR_WIDTH = 10
+  )
+(
     input  logic        clk_i,
     input  logic        rst_i,
     input  logic [31:0] IMEM_rdata_i,
@@ -47,8 +51,8 @@ module dtcore32 (
     output logic [31:0] rvfi_csr_mtvec_rdata,
     output logic [31:0] rvfi_csr_mtvec_wdata,
 `endif
-    output logic [31:0] IMEM_addr_o,
-    output logic [31:0] DMEM_addr_o,
+    output logic [IMEM_ADDR_WIDTH-1:0] IMEM_addr_o,
+    output logic [DMEM_ADDR_WIDTH-1:0] DMEM_addr_o,
     output logic [31:0] DMEM_wdata_o,
     output logic [ 3:0] DMEM_wmask_o
 );
@@ -323,25 +327,6 @@ module dtcore32 (
   logic [30:0] MEM1_store_trap_code;
   logic MEM1_store_trap_valid;
 
-  logic is_csr_mstatus;
-  logic is_csr_misa;
-  logic is_csr_mie;
-  logic is_csr_mtvec;
-  logic is_csr_mscratch;
-  logic is_csr_mepc;
-  logic is_csr_mcause;
-  logic is_csr_mtval;
-  logic is_csr_mip;
-  logic is_csr_mcycle;
-  logic is_csr_mcycleh;
-  logic is_csr_minstret;
-  logic is_csr_minstreth;
-  logic is_csr_mvendorid;
-  logic is_csr_marchid;
-  logic is_csr_mimpid;
-  logic is_csr_mhartid;
-  logic is_csr_mconfigptr;
-
   //////////////////////////////////////
   //
   //  INSTRUCTION FETCH STAGE
@@ -394,7 +379,7 @@ module dtcore32 (
   // select forwarded rs1 or rs2 rdata if needed
   assign ID_rs1_rdata = ID_forward_a ? WB_rd_wdata : ID_rs1_regfile_rdata;
   assign ID_rs2_rdata = ID_forward_b ? WB_rd_wdata : ID_rs2_regfile_rdata;
-  
+
 
   maindec maindec_inst (
       .op_i(ID_op),
@@ -1002,13 +987,41 @@ module dtcore32 (
       .WB_trap_valid_i(WB_trap.valid)
   );
 
+
+  assign DMEM_addr_o  = MEM1_alu_result;
+  assign IMEM_addr_o  = IF_pc_rdata;
+  assign DMEM_wdata_o = MEM1_mem_wdata;
+  assign DMEM_wmask_o = MEM1_mem_wmask;
+
   //////////////////////////////////////
   //
-  //  CSRS FOR MACHINE MODE
+  //  FORMAL VERIFICATION
   //
   //
   ///////////////////////////////////////
 
+`ifdef RISCV_FORMAL
+
+
+  logic is_csr_mstatus;
+  logic is_csr_misa;
+  logic is_csr_mie;
+  logic is_csr_mtvec;
+  logic is_csr_mscratch;
+  logic is_csr_mepc;
+  logic is_csr_mcause;
+  logic is_csr_mtval;
+  logic is_csr_mip;
+  logic is_csr_mcycle;
+  logic is_csr_mcycleh;
+  logic is_csr_minstret;
+  logic is_csr_minstreth;
+  logic is_csr_mvendorid;
+  logic is_csr_marchid;
+  logic is_csr_mimpid;
+  logic is_csr_mhartid;
+  logic is_csr_mconfigptr;
+  
   always_comb begin
     is_csr_mstatus = 0;
     is_csr_misa = 0;
@@ -1050,20 +1063,6 @@ module dtcore32 (
       default: ;
     endcase
   end
-
-  assign DMEM_addr_o  = MEM1_alu_result;
-  assign IMEM_addr_o  = IF_pc_rdata;
-  assign DMEM_wdata_o = MEM1_mem_wdata;
-  assign DMEM_wmask_o = MEM1_mem_wmask;
-
-  //////////////////////////////////////
-  //
-  //  FORMAL VERIFICATION
-  //
-  //
-  ///////////////////////////////////////
-
-`ifdef RISCV_FORMAL
 
   always_ff @(posedge clk_i) begin
     if (rst_i) begin
