@@ -17,19 +17,17 @@ module hazard_unit (
     output logic [2:0] EX_FORWARD_A,
     output logic [2:0] EX_FORWARD_B,
     output logic ID_FORWARD_A,
-    output logic ID_FORWARD_B,
+    output logic ID_FORWARD_B, 
 
+    output logic IF_FLUSH,
     output logic ID_FLUSH,
     output logic EX_FLUSH,
     output logic MEM1_FLUSH,
     output logic MEM2_FLUSH,
-    output logic WB_FLUSH,
 
     output logic IF_STALL,
     output logic ID_STALL,
-    // for axil
     output logic EX_STALL,
-    output logic MEM1_STALL,
     
 
     // trap logic
@@ -148,18 +146,22 @@ import params_pkg::*;
 
   assign ID_FORWARD_A = ID_forward_a;
   assign ID_FORWARD_B = ID_forward_b;
-  // flushes caused by traps will override stalls
-  // flushes caused by a jump will override stalls
-  // 
-  assign ID_FLUSH = EX_PC_SRC | (EX_TRAP_VALID | MEM1_TRAP_VALID | MEM2_TRAP_VALID | WB_TRAP_VALID);
-  assign EX_FLUSH = (EX_PC_SRC & ~EX_STALL) | (MEM1_TRAP_VALID | MEM2_TRAP_VALID | WB_TRAP_VALID);
-  assign MEM1_FLUSH = MEM2_TRAP_VALID | WB_TRAP_VALID;
+
+  // if a jump instruction is in EX, and an axil transaction is stalling in MEM1, 
+  // the ID flush resulting from a branch hazard must be disabled until the stall ends, or else the branch instruction 
+  // will be lost
+  // this is avoided for traps by never flushing a stage before the one that has a trap. For example, if 
+  // there is a trap in ID, only flush IF once the trap moves to the EX stage. This is only necessary for stages
+  // that can be stalled, which would result in the trap being cleared without propagating.
+  // insert bubbles for any stages where the previous stage is stalled and the current one is not stalled
+  assign IF_FLUSH = EX_PC_SRC | (EX_TRAP_VALID | MEM1_TRAP_VALID | MEM2_TRAP_VALID | WB_TRAP_VALID);
+  assign ID_FLUSH = (EX_PC_SRC & ~axil_stall) | (MEM1_TRAP_VALID | MEM2_TRAP_VALID | WB_TRAP_VALID) | (IF_STALL & ~ID_STALL);
+  assign EX_FLUSH = MEM2_TRAP_VALID | WB_TRAP_VALID | (ID_STALL & ~EX_STALL);
+  assign MEM1_FLUSH = WB_TRAP_VALID;
   assign MEM2_FLUSH = WB_TRAP_VALID;
-  assign WB_FLUSH = WB_TRAP_VALID;
   // no need to stall if instructions are flushed anyway
-  assign IF_STALL = ((load_use_stall | csr_read_use_stall) & ~EX_PC_SRC) | axil_stall_i;
-  assign ID_STALL = ((load_use_stall | csr_read_use_stall) & ~EX_PC_SRC) | axil_stall_i;
+  assign IF_STALL = (load_use_stall | csr_read_use_stall) | axil_stall;
+  assign ID_STALL = axil_stall;
   assign EX_STALL = axil_stall;
-  assign MEM1_STALL = axil_stall;
 
 endmodule

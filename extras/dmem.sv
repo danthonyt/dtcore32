@@ -1,21 +1,21 @@
-module dmem (
-    input logic clk_i,
-    input logic [3:0] we_i,
-    input logic en_i,
-    input logic [9:0] addr_i,
-    input logic [31:0] wdata_i,
-    output logic [31:0] rdata_o
+module dmem #(ADDR_WIDTH = 32)(
+    input logic CLK,
+    input logic [3:0] WE,
+    input logic EN,
+    input logic [ADDR_WIDTH-1:0] ADDR,
+    input logic [31:0] WDATA,
+    output logic [31:0] RDATA
 );
 
-  logic [31:0] RAM[1023:0];
+  logic [31:0] RAM[(2**ADDR_WIDTH-1):0];
 
   integer i;
-  always @(posedge clk_i) begin
-    if (en_i) begin
+  always @(posedge CLK) begin
+    if (EN) begin
       for (i = 0; i < 4; i = i + 1) begin
-        if (we_i[i]) RAM[addr_i][i*8+:8] <= wdata_i[i*8+:8];
+        if (WE[i]) RAM[ADDR][i*8+:8] <= WDATA[i*8+:8];
       end
     end
-    rdata_o <= RAM[addr_i];
+    RDATA <= RAM[ADDR];
   end
 endmodule

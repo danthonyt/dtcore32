@@ -4,19 +4,28 @@ module rvfi_wrapper (
 	`RVFI_OUTPUTS
 );
 
-
+localparam BUS_WIDTH = 32;
+localparam ADDR_WIDTH = 32;
+localparam DMEM_ADDR_WIDTH = 10;
+localparam IMEM_ADDR_WIDTH = 10;
 (* keep *) `rvformal_rand_reg [31:0] IMEM_rdata;
-(* keep *) logic [31:0] IMEM_addr;
-(* keep *) `rvformal_rand_reg [31:0] DMEM_rdata;
-(* keep *) logic [31:0] DMEM_addr;
+(* keep *) logic [IMEM_ADDR_WIDTH-1:0] IMEM_addr;
+//(* keep *) `rvformal_rand_reg [31:0] DMEM_rdata;
+(* keep *) logic [31:0] DMEM_rdata;
+(* keep *) logic [DMEM_ADDR_WIDTH-1:0] DMEM_addr;
 (* keep *) logic [31:0] DMEM_wdata;
 (* keep *) logic [3:0] DMEM_wmask;
+(* keep *) logic DMEM_en;
 
-  dtcore32  dtcore32_inst (
-    .clk_i(clock),
-    .rst_i(reset),
-    .IMEM_rdata_i(IMEM_rdata),
-    .DMEM_rdata_i(DMEM_rdata),
+  dtcore32 # (
+    .DMEM_ADDR_WIDTH(DMEM_ADDR_WIDTH),
+    .IMEM_ADDR_WIDTH(IMEM_ADDR_WIDTH)
+  )
+  dtcore32_inst (
+    .CLK(clock),
+    .RST(reset),
+    .IMEM_RDATA(IMEM_rdata),
+    .DMEM_RDATA(DMEM_rdata),
     .rvfi_valid(rvfi_valid),
     .rvfi_order(rvfi_order),
     .rvfi_insn(rvfi_insn),
@@ -58,11 +67,36 @@ module rvfi_wrapper (
     .rvfi_csr_mtvec_wmask(rvfi_csr_mtvec_wmask),
     .rvfi_csr_mtvec_rdata(rvfi_csr_mtvec_rdata),
     .rvfi_csr_mtvec_wdata(rvfi_csr_mtvec_wdata),
-    .IMEM_addr_o(IMEM_addr),
-    .DMEM_addr_o(DMEM_addr),
-    .DMEM_wdata_o(DMEM_wdata),
-    .DMEM_wmask_o(DMEM_wmask)
+    .IMEM_ADDR(IMEM_addr),
+    .DMEM_ADDR(DMEM_addr),
+    .DMEM_WDATA(DMEM_wdata),
+    .DMEM_WMASK(DMEM_wmask),
+    .DMEM_EN(DMEM_en),
+    .AXIL_START_READ(),
+    .AXIL_START_WRITE(),
+    .AXIL_DONE_READ(1'b0),
+    .AXIL_DONE_WRITE(1'b0),
+    .AXIL_BUSY_READ(1'b0),
+    .AXIL_BUSY_WRITE(1'b0),
+    .AXIL_TRANSACTION_WRADDR(),
+    .AXIL_TRANSACTION_WRDATA(),
+    .AXIL_TRANSACTION_WSTRB(),
+    .AXIL_TRANSACTION_RADDR(),
+    .AXIL_TRANSACTION_RDATA(32'd0)
   );
 
+
+
+  dmem  #(.ADDR_WIDTH(DMEM_ADDR_WIDTH)) dmem_inst (
+    .CLK(clock),
+    .WE(DMEM_wmask),
+    .EN(DMEM_en),
+    .ADDR(DMEM_addr),
+    .WDATA(DMEM_wdata),
+    .RDATA(DMEM_rdata)
+  );
+
+// only test dmem, not axil interface
+assume property(@(posedge clock) rvfi_mem_addr <= 32'h3ff);
 endmodule
 

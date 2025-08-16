@@ -1,7 +1,9 @@
 
 module dtcore32 #(
     parameter DMEM_ADDR_WIDTH = 10,
-    parameter IMEM_ADDR_WIDTH = 10
+    parameter IMEM_ADDR_WIDTH = 10,
+    parameter AXIL_ADDR_WIDTH = 32,
+    parameter AXIL_BUS_WIDTH = 32
 ) (
     input  logic                       CLK,
     input  logic                       RST,
@@ -65,12 +67,12 @@ module dtcore32 #(
 
     // peripheral interface
     // put on the axi line
-    output logic [ADDR_WIDTH-1:0] AXIL_TRANSACTION_WRADDR,
-    output logic [BUS_WIDTH-1:0] AXIL_TRANSACTION_WRDATA,
-    output logic [(BUS_WIDTH/8)-1:0] AXIL_TRANSACTION_WSTRB,
-    output logic [ADDR_WIDTH-1:0] AXIL_TRANSACTION_RADDR,
+    output logic [AXIL_ADDR_WIDTH-1:0] AXIL_TRANSACTION_WRADDR,
+    output logic [AXIL_BUS_WIDTH-1:0] AXIL_TRANSACTION_WRDATA,
+    output logic [(AXIL_BUS_WIDTH/8)-1:0] AXIL_TRANSACTION_WSTRB,
+    output logic [AXIL_ADDR_WIDTH-1:0] AXIL_TRANSACTION_RADDR,
     // taken from the axi line
-    input logic [BUS_WIDTH-1:0] AXIL_TRANSACTION_RDATA
+    input logic [AXIL_BUS_WIDTH-1:0] AXIL_TRANSACTION_RDATA
 );
   /////////////////////////////////////////////
   //
@@ -87,19 +89,25 @@ module dtcore32 #(
   //
   ///////////////////////////////////////////////
 
+  logic axil_en;
+  logic [31:0] axil_addr;
+  logic MEM2_dmem_read_valid;
+  logic MEM2_axil_read_valid;
+  
   // IMEM AND DMEM SIGNALS
   logic [3:0] DMEM_mem_wmask;
   // hazard unit signals
   // stops signals from propagating through the pipeline
   logic IF_stall;
   logic ID_stall;
+  logic EX_stall;
 
   // resets the pipeline to control signals of a NOP instruction
+  logic IF_flush;
   logic ID_flush;
   logic EX_flush;
   logic MEM1_flush;
   logic MEM2_flush;
-  logic WB_flush;
 
   logic [31:0] IF_pc_tick;
 
@@ -232,6 +240,8 @@ module dtcore32 #(
   logic [3:0] MEM2_axil_rmask;
   logic [3:0] WB_mem_rmask;
 
+  logic [31:0] MEM2_axil_rdata;
+
   logic [1:0] ID_mem_stype;
   logic [1:0] EX_mem_stype;
   logic [1:0] MEM1_mem_stype;
@@ -280,7 +290,6 @@ module dtcore32 #(
 
   logic [31:0] mem_wdata;
   logic [31:0] dmem_wdata;
-  logic [31:0] axil_wmask;
   logic [31:0] MEM2_mem_wdata;
   logic [31:0] WB_mem_wdata;
 
@@ -378,6 +387,23 @@ module dtcore32 #(
 
   // pc incremented by 4
   assign IF_pc_plus_4 = IF_pc_rdata + 4;
+
+  // 
+  always_ff @(posedge CLK) begin
+    if (RST) begin
+      IF_pc_rdata <= 0;
+      IF_intr <= 0;
+      IF_valid_insn <= 1;
+    end else if (WB_trap.valid) begin  // jump to trap handler if retired instrucion has a trap
+      IF_pc_rdata <= trap_handler_addr;
+      IF_intr <= 1;
+      IF_valid_insn <= 1;
+    end else if (!IF_stall)begin
+      IF_pc_rdata <= IF_pc_tick;
+      IF_intr <= 0;
+      IF_valid_insn <= 1;
+    end
+  end
 
 
 
@@ -567,10 +593,7 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  logic axil_en;
-  logic [31:0] axil_addr;
-  logic MEM2_dmem_read_valid;
-  logic MEM2_axil_read_valid;
+  
 
 
   // enables DMEM or AXIL
@@ -584,7 +607,7 @@ module dtcore32 #(
   );
 
   axil_interface # (
-    .BUS_WIDTH(BUS_WIDTH)
+    .BUS_WIDTH(AXIL_BUS_WIDTH)
   )
   axil_interface_inst (
     .CLK(CLK),
@@ -605,7 +628,7 @@ module dtcore32 #(
     .AXIL_TRANSACTION_WSTRB(AXIL_TRANSACTION_WSTRB),
     .AXIL_TRANSACTION_RADDR(AXIL_TRANSACTION_RADDR)
   );
-
+  assign axil_rmask = 4'hf;
   // disable dmem if address maps to axil peripheral
 
   store_unit store_unit_inst (
@@ -690,31 +713,16 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  // IF
-  always_ff @(posedge CLK) begin
-    if (RST) begin
-      IF_pc_rdata <= 0;
-      IF_intr <= 0;
-      IF_valid_insn <= 1;
-    end else if (WB_trap.valid) begin  // jump to trap handler if retired instrucion has a trap
-      IF_pc_rdata <= trap_handler_addr;
-      IF_intr <= 1;
-      IF_valid_insn <= 1;
-    end else if (!IF_stall) begin
-      IF_pc_rdata <= IF_pc_tick;
-      IF_intr <= 0;
-      IF_valid_insn <= 1;
-    end
-  end
+  
   //IF/ID
   always_ff @(posedge CLK) begin
-    if (RST || ID_flush) begin
+    if (RST || IF_flush) begin
       ID_insn <= NOP_INSTRUCTION;
       ID_pc_rdata <= 0;
       ID_pc_plus_4 <= 0;
       ID_valid_insn <= 0;
       ID_intr <= 0;
-    end else if (!ID_stall) begin
+    end else if (!IF_stall) begin
       ID_insn <= IMEM_RDATA;
       ID_pc_rdata <= IF_pc_rdata;
       ID_pc_plus_4 <= IF_pc_plus_4;
@@ -724,7 +732,7 @@ module dtcore32 #(
   end
   // ID/EX register
   always_ff @(posedge CLK) begin
-    if (RST || EX_flush || ID_stall || ID_trap.valid) begin
+    if (RST || ID_flush || ID_trap.valid) begin
       EX_result_src <= 0;
       EX_mem_ltype <= 0;
       EX_mem_stype <= 0;
@@ -747,7 +755,7 @@ module dtcore32 #(
       EX_csr_wr_operand_src <= 0;
       EX_csr_wr_type <= 0;
       EX_is_jalr <= 0;
-      if (RST || EX_flush || ID_stall) begin
+      if (RST || ID_flush) begin
         EX_prev_trap <= '{default: 0};
         EX_valid_insn <= 0;
         EX_intr <= 0;
@@ -756,7 +764,7 @@ module dtcore32 #(
         EX_valid_insn <= 1;
         EX_intr <= ID_intr;
       end
-    end else begin
+    end else if (!ID_stall)begin
       EX_result_src <= ID_result_src;
       EX_mem_ltype <= ID_mem_ltype;
       EX_mem_stype <= ID_mem_stype;
@@ -786,7 +794,7 @@ module dtcore32 #(
   end
   // EX/MEM1 register
   always_ff @(posedge CLK) begin
-    if (RST || MEM1_flush || EX_trap.valid) begin
+    if (RST || EX_flush || EX_trap.valid) begin
       MEM1_result_src <= 0;
       MEM1_mem_ltype <= 0;
       MEM1_mem_stype <= 0;
@@ -804,7 +812,7 @@ module dtcore32 #(
       MEM1_rs1_addr <= 0;
       MEM1_rs2_addr <= 0;
       MEM1_pc_wdata <= 0;
-      if (RST || MEM1_flush) begin
+      if (RST || EX_flush) begin
         MEM1_prev_trap <= '{default: 0};
         MEM1_valid_insn <= 0;
         MEM1_intr <= 0;
@@ -813,7 +821,7 @@ module dtcore32 #(
         MEM1_valid_insn <= 1;
         MEM1_intr <= EX_intr;
       end
-    end else begin
+    end else if (!EX_stall)begin
       MEM1_result_src <= EX_result_src;
       MEM1_mem_ltype <= EX_mem_ltype;
       MEM1_mem_stype <= EX_mem_stype;
@@ -838,7 +846,7 @@ module dtcore32 #(
   end
   // MEM1/MEM2
   always_ff @(posedge CLK) begin
-    if (RST || MEM2_flush || MEM1_trap.valid) begin
+    if (RST || MEM1_flush || MEM1_trap.valid) begin
       MEM2_result_src <= 0;
       MEM2_mem_ltype <= 0;
       MEM2_alu_result <= 0;
@@ -858,7 +866,7 @@ module dtcore32 #(
       MEM2_dmem_read_valid <= 0;
       MEM2_axil_read_valid <= 0;
       MEM2_axil_rmask <= 0;
-      if (RST || MEM2_flush) begin
+      if (RST || MEM1_flush) begin
         MEM2_prev_trap <= '{default: 0};
         MEM2_valid_insn <= 0;
         MEM2_intr <= 0;
@@ -896,7 +904,7 @@ module dtcore32 #(
   end
   //MEM2/WB
   always_ff @(posedge CLK) begin
-    if (RST || WB_flush || MEM2_trap.valid) begin
+    if (RST || MEM2_flush || MEM2_trap.valid) begin
       WB_rd_addr <= 0;
       WB_insn <= NOP_INSTRUCTION;
       WB_alu_result <= 0;
@@ -916,7 +924,7 @@ module dtcore32 #(
       WB_mem_wdata <= 0;
       WB_mem_wmask <= 0;
       WB_pc_wdata <= 0;
-      if (RST || WB_flush) begin
+      if (RST || MEM2_flush) begin
         WB_prev_trap <= '{default: 0};
         WB_valid_insn <= 0;
         WB_intr <= 0;
@@ -1056,35 +1064,39 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
 
-  hazard_unit hazard_unit_inst (
-      .EX_rs1_addr_i(EX_rs1_addr),
-      .EX_rs2_addr_i(EX_rs2_addr),
-      .MEM1_rd_addr_i(MEM1_rd_addr),
-      .MEM2_rd_addr_i(MEM2_rd_addr),
-      .WB_rd_addr_i(WB_rd_addr),
-      .MEM1_result_src_i(MEM1_result_src),
-      .MEM2_result_src_i(MEM2_result_src),
-      .EX_result_src_i(EX_result_src),
-      .ID_rs1_addr_i(ID_rs1_addr),
-      .ID_rs2_addr_i(ID_rs2_addr),
-      .EX_rd_addr_i(EX_rd_addr),
-      .EX_pc_src_i(EX_pc_src),
-      .EX_forward_a_o(EX_forward_a),
-      .EX_forward_b_o(EX_forward_b),
-      .ID_forward_a_o(ID_forward_a),
-      .ID_forward_b_o(ID_forward_b),
-      .ID_flush_o(ID_flush),
-      .EX_flush_o(EX_flush),
-      .MEM1_flush_o(MEM1_flush),
-      .MEM2_flush_o(MEM2_flush),
-      .WB_flush_o(WB_flush),
-      .IF_stall_o(IF_stall),
-      .ID_stall_o(ID_stall),
-      .ID_trap_valid_i(ID_trap.valid),
-      .EX_trap_valid_i(EX_trap.valid),
-      .MEM1_trap_valid_i(MEM1_trap.valid),
-      .MEM2_trap_valid_i(MEM2_trap.valid),
-      .WB_trap_valid_i(WB_trap.valid)
+  hazard_unit  hazard_unit_inst (
+    .EX_RS1_ADDR(EX_rs1_addr),
+    .EX_RS2_ADDR(EX_rs2_addr),
+    .MEM1_RD_ADDR(MEM1_rd_addr),
+    .MEM2_RD_ADDR(MEM2_rd_addr),
+    .WB_RD_ADDR(WB_rd_addr),
+    .EX_RESULT_SRC(EX_result_src),
+    .MEM1_RESULT_SRC(MEM1_result_src),
+    .MEM2_RESULT_SRC(MEM2_result_src),
+    .ID_RS1_ADDR(ID_rs1_addr),
+    .ID_RS2_ADDR(ID_rs2_addr),
+    .EX_RD_ADDR(EX_rd_addr),
+    .EX_PC_SRC(EX_pc_src),
+    .EX_FORWARD_A(EX_forward_a),
+    .EX_FORWARD_B(EX_forward_b),
+    .ID_FORWARD_A(ID_forward_a),
+    .ID_FORWARD_B(ID_forward_b),
+    .IF_FLUSH(IF_flush),
+    .ID_FLUSH(ID_flush),
+    .EX_FLUSH(EX_flush),
+    .MEM1_FLUSH(MEM1_flush),
+    .MEM2_FLUSH(MEM2_flush),
+    .IF_STALL(IF_stall),
+    .ID_STALL(ID_stall),
+    .EX_STALL(EX_stall),
+    .ID_TRAP_VALID(ID_trap.valid),
+    .EX_TRAP_VALID(EX_trap.valid),
+    .MEM1_TRAP_VALID(MEM1_trap.valid),
+    .MEM2_TRAP_VALID(MEM2_trap.valid),
+    .WB_TRAP_VALID(WB_trap.valid),
+    .AXIL_EN(axil_en),
+    .AXIL_DONE_READ(AXIL_DONE_READ),
+    .AXIL_DONE_WRITE(AXIL_DONE_WRITE)
   );
 
 
