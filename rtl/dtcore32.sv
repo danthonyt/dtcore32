@@ -1,60 +1,76 @@
 
 module dtcore32 #(
-  parameter DMEM_ADDR_WIDTH = 10,
-  parameter IMEM_ADDR_WIDTH = 10
-  )
-(
-    input  logic        clk_i,
-    input  logic        rst_i,
-    input  logic [31:0] IMEM_rdata_i,
-    input  logic [31:0] DMEM_rdata_i,
+    parameter DMEM_ADDR_WIDTH = 10,
+    parameter IMEM_ADDR_WIDTH = 10
+) (
+    input  logic                       CLK,
+    input  logic                       RST,
+    input  logic [               31:0] IMEM_RDATA,
+    input  logic [               31:0] DMEM_RDATA,
 `ifdef RISCV_FORMAL
-    output logic        rvfi_valid,
-    output logic [63:0] rvfi_order,
-    output logic [31:0] rvfi_insn,
-    output logic        rvfi_trap,
-    output logic        rvfi_halt,
-    output logic        rvfi_intr,
-    output logic [ 1:0] rvfi_mode,
-    output logic [ 1:0] rvfi_ixl,
-    output logic [ 4:0] rvfi_rs1_addr,
-    output logic [ 4:0] rvfi_rs2_addr,
-    output logic [31:0] rvfi_rs1_rdata,
-    output logic [31:0] rvfi_rs2_rdata,
-    output logic [ 4:0] rvfi_rd_addr,
-    output logic [31:0] rvfi_rd_wdata,
-    output logic [31:0] rvfi_pc_rdata,
-    output logic [31:0] rvfi_pc_wdata,
-    output logic [31:0] rvfi_mem_addr,
-    output logic [ 3:0] rvfi_mem_rmask,
-    output logic [ 3:0] rvfi_mem_wmask,
-    output logic [31:0] rvfi_mem_rdata,
-    output logic [31:0] rvfi_mem_wdata,
-    output logic [63:0] rvfi_csr_mcycle_rmask,
-    output logic [63:0] rvfi_csr_mcycle_wmask,
-    output logic [63:0] rvfi_csr_mcycle_rdata,
-    output logic [63:0] rvfi_csr_mcycle_wdata,
-    output logic [63:0] rvfi_csr_minstret_rmask,
-    output logic [63:0] rvfi_csr_minstret_wmask,
-    output logic [63:0] rvfi_csr_minstret_rdata,
-    output logic [63:0] rvfi_csr_minstret_wdata,
-    output logic [31:0] rvfi_csr_mcause_rmask,
-    output logic [31:0] rvfi_csr_mcause_wmask,
-    output logic [31:0] rvfi_csr_mcause_rdata,
-    output logic [31:0] rvfi_csr_mcause_wdata,
-    output logic [31:0] rvfi_csr_mepc_rmask,
-    output logic [31:0] rvfi_csr_mepc_wmask,
-    output logic [31:0] rvfi_csr_mepc_rdata,
-    output logic [31:0] rvfi_csr_mepc_wdata,
-    output logic [31:0] rvfi_csr_mtvec_rmask,
-    output logic [31:0] rvfi_csr_mtvec_wmask,
-    output logic [31:0] rvfi_csr_mtvec_rdata,
-    output logic [31:0] rvfi_csr_mtvec_wdata,
+    output logic                       rvfi_valid,
+    output logic [               63:0] rvfi_order,
+    output logic [               31:0] rvfi_insn,
+    output logic                       rvfi_trap,
+    output logic                       rvfi_halt,
+    output logic                       rvfi_intr,
+    output logic [                1:0] rvfi_mode,
+    output logic [                1:0] rvfi_ixl,
+    output logic [                4:0] rvfi_rs1_addr,
+    output logic [                4:0] rvfi_rs2_addr,
+    output logic [               31:0] rvfi_rs1_rdata,
+    output logic [               31:0] rvfi_rs2_rdata,
+    output logic [                4:0] rvfi_rd_addr,
+    output logic [               31:0] rvfi_rd_wdata,
+    output logic [               31:0] rvfi_pc_rdata,
+    output logic [               31:0] rvfi_pc_wdata,
+    output logic [               31:0] rvfi_mem_addr,
+    output logic [                3:0] rvfi_mem_rmask,
+    output logic [                3:0] rvfi_mem_wmask,
+    output logic [               31:0] rvfi_mem_rdata,
+    output logic [               31:0] rvfi_mem_wdata,
+    output logic [               63:0] rvfi_csr_mcycle_rmask,
+    output logic [               63:0] rvfi_csr_mcycle_wmask,
+    output logic [               63:0] rvfi_csr_mcycle_rdata,
+    output logic [               63:0] rvfi_csr_mcycle_wdata,
+    output logic [               63:0] rvfi_csr_minstret_rmask,
+    output logic [               63:0] rvfi_csr_minstret_wmask,
+    output logic [               63:0] rvfi_csr_minstret_rdata,
+    output logic [               63:0] rvfi_csr_minstret_wdata,
+    output logic [               31:0] rvfi_csr_mcause_rmask,
+    output logic [               31:0] rvfi_csr_mcause_wmask,
+    output logic [               31:0] rvfi_csr_mcause_rdata,
+    output logic [               31:0] rvfi_csr_mcause_wdata,
+    output logic [               31:0] rvfi_csr_mepc_rmask,
+    output logic [               31:0] rvfi_csr_mepc_wmask,
+    output logic [               31:0] rvfi_csr_mepc_rdata,
+    output logic [               31:0] rvfi_csr_mepc_wdata,
+    output logic [               31:0] rvfi_csr_mtvec_rmask,
+    output logic [               31:0] rvfi_csr_mtvec_wmask,
+    output logic [               31:0] rvfi_csr_mtvec_rdata,
+    output logic [               31:0] rvfi_csr_mtvec_wdata,
 `endif
-    output logic [IMEM_ADDR_WIDTH-1:0] IMEM_addr_o,
-    output logic [DMEM_ADDR_WIDTH-1:0] DMEM_addr_o,
-    output logic [31:0] DMEM_wdata_o,
-    output logic [ 3:0] DMEM_wmask_o
+    output logic [IMEM_ADDR_WIDTH-1:0] IMEM_ADDR,
+    output logic [DMEM_ADDR_WIDTH-1:0] DMEM_ADDR,
+    output logic [               31:0] DMEM_WDATA,
+    output logic [                3:0] DMEM_WMASK,
+    output logic                       DMEM_EN,
+    // axi lite master interface
+    output logic                       AXIL_START_READ,
+    output logic                       AXIL_START_WRITE,
+    input  logic                       AXIL_DONE_READ,
+    input  logic                       AXIL_DONE_WRITE,
+    input  logic                       AXIL_BUSY_READ,
+    input  logic                       AXIL_BUSY_WRITE,
+
+    // peripheral interface
+    // put on the axi line
+    output logic [ADDR_WIDTH-1:0] AXIL_TRANSACTION_WRADDR,
+    output logic [BUS_WIDTH-1:0] AXIL_TRANSACTION_WRDATA,
+    output logic [(BUS_WIDTH/8)-1:0] AXIL_TRANSACTION_WSTRB,
+    output logic [ADDR_WIDTH-1:0] AXIL_TRANSACTION_RADDR,
+    // taken from the axi line
+    input logic [BUS_WIDTH-1:0] AXIL_TRANSACTION_RDATA
 );
   /////////////////////////////////////////////
   //
@@ -203,12 +219,17 @@ module dtcore32 #(
   logic [31:0] EX_imm_ext;
 
   // 00 = no write, 01 = word, 10 = half, 11 = byte
-  logic [3:0] MEM1_mem_wmask;
+  logic [3:0] mem_wmask;
+  logic [3:0] dmem_wmask;
+  logic [3:0] axil_wmask;
   logic [3:0] MEM2_mem_wmask;
   logic [3:0] WB_mem_wmask;
 
-  logic [3:0] MEM1_mem_rmask;
-  logic [3:0] MEM2_mem_rmask;
+  logic [3:0] mem_rmask;
+  logic [3:0] dmem_rmask;
+
+  logic [3:0] axil_rmask;
+  logic [3:0] MEM2_axil_rmask;
   logic [3:0] WB_mem_rmask;
 
   logic [1:0] ID_mem_stype;
@@ -233,7 +254,8 @@ module dtcore32 #(
   logic EX_pc_target_alu_src;
 
   // read data from data memory
-  logic [31:0] MEM2_mem_rdata;
+  logic [31:0] mem_rdata;
+  logic [31:0] dmem_rdata_formatted;
   logic [31:0] WB_mem_rdata;
 
   logic ID_is_jalr;
@@ -256,7 +278,9 @@ module dtcore32 #(
   logic [1:0] ID_alu_a_src;
   logic [1:0] EX_alu_a_src;
 
-  logic [31:0] MEM1_mem_wdata;
+  logic [31:0] mem_wdata;
+  logic [31:0] dmem_wdata;
+  logic [31:0] axil_wmask;
   logic [31:0] MEM2_mem_wdata;
   logic [31:0] WB_mem_wdata;
 
@@ -422,8 +446,8 @@ module dtcore32 #(
   );
   // register file
   regfile regfile_inst (
-      .clk_i(clk_i),
-      .rst_i(rst_i),
+      .clk_i(CLK),
+      .rst_i(RST),
       .rs1_addr_i(ID_rs1_addr),
       .rs2_addr_i(ID_rs2_addr),
       .rd_addr_i(WB_rd_addr),
@@ -460,7 +484,7 @@ module dtcore32 #(
       FORWARD_SEL_NO_FORWARD:      EX_src_a_tick = EX_rs1_rdata_unforwarded;
       FORWARD_SEL_MEM1_ALU_RESULT: EX_src_a_tick = MEM1_alu_result;
       FORWARD_SEL_MEM2_ALU_RESULT: EX_src_a_tick = MEM2_alu_result;
-      FORWARD_SEL_MEM2_MEM_RDATA:  EX_src_a_tick = MEM2_mem_rdata;
+      FORWARD_SEL_MEM2_MEM_RDATA:  EX_src_a_tick = mem_rdata;
       FORWARD_SEL_WB_RESULT:       EX_src_a_tick = WB_result;
       default:                     EX_src_a_tick = 0;
     endcase
@@ -481,7 +505,7 @@ module dtcore32 #(
       FORWARD_SEL_NO_FORWARD:      EX_mem_wdata_raw = EX_rs2_rdata_unforwarded;
       FORWARD_SEL_MEM1_ALU_RESULT: EX_mem_wdata_raw = MEM1_alu_result;
       FORWARD_SEL_MEM2_ALU_RESULT: EX_mem_wdata_raw = MEM2_alu_result;
-      FORWARD_SEL_MEM2_MEM_RDATA:  EX_mem_wdata_raw = MEM2_mem_rdata;
+      FORWARD_SEL_MEM2_MEM_RDATA:  EX_mem_wdata_raw = mem_rdata;
       FORWARD_SEL_WB_RESULT:       EX_mem_wdata_raw = WB_result;
       default:                     EX_mem_wdata_raw = 0;
     endcase
@@ -521,8 +545,8 @@ module dtcore32 #(
   );
 
   csrfile csrfile_inst (
-      .clk_i(clk_i),
-      .rst_i(rst_i),
+      .clk_i(CLK),
+      .rst_i(RST),
       .WB_rd_addr_i(WB_rd_addr),
       .csr_addr_i(WB_csr_addr),
       .WB_valid_insn_i(WB_valid_insn),
@@ -543,17 +567,71 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
+  logic axil_en;
+  logic [31:0] axil_addr;
+  logic MEM2_dmem_read_valid;
+  logic MEM2_axil_read_valid;
+
+
+  // enables DMEM or AXIL
+  mem_router mem_router_inst (
+      .MEM1_ALU_RESULT(MEM1_alu_result),
+      .MEM1_MEM_LTYPE(MEM1_mem_ltype),
+      .MEM1_MEM_STYPE(MEM1_mem_stype),
+      .DMEM_EN(DMEM_EN),
+      .AXIL_EN(axil_en),
+      .AXIL_ADDR(axil_addr)
+  );
+
+  axil_interface # (
+    .BUS_WIDTH(BUS_WIDTH)
+  )
+  axil_interface_inst (
+    .CLK(CLK),
+    .RST(RST),
+    .EN(axil_en),
+    .MEM1_ALU_RESULT(MEM1_alu_result),
+    .MEM1_MEM_LTYPE(MEM1_mem_ltype),
+    .MEM1_MEM_STYPE(MEM1_mem_stype),
+    .MEM1_WDATA_RAW(MEM1_mem_wdata_raw),
+    .AXIL_ADDR(axil_addr),
+    .AXIL_DONE_READ(AXIL_DONE_READ),
+    .AXIL_DONE_WRITE(AXIL_DONE_WRITE),
+    .AXIL_TRANSACTION_RDATA(AXIL_TRANSACTION_RDATA),
+    .AXIL_START_READ(AXIL_START_READ),
+    .AXIL_START_WRITE(AXIL_START_WRITE),
+    .AXIL_TRANSACTION_WRADDR(AXIL_TRANSACTION_WRADDR),
+    .AXIL_TRANSACTION_WRDATA(AXIL_TRANSACTION_WRDATA),
+    .AXIL_TRANSACTION_WSTRB(AXIL_TRANSACTION_WSTRB),
+    .AXIL_TRANSACTION_RADDR(AXIL_TRANSACTION_RADDR)
+  );
+
+  // disable dmem if address maps to axil peripheral
 
   store_unit store_unit_inst (
+      .en(DMEM_EN),
       .store_size_i(MEM1_mem_stype),
       .addr_lsb2_i(MEM1_alu_result[1:0]),
       .wdata_unformatted_i(MEM1_mem_wdata_raw),
       .store_trap_o(MEM1_store_trap_valid),
       .trap_code_o(MEM1_store_trap_code),
-      .wmask_o(MEM1_mem_wmask),
-      .wdata_formatted_o(MEM1_mem_wdata)
+      .wmask_o(dmem_wmask),
+      .wdata_formatted_o(dmem_wdata)
   );
 
+
+  // select dmem write data OR axil write data OR neither
+  always_comb begin
+    mem_wdata = 0;
+    mem_wmask = 0;
+    if (DMEM_EN) begin
+      mem_wdata = dmem_wdata;
+      mem_wmask = dmem_wmask;
+    end else if (axil_en) begin
+      mem_wdata = AXIL_TRANSACTION_WRDATA;
+      mem_wmask = 4'hf;
+    end
+  end
 
 
   //////////////////////////////////////
@@ -563,14 +641,29 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
   load_unit load_unit_inst (
+      .en(MEM2_dmem_read_valid),
       .load_type(MEM2_mem_ltype),
       .addr_lsb2(MEM2_alu_result[1:0]),
-      .rdata_unformatted_i(DMEM_rdata_i),
+      .rdata_unformatted_i(DMEM_RDATA),
       .load_trap_o(MEM2_load_trap_valid),
       .load_trap_code_o(MEM2_load_trap_code),
-      .rmask_o(MEM2_mem_rmask),
-      .rdata_formatted_o(MEM2_mem_rdata)
+      .rmask_o(dmem_rmask),
+      .rdata_formatted_o(dmem_rdata_formatted)
   );
+  // select dmem read data OR axil read data OR neither
+  always_comb begin
+    mem_rdata = 0;
+    mem_rmask = 0;
+    if (MEM2_axil_read_valid) begin
+      mem_rdata = MEM2_axil_rdata;
+      mem_rmask = 4'hf;
+    end else if (MEM2_dmem_read_valid) begin
+      mem_rdata = dmem_rdata_formatted;
+      mem_rmask = dmem_rmask;
+    end
+  end
+
+
 
   //////////////////////////////////////
   //
@@ -598,8 +691,8 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
   // IF
-  always_ff @(posedge clk_i) begin
-    if (rst_i) begin
+  always_ff @(posedge CLK) begin
+    if (RST) begin
       IF_pc_rdata <= 0;
       IF_intr <= 0;
       IF_valid_insn <= 1;
@@ -614,15 +707,15 @@ module dtcore32 #(
     end
   end
   //IF/ID
-  always_ff @(posedge clk_i) begin
-    if (rst_i || ID_flush) begin
+  always_ff @(posedge CLK) begin
+    if (RST || ID_flush) begin
       ID_insn <= NOP_INSTRUCTION;
       ID_pc_rdata <= 0;
       ID_pc_plus_4 <= 0;
       ID_valid_insn <= 0;
       ID_intr <= 0;
     end else if (!ID_stall) begin
-      ID_insn <= IMEM_rdata_i;
+      ID_insn <= IMEM_RDATA;
       ID_pc_rdata <= IF_pc_rdata;
       ID_pc_plus_4 <= IF_pc_plus_4;
       ID_valid_insn <= IF_valid_insn;
@@ -630,8 +723,8 @@ module dtcore32 #(
     end
   end
   // ID/EX register
-  always_ff @(posedge clk_i) begin
-    if (rst_i || EX_flush || ID_stall || ID_trap.valid) begin
+  always_ff @(posedge CLK) begin
+    if (RST || EX_flush || ID_stall || ID_trap.valid) begin
       EX_result_src <= 0;
       EX_mem_ltype <= 0;
       EX_mem_stype <= 0;
@@ -654,7 +747,7 @@ module dtcore32 #(
       EX_csr_wr_operand_src <= 0;
       EX_csr_wr_type <= 0;
       EX_is_jalr <= 0;
-      if (rst_i || EX_flush || ID_stall) begin
+      if (RST || EX_flush || ID_stall) begin
         EX_prev_trap <= '{default: 0};
         EX_valid_insn <= 0;
         EX_intr <= 0;
@@ -692,8 +785,8 @@ module dtcore32 #(
     end
   end
   // EX/MEM1 register
-  always_ff @(posedge clk_i) begin
-    if (rst_i || MEM1_flush || EX_trap.valid) begin
+  always_ff @(posedge CLK) begin
+    if (RST || MEM1_flush || EX_trap.valid) begin
       MEM1_result_src <= 0;
       MEM1_mem_ltype <= 0;
       MEM1_mem_stype <= 0;
@@ -711,7 +804,7 @@ module dtcore32 #(
       MEM1_rs1_addr <= 0;
       MEM1_rs2_addr <= 0;
       MEM1_pc_wdata <= 0;
-      if (rst_i || MEM1_flush) begin
+      if (RST || MEM1_flush) begin
         MEM1_prev_trap <= '{default: 0};
         MEM1_valid_insn <= 0;
         MEM1_intr <= 0;
@@ -744,8 +837,8 @@ module dtcore32 #(
     end
   end
   // MEM1/MEM2
-  always_ff @(posedge clk_i) begin
-    if (rst_i || MEM2_flush || MEM1_trap.valid) begin
+  always_ff @(posedge CLK) begin
+    if (RST || MEM2_flush || MEM1_trap.valid) begin
       MEM2_result_src <= 0;
       MEM2_mem_ltype <= 0;
       MEM2_alu_result <= 0;
@@ -761,7 +854,11 @@ module dtcore32 #(
       MEM2_rs1_addr <= 0;
       MEM2_rs2_addr <= 0;
       MEM2_pc_wdata <= 0;
-      if (rst_i || MEM2_flush) begin
+      MEM2_axil_rdata <= 0;
+      MEM2_dmem_read_valid <= 0;
+      MEM2_axil_read_valid <= 0;
+      MEM2_axil_rmask <= 0;
+      if (RST || MEM2_flush) begin
         MEM2_prev_trap <= '{default: 0};
         MEM2_valid_insn <= 0;
         MEM2_intr <= 0;
@@ -789,13 +886,17 @@ module dtcore32 #(
       MEM2_rs1_addr <= MEM1_rs1_addr;
       MEM2_rs2_addr <= MEM1_rs2_addr;
       MEM2_pc_wdata <= MEM1_pc_wdata;
-      MEM2_mem_wdata <= MEM1_mem_wdata;
-      MEM2_mem_wmask <= MEM1_mem_wmask;
+      MEM2_mem_wdata <= mem_wdata;
+      MEM2_mem_wmask <= mem_wmask;
+      MEM2_axil_rdata <= AXIL_TRANSACTION_RDATA;
+      MEM2_dmem_read_valid <= DMEM_EN;
+      MEM2_axil_read_valid <= AXIL_DONE_READ;
+      MEM2_axil_rmask <= axil_rmask;
     end
   end
   //MEM2/WB
-  always_ff @(posedge clk_i) begin
-    if (rst_i || WB_flush || MEM2_trap.valid) begin
+  always_ff @(posedge CLK) begin
+    if (RST || WB_flush || MEM2_trap.valid) begin
       WB_rd_addr <= 0;
       WB_insn <= NOP_INSTRUCTION;
       WB_alu_result <= 0;
@@ -815,7 +916,7 @@ module dtcore32 #(
       WB_mem_wdata <= 0;
       WB_mem_wmask <= 0;
       WB_pc_wdata <= 0;
-      if (rst_i || WB_flush) begin
+      if (RST || WB_flush) begin
         WB_prev_trap <= '{default: 0};
         WB_valid_insn <= 0;
         WB_intr <= 0;
@@ -828,7 +929,6 @@ module dtcore32 #(
       WB_rd_addr <= MEM2_rd_addr;
       WB_insn <= MEM2_insn;
       WB_alu_result <= MEM2_alu_result;
-      WB_mem_rdata <= MEM2_mem_rdata;
       WB_pc_rdata <= MEM2_pc_rdata;
       WB_pc_plus_4 <= MEM2_pc_plus_4;
       WB_result_src <= MEM2_result_src;
@@ -842,8 +942,8 @@ module dtcore32 #(
       WB_rs2_rdata <= MEM2_rs2_rdata;
       WB_rs1_addr <= MEM2_rs1_addr;
       WB_rs2_addr <= MEM2_rs2_addr;
-      WB_mem_rdata <= MEM2_mem_rdata;
-      WB_mem_rmask <= MEM2_mem_rmask;
+      WB_mem_rdata <= mem_rdata;
+      WB_mem_rmask <= mem_rmask;
       WB_mem_wdata <= MEM2_mem_wdata;
       WB_mem_wmask <= MEM2_mem_wmask;
       WB_pc_wdata <= MEM2_pc_wdata;
@@ -988,10 +1088,10 @@ module dtcore32 #(
   );
 
 
-  assign DMEM_addr_o  = MEM1_alu_result;
-  assign IMEM_addr_o  = IF_pc_rdata;
-  assign DMEM_wdata_o = MEM1_mem_wdata;
-  assign DMEM_wmask_o = MEM1_mem_wmask;
+  assign DMEM_ADDR  = MEM1_alu_result;
+  assign IMEM_ADDR  = IF_pc_rdata;
+  assign DMEM_WDATA = mem_wdata;
+  assign DMEM_WMASK = mem_wmask;
 
   //////////////////////////////////////
   //
@@ -1021,7 +1121,7 @@ module dtcore32 #(
   logic is_csr_mimpid;
   logic is_csr_mhartid;
   logic is_csr_mconfigptr;
-  
+
   always_comb begin
     is_csr_mstatus = 0;
     is_csr_misa = 0;
@@ -1064,8 +1164,8 @@ module dtcore32 #(
     endcase
   end
 
-  always_ff @(posedge clk_i) begin
-    if (rst_i) begin
+  always_ff @(posedge CLK) begin
+    if (RST) begin
       rvfi_valid <= 0;
       rvfi_order <= 0;
       rvfi_insn <= 0;
