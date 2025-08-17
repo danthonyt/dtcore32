@@ -3,7 +3,7 @@ module dtcore32 #(
     parameter DMEM_ADDR_WIDTH = 10,
     parameter IMEM_ADDR_WIDTH = 10,
     parameter AXIL_ADDR_WIDTH = 32,
-    parameter AXIL_BUS_WIDTH = 32
+    parameter AXIL_BUS_WIDTH  = 32
 ) (
     input  logic                       CLK,
     input  logic                       RST,
@@ -93,21 +93,21 @@ module dtcore32 #(
   logic [31:0] axil_addr;
   logic MEM2_dmem_read_valid;
   logic MEM2_axil_read_valid;
-  
+
   // IMEM AND DMEM SIGNALS
   logic [3:0] DMEM_mem_wmask;
   // hazard unit signals
   // stops signals from propagating through the pipeline
-  logic IF_stall;
-  logic ID_stall;
-  logic EX_stall;
+  logic IF_ID_stall;
+  logic ID_EX_stall;
+  logic EX_MEM1_stall;
 
   // resets the pipeline to control signals of a NOP instruction
-  logic IF_flush;
-  logic ID_flush;
-  logic EX_flush;
-  logic MEM1_flush;
-  logic MEM2_flush;
+  logic IF_ID_flush;
+  logic ID_EX_flush;
+  logic EX_MEM1_flush;
+  logic MEM1_MEM2_flush;
+  logic MEM2_WB_flush;
 
   logic [31:0] IF_pc_tick;
 
@@ -366,7 +366,8 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-
+  logic [31:0] IF_pc_rdata_r;
+  logic [31:0] IF_pc_plus_4_r;
 
   // next pc logic
   always_comb begin
@@ -393,15 +394,27 @@ module dtcore32 #(
     if (RST) begin
       IF_pc_rdata <= 0;
       IF_intr <= 0;
-      IF_valid_insn <= 1;
+      IF_valid_insn <= 0;
     end else if (WB_trap.valid) begin  // jump to trap handler if retired instrucion has a trap
       IF_pc_rdata <= trap_handler_addr;
       IF_intr <= 1;
       IF_valid_insn <= 1;
-    end else if (!IF_stall)begin
+    end else if (IF_ID_stall) begin
+      IF_valid_insn <= 0;
+    end else begin
       IF_pc_rdata <= IF_pc_tick;
       IF_intr <= 0;
       IF_valid_insn <= 1;
+    end
+  end
+
+  always_ff @(posedge CLK) begin
+    if (RST) begin
+      IF_pc_rdata_r  <= 0;
+      IF_pc_plus_4_r <= 0;
+    end else begin
+      IF_pc_rdata_r  <= IF_pc_rdata;
+      IF_pc_plus_4_r <= IF_pc_plus_4;
     end
   end
 
@@ -593,7 +606,7 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  
+
 
 
   // enables DMEM or AXIL
@@ -606,27 +619,26 @@ module dtcore32 #(
       .AXIL_ADDR(axil_addr)
   );
 
-  axil_interface # (
-    .BUS_WIDTH(AXIL_BUS_WIDTH)
-  )
-  axil_interface_inst (
-    .CLK(CLK),
-    .RST(RST),
-    .EN(axil_en),
-    .MEM1_ALU_RESULT(MEM1_alu_result),
-    .MEM1_MEM_LTYPE(MEM1_mem_ltype),
-    .MEM1_MEM_STYPE(MEM1_mem_stype),
-    .MEM1_WDATA_RAW(MEM1_mem_wdata_raw),
-    .AXIL_ADDR(axil_addr),
-    .AXIL_DONE_READ(AXIL_DONE_READ),
-    .AXIL_DONE_WRITE(AXIL_DONE_WRITE),
-    .AXIL_TRANSACTION_RDATA(AXIL_TRANSACTION_RDATA),
-    .AXIL_START_READ(AXIL_START_READ),
-    .AXIL_START_WRITE(AXIL_START_WRITE),
-    .AXIL_TRANSACTION_WRADDR(AXIL_TRANSACTION_WRADDR),
-    .AXIL_TRANSACTION_WRDATA(AXIL_TRANSACTION_WRDATA),
-    .AXIL_TRANSACTION_WSTRB(AXIL_TRANSACTION_WSTRB),
-    .AXIL_TRANSACTION_RADDR(AXIL_TRANSACTION_RADDR)
+  axil_interface #(
+      .BUS_WIDTH(AXIL_BUS_WIDTH)
+  ) axil_interface_inst (
+      .CLK(CLK),
+      .RST(RST),
+      .EN(axil_en),
+      .MEM1_ALU_RESULT(MEM1_alu_result),
+      .MEM1_MEM_LTYPE(MEM1_mem_ltype),
+      .MEM1_MEM_STYPE(MEM1_mem_stype),
+      .MEM1_WDATA_RAW(MEM1_mem_wdata_raw),
+      .AXIL_ADDR(axil_addr),
+      .AXIL_DONE_READ(AXIL_DONE_READ),
+      .AXIL_DONE_WRITE(AXIL_DONE_WRITE),
+      .AXIL_TRANSACTION_RDATA(AXIL_TRANSACTION_RDATA),
+      .AXIL_START_READ(AXIL_START_READ),
+      .AXIL_START_WRITE(AXIL_START_WRITE),
+      .AXIL_TRANSACTION_WRADDR(AXIL_TRANSACTION_WRADDR),
+      .AXIL_TRANSACTION_WRDATA(AXIL_TRANSACTION_WRDATA),
+      .AXIL_TRANSACTION_WSTRB(AXIL_TRANSACTION_WSTRB),
+      .AXIL_TRANSACTION_RADDR(AXIL_TRANSACTION_RADDR)
   );
   assign axil_rmask = 4'hf;
   // disable dmem if address maps to axil peripheral
@@ -713,26 +725,34 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  
+
   //IF/ID
   always_ff @(posedge CLK) begin
-    if (RST || IF_flush) begin
+    if (RST || IF_ID_flush) begin
       ID_insn <= NOP_INSTRUCTION;
       ID_pc_rdata <= 0;
       ID_pc_plus_4 <= 0;
       ID_valid_insn <= 0;
       ID_intr <= 0;
-    end else if (!IF_stall) begin
-      ID_insn <= IMEM_RDATA;
-      ID_pc_rdata <= IF_pc_rdata;
-      ID_pc_plus_4 <= IF_pc_plus_4;
-      ID_valid_insn <= IF_valid_insn;
-      ID_intr <= IF_intr;
+    end else if (!IF_ID_stall) begin
+      if (!IF_valid_insn) begin
+        ID_insn <= NOP_INSTRUCTION;
+        ID_pc_rdata <= 0;
+        ID_pc_plus_4 <= 0;
+        ID_valid_insn <= 0;
+        ID_intr <= 0;
+      end else begin
+        ID_insn <= IMEM_RDATA;
+        ID_pc_rdata <= IF_pc_rdata_r;
+        ID_pc_plus_4 <= IF_pc_plus_4_r;
+        ID_valid_insn <= IF_valid_insn;
+        ID_intr <= IF_intr;
+      end
     end
   end
   // ID/EX register
   always_ff @(posedge CLK) begin
-    if (RST || ID_flush || ID_trap.valid) begin
+    if (RST || ID_EX_flush) begin
       EX_result_src <= 0;
       EX_mem_ltype <= 0;
       EX_mem_stype <= 0;
@@ -755,46 +775,69 @@ module dtcore32 #(
       EX_csr_wr_operand_src <= 0;
       EX_csr_wr_type <= 0;
       EX_is_jalr <= 0;
-      if (RST || ID_flush) begin
-        EX_prev_trap <= '{default: 0};
-        EX_valid_insn <= 0;
-        EX_intr <= 0;
-      end else if (ID_trap.valid) begin
+      EX_prev_trap <= '{default: 0};
+      EX_valid_insn <= 0;
+      EX_intr <= 0;
+    end else if (!ID_EX_stall) begin
+      if (ID_trap.valid) begin
+        EX_result_src <= 0;
+        EX_mem_ltype <= 0;
+        EX_mem_stype <= 0;
+        EX_jump <= 0;
+        EX_branch <= 0;
+        EX_alu_control <= 0;
+        EX_alu_a_src <= 0;
+        EX_alu_b_src <= 0;
+        EX_pc_target_alu_src <= 0;
+        EX_rs1_rdata_unforwarded <= 0;
+        EX_rs2_rdata_unforwarded <= 0;
+        EX_pc_rdata <= 0;
+        EX_rs1_addr <= 0;
+        EX_rs2_addr <= 0;
+        EX_rd_addr <= 0;
+        EX_imm_ext <= 0;
+        EX_pc_plus_4 <= 0;
+        EX_insn <= NOP_INSTRUCTION;
+        EX_csr_addr <= 0;
+        EX_csr_wr_operand_src <= 0;
+        EX_csr_wr_type <= 0;
+        EX_is_jalr <= 0;
         EX_prev_trap <= ID_trap;
         EX_valid_insn <= 1;
         EX_intr <= ID_intr;
+      end else begin
+        EX_result_src <= ID_result_src;
+        EX_mem_ltype <= ID_mem_ltype;
+        EX_mem_stype <= ID_mem_stype;
+        EX_jump <= ID_jump;
+        EX_branch <= ID_branch;
+        EX_alu_control <= ID_alu_control;
+        EX_alu_a_src <= ID_alu_a_src;
+        EX_alu_b_src <= ID_alu_b_src;
+        EX_pc_target_alu_src <= ID_pc_target_alu_src;
+        EX_rs1_rdata_unforwarded <= ID_rs1_rdata;
+        EX_rs2_rdata_unforwarded <= ID_rs2_rdata;
+        EX_pc_rdata <= ID_pc_rdata;
+        EX_rs1_addr <= ID_rs1_addr;
+        EX_rs2_addr <= ID_rs2_addr;
+        EX_rd_addr <= ID_rd_addr;
+        EX_imm_ext <= ID_imm_ext;
+        EX_pc_plus_4 <= ID_pc_plus_4;
+        EX_insn <= ID_insn;
+        EX_prev_trap <= ID_trap;
+        EX_csr_addr <= ID_csr_addr;
+        EX_csr_wr_operand_src <= ID_csr_wr_operand_src;
+        EX_csr_wr_type <= ID_csr_wr_type;
+        EX_valid_insn <= ID_valid_insn;
+        EX_intr <= ID_intr;
+        EX_is_jalr <= ID_is_jalr;
       end
-    end else if (!ID_stall)begin
-      EX_result_src <= ID_result_src;
-      EX_mem_ltype <= ID_mem_ltype;
-      EX_mem_stype <= ID_mem_stype;
-      EX_jump <= ID_jump;
-      EX_branch <= ID_branch;
-      EX_alu_control <= ID_alu_control;
-      EX_alu_a_src <= ID_alu_a_src;
-      EX_alu_b_src <= ID_alu_b_src;
-      EX_pc_target_alu_src <= ID_pc_target_alu_src;
-      EX_rs1_rdata_unforwarded <= ID_rs1_rdata;
-      EX_rs2_rdata_unforwarded <= ID_rs2_rdata;
-      EX_pc_rdata <= ID_pc_rdata;
-      EX_rs1_addr <= ID_rs1_addr;
-      EX_rs2_addr <= ID_rs2_addr;
-      EX_rd_addr <= ID_rd_addr;
-      EX_imm_ext <= ID_imm_ext;
-      EX_pc_plus_4 <= ID_pc_plus_4;
-      EX_insn <= ID_insn;
-      EX_prev_trap <= ID_trap;
-      EX_csr_addr <= ID_csr_addr;
-      EX_csr_wr_operand_src <= ID_csr_wr_operand_src;
-      EX_csr_wr_type <= ID_csr_wr_type;
-      EX_valid_insn <= ID_valid_insn;
-      EX_intr <= ID_intr;
-      EX_is_jalr <= ID_is_jalr;
+
     end
   end
   // EX/MEM1 register
   always_ff @(posedge CLK) begin
-    if (RST || EX_flush || EX_trap.valid) begin
+    if (RST || EX_MEM1_flush) begin
       MEM1_result_src <= 0;
       MEM1_mem_ltype <= 0;
       MEM1_mem_stype <= 0;
@@ -812,41 +855,58 @@ module dtcore32 #(
       MEM1_rs1_addr <= 0;
       MEM1_rs2_addr <= 0;
       MEM1_pc_wdata <= 0;
-      if (RST || EX_flush) begin
-        MEM1_prev_trap <= '{default: 0};
-        MEM1_valid_insn <= 0;
-        MEM1_intr <= 0;
-      end else if (EX_trap.valid) begin
+      MEM1_prev_trap <= '{default: 0};
+      MEM1_valid_insn <= 0;
+      MEM1_intr <= 0;
+    end else if (!EX_MEM1_stall) begin
+      if (EX_trap.valid) begin
+        MEM1_result_src <= 0;
+        MEM1_mem_ltype <= 0;
+        MEM1_mem_stype <= 0;
+        MEM1_alu_result <= 0;
+        MEM1_mem_wdata_raw <= 0;
+        MEM1_rd_addr <= 0;
+        MEM1_pc_rdata <= 0;
+        MEM1_pc_plus_4 <= 0;
+        MEM1_insn <= NOP_INSTRUCTION;
+        MEM1_csr_addr <= 0;
+        MEM1_csr_wr_operand <= 0;
+        MEM1_csr_wr_type <= 0;
+        MEM1_rs1_rdata <= 0;
+        MEM1_rs2_rdata <= 0;
+        MEM1_rs1_addr <= 0;
+        MEM1_rs2_addr <= 0;
+        MEM1_pc_wdata <= 0;
         MEM1_prev_trap <= EX_trap;
         MEM1_valid_insn <= 1;
         MEM1_intr <= EX_intr;
+      end else begin
+        MEM1_result_src <= EX_result_src;
+        MEM1_mem_ltype <= EX_mem_ltype;
+        MEM1_mem_stype <= EX_mem_stype;
+        MEM1_alu_result <= EX_alu_result;
+        MEM1_mem_wdata_raw <= EX_mem_wdata_raw;
+        MEM1_rd_addr <= EX_rd_addr;
+        MEM1_pc_rdata <= EX_pc_rdata;
+        MEM1_pc_plus_4 <= EX_pc_plus_4;
+        MEM1_prev_trap <= EX_trap;
+        MEM1_insn <= EX_insn;
+        MEM1_csr_addr <= EX_csr_addr;
+        MEM1_csr_wr_operand <= EX_csr_wr_operand;
+        MEM1_csr_wr_type <= EX_csr_wr_type;
+        MEM1_valid_insn <= EX_valid_insn;
+        MEM1_intr <= EX_intr;
+        MEM1_rs1_rdata <= EX_rs1_rdata;
+        MEM1_rs2_rdata <= EX_rs2_rdata;
+        MEM1_rs1_addr <= EX_rs1_addr;
+        MEM1_rs2_addr <= EX_rs2_addr;
+        MEM1_pc_wdata <= EX_pc_wdata;
       end
-    end else if (!EX_stall)begin
-      MEM1_result_src <= EX_result_src;
-      MEM1_mem_ltype <= EX_mem_ltype;
-      MEM1_mem_stype <= EX_mem_stype;
-      MEM1_alu_result <= EX_alu_result;
-      MEM1_mem_wdata_raw <= EX_mem_wdata_raw;
-      MEM1_rd_addr <= EX_rd_addr;
-      MEM1_pc_rdata <= EX_pc_rdata;
-      MEM1_pc_plus_4 <= EX_pc_plus_4;
-      MEM1_prev_trap <= EX_trap;
-      MEM1_insn <= EX_insn;
-      MEM1_csr_addr <= EX_csr_addr;
-      MEM1_csr_wr_operand <= EX_csr_wr_operand;
-      MEM1_csr_wr_type <= EX_csr_wr_type;
-      MEM1_valid_insn <= EX_valid_insn;
-      MEM1_intr <= EX_intr;
-      MEM1_rs1_rdata <= EX_rs1_rdata;
-      MEM1_rs2_rdata <= EX_rs2_rdata;
-      MEM1_rs1_addr <= EX_rs1_addr;
-      MEM1_rs2_addr <= EX_rs2_addr;
-      MEM1_pc_wdata <= EX_pc_wdata;
     end
   end
   // MEM1/MEM2
   always_ff @(posedge CLK) begin
-    if (RST || MEM1_flush || MEM1_trap.valid) begin
+    if (RST || MEM1_MEM2_flush) begin
       MEM2_result_src <= 0;
       MEM2_mem_ltype <= 0;
       MEM2_alu_result <= 0;
@@ -866,45 +926,64 @@ module dtcore32 #(
       MEM2_dmem_read_valid <= 0;
       MEM2_axil_read_valid <= 0;
       MEM2_axil_rmask <= 0;
-      if (RST || MEM1_flush) begin
-        MEM2_prev_trap <= '{default: 0};
-        MEM2_valid_insn <= 0;
-        MEM2_intr <= 0;
-      end else if (MEM1_trap.valid) begin
+      MEM2_prev_trap <= '{default: 0};
+      MEM2_valid_insn <= 0;
+      MEM2_intr <= 0;
+    end else begin
+      if (MEM1_trap.valid) begin
+        MEM2_result_src <= 0;
+        MEM2_mem_ltype <= 0;
+        MEM2_alu_result <= 0;
+        MEM2_rd_addr <= 0;
+        MEM2_pc_rdata <= 0;
+        MEM2_pc_plus_4 <= 0;
+        MEM2_insn <= NOP_INSTRUCTION;
+        MEM2_csr_addr <= 0;
+        MEM2_csr_wr_operand <= 0;
+        MEM2_csr_wr_type <= 0;
+        MEM2_rs1_rdata <= 0;
+        MEM2_rs2_rdata <= 0;
+        MEM2_rs1_addr <= 0;
+        MEM2_rs2_addr <= 0;
+        MEM2_pc_wdata <= 0;
+        MEM2_axil_rdata <= 0;
+        MEM2_dmem_read_valid <= 0;
+        MEM2_axil_read_valid <= 0;
+        MEM2_axil_rmask <= 0;
         MEM2_prev_trap <= MEM1_trap;
         MEM2_valid_insn <= 1;
         MEM2_intr <= MEM1_intr;
+      end else begin
+        MEM2_result_src <= MEM1_result_src;
+        MEM2_mem_ltype <= MEM1_mem_ltype;
+        MEM2_alu_result <= MEM1_alu_result;
+        MEM2_rd_addr <= MEM1_rd_addr;
+        MEM2_pc_rdata <= MEM1_pc_rdata;
+        MEM2_pc_plus_4 <= MEM1_pc_plus_4;
+        MEM2_prev_trap <= MEM1_trap;
+        MEM2_insn <= MEM1_insn;
+        MEM2_csr_addr <= MEM1_csr_addr;
+        MEM2_csr_wr_operand <= MEM1_csr_wr_operand;
+        MEM2_csr_wr_type <= MEM1_csr_wr_type;
+        MEM2_valid_insn <= MEM1_valid_insn;
+        MEM2_intr <= MEM1_intr;
+        MEM2_rs1_rdata <= MEM1_rs1_rdata;
+        MEM2_rs2_rdata <= MEM1_rs2_rdata;
+        MEM2_rs1_addr <= MEM1_rs1_addr;
+        MEM2_rs2_addr <= MEM1_rs2_addr;
+        MEM2_pc_wdata <= MEM1_pc_wdata;
+        MEM2_mem_wdata <= mem_wdata;
+        MEM2_mem_wmask <= mem_wmask;
+        MEM2_axil_rdata <= AXIL_TRANSACTION_RDATA;
+        MEM2_dmem_read_valid <= DMEM_EN;
+        MEM2_axil_read_valid <= AXIL_DONE_READ;
+        MEM2_axil_rmask <= axil_rmask;
       end
-    end else begin
-      MEM2_result_src <= MEM1_result_src;
-      MEM2_mem_ltype <= MEM1_mem_ltype;
-      MEM2_alu_result <= MEM1_alu_result;
-      MEM2_rd_addr <= MEM1_rd_addr;
-      MEM2_pc_rdata <= MEM1_pc_rdata;
-      MEM2_pc_plus_4 <= MEM1_pc_plus_4;
-      MEM2_prev_trap <= MEM1_trap;
-      MEM2_insn <= MEM1_insn;
-      MEM2_csr_addr <= MEM1_csr_addr;
-      MEM2_csr_wr_operand <= MEM1_csr_wr_operand;
-      MEM2_csr_wr_type <= MEM1_csr_wr_type;
-      MEM2_valid_insn <= MEM1_valid_insn;
-      MEM2_intr <= MEM1_intr;
-      MEM2_rs1_rdata <= MEM1_rs1_rdata;
-      MEM2_rs2_rdata <= MEM1_rs2_rdata;
-      MEM2_rs1_addr <= MEM1_rs1_addr;
-      MEM2_rs2_addr <= MEM1_rs2_addr;
-      MEM2_pc_wdata <= MEM1_pc_wdata;
-      MEM2_mem_wdata <= mem_wdata;
-      MEM2_mem_wmask <= mem_wmask;
-      MEM2_axil_rdata <= AXIL_TRANSACTION_RDATA;
-      MEM2_dmem_read_valid <= DMEM_EN;
-      MEM2_axil_read_valid <= AXIL_DONE_READ;
-      MEM2_axil_rmask <= axil_rmask;
     end
   end
   //MEM2/WB
   always_ff @(posedge CLK) begin
-    if (RST || MEM2_flush || MEM2_trap.valid) begin
+    if (RST || MEM2_WB_flush) begin
       WB_rd_addr <= 0;
       WB_insn <= NOP_INSTRUCTION;
       WB_alu_result <= 0;
@@ -924,37 +1003,56 @@ module dtcore32 #(
       WB_mem_wdata <= 0;
       WB_mem_wmask <= 0;
       WB_pc_wdata <= 0;
-      if (RST || MEM2_flush) begin
-        WB_prev_trap <= '{default: 0};
-        WB_valid_insn <= 0;
-        WB_intr <= 0;
-      end else if (MEM2_trap.valid) begin
+      WB_prev_trap <= '{default: 0};
+      WB_valid_insn <= 0;
+      WB_intr <= 0;
+    end else begin
+      if (MEM2_trap.valid) begin
+        WB_rd_addr <= 0;
+        WB_insn <= NOP_INSTRUCTION;
+        WB_alu_result <= 0;
+        WB_mem_rdata <= 0;
+        WB_pc_rdata <= 0;
+        WB_pc_plus_4 <= 0;
+        WB_result_src <= 0;
+        WB_csr_addr <= 0;
+        WB_csr_wr_operand <= 0;
+        WB_csr_wr_type <= 0;
+        WB_rs1_rdata <= 0;
+        WB_rs2_rdata <= 0;
+        WB_rs1_addr <= 0;
+        WB_rs2_addr <= 0;
+        WB_mem_rdata <= 0;
+        WB_mem_rmask <= 0;
+        WB_mem_wdata <= 0;
+        WB_mem_wmask <= 0;
+        WB_pc_wdata <= 0;
         WB_prev_trap <= MEM2_trap;
         WB_valid_insn <= 1;
         WB_intr <= MEM2_intr;
+      end else begin
+        WB_rd_addr <= MEM2_rd_addr;
+        WB_insn <= MEM2_insn;
+        WB_alu_result <= MEM2_alu_result;
+        WB_pc_rdata <= MEM2_pc_rdata;
+        WB_pc_plus_4 <= MEM2_pc_plus_4;
+        WB_result_src <= MEM2_result_src;
+        WB_prev_trap <= MEM2_trap;
+        WB_csr_addr <= MEM2_csr_addr;
+        WB_csr_wr_operand <= MEM2_csr_wr_operand;
+        WB_csr_wr_type <= MEM2_csr_wr_type;
+        WB_valid_insn <= MEM2_valid_insn;
+        WB_intr <= MEM2_intr;
+        WB_rs1_rdata <= MEM2_rs1_rdata;
+        WB_rs2_rdata <= MEM2_rs2_rdata;
+        WB_rs1_addr <= MEM2_rs1_addr;
+        WB_rs2_addr <= MEM2_rs2_addr;
+        WB_mem_rdata <= mem_rdata;
+        WB_mem_rmask <= mem_rmask;
+        WB_mem_wdata <= MEM2_mem_wdata;
+        WB_mem_wmask <= MEM2_mem_wmask;
+        WB_pc_wdata <= MEM2_pc_wdata;
       end
-    end else begin
-      WB_rd_addr <= MEM2_rd_addr;
-      WB_insn <= MEM2_insn;
-      WB_alu_result <= MEM2_alu_result;
-      WB_pc_rdata <= MEM2_pc_rdata;
-      WB_pc_plus_4 <= MEM2_pc_plus_4;
-      WB_result_src <= MEM2_result_src;
-      WB_prev_trap <= MEM2_trap;
-      WB_csr_addr <= MEM2_csr_addr;
-      WB_csr_wr_operand <= MEM2_csr_wr_operand;
-      WB_csr_wr_type <= MEM2_csr_wr_type;
-      WB_valid_insn <= MEM2_valid_insn;
-      WB_intr <= MEM2_intr;
-      WB_rs1_rdata <= MEM2_rs1_rdata;
-      WB_rs2_rdata <= MEM2_rs2_rdata;
-      WB_rs1_addr <= MEM2_rs1_addr;
-      WB_rs2_addr <= MEM2_rs2_addr;
-      WB_mem_rdata <= mem_rdata;
-      WB_mem_rmask <= mem_rmask;
-      WB_mem_wdata <= MEM2_mem_wdata;
-      WB_mem_wmask <= MEM2_mem_wmask;
-      WB_pc_wdata <= MEM2_pc_wdata;
     end
   end
 
@@ -1064,44 +1162,43 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
 
-  hazard_unit  hazard_unit_inst (
-    .EX_RS1_ADDR(EX_rs1_addr),
-    .EX_RS2_ADDR(EX_rs2_addr),
-    .MEM1_RD_ADDR(MEM1_rd_addr),
-    .MEM2_RD_ADDR(MEM2_rd_addr),
-    .WB_RD_ADDR(WB_rd_addr),
-    .EX_RESULT_SRC(EX_result_src),
-    .MEM1_RESULT_SRC(MEM1_result_src),
-    .MEM2_RESULT_SRC(MEM2_result_src),
-    .ID_RS1_ADDR(ID_rs1_addr),
-    .ID_RS2_ADDR(ID_rs2_addr),
-    .EX_RD_ADDR(EX_rd_addr),
-    .EX_PC_SRC(EX_pc_src),
-    .EX_FORWARD_A(EX_forward_a),
-    .EX_FORWARD_B(EX_forward_b),
-    .ID_FORWARD_A(ID_forward_a),
-    .ID_FORWARD_B(ID_forward_b),
-    .IF_FLUSH(IF_flush),
-    .ID_FLUSH(ID_flush),
-    .EX_FLUSH(EX_flush),
-    .MEM1_FLUSH(MEM1_flush),
-    .MEM2_FLUSH(MEM2_flush),
-    .IF_STALL(IF_stall),
-    .ID_STALL(ID_stall),
-    .EX_STALL(EX_stall),
-    .ID_TRAP_VALID(ID_trap.valid),
-    .EX_TRAP_VALID(EX_trap.valid),
-    .MEM1_TRAP_VALID(MEM1_trap.valid),
-    .MEM2_TRAP_VALID(MEM2_trap.valid),
-    .WB_TRAP_VALID(WB_trap.valid),
-    .AXIL_EN(axil_en),
-    .AXIL_DONE_READ(AXIL_DONE_READ),
-    .AXIL_DONE_WRITE(AXIL_DONE_WRITE)
+  hazard_unit hazard_unit_inst (
+      .EX_RS1_ADDR(EX_rs1_addr),
+      .EX_RS2_ADDR(EX_rs2_addr),
+      .MEM1_RD_ADDR(MEM1_rd_addr),
+      .MEM2_RD_ADDR(MEM2_rd_addr),
+      .WB_RD_ADDR(WB_rd_addr),
+      .EX_RESULT_SRC(EX_result_src),
+      .MEM1_RESULT_SRC(MEM1_result_src),
+      .MEM2_RESULT_SRC(MEM2_result_src),
+      .ID_RS1_ADDR(ID_rs1_addr),
+      .ID_RS2_ADDR(ID_rs2_addr),
+      .EX_RD_ADDR(EX_rd_addr),
+      .EX_PC_SRC(EX_pc_src),
+      .EX_FORWARD_A(EX_forward_a),
+      .EX_FORWARD_B(EX_forward_b),
+      .ID_FORWARD_A(ID_forward_a),
+      .ID_FORWARD_B(ID_forward_b),
+      .IF_ID_FLUSH(IF_ID_flush),
+      .ID_EX_FLUSH(ID_EX_flush),
+      .EX_MEM1_FLUSH(EX_MEM1_flush),
+      .MEM1_MEM2_FLUSH(MEM1_MEM2_flush),
+      .MEM2_WB_FLUSH(MEM2_WB_flush),
+      .IF_ID_STALL(IF_ID_stall),
+      .ID_EX_STALL(ID_EX_stall),
+      .EX_MEM1_STALL(EX_MEM1_stall),
+      .ID_TRAP_VALID(ID_trap.valid),
+      .EX_TRAP_VALID(EX_trap.valid),
+      .MEM1_TRAP_VALID(MEM1_trap.valid),
+      .MEM2_TRAP_VALID(MEM2_trap.valid),
+      .WB_TRAP_VALID(WB_trap.valid),
+      .AXIL_EN(axil_en),
+      .AXIL_DONE_READ(AXIL_DONE_READ),
+      .AXIL_DONE_WRITE(AXIL_DONE_WRITE)
   );
 
-
-  assign DMEM_ADDR  = MEM1_alu_result;
-  assign IMEM_ADDR  = IF_pc_rdata;
+  assign DMEM_ADDR  = MEM1_alu_result[DMEM_ADDR_WIDTH-1:0];
+  assign IMEM_ADDR  = IF_pc_rdata[IMEM_ADDR_WIDTH-1:0];
   assign DMEM_WDATA = mem_wdata;
   assign DMEM_WMASK = mem_wmask;
 

@@ -16,7 +16,7 @@ module regfile (
   // read two ports combinationally (A1/RD1, A2/RD2)
   // write third port on rising edge of clock (A3/WD3/WE3)
   // register 0 hardwired to 0
-  always_ff @(negedge clk_i) begin
+  always_ff @(posedge clk_i) begin
     if (rst_i) begin
       for (i = 0; i < 32; i = i + 1) reg_array[i] <= 32'd0;
     end else begin

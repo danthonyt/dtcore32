@@ -97,6 +97,19 @@ localparam IMEM_ADDR_WIDTH = 10;
   );
 
 // only test dmem, not axil interface
-assume property(@(posedge clock) rvfi_mem_addr <= 32'h3ff);
+//assume property(@(posedge clock) (rvfi_mem_addr <= 32'h40f));
+
+// MMIO address range
+localparam MMIO_BASE = 32'h400;
+localparam MMIO_END  = 32'h410;
+assume property(@(posedge clock) rvfi_mem_addr < MMIO_END);
+assume property (@(posedge clock)
+    // if memory access is inside MMIO region
+    ((rvfi_mem_addr >= MMIO_BASE) && (rvfi_mem_addr < MMIO_END)) |-> 
+        // instruction must be LW or SW
+        (((rvfi_insn[6:0] == 7'b0000011 && rvfi_insn[14:12] == 3'b010) || // LW
+         (rvfi_insn[6:0] == 7'b0100011 && rvfi_insn[14:12] == 3'b010)) && // SW
+         (rvfi_mem_addr[1:0] == 2'b00 ))  
+);
 endmodule
 

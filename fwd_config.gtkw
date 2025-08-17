@@ -1,0 +1,87 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sat Aug 16 19:40:06 2025
+[*]
+[dumpfile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/checks/pc_fwd_ch0/engine_0/trace.vcd"
+[dumpfile_mtime] "Sat Aug 16 19:30:48 2025"
+[dumpfile_size] 231769
+[savefile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/fwd_config.gtkw"
+[timestart] 0
+[size] 2494 1361
+[pos] -1 -1
+*-5.166809 60 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] rvfi_testbench.
+[treeopen] rvfi_testbench.wrapper.
+[treeopen] rvfi_testbench.wrapper.dtcore32_inst.
+[sst_width] 278
+[signals_width] 485
+[sst_expanded] 1
+[sst_vpaned_height] 405
+@28
+rvfi_testbench.checker_inst.check
+@29
+rvfi_testbench.checker_inst.clock
+@22
+rvfi_testbench.checker_inst.expect_pc[31:0]
+@28
+rvfi_testbench.checker_inst.expect_pc_valid
+@22
+rvfi_testbench.checker_inst.insn_order[63:0]
+rvfi_testbench.checker_inst.pc_rdata[31:0]
+@28
+rvfi_testbench.checker_inst.reset
+rvfi_testbench.checker_inst.rvfi_halt
+@22
+rvfi_testbench.checker_inst.rvfi_insn[31:0]
+@28
+rvfi_testbench.checker_inst.rvfi_intr
+rvfi_testbench.checker_inst.rvfi_ixl[1:0]
+@22
+rvfi_testbench.checker_inst.rvfi_mem_addr[31:0]
+rvfi_testbench.checker_inst.rvfi_mem_rdata[31:0]
+rvfi_testbench.checker_inst.rvfi_mem_rmask[3:0]
+rvfi_testbench.checker_inst.rvfi_mem_wdata[31:0]
+rvfi_testbench.checker_inst.rvfi_mem_wmask[3:0]
+@28
+rvfi_testbench.checker_inst.rvfi_mode[1:0]
+@22
+rvfi_testbench.checker_inst.rvfi_order[63:0]
+rvfi_testbench.checker_inst.rvfi_pc_rdata[31:0]
+rvfi_testbench.checker_inst.rvfi_pc_wdata[31:0]
+rvfi_testbench.checker_inst.rvfi_rd_addr[4:0]
+rvfi_testbench.checker_inst.rvfi_rd_wdata[31:0]
+rvfi_testbench.checker_inst.rvfi_rs1_addr[4:0]
+rvfi_testbench.checker_inst.rvfi_rs1_rdata[31:0]
+rvfi_testbench.checker_inst.rvfi_rs2_addr[4:0]
+rvfi_testbench.checker_inst.rvfi_rs2_rdata[31:0]
+@28
+rvfi_testbench.checker_inst.rvfi_trap
+rvfi_testbench.checker_inst.rvfi_valid
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.axil_stall
+@22
+rvfi_testbench.wrapper.dtcore32_inst.IF_pc_rdata[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.ID_pc_rdata[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.EX_pc_rdata[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.MEM1_pc_rdata[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.MEM2_pc_rdata[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.WB_pc_rdata[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.IMEM_RDATA[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.ID_insn[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.EX_insn[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.MEM1_insn[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.MEM2_insn[31:0]
+@28
+rvfi_testbench.wrapper.dtcore32_inst.MEM2_valid_insn
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.IF_FLUSH
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.ID_FLUSH
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.EX_FLUSH
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.MEM1_FLUSH
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.MEM2_FLUSH
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.IF_STALL
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.ID_STALL
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.EX_STALL
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.csr_read_use_stall
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.csr_read_use_stall
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.load_use_stall
+[pattern_trace] 1
+[pattern_trace] 0

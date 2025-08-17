@@ -1,0 +1,10 @@
+# ignore everything
+*
+# but not these files
+!.gitignore
+!*.py
+!*.sv
+!Makefile
+!*.sby
+# even if they are in subdirectories
+!*/
