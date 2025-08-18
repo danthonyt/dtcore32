@@ -8,11 +8,12 @@ module dmem #(ADDR_WIDTH = 10)(
 );
 
   logic [31:0] RAM[(2**(ADDR_WIDTH-2)-1):0];
-  /*
+
   initial begin
     $readmemh("dmem.mem", RAM);
   end
-  */
+
+  
   integer i;
   always @(posedge CLK) begin
     if (EN) begin

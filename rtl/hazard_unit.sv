@@ -28,6 +28,8 @@ module hazard_unit (
     output logic IF_ID_STALL,
     output logic ID_EX_STALL,
     output logic EX_MEM1_STALL,
+    output logic MEM1_MEM2_STALL,
+    output logic MEM2_WB_STALL,
     
 
     // trap logic
@@ -157,11 +159,13 @@ import params_pkg::*;
   assign IF_ID_FLUSH = (EX_PC_SRC & ~axil_stall) | (EX_TRAP_VALID | MEM1_TRAP_VALID | MEM2_TRAP_VALID | WB_TRAP_VALID);
   assign ID_EX_FLUSH = ((EX_PC_SRC | IF_ID_STALL) & ~axil_stall) |(MEM1_TRAP_VALID | MEM2_TRAP_VALID | WB_TRAP_VALID);
   assign EX_MEM1_FLUSH = MEM2_TRAP_VALID | WB_TRAP_VALID;
-  assign MEM1_MEM2_FLUSH = WB_TRAP_VALID | axil_stall;
+  assign MEM1_MEM2_FLUSH = WB_TRAP_VALID;
   assign MEM2_WB_FLUSH = WB_TRAP_VALID;
   // no need to stall if instructions are flushed anyway
   assign IF_ID_STALL = (load_use_stall | csr_read_use_stall) | axil_stall;
   assign ID_EX_STALL = axil_stall;
   assign EX_MEM1_STALL = axil_stall;
+  assign MEM1_MEM2_STALL = axil_stall;
+  assign MEM2_WB_STALL = axil_stall;
 
 endmodule

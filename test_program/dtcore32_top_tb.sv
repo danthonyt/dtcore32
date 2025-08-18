@@ -18,7 +18,7 @@ module dtcore32_top_tb;
     #20 rst = 0;
 
     // optional: run simulation for some cycles
-    #1000 $finish;
+    #4us $finish;
   end
 
 endmodule

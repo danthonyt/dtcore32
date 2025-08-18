@@ -56,6 +56,7 @@ module dtcore32 #(
     output logic [DMEM_ADDR_WIDTH-1:0] DMEM_ADDR,
     output logic [               31:0] DMEM_WDATA,
     output logic [                3:0] DMEM_WMASK,
+    output logic                       IMEM_EN,
     output logic                       DMEM_EN,
     // axi lite master interface
     output logic                       AXIL_START_READ,
@@ -101,6 +102,8 @@ module dtcore32 #(
   logic IF_ID_stall;
   logic ID_EX_stall;
   logic EX_MEM1_stall;
+  logic MEM1_MEM2_stall;
+  logic MEM2_WB_stall;
 
   // resets the pipeline to control signals of a NOP instruction
   logic IF_ID_flush;
@@ -109,10 +112,10 @@ module dtcore32 #(
   logic MEM1_MEM2_flush;
   logic MEM2_WB_flush;
 
-  logic [31:0] IF_pc_tick;
+  logic [31:0] next_pc;
 
   // instruction memory address of the instruction in the respective pipeline stage
-  logic [31:0] IF_pc_rdata;
+  logic [31:0] IF_A_pc_rdata;
   logic [31:0] ID_pc_rdata;
   logic [31:0] EX_pc_rdata;
   logic [31:0] MEM1_pc_rdata;
@@ -127,7 +130,7 @@ module dtcore32 #(
 
   logic [31:0] trap_handler_addr;
 
-  logic [31:0] IF_pc_plus_4;
+  logic [31:0] IF_B_pc_plus_4;
   logic [31:0] ID_pc_plus_4;
   logic [31:0] EX_pc_plus_4;
   logic [31:0] MEM1_pc_plus_4;
@@ -271,7 +274,6 @@ module dtcore32 #(
   logic ID_is_jalr;
   logic EX_is_jalr;
 
-
   // o = not a branch instruction, 1 = is a branch instruction
   logic ID_branch;
   logic EX_branch;
@@ -294,7 +296,8 @@ module dtcore32 #(
   logic [31:0] WB_mem_wdata;
 
   // 0 = not an actual instruction, or stalled.
-  logic IF_valid_insn;
+  logic IF_A_valid_insn;
+  logic IF_B_valid_insn;
   logic ID_valid_insn;
   logic EX_valid_insn;
   logic MEM1_valid_insn;
@@ -302,7 +305,8 @@ module dtcore32 #(
   logic WB_valid_insn;
 
   // used for rvfi interface
-  logic IF_intr;
+  logic IF_A_intr;
+  logic IF_B_intr;
   logic ID_intr;
   logic EX_intr;
   logic MEM1_intr;
@@ -366,55 +370,65 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  logic [31:0] IF_pc_rdata_r;
-  logic [31:0] IF_pc_plus_4_r;
+  logic [31:0] IF_B_pc_rdata;
+  logic [31:0] pc_plus_4;
+  logic [31:0] START_ADDR;
+  assign START_ADDR = 32'd0;
+  assign IMEM_EN = ~IF_ID_stall;
 
   // next pc logic
   always_comb begin
     unique case (EX_pc_src)
       // select pc incremented by 4
       1'b0: begin
-        IF_pc_tick = IF_pc_plus_4;
+        next_pc = pc_plus_4;
       end
       // select pc from execute stage
       1'b1: begin
-        IF_pc_tick = EX_pc_target;
+        next_pc = EX_pc_target;
       end
       default: begin
-        IF_pc_tick = 0;
+        next_pc = 0;
       end
     endcase
   end
 
   // pc incremented by 4
-  assign IF_pc_plus_4 = IF_pc_rdata + 4;
+  assign pc_plus_4 = IF_A_pc_rdata + 4;
 
-  // 
+  // register A 
   always_ff @(posedge CLK) begin
     if (RST) begin
-      IF_pc_rdata <= 0;
-      IF_intr <= 0;
-      IF_valid_insn <= 0;
+      IF_A_pc_rdata <= 0;
+      IF_A_intr <= 0;
+      IF_A_valid_insn <= 0;
     end else if (WB_trap.valid) begin  // jump to trap handler if retired instrucion has a trap
-      IF_pc_rdata <= trap_handler_addr;
-      IF_intr <= 1;
-      IF_valid_insn <= 1;
-    end else if (IF_ID_stall) begin
-      IF_valid_insn <= 0;
-    end else begin
-      IF_pc_rdata <= IF_pc_tick;
-      IF_intr <= 0;
-      IF_valid_insn <= 1;
+      IF_A_pc_rdata <= trap_handler_addr;
+      IF_A_intr <= 1;
+      IF_A_valid_insn <= 1;
+    end else if (!IF_ID_stall) begin
+      IF_A_pc_rdata <= next_pc;
+      IF_A_intr <= 0;
+      IF_A_valid_insn <= 1;
     end
   end
-
+  // register B
   always_ff @(posedge CLK) begin
     if (RST) begin
-      IF_pc_rdata_r  <= 0;
-      IF_pc_plus_4_r <= 0;
-    end else begin
-      IF_pc_rdata_r  <= IF_pc_rdata;
-      IF_pc_plus_4_r <= IF_pc_plus_4;
+      IF_B_pc_rdata <= START_ADDR;
+      IF_B_pc_plus_4 <= START_ADDR + 4;
+      IF_B_intr <= 0;
+      IF_B_valid_insn <= 1;
+    end else if (IF_ID_flush) begin
+      IF_B_pc_rdata <= 0;
+      IF_B_pc_plus_4 <= 0;
+      IF_B_intr <= 0;
+      IF_B_valid_insn <= 0;
+    end else if (!IF_ID_stall) begin
+      IF_B_pc_rdata <= IF_A_pc_rdata;
+      IF_B_pc_plus_4 <= pc_plus_4;
+      IF_B_intr <= IF_A_intr;
+      IF_B_valid_insn <= IF_A_valid_insn;
     end
   end
 
@@ -514,8 +528,8 @@ module dtcore32 #(
 
   assign EX_pc_wdata = (EX_pc_src) ? EX_pc_target : EX_pc_plus_4;
   // trap if a jump or branch address is misaligned
-  //assign EX_misaligned_jump_or_branch = EX_pc_src & (IF_pc_tick[1] | IF_pc_tick[0]);
-  assign EX_misaligned_jump_or_branch = EX_pc_src & (IF_pc_tick[1] | IF_pc_tick[0]);
+  //assign EX_misaligned_jump_or_branch = EX_pc_src & (next_pc[1] | next_pc[0]);
+  assign EX_misaligned_jump_or_branch = EX_pc_src & (next_pc[1] | next_pc[0]);
   // alu input 1 data path
   // select reg 1 data or data forwarded from WB or MEM stage
   always_comb begin
@@ -610,7 +624,9 @@ module dtcore32 #(
 
 
   // enables DMEM or AXIL
-  mem_router mem_router_inst (
+  mem_router #(
+      .ADDR_WIDTH(32)
+  ) mem_router_inst (
       .MEM1_ALU_RESULT(MEM1_alu_result),
       .MEM1_MEM_LTYPE(MEM1_mem_ltype),
       .MEM1_MEM_STYPE(MEM1_mem_stype),
@@ -726,16 +742,23 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
 
+
   //IF/ID
   always_ff @(posedge CLK) begin
-    if (RST || IF_ID_flush) begin
+    if (RST) begin
+      ID_insn <= NOP_INSTRUCTION;
+      ID_pc_rdata <= 0;
+      ID_pc_plus_4 <= 0;
+      ID_valid_insn <= 0;
+      ID_intr <= 0;
+    end else if (IF_ID_flush) begin
       ID_insn <= NOP_INSTRUCTION;
       ID_pc_rdata <= 0;
       ID_pc_plus_4 <= 0;
       ID_valid_insn <= 0;
       ID_intr <= 0;
     end else if (!IF_ID_stall) begin
-      if (!IF_valid_insn) begin
+      if (!IF_B_valid_insn) begin
         ID_insn <= NOP_INSTRUCTION;
         ID_pc_rdata <= 0;
         ID_pc_plus_4 <= 0;
@@ -743,10 +766,10 @@ module dtcore32 #(
         ID_intr <= 0;
       end else begin
         ID_insn <= IMEM_RDATA;
-        ID_pc_rdata <= IF_pc_rdata_r;
-        ID_pc_plus_4 <= IF_pc_plus_4_r;
-        ID_valid_insn <= IF_valid_insn;
-        ID_intr <= IF_intr;
+        ID_pc_rdata <= IF_B_pc_rdata;
+        ID_pc_plus_4 <= IF_B_pc_plus_4;
+        ID_valid_insn <= IF_B_valid_insn;
+        ID_intr <= IF_B_intr;
       end
     end
   end
@@ -929,7 +952,7 @@ module dtcore32 #(
       MEM2_prev_trap <= '{default: 0};
       MEM2_valid_insn <= 0;
       MEM2_intr <= 0;
-    end else begin
+    end else if (!MEM1_MEM2_stall) begin
       if (MEM1_trap.valid) begin
         MEM2_result_src <= 0;
         MEM2_mem_ltype <= 0;
@@ -1006,7 +1029,7 @@ module dtcore32 #(
       WB_prev_trap <= '{default: 0};
       WB_valid_insn <= 0;
       WB_intr <= 0;
-    end else begin
+    end else if (!MEM2_WB_stall) begin
       if (MEM2_trap.valid) begin
         WB_rd_addr <= 0;
         WB_insn <= NOP_INSTRUCTION;
@@ -1186,6 +1209,8 @@ module dtcore32 #(
       .MEM2_WB_FLUSH(MEM2_WB_flush),
       .IF_ID_STALL(IF_ID_stall),
       .ID_EX_STALL(ID_EX_stall),
+      .MEM1_MEM2_STALL(MEM1_MEM2_stall),
+      .MEM2_WB_STALL(MEM2_WB_stall),
       .EX_MEM1_STALL(EX_MEM1_stall),
       .ID_TRAP_VALID(ID_trap.valid),
       .EX_TRAP_VALID(EX_trap.valid),
@@ -1198,7 +1223,7 @@ module dtcore32 #(
   );
 
   assign DMEM_ADDR  = MEM1_alu_result[DMEM_ADDR_WIDTH-1:0];
-  assign IMEM_ADDR  = IF_pc_rdata[IMEM_ADDR_WIDTH-1:0];
+  assign IMEM_ADDR  = IF_A_pc_rdata[IMEM_ADDR_WIDTH-1:0];
   assign DMEM_WDATA = mem_wdata;
   assign DMEM_WMASK = mem_wmask;
 
@@ -1230,6 +1255,8 @@ module dtcore32 #(
   logic is_csr_mimpid;
   logic is_csr_mhartid;
   logic is_csr_mconfigptr;
+  logic rvfi_valid_next;
+  assign rvfi_valid_next = MEM2_WB_stall ? 0 : WB_valid_insn;
 
   always_comb begin
     is_csr_mstatus = 0;
@@ -1326,8 +1353,8 @@ module dtcore32 #(
       rvfi_csr_mepc_rdata <= 0;
       rvfi_csr_mepc_wdata <= 0;
     end else begin
-      rvfi_valid <= WB_valid_insn;
-      if (WB_valid_insn) rvfi_order <= rvfi_order + 1;
+      rvfi_valid <= rvfi_valid_next;
+      if (rvfi_valid_next) rvfi_order <= rvfi_order + 1;
       rvfi_mode <= 3;
       rvfi_ixl  <= 1;
       rvfi_halt <= 0;

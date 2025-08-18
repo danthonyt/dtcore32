@@ -4,60 +4,72 @@ hello.elf:     file format elf32-littleriscv
 
 Disassembly of section .text:
 
-00000000 <uart_putc>:
-   0:	fe010113          	addi	sp,sp,-32
-   4:	00112e23          	sw	ra,28(sp)
-   8:	00812c23          	sw	s0,24(sp)
-   c:	02010413          	addi	s0,sp,32
-  10:	00050793          	mv	a5,a0
-  14:	fef407a3          	sb	a5,-17(s0)
-  18:	00000013          	nop
-  1c:	40800793          	li	a5,1032
-  20:	0007a783          	lw	a5,0(a5)
-  24:	0087f793          	andi	a5,a5,8
-  28:	fe078ae3          	beqz	a5,1c <uart_putc+0x1c>
-  2c:	40c00793          	li	a5,1036
-  30:	0007a783          	lw	a5,0(a5)
-  34:	f007f693          	andi	a3,a5,-256
-  38:	fef44703          	lbu	a4,-17(s0)
-  3c:	40c00793          	li	a5,1036
-  40:	00e6e733          	or	a4,a3,a4
-  44:	00e7a023          	sw	a4,0(a5)
+00000000 <_start>:
+   0:	00001117          	auipc	sp,0x1
+   4:	3f010113          	addi	sp,sp,1008 # 13f0 <_stack_top>
+   8:	00000293          	li	t0,0
+   c:	00000313          	li	t1,0
+  10:	00628863          	beq	t0,t1,20 <_start+0x20>
+  14:	0002a023          	sw	zero,0(t0)
+  18:	00428293          	addi	t0,t0,4
+  1c:	fe62cce3          	blt	t0,t1,14 <_start+0x14>
+  20:	0b8000ef          	jal	d8 <main>
+  24:	0000006f          	j	24 <_start+0x24>
+
+00000028 <uart_putc>:
+  28:	fd010113          	addi	sp,sp,-48
+  2c:	02112623          	sw	ra,44(sp)
+  30:	02812423          	sw	s0,40(sp)
+  34:	03010413          	addi	s0,sp,48
+  38:	00050793          	mv	a5,a0
+  3c:	fcf40fa3          	sb	a5,-33(s0)
+  40:	fdf44783          	lbu	a5,-33(s0)
+  44:	fef42623          	sw	a5,-20(s0)
   48:	00000013          	nop
-  4c:	01c12083          	lw	ra,28(sp)
-  50:	01812403          	lw	s0,24(sp)
-  54:	02010113          	addi	sp,sp,32
-  58:	00008067          	ret
+  4c:	000027b7          	lui	a5,0x2
+  50:	40878793          	addi	a5,a5,1032 # 2408 <_stack_top+0x1018>
+  54:	0007a783          	lw	a5,0(a5)
+  58:	0087f793          	andi	a5,a5,8
+  5c:	fe0798e3          	bnez	a5,4c <uart_putc+0x24>
+  60:	000027b7          	lui	a5,0x2
+  64:	40478793          	addi	a5,a5,1028 # 2404 <_stack_top+0x1014>
+  68:	fec42703          	lw	a4,-20(s0)
+  6c:	00e7a023          	sw	a4,0(a5)
+  70:	00000013          	nop
+  74:	02c12083          	lw	ra,44(sp)
+  78:	02812403          	lw	s0,40(sp)
+  7c:	03010113          	addi	sp,sp,48
+  80:	00008067          	ret
 
-0000005c <uart_puts>:
-  5c:	fe010113          	addi	sp,sp,-32
-  60:	00112e23          	sw	ra,28(sp)
-  64:	00812c23          	sw	s0,24(sp)
-  68:	02010413          	addi	s0,sp,32
-  6c:	fea42623          	sw	a0,-20(s0)
-  70:	01c0006f          	j	8c <uart_puts+0x30>
-  74:	fec42783          	lw	a5,-20(s0)
-  78:	00178713          	addi	a4,a5,1
-  7c:	fee42623          	sw	a4,-20(s0)
-  80:	0007c783          	lbu	a5,0(a5)
-  84:	00078513          	mv	a0,a5
-  88:	f79ff0ef          	jal	0 <uart_putc>
-  8c:	fec42783          	lw	a5,-20(s0)
-  90:	0007c783          	lbu	a5,0(a5)
-  94:	fe0790e3          	bnez	a5,74 <uart_puts+0x18>
-  98:	00000013          	nop
-  9c:	00000013          	nop
-  a0:	01c12083          	lw	ra,28(sp)
-  a4:	01812403          	lw	s0,24(sp)
-  a8:	02010113          	addi	sp,sp,32
-  ac:	00008067          	ret
+00000084 <uart_puts>:
+  84:	fe010113          	addi	sp,sp,-32
+  88:	00112e23          	sw	ra,28(sp)
+  8c:	00812c23          	sw	s0,24(sp)
+  90:	02010413          	addi	s0,sp,32
+  94:	fea42623          	sw	a0,-20(s0)
+  98:	01c0006f          	j	b4 <uart_puts+0x30>
+  9c:	fec42783          	lw	a5,-20(s0)
+  a0:	00178713          	addi	a4,a5,1
+  a4:	fee42623          	sw	a4,-20(s0)
+  a8:	0007c783          	lbu	a5,0(a5)
+  ac:	00078513          	mv	a0,a5
+  b0:	f79ff0ef          	jal	28 <uart_putc>
+  b4:	fec42783          	lw	a5,-20(s0)
+  b8:	0007c783          	lbu	a5,0(a5)
+  bc:	fe0790e3          	bnez	a5,9c <uart_puts+0x18>
+  c0:	00000013          	nop
+  c4:	00000013          	nop
+  c8:	01c12083          	lw	ra,28(sp)
+  cc:	01812403          	lw	s0,24(sp)
+  d0:	02010113          	addi	sp,sp,32
+  d4:	00008067          	ret
 
-000000b0 <main>:
-  b0:	ff010113          	addi	sp,sp,-16
-  b4:	00112623          	sw	ra,12(sp)
-  b8:	00812423          	sw	s0,8(sp)
-  bc:	01010413          	addi	s0,sp,16
-  c0:	000017b7          	lui	a5,0x1
-  c4:	00078513          	mv	a0,a5
-  c8:	f95ff0ef          	jal	5c <uart_puts>
-  cc:	0000006f          	j	cc <main+0x1c>
+000000d8 <main>:
+  d8:	ff010113          	addi	sp,sp,-16
+  dc:	00112623          	sw	ra,12(sp)
+  e0:	00812423          	sw	s0,8(sp)
+  e4:	01010413          	addi	s0,sp,16
+  e8:	000017b7          	lui	a5,0x1
+  ec:	00078513          	mv	a0,a5
+  f0:	f95ff0ef          	jal	84 <uart_puts>
+  f4:	0000006f          	j	f4 <main+0x1c>

@@ -1,20 +1,22 @@
 #include <stdint.h>
 
-#define UART0_BASE   0x400
-#define UART_RX_FIFO   ((volatile uint32_t *)(UART0_BASE + 0))
-#define UART_TX_FIFO   ((volatile uint32_t *)(UART0_BASE + 4))
-#define UART_STAT_REG  ((volatile uint32_t *)(UART0_BASE + 8))
-#define UART_CTRL_REG   ((volatile uint32_t *)(UART0_BASE + 12))
-#define TX_FIFO_FULL     0x8
-#define TX_DATA          0xff
+#define UART_RX_FIFO   ((volatile uint32_t *)(0x2400))
+#define UART_TX_FIFO   ((volatile uint32_t *)(0x2404))
+#define UART_STAT_REG  ((volatile uint32_t *)(0x2408))
+#define UART_CTRL_REG  ((volatile uint32_t *)(0x240C))
+#define TX_FIFO_FULL   0x8
 
-void uart_putc(char c) {
-    // Wait until TX IS NOT FULL
-    while (!(*UART_STAT_REG & TX_FIFO_FULL));
-    *UART_CTRL_REG = (*UART_CTRL_REG & 0xffffff00) | c;
+// Write a single character via a guaranteed 32-bit store
+static inline void uart_putc(char c) {
+    uint32_t word = (uint32_t)c;  // cast to 32-bit
+    // Wait until TX is not full (32-bit read)
+    while ((*UART_STAT_REG & TX_FIFO_FULL) != 0) { }
+    // 32-bit write to TX FIFO
+    *UART_TX_FIFO = word;
 }
 
-void uart_puts(const char *s) {
+// Write a string using 32-bit stores
+static inline void uart_puts(const char *s) {
     while (*s) {
         uart_putc(*s++);
     }
@@ -22,5 +24,5 @@ void uart_puts(const char *s) {
 
 void main() {
     uart_puts("Hello World\n");
-    while (1); // Loop forever
+    while (1); // loop forever
 }

@@ -11,13 +11,13 @@ module dtcore32_top (
   localparam AXIL_BUS_WIDTH = 32;
   localparam IMEM_ADDR_WIDTH = 10;
   localparam DMEM_ADDR_WIDTH = 10;
+  logic IMEM_en;
   logic [        IMEM_ADDR_WIDTH-1:0] IMEM_addr;
   logic [        DMEM_ADDR_WIDTH-1:0] DMEM_addr;
   logic [                  31:0] IMEM_rdata;
   logic [                  31:0] DMEM_rdata;
   logic [                  31:0] DMEM_wdata;
   logic [                   3:0] DMEM_wmask;
-  logic DMEM_en;
 
   // read address channel
   logic [   AXIL_ADDR_WIDTH-1:0] M_AXI_ARADDR;
@@ -61,6 +61,7 @@ module dtcore32_top (
   logic [    AXIL_BUS_WIDTH-1:0] TRANSACTION_RDATA;
   logic [31:0] WB_insn;
   logic WB_valid;
+  logic dmem_en;
 
 
   dtcore32 #(
@@ -77,7 +78,8 @@ module dtcore32_top (
       .DMEM_ADDR(DMEM_addr),
       .DMEM_WDATA(DMEM_wdata),
       .DMEM_WMASK(DMEM_wmask),
-      .DMEM_EN(DMEM_en),
+      .IMEM_EN(IMEM_en),
+      .DMEM_EN(dmem_en),
       .AXIL_START_READ(START_READ),
       .AXIL_START_WRITE(START_WRITE),
       .AXIL_DONE_READ(DONE_READ),
@@ -158,7 +160,7 @@ module dtcore32_top (
   dmem #(.ADDR_WIDTH(DMEM_ADDR_WIDTH)) dmem_inst (
       .CLK(CLK),
       .WE(DMEM_wmask),
-      .EN(DMEM_en),
+      .EN(dmem_en),
       .ADDR(DMEM_addr),
       .WDATA(DMEM_wdata),
       .RDATA(DMEM_rdata)
@@ -166,21 +168,24 @@ module dtcore32_top (
 
   imem #(.ADDR_WIDTH(IMEM_ADDR_WIDTH)) imem_inst (
       .CLK(CLK),
-      .EN(1),
+      .EN(IMEM_en),
       .ADDR(IMEM_addr),
       .RDATA(IMEM_rdata)
   );
 
-  ila_0 my_ila (
+ila_0 test_ila (
 	.clk(CLK), // input wire clk
 
 
 	.probe0(START_READ), // input wire [0:0]  probe0  
 	.probe1(START_WRITE), // input wire [0:0]  probe1 
 	.probe2(DONE_READ), // input wire [0:0]  probe2 
-	.probe3(DONE_WRITE), // input wire [0:0]  probe3
-    .probe4(WB_insn),
-    .probe5(TRANSACTION_RADDR),
-    .probe6(WB_valid)
+	.probe3(DONE_WRITE), // input wire [0:0]  probe3 
+	.probe4(TRANSACTION_RADDR), // input wire [31:0]  probe4 
+	.probe5(TRANSACTION_RDATA), // input wire [31:0]  probe5 
+	.probe6(TRANSACTION_WRADDR), // input wire [31:0]  probe6 
+	.probe7(TRANSACTION_WRDATA), // input wire [31:0]  probe7 
+	.probe8({28'd0,TRANSACTION_WSTRB}), // input wire [31:0]  probe8 
+	.probe9({M_AXI_RRESP,28'd0,M_AXI_BRESP}) // input wire [31:0]  probe9
 );
 endmodule

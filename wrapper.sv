@@ -96,13 +96,22 @@ localparam IMEM_ADDR_WIDTH = 10;
     .RDATA(DMEM_rdata)
   );
 
-// only test dmem, not axil interface
-//assume property(@(posedge clock) (rvfi_mem_addr <= 32'h40f));
 
 // MMIO address range
-localparam MMIO_BASE = 32'h400;
-localparam MMIO_END  = 32'h410;
-assume property(@(posedge clock) rvfi_mem_addr < MMIO_END);
+localparam MMIO_BASE = 32'h2400;
+localparam MMIO_END  = 32'h2410;
+localparam DMEM_BASE = 32'h1000;
+localparam DMEM_END  = 32'h1400;
+sequence MMIO_MEM_INSTR;
+(rvfi_mem_addr < MMIO_END) && (rvfi_mem_addr >= MMIO_BASE) ||  (rvfi_mem_rmask == 0 || rvfi_mem_wmask == 0);
+endsequence
+sequence DMEM_MEM_INSTR;
+(rvfi_insn[6:0] != 7'b0000011 && rvfi_insn[6:0] != 7'b0100011) // not LW/SW 801fa103
+    || ((rvfi_mem_addr >= DMEM_BASE && rvfi_mem_addr < DMEM_END));
+endsequence
+
+assume property(@(posedge clock) disable iff (reset) DMEM_MEM_INSTR);
+
 assume property (@(posedge clock)
     // if memory access is inside MMIO region
     ((rvfi_mem_addr >= MMIO_BASE) && (rvfi_mem_addr < MMIO_END)) |-> 
@@ -111,5 +120,6 @@ assume property (@(posedge clock)
          (rvfi_insn[6:0] == 7'b0100011 && rvfi_insn[14:12] == 3'b010)) && // SW
          (rvfi_mem_addr[1:0] == 2'b00 ))  
 );
+
 endmodule
 
