@@ -91,7 +91,10 @@ module csrfile
     else if (csr_addr_i == CSR_ADDR_MSCRATCH) csr_mscratch <= csr_wdata;
   end
 
-  assign trap_handler_addr_o = {csr_mtvec[31:2], 2'd0};
+  always_ff @(posedge clk_i) begin
+    if (rst_i) trap_handler_addr_o <= 0;
+    else trap_handler_addr_o <= {csr_mtvec[31:2], 2'd0};
+  end
 
   // a csr isntruction is a read only if the destination register is not x0
   assign csr_rmask_o = (WB_rd_addr_i != 0) ?  32'hffff_ffff : '0;
