@@ -260,9 +260,9 @@ module dtcore32 #(
 
   // result of alu operation depending on the instruction type
   logic [31:0] ex_alu_result_comb;
-  logic [31:0] mem1_alu_result_reg;
-  logic [31:0] mem2_alu_result_reg;
-  logic [31:0] wb_alu_result_reg;
+  logic [31:0] mem1_alu_csr_result_reg;
+  logic [31:0] mem2_alu_csr_result_reg;
+  logic [31:0] wb_alu_csr_result_reg;
 
   // 0 = pc, 1 = register source 1 data
   logic id_pc_target_alu_src_comb;
@@ -524,19 +524,19 @@ module dtcore32 #(
   );
 
 
-  csrfile  csrfile_inst (
-    .CLK(CLK),
-    .RST(RST),
-    .WB_RD_ADDR(wb_rd_addr_actual_comb),
-    .CSR_RADDR(id_csr_addr_comb),
-    .CSR_WADDR(wb_csr_addr_actual_comb),
-    .CSR_WDATA(wb_csr_wdata_reg),
-    .WB_VALID_INSN(wb_valid_insn_reg),
-    .WB_TRAP(wb_trap_comb),
-    .TRAP_HANDLER_ADDR(trap_handler_addr_reg),
-    .CSR_RDATA_REG(ex_csr_rdata_reg),
-    .CSR_RMASK(wb_csr_rmask_comb),
-    .CSR_WMASK(wb_csr_wmask_comb)
+  csrfile csrfile_inst (
+      .CLK(CLK),
+      .RST(RST),
+      .WB_RD_ADDR(wb_rd_addr_actual_comb),
+      .CSR_RADDR(id_csr_addr_comb),
+      .CSR_WADDR(wb_csr_addr_actual_comb),
+      .CSR_WDATA(wb_csr_wdata_reg),
+      .WB_VALID_INSN(wb_valid_insn_reg),
+      .WB_TRAP(wb_trap_comb),
+      .TRAP_HANDLER_ADDR(trap_handler_addr_reg),
+      .CSR_RDATA_REG(ex_csr_rdata_reg),
+      .CSR_RMASK(wb_csr_rmask_comb),
+      .CSR_WMASK(wb_csr_wmask_comb)
   );
 
   //////////////////////////////////////
@@ -576,8 +576,8 @@ module dtcore32 #(
   always_comb begin
     case (ex_forward_a_sel_comb)
       FORWARD_SEL_NO_FORWARD:      ex_src_a_tick_comb = ex_rs1_rdata_unforwarded_reg;
-      FORWARD_SEL_MEM1_ALU_RESULT: ex_src_a_tick_comb = mem1_alu_result_reg;
-      FORWARD_SEL_MEM2_ALU_RESULT: ex_src_a_tick_comb = mem2_alu_result_reg;
+      FORWARD_SEL_MEM1_ALU_RESULT: ex_src_a_tick_comb = mem1_alu_csr_result_reg;
+      FORWARD_SEL_MEM2_ALU_RESULT: ex_src_a_tick_comb = mem2_alu_csr_result_reg;
       FORWARD_SEL_MEM2_MEM_RDATA:  ex_src_a_tick_comb = mem_rdata_comb;
       FORWARD_SEL_WB_RESULT:       ex_src_a_tick_comb = wb_result_comb;
       default:                     ex_src_a_tick_comb = 0;
@@ -597,8 +597,8 @@ module dtcore32 #(
   always_comb begin
     case (ex_forward_b_sel_comb)
       FORWARD_SEL_NO_FORWARD:      ex_mem_wdata_raw_comb = ex_rs2_rdata_unforwarded_reg;
-      FORWARD_SEL_MEM1_ALU_RESULT: ex_mem_wdata_raw_comb = mem1_alu_result_reg;
-      FORWARD_SEL_MEM2_ALU_RESULT: ex_mem_wdata_raw_comb = mem2_alu_result_reg;
+      FORWARD_SEL_MEM1_ALU_RESULT: ex_mem_wdata_raw_comb = mem1_alu_csr_result_reg;
+      FORWARD_SEL_MEM2_ALU_RESULT: ex_mem_wdata_raw_comb = mem2_alu_csr_result_reg;
       FORWARD_SEL_MEM2_MEM_RDATA:  ex_mem_wdata_raw_comb = mem_rdata_comb;
       FORWARD_SEL_WB_RESULT:       ex_mem_wdata_raw_comb = wb_result_comb;
       default:                     ex_mem_wdata_raw_comb = 0;
@@ -633,10 +633,12 @@ module dtcore32 #(
       CSR_WRITE_RAW_VALUE:      ex_csr_wdata_comb = ex_csr_bitmask_comb;
       CSR_WRITE_CLEAR_BIT_MASK: ex_csr_wdata_comb = (ex_csr_rdata_reg & ~ex_csr_bitmask_comb);
       CSR_WRITE_SET_BIT_MASK:   ex_csr_wdata_comb = (ex_csr_rdata_reg | ex_csr_bitmask_comb);
-      default: ;            
+      default:                  ;
     endcase
   end
 
+  logic [31:0] ex_alu_csr_result_comb;
+  assign ex_alu_csr_result_comb = (|ex_csr_wr_type_reg) ? ex_csr_rdata_reg : ex_alu_result_comb;
 
   alu alu_inst (
       .a_i(ex_src_a_comb),
@@ -667,7 +669,7 @@ module dtcore32 #(
   mem_router #(
       .ADDR_WIDTH(32)
   ) mem_router_inst (
-      .MEM1_ALU_RESULT(mem1_alu_result_reg),
+      .MEM1_ALU_RESULT(mem1_alu_csr_result_reg),
       .MEM1_MEM_LTYPE(mem1_mem_ltype_reg),
       .MEM1_MEM_STYPE(mem1_mem_stype_reg),
       .DMEM_EN(dmem_raw_en),
@@ -681,7 +683,7 @@ module dtcore32 #(
       .CLK(CLK),
       .RST(RST),
       .EN(axil_actual_en),
-      .MEM1_ALU_RESULT(mem1_alu_result_reg),
+      .MEM1_ALU_RESULT(mem1_alu_csr_result_reg),
       .MEM1_MEM_LTYPE(mem1_mem_ltype_reg),
       .MEM1_MEM_STYPE(mem1_mem_stype_reg),
       .MEM1_WDATA_RAW(mem1_mem_wdata_raw_reg),
@@ -702,7 +704,7 @@ module dtcore32 #(
   store_unit store_unit_inst (
       .en(dmem_actual_en),
       .store_size_i(mem1_mem_stype_reg),
-      .addr_lsb2_i(mem1_alu_result_reg[1:0]),
+      .addr_lsb2_i(mem1_alu_csr_result_reg[1:0]),
       .wdata_unformatted_i(mem1_mem_wdata_raw_reg),
       .store_trap_o(mem1_store_trap_valid),
       .trap_code_o(MEM1_store_trap_code),
@@ -736,7 +738,7 @@ module dtcore32 #(
   load_unit load_unit_inst (
       .en(mem2_dmem_read_valid_actual_comb),
       .load_type(mem2_mem_ltype_reg),
-      .addr_lsb2(mem2_alu_result_reg[1:0]),
+      .addr_lsb2(mem2_alu_csr_result_reg[1:0]),
       .rdata_unformatted_i(DMEM_RDATA),
       .load_trap_o(MEM2_load_trap_valid),
       .load_trap_code_o(MEM2_load_trap_code),
@@ -773,7 +775,7 @@ module dtcore32 #(
   assign wb_rd_wdata_comb = (wb_rd_addr_actual_comb != 0) ? wb_result_comb : 0;
   always_comb begin
     unique case (wb_result_src_reg)
-      2'b00: wb_result_comb = wb_alu_result_reg;
+      2'b00: wb_result_comb = wb_alu_csr_result_reg;
       2'b01: wb_result_comb = wb_mem_rdata_reg;
       2'b10: wb_result_comb = wb_pc_plus_4;
       2'b11: wb_result_comb = wb_csr_rdata_reg;
@@ -786,7 +788,6 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-
 
   //IF/ID
   always_ff @(posedge CLK) begin
@@ -880,7 +881,7 @@ module dtcore32 #(
       mem1_result_src_reg <= 0;
       mem1_mem_ltype_reg <= 0;
       mem1_mem_stype_reg <= 0;
-      mem1_alu_result_reg <= 0;
+      mem1_alu_csr_result_reg <= 0;
       mem1_mem_wdata_raw_reg <= 0;
       mem1_rd_addr_reg <= 0;
       mem1_pc_rdata_reg <= 0;
@@ -901,7 +902,7 @@ module dtcore32 #(
       mem1_result_src_reg <= ex_result_src_reg;
       mem1_mem_ltype_reg <= ex_mem_ltype_reg;
       mem1_mem_stype_reg <= ex_mem_stype_reg;
-      mem1_alu_result_reg <= ex_alu_result_comb;
+      mem1_alu_csr_result_reg <= ex_alu_csr_result_comb;
       mem1_mem_wdata_raw_reg <= ex_mem_wdata_raw_comb;
       mem1_rd_addr_reg <= ex_rd_addr_actual_comb;
       mem1_pc_rdata_reg <= ex_pc_rdata_reg;
@@ -925,7 +926,7 @@ module dtcore32 #(
     if (RST || mem1_mem2_flush) begin
       mem2_result_src_reg <= 0;
       mem2_mem_ltype_reg <= 0;
-      mem2_alu_result_reg <= 0;
+      mem2_alu_csr_result_reg <= 0;
       mem2_rd_addr_reg <= 0;
       mem2_pc_rdata_reg <= 0;
       mem2_pc_plus_4_reg <= 0;
@@ -948,7 +949,7 @@ module dtcore32 #(
     end else if (!mem1_mem2_stall) begin
       mem2_result_src_reg <= mem1_result_src_reg;
       mem2_mem_ltype_reg <= mem1_mem_ltype_reg;
-      mem2_alu_result_reg <= mem1_alu_result_reg;
+      mem2_alu_csr_result_reg <= mem1_alu_csr_result_reg;
       mem2_rd_addr_reg <= mem1_rd_addr_reg;
       mem2_pc_rdata_reg <= mem1_pc_rdata_reg;
       mem2_pc_plus_4_reg <= mem1_pc_plus_4_reg;
@@ -977,7 +978,7 @@ module dtcore32 #(
     if (RST || mem2_wb_flush) begin
       wb_rd_addr_raw_reg <= 0;
       wb_insn_reg <= NOP_INSTRUCTION;
-      wb_alu_result_reg <= 0;
+      wb_alu_csr_result_reg <= 0;
       wb_mem_rdata_reg <= 0;
       wb_pc_rdata_reg <= 0;
       wb_pc_plus_4 <= 0;
@@ -1000,7 +1001,7 @@ module dtcore32 #(
     end else if (!mem2_wb_stall) begin
       wb_rd_addr_raw_reg <= mem2_rd_addr_reg;
       wb_insn_reg <= mem2_insn_reg;
-      wb_alu_result_reg <= mem2_alu_result_reg;
+      wb_alu_csr_result_reg <= mem2_alu_csr_result_reg;
       wb_pc_rdata_reg <= mem2_pc_rdata_reg;
       wb_pc_plus_4 <= mem2_pc_plus_4_reg;
       wb_result_src_reg <= mem2_result_src_reg;
@@ -1018,7 +1019,7 @@ module dtcore32 #(
       wb_mem_wmask_reg <= mem2_mem_wmask_reg;
       wb_pc_wdata_reg <= mem2_pc_wdata_reg;
       wb_csr_wdata_reg <= mem2_csr_wdata_reg;
-      wb_csr_rdata_reg <= mem2_csr_wdata_reg;
+      wb_csr_rdata_reg <= mem2_csr_rdata_reg;
     end
   end
 
@@ -1164,7 +1165,7 @@ module dtcore32 #(
       .AXIL_DONE_WRITE(AXIL_DONE_WRITE)
   );
 
-  assign DMEM_ADDR  = mem1_alu_result_reg[DMEM_ADDR_WIDTH-1:0];
+  assign DMEM_ADDR  = mem1_alu_csr_result_reg[DMEM_ADDR_WIDTH-1:0];
   assign IMEM_ADDR  = if_a_pc_rdata_reg[IMEM_ADDR_WIDTH-1:0];
   assign DMEM_WDATA = mem_wdata_comb;
   assign DMEM_WMASK = mem_wmask_comb;
@@ -1316,7 +1317,7 @@ module dtcore32 #(
         rvfi_pc_rdata <= wb_trap_comb.pc;
         rvfi_pc_wdata <= wb_trap_comb.next_pc;
 
-        rvfi_mem_addr <= wb_alu_result_reg;
+        rvfi_mem_addr <= wb_alu_csr_result_reg;
         rvfi_mem_rmask <= wb_mem_rmask_reg;
         rvfi_mem_wmask <= wb_mem_wmask_reg;
         rvfi_mem_rdata <= wb_mem_rdata_reg;
@@ -1334,7 +1335,7 @@ module dtcore32 #(
         rvfi_pc_rdata <= wb_pc_rdata_reg;
         rvfi_pc_wdata <= wb_trap_comb.valid ? trap_handler_addr_reg : wb_pc_wdata_reg;
 
-        rvfi_mem_addr <= wb_alu_result_reg;
+        rvfi_mem_addr <= wb_alu_csr_result_reg;
         rvfi_mem_rmask <= wb_mem_rmask_reg;
         rvfi_mem_wmask <= wb_mem_wmask_reg;
         rvfi_mem_rdata <= wb_mem_rdata_reg;
