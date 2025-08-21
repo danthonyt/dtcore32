@@ -8,14 +8,15 @@ localparam BUS_WIDTH = 32;
 localparam ADDR_WIDTH = 32;
 localparam DMEM_ADDR_WIDTH = 10;
 localparam IMEM_ADDR_WIDTH = 10;
-(* keep *) `rvformal_rand_reg [31:0] IMEM_rdata;
-(* keep *) logic [IMEM_ADDR_WIDTH-1:0] IMEM_addr;
-//(* keep *) `rvformal_rand_reg [31:0] DMEM_rdata;
-(* keep *) logic [31:0] DMEM_rdata;
-(* keep *) logic [DMEM_ADDR_WIDTH-1:0] DMEM_addr;
-(* keep *) logic [31:0] DMEM_wdata;
-(* keep *) logic [3:0] DMEM_wmask;
-(* keep *) logic DMEM_en;
+(* keep *) `rvformal_rand_reg [31:0] imem_rdata;
+(* keep *) logic [IMEM_ADDR_WIDTH-1:0] imem_addr;
+//(* keep *) `rvformal_rand_reg [31:0] dmem_rdata;
+(* keep *) logic [31:0] dmem_rdata;
+(* keep *) logic [DMEM_ADDR_WIDTH-1:0] dmem_addr;
+(* keep *) logic [31:0] dmem_wdata;
+(* keep *) logic [3:0] dmem_wmask;
+(* keep *) logic dmem_en;
+(* keep *) logic imem_en;
 
   dtcore32 # (
     .DMEM_ADDR_WIDTH(DMEM_ADDR_WIDTH),
@@ -24,8 +25,8 @@ localparam IMEM_ADDR_WIDTH = 10;
   dtcore32_inst (
     .CLK(clock),
     .RST(reset),
-    .IMEM_RDATA(IMEM_rdata),
-    .DMEM_RDATA(DMEM_rdata),
+    .IMEM_RDATA(imem_rdata),
+    .DMEM_RDATA(dmem_rdata),
     .rvfi_valid(rvfi_valid),
     .rvfi_order(rvfi_order),
     .rvfi_insn(rvfi_insn),
@@ -67,11 +68,12 @@ localparam IMEM_ADDR_WIDTH = 10;
     .rvfi_csr_mtvec_wmask(rvfi_csr_mtvec_wmask),
     .rvfi_csr_mtvec_rdata(rvfi_csr_mtvec_rdata),
     .rvfi_csr_mtvec_wdata(rvfi_csr_mtvec_wdata),
-    .IMEM_ADDR(IMEM_addr),
-    .DMEM_ADDR(DMEM_addr),
-    .DMEM_WDATA(DMEM_wdata),
-    .DMEM_WMASK(DMEM_wmask),
-    .DMEM_EN(DMEM_en),
+    .IMEM_ADDR(imem_addr),
+    .DMEM_ADDR(dmem_addr),
+    .DMEM_WDATA(dmem_wdata),
+    .DMEM_WMASK(dmem_wmask),
+    .DMEM_EN(dmem_en),
+    .IMEM_EN(imem_en),
     .AXIL_START_READ(),
     .AXIL_START_WRITE(),
     .AXIL_DONE_READ(1'b0),
@@ -89,11 +91,11 @@ localparam IMEM_ADDR_WIDTH = 10;
 
   dmem  #(.ADDR_WIDTH(DMEM_ADDR_WIDTH)) dmem_inst (
     .CLK(clock),
-    .WE(DMEM_wmask),
-    .EN(DMEM_en),
-    .ADDR(DMEM_addr),
-    .WDATA(DMEM_wdata),
-    .RDATA(DMEM_rdata)
+    .WE(dmem_wmask),
+    .EN(dmem_en),
+    .ADDR(dmem_addr),
+    .WDATA(dmem_wdata),
+    .RDATA(dmem_rdata)
   );
 
 

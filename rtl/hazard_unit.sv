@@ -33,7 +33,6 @@ module hazard_unit (
     
 
     // trap logic
-    input logic ID_TRAP_VALID,
     input logic EX_TRAP_VALID,
     input logic MEM1_TRAP_VALID,
     input logic MEM2_TRAP_VALID,

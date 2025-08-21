@@ -1,4 +1,6 @@
-module dmem #(ADDR_WIDTH = 10)(
+module dmem #(
+    ADDR_WIDTH = 10
+) (
     input logic CLK,
     input logic [3:0] WE,
     input logic EN,
@@ -8,12 +10,14 @@ module dmem #(ADDR_WIDTH = 10)(
 );
 
   logic [31:0] RAM[(2**(ADDR_WIDTH-2)-1):0];
+  `define LOAD_DMEM
 
+`ifdef LOAD_DMEM
   initial begin
     $readmemh("dmem.mem", RAM);
   end
+`endif
 
-  
   integer i;
   always @(posedge CLK) begin
     if (EN) begin

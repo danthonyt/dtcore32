@@ -172,20 +172,4 @@ module dtcore32_top (
       .ADDR(IMEM_addr),
       .RDATA(IMEM_rdata)
   );
-
-ila_0 test_ila (
-	.clk(CLK), // input wire clk
-
-
-	.probe0(START_READ), // input wire [0:0]  probe0  
-	.probe1(START_WRITE), // input wire [0:0]  probe1 
-	.probe2(DONE_READ), // input wire [0:0]  probe2 
-	.probe3(DONE_WRITE), // input wire [0:0]  probe3 
-	.probe4(TRANSACTION_RADDR), // input wire [31:0]  probe4 
-	.probe5(TRANSACTION_RDATA), // input wire [31:0]  probe5 
-	.probe6(TRANSACTION_WRADDR), // input wire [31:0]  probe6 
-	.probe7(TRANSACTION_WRDATA), // input wire [31:0]  probe7 
-	.probe8({28'd0,TRANSACTION_WSTRB}), // input wire [31:0]  probe8 
-	.probe9({M_AXI_RRESP,28'd0,M_AXI_BRESP}) // input wire [31:0]  probe9
-);
 endmodule

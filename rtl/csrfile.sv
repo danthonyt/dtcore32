@@ -1,30 +1,37 @@
 module csrfile
   import params_pkg::*;
 (
-    input logic clk_i,
-    input logic rst_i,
-    input logic [4:0] WB_rd_addr_i,
-    input logic [11:0] csr_addr_i,
-    input logic WB_valid_insn_i,
-    input trap_info_t WB_trap_i,
-    input logic [1:0] csr_wtype_i,
-    input logic [31:0] csr_woperand,
-    output logic [31:0] trap_handler_addr_o,
-    output logic [31:0] csr_rdata_o,
-    output logic [31:0] csr_rmask_o,
-    output logic [31:0] csr_wdata_o,
-    output logic [31:0] csr_wmask_o
-    
+    input logic CLK,
+    input logic RST,
+    input logic [4:0] WB_RD_ADDR,
+    input logic [11:0] CSR_RADDR,
+    input logic [11:0] CSR_WADDR,
+    input logic [31:0] CSR_WDATA,
+    input logic WB_VALID_INSN,
+    input trap_info_t WB_TRAP,
+    output logic [31:0] TRAP_HANDLER_ADDR,
+    output logic [31:0] CSR_RDATA_REG,
+    output logic [31:0] CSR_RMASK,
+    output logic [31:0] CSR_WMASK
+
 );
-  logic [31:0] csr_mtvec;
-  logic [31:0] csr_mscratch;
-  logic [31:0] csr_mepc;
-  logic [31:0] csr_mcause;
-  logic [31:0] csr_mtval;
-  logic [63:0] csr_mcycle;
-  logic [63:0] csr_minstret;
+  logic [31:0] csr_mtvec_reg;
+  logic [31:0] csr_mscratch_reg;
+  logic [31:0] csr_mepc_reg;
+  logic [31:0] csr_mcause_reg;
+  logic [31:0] csr_mtval_reg;
+  logic [63:0] csr_mcycle_reg;
+  logic [63:0] csr_minstret_reg;
+  logic [31:0] csr_mtvec_next;
+  logic [31:0] csr_mscratch_next;
+  logic [31:0] csr_mepc_next;
+  logic [31:0] csr_mcause_next;
+  logic [31:0] csr_mtval_next;
+  logic [63:0] csr_mcycle_next;
+  logic [63:0] csr_minstret_next;
   logic [31:0] csr_wdata;
   logic [31:0] csr_rdata;
+  logic [31:0] csr_rdata_reg;
   //////////////////////////////////////
   //
   //  CSRS FOR MACHINE MODE
@@ -37,69 +44,81 @@ module csrfile
   // wmask bits are set if csr_wtype != 0
 
   always_comb begin
-    case (csr_addr_i)
-      CSR_ADDR_MTVEC:     csr_rdata = csr_mtvec;
-      CSR_ADDR_MSCRATCH:  csr_rdata = csr_mscratch;
-      CSR_ADDR_MEPC:      csr_rdata = csr_mepc;
-      CSR_ADDR_MCAUSE:    csr_rdata = csr_mcause;
-      CSR_ADDR_MTVAL:     csr_rdata = csr_mtval;
-      CSR_ADDR_MCYCLE:    csr_rdata = csr_mcycle[31:0];
-      CSR_ADDR_MCYCLEH:   csr_rdata = csr_mcycle[63:32];
-      CSR_ADDR_MINSTRET:  csr_rdata = csr_minstret[31:0];
-      CSR_ADDR_MINSTRETH: csr_rdata = csr_minstret[63:32];
-      default:            csr_rdata = 0;
+    csr_rdata = 0;
+    case (CSR_RADDR)
+      CSR_ADDR_MTVEC:     csr_rdata = csr_mtvec_reg;
+      CSR_ADDR_MSCRATCH:  csr_rdata = csr_mscratch_reg;
+      CSR_ADDR_MEPC:      csr_rdata = csr_mepc_reg;
+      CSR_ADDR_MCAUSE:    csr_rdata = csr_mcause_reg;
+      CSR_ADDR_MTVAL:     csr_rdata = csr_mtval_reg;
+      CSR_ADDR_MCYCLE:    csr_rdata = csr_mcycle_reg[31:0];
+      CSR_ADDR_MCYCLEH:   csr_rdata = csr_mcycle_reg[63:32];
+      CSR_ADDR_MINSTRET:  csr_rdata = csr_minstret_reg[31:0];
+      CSR_ADDR_MINSTRETH: csr_rdata = csr_minstret_reg[63:32];
+      default:            ;
     endcase
-    case (csr_wtype_i)
-      CSR_WRITE_RAW_VALUE:      csr_wdata = csr_woperand;
-      CSR_WRITE_CLEAR_BIT_MASK: csr_wdata = (csr_rdata & ~csr_woperand);
-      CSR_WRITE_SET_BIT_MASK:   csr_wdata = (csr_rdata | csr_woperand);
-      default:                  csr_wdata = 0;              
+  end
+
+  always_comb begin
+    csr_mtvec_next = csr_mtvec_reg;
+    csr_mscratch_next = csr_mscratch_reg;
+    csr_mepc_next = (WB_VALID_INSN && WB_TRAP.valid) ? WB_TRAP.pc : csr_mepc_reg;
+    csr_mcause_next = (WB_VALID_INSN && WB_TRAP.valid) ? {WB_TRAP.is_interrupt, WB_TRAP.mcause} : csr_mcause_reg;
+    csr_mtval_next = csr_mtval_reg;
+    csr_mcycle_next = csr_mcycle_reg + 1;
+    csr_minstret_next = WB_VALID_INSN ? csr_minstret_reg + 1 : csr_minstret_reg;
+    case (CSR_WADDR)
+      CSR_ADDR_MTVEC:     csr_mtvec_next = CSR_WDATA & 32'hffff_fffc;
+      CSR_ADDR_MSCRATCH:  csr_mscratch_next = CSR_WDATA;
+      CSR_ADDR_MEPC:      csr_mepc_next = CSR_WDATA;
+      CSR_ADDR_MCAUSE:    csr_mcause_next = CSR_WDATA;
+      CSR_ADDR_MTVAL:     csr_mtval_next = CSR_WDATA;
+      // read only CSR_ADDR_MCYCLE:    csr_mcycle_next[31:0] = CSR_WDATA;
+      // read only CSR_ADDR_MCYCLEH:   csr_mcycle_next[63:32] = CSR_WDATA;
+      // read only CSR_ADDR_MINSTRET:  csr_minstret_next[31:0] = CSR_WDATA;
+      // read only CSR_ADDR_MINSTRETH: csr_minstret_next[63:32] = CSR_WDATA;
+      default:            ;
     endcase
-
+  end
+  // csr read
+  always_ff @(posedge CLK) begin
+    if (RST) begin
+      csr_rdata_reg <= 0;
+    end else begin
+      csr_rdata_reg <= csr_rdata;
+    end
   end
 
-  // synchronous writes
-  always_ff @(posedge clk_i) begin
-    if (rst_i) begin
-      csr_mepc   <= 0;
-      csr_mcause <= 0;
-    end else if (WB_valid_insn_i && WB_trap_i.valid) begin
-      csr_mepc   <= WB_trap_i.pc;
-      csr_mcause <= {WB_trap_i.is_interrupt, WB_trap_i.mcause};
-    end else if (csr_addr_i == CSR_ADDR_MEPC) csr_mepc <= csr_wdata;
-    else if (csr_addr_i == CSR_ADDR_MCAUSE) csr_mcause <= csr_wdata;
+  // csr writes
+  always_ff @(posedge CLK) begin
+    if (RST) begin
+      csr_mtvec_reg <= 0;
+      csr_mscratch_reg <= 0;
+      csr_mepc_reg <= 0;
+      csr_mcause_reg <= 0;
+      csr_mtval_reg <= 0;
+      csr_mcycle_reg <= 0;
+      csr_minstret_reg <= 0;
+    end else begin
+      csr_mtvec_reg <= csr_mtvec_next;
+      csr_mscratch_reg <= csr_mscratch_next;
+      csr_mepc_reg <= csr_mepc_next;
+      csr_mcause_reg <= csr_mcause_next;
+      csr_mtval_reg <= csr_mtval_next;
+      csr_mcycle_reg <= csr_mcycle_next;
+      csr_minstret_reg <= csr_minstret_next;
+    end
   end
 
-  // the mcycle register increments on every clock cycle
-  always_ff @(posedge clk_i) begin
-    if (rst_i) csr_mcycle <= 0;
-    else csr_mcycle <= csr_mcycle + 1;
-  end
-
-  // the minstret register increments every time a valid instruction is retired
-  always_ff @(posedge clk_i) begin
-    if (rst_i) csr_minstret <= 0;
-    else if (WB_valid_insn_i) csr_minstret <= csr_minstret + 1;
-  end
-
-  always_ff @(posedge clk_i) begin
-    if (rst_i) begin
-      csr_mtvec <= 0;
-      csr_mscratch <= 0;
-      csr_mtval <= 0;
-    end else if (csr_addr_i == CSR_ADDR_MTVEC) csr_mtvec <= csr_wdata & 32'hffff_fffc;
-    else if (csr_addr_i == CSR_ADDR_MSCRATCH) csr_mscratch <= csr_wdata;
-  end
-
-  always_ff @(posedge clk_i) begin
-    if (rst_i) trap_handler_addr_o <= 0;
-    else trap_handler_addr_o <= {csr_mtvec[31:2], 2'd0};
+  // synchronously update the trap handler register
+  always_ff @(posedge CLK) begin
+    if (RST) TRAP_HANDLER_ADDR <= 0;
+    else TRAP_HANDLER_ADDR <= {csr_mtvec_reg[31:2], 2'd0};
   end
 
   // a csr isntruction is a read only if the destination register is not x0
-  assign csr_rmask_o = (WB_rd_addr_i != 0) ?  32'hffff_ffff : '0;
+  assign CSR_RMASK = (WB_RD_ADDR != 0) ? 32'hffff_ffff : '0;
   // a csr instruction is a write if its a csrrw or if its (not a csrrw and rs1 != 0)
-  assign csr_wmask_o = (csr_wtype_i != 0)  ?  32'hffff_ffff : '0;
-  assign csr_wdata_o = csr_wdata;
-  assign csr_rdata_o = csr_rdata;
+  assign CSR_WMASK = (CSR_WADDR != 0) ? 32'hffff_ffff : '0;
+  assign CSR_RDATA_REG = csr_rdata_reg;
 endmodule

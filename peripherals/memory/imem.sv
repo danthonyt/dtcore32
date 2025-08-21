@@ -12,10 +12,12 @@ module imem #(
 
   logic [31:0] RAM[(2**(ADDR_WIDTH-2)-1):0];
 
+  `define LOAD_PROGRAM
+`ifdef LOAD_PROGRAM
   initial begin
     $readmemh("imem.mem", RAM);
   end
-
+`endif
 
   always @(posedge CLK) begin
     if (EN) begin
