@@ -5,66 +5,67 @@ module dtcore32 #(
     parameter AXIL_ADDR_WIDTH = 32,
     parameter AXIL_BUS_WIDTH  = 32
 ) (
-    input  logic                       CLK,
-    input  logic                       RST,
-    input  logic [               31:0] IMEM_RDATA,
-    input  logic [               31:0] DMEM_RDATA,
+    input  logic        CLK,
+    input  logic        RST,
+    //input  logic [               31:0] IMEM_RDATA,
+    //input  logic [               31:0] DMEM_RDATA,
+    //input logic DMEM_RVALID,
 `ifdef RISCV_FORMAL
-    output logic                       rvfi_valid,
-    output logic [               63:0] rvfi_order,
-    output logic [               31:0] rvfi_insn,
-    output logic                       rvfi_trap,
-    output logic                       rvfi_halt,
-    output logic                       rvfi_intr,
-    output logic [                1:0] rvfi_mode,
-    output logic [                1:0] rvfi_ixl,
-    output logic [                4:0] rvfi_rs1_addr,
-    output logic [                4:0] rvfi_rs2_addr,
-    output logic [               31:0] rvfi_rs1_rdata,
-    output logic [               31:0] rvfi_rs2_rdata,
-    output logic [                4:0] rvfi_rd_addr,
-    output logic [               31:0] rvfi_rd_wdata,
-    output logic [               31:0] rvfi_pc_rdata,
-    output logic [               31:0] rvfi_pc_wdata,
-    output logic [               31:0] rvfi_mem_addr,
-    output logic [                3:0] rvfi_mem_rmask,
-    output logic [                3:0] rvfi_mem_wmask,
-    output logic [               31:0] rvfi_mem_rdata,
-    output logic [               31:0] rvfi_mem_wdata,
-    output logic [               63:0] rvfi_csr_mcycle_rmask,
-    output logic [               63:0] rvfi_csr_mcycle_wmask,
-    output logic [               63:0] rvfi_csr_mcycle_rdata,
-    output logic [               63:0] rvfi_csr_mcycle_wdata,
-    output logic [               63:0] rvfi_csr_minstret_rmask,
-    output logic [               63:0] rvfi_csr_minstret_wmask,
-    output logic [               63:0] rvfi_csr_minstret_rdata,
-    output logic [               63:0] rvfi_csr_minstret_wdata,
-    output logic [               31:0] rvfi_csr_mcause_rmask,
-    output logic [               31:0] rvfi_csr_mcause_wmask,
-    output logic [               31:0] rvfi_csr_mcause_rdata,
-    output logic [               31:0] rvfi_csr_mcause_wdata,
-    output logic [               31:0] rvfi_csr_mepc_rmask,
-    output logic [               31:0] rvfi_csr_mepc_wmask,
-    output logic [               31:0] rvfi_csr_mepc_rdata,
-    output logic [               31:0] rvfi_csr_mepc_wdata,
-    output logic [               31:0] rvfi_csr_mtvec_rmask,
-    output logic [               31:0] rvfi_csr_mtvec_wmask,
-    output logic [               31:0] rvfi_csr_mtvec_rdata,
-    output logic [               31:0] rvfi_csr_mtvec_wdata,
+    output logic        rvfi_valid,
+    output logic [63:0] rvfi_order,
+    output logic [31:0] rvfi_insn,
+    output logic        rvfi_trap,
+    output logic        rvfi_halt,
+    output logic        rvfi_intr,
+    output logic [ 1:0] rvfi_mode,
+    output logic [ 1:0] rvfi_ixl,
+    output logic [ 4:0] rvfi_rs1_addr,
+    output logic [ 4:0] rvfi_rs2_addr,
+    output logic [31:0] rvfi_rs1_rdata,
+    output logic [31:0] rvfi_rs2_rdata,
+    output logic [ 4:0] rvfi_rd_addr,
+    output logic [31:0] rvfi_rd_wdata,
+    output logic [31:0] rvfi_pc_rdata,
+    output logic [31:0] rvfi_pc_wdata,
+    output logic [31:0] rvfi_mem_addr,
+    output logic [ 3:0] rvfi_mem_rmask,
+    output logic [ 3:0] rvfi_mem_wmask,
+    output logic [31:0] rvfi_mem_rdata,
+    output logic [31:0] rvfi_mem_wdata,
+    output logic [63:0] rvfi_csr_mcycle_rmask,
+    output logic [63:0] rvfi_csr_mcycle_wmask,
+    output logic [63:0] rvfi_csr_mcycle_rdata,
+    output logic [63:0] rvfi_csr_mcycle_wdata,
+    output logic [63:0] rvfi_csr_minstret_rmask,
+    output logic [63:0] rvfi_csr_minstret_wmask,
+    output logic [63:0] rvfi_csr_minstret_rdata,
+    output logic [63:0] rvfi_csr_minstret_wdata,
+    output logic [31:0] rvfi_csr_mcause_rmask,
+    output logic [31:0] rvfi_csr_mcause_wmask,
+    output logic [31:0] rvfi_csr_mcause_rdata,
+    output logic [31:0] rvfi_csr_mcause_wdata,
+    output logic [31:0] rvfi_csr_mepc_rmask,
+    output logic [31:0] rvfi_csr_mepc_wmask,
+    output logic [31:0] rvfi_csr_mepc_rdata,
+    output logic [31:0] rvfi_csr_mepc_wdata,
+    output logic [31:0] rvfi_csr_mtvec_rmask,
+    output logic [31:0] rvfi_csr_mtvec_wmask,
+    output logic [31:0] rvfi_csr_mtvec_rdata,
+    output logic [31:0] rvfi_csr_mtvec_wdata,
 `endif
-    output logic [IMEM_ADDR_WIDTH-1:0] IMEM_ADDR,
-    output logic [DMEM_ADDR_WIDTH-1:0] DMEM_ADDR,
-    output logic [               31:0] DMEM_WDATA,
-    output logic [                3:0] DMEM_WMASK,
-    output logic                       IMEM_EN,
-    output logic                       DMEM_EN,
+    //output logic [IMEM_ADDR_WIDTH-1:0] IMEM_ADDR,
+    //output logic [DMEM_ADDR_WIDTH-1:0] DMEM_ADDR,
+    //output logic [               31:0] DMEM_WDATA,
+    //output logic [                3:0] DMEM_WMASK,
+    //output logic                       IMEM_EN,
+    //output logic                       DMEM_EN,
     // axi lite master interface
-    output logic                       AXIL_START_READ,
-    output logic                       AXIL_START_WRITE,
-    input  logic                       AXIL_DONE_READ,
-    input  logic                       AXIL_DONE_WRITE,
-    input  logic                       AXIL_BUSY_READ,
-    input  logic                       AXIL_BUSY_WRITE,
+    output logic        AXIL_START_READ,
+    output logic        AXIL_START_WRITE,
+    input  logic        AXIL_DONE_READ,
+    input  logic        AXIL_DONE_WRITE,
+    input  logic        AXIL_BUSY_READ,
+    input  logic        AXIL_BUSY_WRITE,
 
     // peripheral interface
     // put on the axi line
@@ -115,8 +116,8 @@ module dtcore32 #(
   logic [31:0] next_pc_comb;
   logic [31:0] trap_handler_addr_q;
   pipeline_t if_pipeline;
-  
-  
+
+
 
   rvfi_t if_rvfi;
   rvfi_t id_rvfi;
@@ -188,25 +189,14 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-
-  logic [31:0] ex_pc_rdata_q;
-  logic [31:0] ex_pc_wdata_d;
-  logic [31:0] ex_pc_plus_4_q;
-  logic [31:0] ex_insn_q;
   trap_info_t ex_trap_d;
   trap_info_t ex_carried_trap_q;
-  logic [31:0] ex_rs1_rdata_q;
   logic [31:0] ex_rs1_rdata_d;
-  logic [31:0] ex_rs2_rdata_q;
   logic [31:0] ex_rs2_rdata_d;
-  logic [4:0] ex_rs1_addr_q;
   logic [4:0] ex_rs1_addr_d;
-  logic [4:0] ex_rs2_addr_q;
   logic [4:0] ex_rs2_addr_d;
-  logic [11:0] ex_csr_addr_q;
   logic [11:0] ex_csr_addr_d;
   logic [31:0] ex_csr_bitmask_comb;
-  logic [31:0] ex_imm_ext_q;
   logic [2:0] ex_forward_a_sel_comb;
   logic [2:0] ex_forward_b_sel_comb;
   logic ex_pc_src_raw_comb;
@@ -218,26 +208,19 @@ module dtcore32 #(
   logic [31:0] ex_pc_target_src_a_comb;
   logic ex_branch_cond_comb;
   logic ex_misaligned_jump_or_branch_comb;
-  logic [31:0] ex_csr_rdata_q;
-  logic [4:0] ex_rd_addr_q;
   logic [4:0] ex_rd_addr_d;
-  logic [31:0] ex_store_wdata_raw_comb;
-  logic ex_valid_q;
-  logic ex_intr_q;
   logic [31:0] ex_alu_result_comb;
   logic ex_load_trap_valid;
-  logic [30:0] ex_store_mcause;
-  logic ex_store_trap_valid;
-  logic [30:0] ex_load_trap_mcause;
+  
   logic [31:0] ex_alu_csr_result_d;
 
   logic [31:0] ex_store_wdata_d;
-  logic [3:0] ex_store_wmask_d;
-  logic ex_load_is_signed_d;
-  logic [3:0] ex_load_rmask_d;
+
+
+  
 
   pipeline_t ex_pipeline;
-  
+
 
 
   ///////////////////////////////////////
@@ -253,33 +236,31 @@ module dtcore32 #(
   ///////////////////////////////////////
   trap_info_t mem_trap_d;
   logic mem_misaligned_store;
-  
-  logic [3:0] axil_rmask_q;
+
   logic [3:0] mem_dmem_wmask;
   logic [3:0] axil_rmask_d;
-  logic [3:0] mem_load_rmask_d;
+  logic [3:0] mem_load_rmask_comb;
   logic [3:0] dmem_rmask;
   logic [3:0] ex_dmem_rmask;
-  logic [31:0] axil_rdata_q;
   logic [4:0] mem_rd_addr_r;
   logic [31:0] mem_load_rdata_d;
   logic [31:0] dmem_rdata_formatted;
-  logic [31:0] mem_dmem_wdata_raw_r;
   logic [31:0] mem_dmem_wdata;
   logic [31:0] axil_addr;
-  logic dmem_en_q;
-  logic axil_done_read_q;
-  logic valid_dmem_read;
-  logic valid_axil_read;
-  logic dmem_en_d;
   logic axil_en_d;
-  logic dmem_en_comb;
-  logic axil_en_comb;
+  logic dmem_read_req;
 
   logic [31:0] mem_store_wdata_d;
-  logic [3:0] mem_store_wmask_d;
   pipeline_t mem_pipeline;
-  
+
+  logic [30:0] mem_store_trap_mcause;
+  logic mem_store_trap_valid;
+  logic [30:0] mem_load_trap_mcause;
+  logic mem_load_trap_valid;
+
+  logic [3:0] mem_store_wmask_d;
+  logic [3:0] mem_load_rmask_d;
+
 
   ///////////////////////////////////////
   //
@@ -329,7 +310,6 @@ module dtcore32 #(
   logic [31:0] pc_plus_4;
   logic [31:0] START_ADDR;
   assign START_ADDR = 32'd0;
-  assign IMEM_EN = ~if_id_stall;
 
   // next pc logic
   always_comb begin
@@ -380,6 +360,29 @@ module dtcore32 #(
       if_b_valid_insn_r <= if_a_valid_insn_r;
     end
   end
+
+  axil_interface #(
+      .ADDR_WIDTH(AXIL_ADDR_WIDTH),
+      .BUS_WIDTH(IMEM_ADDR_WIDTH),
+      .ENABLE_WRITE('0)
+  ) axil_interface_if (
+      .CLK(CLK),
+      .RST(RST),
+      .EN(axil_en_d),
+      .MEM1_ALU_RESULT(mem_pipeline.alu_csr_result),
+      .MEM_OP(mem_pipeline.mem_op),
+      .MEM_WDATA_RAW(mem_store_wdata_d),
+      .AXIL_ADDR(axil_addr),
+      .AXIL_DONE_READ(AXIL_DONE_READ),
+      .AXIL_DONE_WRITE(AXIL_DONE_WRITE),
+      .AXIL_TRANSACTION_RDATA(AXIL_TRANSACTION_RDATA),
+      .AXIL_START_READ(AXIL_START_READ),
+      .AXIL_START_WRITE(AXIL_START_WRITE),
+      .AXIL_TRANSACTION_WRADDR(AXIL_TRANSACTION_WRADDR),
+      .AXIL_TRANSACTION_WRDATA(AXIL_TRANSACTION_WRDATA),
+      .AXIL_TRANSACTION_WSTRB(AXIL_TRANSACTION_WSTRB),
+      .AXIL_TRANSACTION_RADDR(AXIL_TRANSACTION_RADDR)
+  );
 
 
 
@@ -462,7 +465,7 @@ module dtcore32 #(
       .WB_VALID_INSN(wb_pipeline.valid),
       .WB_TRAP(wb_trap_d),
       .TRAP_HANDLER_ADDR(trap_handler_addr_q),
-      .CSR_RDATA_REG(ex_csr_rdata_q),
+      .CSR_RDATA_REG(ex_pipeline.csr_rdata),
       .CSR_RMASK(wb_csr_rmask_comb),
       .CSR_WMASK(wb_csr_wmask_comb)
   );
@@ -481,29 +484,29 @@ module dtcore32 #(
   logic [31:0] ex_pc_target_raw_comb;
 
   assign ex_rs1_rdata_d = ex_src_a_tick_comb;
-  assign ex_rs2_rdata_d = ex_store_wdata_raw_comb;
-  assign ex_pc_src_raw_comb = (ex_cpu_control_q.cf_op[0] | (ex_cpu_control_q.cf_op[1] & ex_branch_cond_comb));
+  assign ex_rs2_rdata_d = ex_store_wdata_d;
+  assign ex_pc_src_raw_comb = (ex_pipeline.cf_op[0] | (ex_pipeline.cf_op[1] & ex_branch_cond_comb));
 
-  assign ex_pc_wdata_d = (ex_pc_src_actual_comb) ? ex_pc_target_actual_comb : ex_pc_plus_4_q;
+  assign ex_pc_wdata_d = (ex_pc_src_actual_comb) ? ex_pc_target_actual_comb : ex_pipeline.pc_plus_4;
   // trap if a jump or branch address is misaligned
   //assign ex_misaligned_jump_or_branch_comb = ex_pc_src_actual_comb & (next_pc_comb[1] | next_pc_comb[0]);
   assign ex_misaligned_jump_or_branch_comb = ex_pc_src_actual_comb & (next_pc_comb[1] | next_pc_comb[0]);
 
-  assign ex_pc_target_raw_comb = ex_pc_target_src_a_comb + ex_imm_ext_q;
-  assign ex_pc_target_actual_comb     = (ex_cpu_control_q.cf_op == CF_JALR) ? (ex_pc_target_raw_comb & ~(1)) : ex_pc_target_raw_comb;
+  assign ex_pc_target_raw_comb = ex_pc_target_src_a_comb + ex_pipeline.imm_ext;
+  assign ex_pc_target_actual_comb     = (ex_pipeline.cf_op == CF_JALR) ? (ex_pc_target_raw_comb & ~(1)) : ex_pc_target_raw_comb;
 
   // disable ex stage if trap propagates from previous stage
   // disable jumps, and set all register addresses to zero
-  assign ex_rs1_addr_d = ex_carried_trap_q.valid ? 0 : ex_rs1_addr_q;
-  assign ex_rs2_addr_d = ex_carried_trap_q.valid ? 0 : ex_rs2_addr_q;
-  assign ex_rd_addr_d = ex_carried_trap_q.valid ? 0 : ex_rd_addr_q;
-  assign ex_csr_addr_d = ex_carried_trap_q.valid ? 0 : ex_csr_addr_q;
+  assign ex_rs1_addr_d = ex_carried_trap_q.valid ? 0 : ex_pipeline.rs1_addr;
+  assign ex_rs2_addr_d = ex_carried_trap_q.valid ? 0 : ex_pipeline.rs2_addr;
+  assign ex_rd_addr_d = ex_carried_trap_q.valid ? 0 : ex_pipeline.rd_addr;
+  assign ex_csr_addr_d = ex_carried_trap_q.valid ? 0 : ex_pipeline.csr_addr;
   assign ex_pc_src_actual_comb = ex_carried_trap_q.valid ? 0 : ex_pc_src_raw_comb;
   // alu input 1 data path
   // select reg 1 data or data forwarded from WB or MEM stage
   always_comb begin
     case (ex_forward_a_sel_comb)
-      NO_FORWARD_SEL:             ex_src_a_tick_comb = ex_rs1_rdata_q;
+      NO_FORWARD_SEL:             ex_src_a_tick_comb = ex_pipeline.rs1_data;
       FORWARD_SEL_MEM_ALU_RESULT: ex_src_a_tick_comb = mem_pipeline.alu_csr_result;
       FORWARD_SEL_MEM_LOAD_RDATA: ex_src_a_tick_comb = mem_load_rdata_d;
       FORWARD_SEL_WB_RESULT:      ex_src_a_tick_comb = wb_rd_wdata_masked;
@@ -512,10 +515,10 @@ module dtcore32 #(
   end
   // select data from first mux, zero, or pc
   always_comb begin
-    case (ex_cpu_control_q.alu_a_src)
+    case (ex_pipeline.alu_a_src)
       ALU_A_SEL_REG_DATA: ex_src_a_comb = ex_src_a_tick_comb;
       ALU_A_SEL_ZERO:     ex_src_a_comb = 0;
-      ALU_A_SEL_PC:       ex_src_a_comb = ex_pc_rdata_q;
+      ALU_A_SEL_PC:       ex_src_a_comb = ex_pipeline.pc;
       default:            ex_src_a_comb = 0;
     endcase
   end
@@ -523,77 +526,58 @@ module dtcore32 #(
   // select reg 2 data or data forwarded from WB or MEM stage
   always_comb begin
     case (ex_forward_b_sel_comb)
-      NO_FORWARD_SEL:             ex_store_wdata_raw_comb = ex_rs2_rdata_q;
-      FORWARD_SEL_MEM_ALU_RESULT: ex_store_wdata_raw_comb = mem_pipeline.alu_csr_result;
-      FORWARD_SEL_MEM_LOAD_RDATA: ex_store_wdata_raw_comb = mem_load_rdata_d;
-      FORWARD_SEL_WB_RESULT:      ex_store_wdata_raw_comb = wb_rd_wdata_masked;
-      default:                    ex_store_wdata_raw_comb = 0;
+      NO_FORWARD_SEL:             ex_store_wdata_d = ex_pipeline.rs2_data;
+      FORWARD_SEL_MEM_ALU_RESULT: ex_store_wdata_d = mem_pipeline.alu_csr_result;
+      FORWARD_SEL_MEM_LOAD_RDATA: ex_store_wdata_d = mem_load_rdata_d;
+      FORWARD_SEL_WB_RESULT:      ex_store_wdata_d = wb_rd_wdata_masked;
+      default:                    ex_store_wdata_d = 0;
     endcase
   end
   // select data from first mux, or extended immediate
   always_comb begin
-    unique case (ex_cpu_control_q.alu_b_src)
-      ALU_B_SEL_REG_DATA: ex_src_b_comb = ex_store_wdata_raw_comb;
-      ALU_B_SEL_IMM:      ex_src_b_comb = ex_imm_ext_q;
+    unique case (ex_pipeline.alu_b_src)
+      ALU_B_SEL_REG_DATA: ex_src_b_comb = ex_store_wdata_d;
+      ALU_B_SEL_IMM:      ex_src_b_comb = ex_pipeline.imm_ext;
     endcase
   end
   // select base address for branch/jump address, selecting either
   // the current pc or reg1_data.
   always_comb begin
-    unique case (ex_cpu_control_q.pc_alu_src)
-      PC_ALU_SEL_PC:          ex_pc_target_src_a_comb = ex_pc_rdata_q;
+    unique case (ex_pipeline.pc_alu_src)
+      PC_ALU_SEL_PC:       ex_pc_target_src_a_comb = ex_pipeline.pc;
       PC_ALU_SEL_REG_DATA: ex_pc_target_src_a_comb = ex_src_a_tick_comb;
     endcase
   end
   // select write value to be used in a csr instruction
   always_comb begin
-    unique case (ex_cpu_control_q.csr_bitmask_sel)
+    unique case (ex_pipeline.csr_bitmask_sel)
       CSR_BITMASK_SEL_REG_DATA: ex_csr_bitmask_comb = ex_src_a_tick_comb;
-      CSR_BITMASK_SEL_IMM:      ex_csr_bitmask_comb = ex_imm_ext_q;
+      CSR_BITMASK_SEL_IMM:      ex_csr_bitmask_comb = ex_pipeline.imm_ext;
     endcase
   end
 
   always_comb begin
     ex_csr_wdata_d = 0;
-    case (ex_cpu_control_q.csr_op)
+    case (ex_pipeline.csr_op)
       CSR_WRITE: ex_csr_wdata_d = ex_csr_bitmask_comb;
-      CSR_CLEAR: ex_csr_wdata_d = (ex_csr_rdata_q & ~ex_csr_bitmask_comb);
-      CSR_SET:   ex_csr_wdata_d = (ex_csr_rdata_q | ex_csr_bitmask_comb);
+      CSR_CLEAR: ex_csr_wdata_d = (ex_pipeline.csr_rdata & ~ex_csr_bitmask_comb);
+      CSR_SET:   ex_csr_wdata_d = (ex_pipeline.csr_rdata | ex_csr_bitmask_comb);
       default:   ;
     endcase
   end
 
 
-  assign ex_alu_csr_result_d = (ex_cpu_control_q.csr_op != CSR_NONE) ? ex_csr_rdata_q : ex_alu_result_comb;
+  assign ex_alu_csr_result_d = (ex_pipeline.csr_op != CSR_NONE) ? ex_pipeline.csr_rdata : ex_alu_result_comb;
 
   alu alu_inst (
       .a_i(ex_src_a_comb),
       .b_i(ex_src_b_comb),
-      .control_i(ex_cpu_control_q.alu_control),
+      .control_i(ex_pipeline.alu_control),
       .branch_cond_o(ex_branch_cond_comb),
       .result_o(ex_alu_result_comb)
   );
 
-  // format store data for MEM stage
-  store_unit store_unit_inst (
-      .MEM_OP(ex_mem_op_r),
-      .ADDR_LSB2(ex_alu_csr_result_d[1:0]),
-      .STORE_WDATA_UNFORMATTED(ex_store_wdata_raw_comb),
-      .STORE_TRAP_VALID(ex_store_trap_valid),
-      .STORE_TRAP_MCAUSE(ex_store_mcause),
-      .STORE_WMASK(ex_store_wmask_d),
-      .STORE_WDATA(ex_store_wdata_d)
-  );
-
-
-  load_unit load_unit_inst (
-      .MEM_OP(ex_cpu_control_q.mem_op),
-      .ADDR_LSB2(ex_alu_csr_result_d[1:0]),
-      .LOAD_TRAP_VALID(ex_load_trap_valid),
-      .LOAD_TRAP_MCAUSE(ex_load_trap_mcause),
-      .LOAD_RMASK(ex_load_rmask_d),
-      .LOAD_IS_SIGNED(ex_load_is_signed_d)
-  );
+  
 
 
   ///////////////////////////////////////
@@ -608,24 +592,17 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
 
-  mem_router mem_router_inst (
-      .MEM_ALU_RESULT(mem_pipeline.alu_csr_result),
-      .MEM_OP(mem_pipeline.mem_op),
-      .DMEM_EN(dmem_en_comb),
-      .AXIL_EN(axil_en_comb),
-      .AXIL_ADDR(axil_addr)
-  );
-
   axil_interface #(
       .BUS_WIDTH(AXIL_BUS_WIDTH)
-  ) axil_interface_inst (
+  ) axil_interface_mem (
       .CLK(CLK),
       .RST(RST),
       .EN(axil_en_d),
       .MEM1_ALU_RESULT(mem_pipeline.alu_csr_result),
       .MEM_OP(mem_pipeline.mem_op),
       .MEM_WDATA_RAW(mem_store_wdata_d),
-      .AXIL_ADDR(axil_addr),
+      .MEM_WSTRB(mem_axil_wstrb),
+      .AXIL_ADDR(mem_pipeline.alu_csr_result),
       .AXIL_DONE_READ(AXIL_DONE_READ),
       .AXIL_DONE_WRITE(AXIL_DONE_WRITE),
       .AXIL_TRANSACTION_RDATA(AXIL_TRANSACTION_RDATA),
@@ -636,56 +613,42 @@ module dtcore32 #(
       .AXIL_TRANSACTION_WSTRB(AXIL_TRANSACTION_WSTRB),
       .AXIL_TRANSACTION_RADDR(AXIL_TRANSACTION_RADDR)
   );
+  logic mem_axil_req;
+  logic [3:0] mem_axil_wstrb;
+
+  logic [3:0] mem_store_wmask_comb;
+  // Assert AXI Lite request for any memory instruction
+  assign mem_axil_req = (mem_pipeline.mem_op != MEM_NONE);
 
   // disable dmem if address maps to axil peripheral
-  
-  always_ff @(posedge CLK) begin
-    if (RST) begin
-      axil_rdata_q <= 0;
-      dmem_en_q <= 0;
-      axil_done_read_q <= 0;
-      axil_rmask_q <= 0;
-    end else begin
-      axil_rdata_q <= AXIL_TRANSACTION_RDATA;
-      dmem_en_q <= dmem_en_d;
-      axil_done_read_q <= AXIL_DONE_READ;
-      axil_rmask_q <= axil_rmask_d;
-    end
-  end
 
-  // select dmem write data OR axil write data OR neither
-  always_comb begin
-    mem_store_wdata_d = 0;
-    mem_store_wmask_d = 0;
-    if (dmem_en_d) begin
-      mem_store_wdata_d = mem_dmem_wdata;
-      mem_store_wmask_d = mem_dmem_wmask;
-    end else if (axil_en_d) begin
-      mem_store_wdata_d = AXIL_TRANSACTION_WRDATA;
-      mem_store_wmask_d = 4'hf;
-    end
-  end
+  assign mem_store_wdata_d = mem_pipeline.store_wdata;
+  assign mem_store_wmask_d = axil_en_d ? mem_store_wmask_comb : 0;
+  assign mem_load_rdata_d = mem_formatted_load_rdata;
+  assign mem_load_rmask_d = AXIL_DONE_READ ? mem_load_rmask_comb : 0;
 
-  // select dmem read data OR axil read data OR neither
-  always_comb begin
-    mem_load_rdata_d = 0;
-    mem_load_rmask_d = 0;
-    if (valid_axil_read) begin
-      mem_load_rdata_d = AXIL_TRANSACTION_RDATA;
-      mem_load_rmask_d = 4'hf;
-    end else if (valid_dmem_read) begin
-      mem_load_rdata_d = dmem_rdata_formatted;
-      mem_load_rmask_d = dmem_rmask;
-    end
-  end
+  assign axil_en_d = !mem_pipeline.carried_trap.valid && mem_axil_req;
+  logic [31:0] mem_formatted_load_rdata;
 
-  assign axil_rmask_d = 4'hf;
-  assign dmem_en_d = mem_pipeline.carried_trap.valid && dmem_en_comb;
-  assign axil_en_d = mem_pipeline.carried_trap.valid && axil_en_comb;
-  assign DMEM_EN = dmem_en_d;
+  // format store data for MEM stage
+  store_unit store_unit_inst (
+      .MEM_OP(mem_pipeline.mem_op),
+      .ADDR_LSB2(mem_pipeline.alu_csr_result[1:0]),
+      .STORE_TRAP_VALID(mem_store_trap_valid),
+      .STORE_TRAP_MCAUSE(mem_store_trap_mcause),
+      .AXIL_WSTRB(mem_axil_wstrb),
+      .STORE_WMASK(mem_store_wmask_comb)
+  );
 
-  assign valid_axil_read = mem_pipeline.carried_trap.valid && axil_done_read_q;
-  assign valid_dmem_read = mem_pipeline.carried_trap.valid && dmem_en_q;
+  load_unit  load_unit_inst (
+    .MEM_OP(mem_pipeline.mem_op),
+    .ADDR_LSB2(mem_pipeline.alu_csr_result[1:0]),
+    .AXIL_RDATA(AXIL_TRANSACTION_RDATA),
+    .LOAD_TRAP_VALID(mem_load_trap_valid),
+    .LOAD_TRAP_MCAUSE(mem_load_trap_mcause),
+    .LOAD_RMASK(mem_load_rmask_comb),
+    .LOAD_FORMATTED(mem_formatted_load_rdata)
+  );
 
 
   //////////////////////////////////////
@@ -703,10 +666,10 @@ module dtcore32 #(
   assign wb_rd_wdata_masked = (wb_rd_addr_masked != 0) ? wb_rd_wdata_comb : 0;
   always_comb begin
     unique case (wb_pipeline.result_sel)
-      2'b00: wb_rd_wdata_comb = wb_pipeline.alu_csr_result;
-      2'b01: wb_rd_wdata_comb = wb_pipeline.load_rdata;
-      2'b10: wb_rd_wdata_comb = wb_pipeline.pc_plus_4;
-      2'b11: wb_rd_wdata_comb = wb_pipeline.csr_rdata;
+      RESULT_SEL_ALU_RESULT: wb_rd_wdata_comb = wb_pipeline.alu_csr_result;
+      RESULT_SEL_MEM_DATA: wb_rd_wdata_comb = wb_pipeline.load_rdata;
+      RESULT_SEL_NEXT_INSTR_ADDR: wb_rd_wdata_comb = wb_pipeline.pc_plus_4;
+      RESULT_SEL_CSR_READ_DATA: wb_rd_wdata_comb = wb_pipeline.csr_rdata;
     endcase
   end
 
@@ -716,8 +679,9 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
+  logic[31:0] IMEM_RDATA;
 
-  
+
   //IF/ID
   always_ff @(posedge CLK) begin
     if (RST) begin
@@ -745,7 +709,6 @@ module dtcore32 #(
           pc_alu_sel: PC_ALU_SEL_PC,
           csr_bitmask_sel: CSR_BITMASK_SEL_REG_DATA,
           mem_op: MEM_NONE,
-          load_is_signed: 0,
           load_rmask: 0,
           store_wdata: 0,
           store_wmask: 0,
@@ -786,7 +749,6 @@ module dtcore32 #(
           pc_alu_sel: id_pc_alu_sel_d,
           csr_bitmask_sel: id_csr_bitmask_sel_d,
           mem_op: id_mem_op_d,
-          load_is_signed: 0,
           load_rmask: 0,
           store_wdata: 0,
           store_wmask: 0,
@@ -826,10 +788,9 @@ module dtcore32 #(
           pc_alu_sel: ex_pipeline.pc_alu_sel,
           csr_bitmask_sel: ex_pipeline.csr_bitmask_sel,
           mem_op: ex_pipeline.mem_op,
-          load_is_signed: ex_load_is_signed_d,
-          load_rmask: ex_load_rmask_d,
+          load_rmask: 0,
           store_wdata: ex_store_wdata_d,
-          store_wmask: ex_store_wmask_d,
+          store_wmask: 0,
           alu_csr_result: ex_alu_csr_result_d,
           load_rdata: 0,
           pc_wdata: ex_pc_wdata_d,
@@ -866,7 +827,6 @@ module dtcore32 #(
           pc_alu_sel: mem_pipeline.pc_alu_sel,
           csr_bitmask_sel: mem_pipeline.csr_bitmask_sel,
           mem_op: mem_pipeline.mem_op,
-          load_is_signed: mem_pipeline.load_is_signed,
           load_rmask: mem_load_rmask_d,
           store_wdata: mem_store_wdata_d,
           store_wmask: mem_store_wmask_d,
@@ -910,20 +870,20 @@ module dtcore32 #(
 
   always_comb begin
     ex_trap_d = '{default: 0};
-    /*
+    
     if (ex_carried_trap_q.valid) begin
       ex_trap_d = ex_carried_trap_q;
     end else if (ex_misaligned_jump_or_branch_comb) begin
       ex_trap_d = '{
           valid: 1,
           is_interrupt: 0,
-          insn: ex_insn_q,
+          insn: ex_pipeline.insn,
           mcause: TRAP_CODE_INSTR_ADDR_MISALIGNED,
-          pc: ex_pc_rdata_q,
+          pc: ex_pipeline.pc,
           next_pc: trap_handler_addr_q,
-          rs1_addr: ex_rs1_addr_q,
-          rs2_addr: ex_rs2_addr_q,
-          rd_addr: ex_rd_addr_q,
+          rs1_addr: ex_pipeline.rs1_addr,
+          rs2_addr: ex_pipeline.rs2_addr,
+          rd_addr: ex_pipeline.rd_addr,
           rs1_rdata: ex_rs1_rdata_d,
           rs2_rdata: ex_rs2_rdata_d,
           rd_wdata: 0
@@ -931,20 +891,20 @@ module dtcore32 #(
     end else begin
       ex_trap_d = '{default: 0};
     end
-      */
+    
   end
 
   always_comb begin
     mem_trap_d = '{default: 0};
-    /*
+    
     if (mem_pipeline.carried_trap.valid) begin
       mem_trap_d = mem_pipeline.carried_trap;
-    end else if (ex_store_trap_valid) begin
+    end else if (mem_store_trap_valid) begin
       mem_trap_d = '{
           valid: 1,
           is_interrupt: 0,
           insn: mem_pipeline.insn,
-          mcause: ex_store_mcause,
+          mcause: mem_store_trap_mcause,
           pc: mem_pipeline.pc,
           next_pc: trap_handler_addr_q,
           rs1_addr: mem_pipeline.rs1_addr,
@@ -954,12 +914,12 @@ module dtcore32 #(
           rs2_rdata: mem_pipeline.rs2_rdata,
           rd_wdata: 0
       };
-    end else if (ex_load_trap_valid) begin
+    end else if (mem_load_trap_valid) begin
       mem_trap_d = '{
           valid: 1,
           is_interrupt: 0,
           insn: mem_pipeline.insn,
-          mcause: ex_load_trap_mcause,
+          mcause: mem_load_trap_mcause,
           pc: mem_pipeline.pc,
           next_pc: trap_handler_addr_q,
           rs1_addr: mem_pipeline.rs1_addr,
@@ -972,7 +932,7 @@ module dtcore32 #(
     end else begin
       mem_trap_d = '{default: 0};
     end
-    */
+    
   end
 
   assign wb_trap_d = wb_pipeline.carried_trap.valid ? wb_pipeline.carried_trap : '{default: 0};
@@ -1015,10 +975,12 @@ module dtcore32 #(
       .AXIL_DONE_WRITE(AXIL_DONE_WRITE)
   );
 
+  /*
   assign DMEM_ADDR  = mem_pipeline.alu_csr_result[DMEM_ADDR_WIDTH-1:0];
   assign IMEM_ADDR  = if_a_pc_rdata_q[IMEM_ADDR_WIDTH-1:0];
   assign DMEM_WDATA = mem_store_wdata_d;
   assign DMEM_WMASK = mem_store_wmask_d;
+  */
 
   //////////////////////////////////////
   //

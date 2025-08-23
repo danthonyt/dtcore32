@@ -85,9 +85,9 @@ module decoder
     imm_ext_op = I_ALU_TYPE;
     alu_a_src = ALU_A_SEL_REG_DATA;
     alu_b_src = ALU_B_SEL_REG_DATA;
-    result_src = RESULT_SRC_SELECT_ALU_RESULT;
+    result_src = RESULT_SEL_ALU_RESULT;
     pc_alu_src = PC_ALU_SEL_PC;
-    csr_bitmask_sel = CSR_SRC_SEL_REG_DATA;
+    csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
 
 
     case (OP)
@@ -97,7 +97,7 @@ module decoder
         imm_ext_op = I_ALU_TYPE;
         alu_a_src = ALU_A_SEL_REG_DATA;
         alu_b_src = ALU_B_SEL_IMM;
-        result_src = RESULT_SRC_SELECT_DMEM_RD_DATA;
+        result_src = RESULT_SEL_MEM_DATA;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
         pc_alu_src = PC_ALU_SEL_PC;
         case (FUNCT3)
@@ -126,37 +126,37 @@ module decoder
             end else TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
           end
           FUNCT3_CSRRW: begin
-            result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
+            result_src = RESULT_SEL_CSR_READ_DATA;
             csr_op = CSR_WRITE;
-            csr_bitmask_sel = CSR_SRC_SEL_REG_DATA;
+            csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRS: begin
-            result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
+            result_src = RESULT_SEL_CSR_READ_DATA;
             csr_op = (RS1_ADDR == 0) ? CSR_NONE : CSR_SET;
-            csr_bitmask_sel = CSR_SRC_SEL_REG_DATA;
+            csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRC: begin
-            result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
+            result_src = RESULT_SEL_CSR_READ_DATA;
             csr_op = (RS1_ADDR == 0) ? CSR_NONE : CSR_CLEAR;
-            csr_bitmask_sel = CSR_SRC_SEL_REG_DATA;
+            csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRWI: begin
-            result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
+            result_src = RESULT_SEL_CSR_READ_DATA;
             imm_ext_op = CSR_TYPE;
             csr_op = CSR_WRITE;
-            csr_bitmask_sel = CSR_SRC_SEL_IMM;
+            csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
           end
           FUNCT3_CSRRSI: begin
-            result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
+            result_src = RESULT_SEL_CSR_READ_DATA;
             imm_ext_op = CSR_TYPE;
             csr_op = (RS1_ADDR == 0) ? CSR_NONE : CSR_SET;
-            csr_bitmask_sel = CSR_SRC_SEL_IMM;
+            csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
           end
           FUNCT3_CSRRCI: begin
-            result_src = RESULT_SRC_SELECT_CSR_READ_DATA;
+            result_src = RESULT_SEL_CSR_READ_DATA;
             imm_ext_op = CSR_TYPE;
             csr_op = (RS1_ADDR == 0) ? CSR_NONE : CSR_CLEAR;
-            csr_bitmask_sel = CSR_SRC_SEL_IMM;
+            csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
           end
           default: begin
             TRAP_VALID  = 1;
@@ -192,7 +192,7 @@ module decoder
           rd_valid = 1;
           alu_a_src = ALU_A_SEL_REG_DATA;
           alu_b_src = ALU_B_SEL_REG_DATA;
-          result_src = RESULT_SRC_SELECT_ALU_RESULT;
+          result_src = RESULT_SEL_ALU_RESULT;
           alu_op = ALU_OP_IALU_ISHIFT_R_TYPE;
           pc_alu_src = PC_ALU_SEL_PC;
         end
@@ -217,7 +217,7 @@ module decoder
           rd_valid = 1;
           alu_a_src = ALU_A_SEL_REG_DATA;
           alu_b_src = ALU_B_SEL_IMM;
-          result_src = RESULT_SRC_SELECT_ALU_RESULT;
+          result_src = RESULT_SEL_ALU_RESULT;
           alu_op = ALU_OP_IALU_ISHIFT_R_TYPE;
           pc_alu_src = PC_ALU_SEL_PC;
           case (FUNCT3)
@@ -235,7 +235,7 @@ module decoder
         imm_ext_op = J_TYPE;
         alu_a_src = ALU_A_SEL_REG_DATA;
         alu_b_src = ALU_B_SEL_REG_DATA;
-        result_src = RESULT_SRC_SELECT_NEXT_INSTR_ADDR;
+        result_src = RESULT_SEL_NEXT_INSTR_ADDR;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
         cf_op = CF_JUMP;
         pc_alu_src = PC_ALU_SEL_PC;
@@ -245,7 +245,7 @@ module decoder
         imm_ext_op = U_TYPE;
         alu_a_src = ALU_A_SEL_ZERO;
         alu_b_src = ALU_B_SEL_IMM;
-        result_src = RESULT_SRC_SELECT_ALU_RESULT;
+        result_src = RESULT_SEL_ALU_RESULT;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
         pc_alu_src = PC_ALU_SEL_PC;
       end
@@ -254,7 +254,7 @@ module decoder
         imm_ext_op = U_TYPE;
         alu_a_src = ALU_A_SEL_PC;
         alu_b_src = ALU_B_SEL_IMM;
-        result_src = RESULT_SRC_SELECT_ALU_RESULT;
+        result_src = RESULT_SEL_ALU_RESULT;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
         pc_alu_src = PC_ALU_SEL_PC;
       end
@@ -264,7 +264,7 @@ module decoder
         imm_ext_op = I_ALU_TYPE;
         alu_a_src = ALU_A_SEL_REG_DATA;
         alu_b_src = ALU_B_SEL_IMM;
-        result_src = RESULT_SRC_SELECT_NEXT_INSTR_ADDR;
+        result_src = RESULT_SEL_NEXT_INSTR_ADDR;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
         cf_op = CF_JALR;
         pc_alu_src = PC_ALU_SEL_PC;
@@ -288,7 +288,7 @@ module decoder
       ALU_OP_B_TYPE:
       case (FUNCT3)
         FUNCT3_BEQ: alu_control = SUB_ALU_CONTROL;  //sub - beq
-        FUNCT3_BNE: alu_control = BNE_ALU_CONTROL;  //sub - bne
+        FUNCT3_BNE: alu_control = NE_ALU_CONTROL;  //sub - bne
         FUNCT3_BLT: alu_control = LT_ALU_CONTROL;  //blt
         FUNCT3_BGE: alu_control = GE_ALU_CONTROL;  //bge
         FUNCT3_BLTU: alu_control = LTU_ALU_CONTROL;  //bltu

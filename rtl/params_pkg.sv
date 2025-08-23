@@ -36,7 +36,7 @@ package params_pkg;
   // Result source selection
   typedef enum logic [1:0] {
     RESULT_SEL_ALU_RESULT      = 2'b00,
-    RESULT_SEL_DMEM_RD_DATA    = 2'b01,
+    RESULT_SEL_MEM_DATA    = 2'b01,
     RESULT_SEL_NEXT_INSTR_ADDR = 2'b10,
     RESULT_SEL_CSR_READ_DATA   = 2'b11
   } result_sel_t;
@@ -319,7 +319,6 @@ package params_pkg;
     csr_bitmask_sel_t csr_bitmask_sel;
 
     mem_op_t     mem_op;
-    logic        load_is_signed;
     logic [3:0]  load_rmask;
     logic [31:0] store_wdata;
     logic [3:0]  store_wmask;
@@ -360,7 +359,6 @@ package params_pkg;
       pc_alu_sel: PC_ALU_SEL_PC,
       csr_bitmask_sel: CSR_BITMASK_SEL_REG_DATA,
       mem_op: MEM_NONE,
-      load_is_signed: 0,
       load_rmask: 0,
       store_wdata: 0,
       store_wmask: 0,

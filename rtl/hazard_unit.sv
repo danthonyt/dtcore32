@@ -12,6 +12,7 @@ module hazard_unit (
     input logic [4:0] EX_RD_ADDR,
     //branch control hazard
     input logic EX_PC_SRC,
+    // axi lite stall
     output logic [2:0] EX_FORWARD_A,
     output logic [2:0] EX_FORWARD_B,
     output logic ID_FORWARD_A,
@@ -55,6 +56,7 @@ module hazard_unit (
   logic ex_mem_rs1_match;
   logic ex_wb_rs2_match;
   logic ex_wb_rs1_match;
+  logic axil_stall;
   assign nonzero_ID_rs1 = |ID_RS1_ADDR;
   assign nonzero_ID_rs2 = |ID_RS2_ADDR;
   assign id_ex_rs1_match = (ID_RS1_ADDR == EX_RD_ADDR);
@@ -74,7 +76,7 @@ module hazard_unit (
 
   // We must stall if a load instruction is in the execute stage while another instruction 
   // has a matching source register to that write register in the decode stage
-  assign load_use_hazard = ((EX_RESULT_SRC == RESULT_SRC_SELECT_DMEM_RD_DATA) && ((id_ex_rs1_match && nonzero_ID_rs1)
+  assign load_use_hazard = ((EX_RESULT_SRC == RESULT_SEL_MEM_DATA) && ((id_ex_rs1_match && nonzero_ID_rs1)
    || (id_ex_rs2_match && nonzero_ID_rs2))) ? 1 : 0;
 
   /*****************************************/
@@ -87,7 +89,7 @@ module hazard_unit (
   //instruction we must forward that value from the previous instruction so the updated
   //value is used.
   always_comb begin
-    if (ex_mem_rs1_match && (MEM_RESULT_SRC == RESULT_SRC_SELECT_DMEM_RD_DATA))
+    if (ex_mem_rs1_match && (MEM_RESULT_SRC == RESULT_SEL_MEM_DATA))
       ex_forward_a = FORWARD_SEL_MEM_LOAD_RDATA;
     else if (ex_mem_rs1_match)
       ex_forward_a = FORWARD_SEL_MEM_ALU_RESULT;
@@ -95,7 +97,7 @@ module hazard_unit (
       ex_forward_a = FORWARD_SEL_WB_RESULT;
     else ex_forward_a = NO_FORWARD_SEL;
 
-    if (ex_mem_rs2_match && (MEM_RESULT_SRC == RESULT_SRC_SELECT_DMEM_RD_DATA))
+    if (ex_mem_rs2_match && (MEM_RESULT_SRC == RESULT_SEL_MEM_DATA))
       ex_forward_b = FORWARD_SEL_MEM_LOAD_RDATA;
     else if (ex_mem_rs2_match)
       ex_forward_b = FORWARD_SEL_MEM_ALU_RESULT;

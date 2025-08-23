@@ -6,10 +6,12 @@ module dmem #(
     input logic EN,
     input logic [ADDR_WIDTH-1:0] ADDR,
     input logic [31:0] WDATA,
-    output logic [31:0] RDATA
+    output logic [31:0] RDATA,
+    output logic RVALID
 );
 
   logic [31:0] RAM[(2**(ADDR_WIDTH-2)-1):0];
+  logic [31:0] prev_addr;
   `define LOAD_DMEM
 
 `ifdef LOAD_DMEM
@@ -27,4 +29,10 @@ module dmem #(
     end
     RDATA <= RAM[ADDR[ADDR_WIDTH-1:2]];
   end
+
+  always @(posedge CLK) begin
+    prev_addr <= ADDR;
+  end
+
+assign RVALID = EN && !WE && (prev_addr == ADDR);
 endmodule
