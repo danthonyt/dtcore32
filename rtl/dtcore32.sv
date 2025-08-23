@@ -90,235 +90,61 @@ module dtcore32 #(
   //
   ///////////////////////////////////////////////
 
-  logic [31:0] axil_addr;
-  logic mem2_dmem_read_valid_raw_reg;
-  logic mem2_axil_read_valid_raw_reg;
-  logic mem2_dmem_read_valid_actual_comb;
-  logic mem2_axil_read_valid_actual_comb;
+  //////////////////////////////////////
+  //
+  //
+  //
+  //
+  // INSTRUCTION FETCH SIGNALS
+  //
+  //
+  //
+  //
+  ///////////////////////////////////////
 
-  // IMEM AND DMEM SIGNALS
-  logic [3:0] DMEM_mem_wmask;
-  // hazard unit signals
-  // stops signals from propagating through the pipeline
-  logic if_id_stall;
-  logic id_ex_stall;
-  logic ex_mem1_stall;
-  logic mem1_mem2_stall;
-  logic mem2_wb_stall;
-
-  // resets the pipeline to control signals of a NOP instruction
-  logic if_id_flush;
-  logic id_ex_flush;
-  logic ex_mem1_flush;
-  logic mem1_mem2_flush;
-  logic mem2_wb_flush;
-
-  logic [31:0] next_pc_comb;
-
-  // instruction memory address of the instruction in the respective pipeline stage
-  logic [31:0] if_a_pc_rdata_reg;
+  logic [31:0] if_a_pc_rdata_r;
   logic [31:0] if_a_pc_rdata_comb;
-  logic [31:0] id_pc_rdata_reg;
-  logic [31:0] ex_pc_rdata_reg;
-  logic [31:0] mem1_pc_rdata_reg;
-  logic [31:0] mem2_pc_rdata_reg;
-  logic [31:0] wb_pc_rdata_reg;
-
-  // the pc of the next instruction
-  logic [31:0] ex_pc_wdata_comb;
-  logic [31:0] mem1_pc_wdata_reg;
-  logic [31:0] mem2_pc_wdata_reg;
-  logic [31:0] wb_pc_wdata_reg;
-
-  logic [31:0] trap_handler_addr_reg;
-
-  logic [31:0] if_b_pc_plus_4_reg;
-  logic [31:0] id_pc_plus_4_reg;
-  logic [31:0] ex_pc_plus_4_reg;
-  logic [31:0] mem1_pc_plus_4_reg;
-  logic [31:0] mem2_pc_plus_4_reg;
-  logic [31:0] wb_pc_plus_4;
-
-  logic [31:0] id_insn_reg;
-  logic [31:0] ex_insn_reg;
-  logic [31:0] mem1_insn_reg;
-  logic [31:0] mem2_insn_reg;
-  logic [31:0] wb_insn_reg;
-
-  trap_info_t id_trap_comb;
-  trap_info_t ex_trap_comb;
-  trap_info_t mem1_trap_comb;
-  trap_info_t mem2_trap_comb;
-  trap_info_t wb_trap_comb;
-
-  trap_info_t ex_carried_trap_reg;
-  trap_info_t mem1_carried_trap_reg;
-  trap_info_t mem2_carried_trap_reg;
-  trap_info_t wb_carried_trap_reg;
-
-
-  logic [2:0] id_mem_ltype_comb;
-  logic [2:0] ex_mem_ltype_reg;
-  logic [2:0] mem1_mem_ltype_reg;
-  logic [2:0] mem2_mem_ltype_reg;
-
-  logic id_jump_comb;
-  logic ex_jump_reg;
-
-  logic [31:0] id_rs1_rdata_comb;
-  logic [31:0] id_rs1_regfile_rdata_comb;
-  logic [31:0] ex_rs1_rdata_unforwarded_reg;
-  logic [31:0] ex_rs1_rdata_comb;
-  logic [31:0] mem1_rs1_rdata_reg;
-  logic [31:0] mem2_rs1_rdata_reg;
-  logic [31:0] wb_rs1_rdata_reg;
-
-  logic [31:0] id_rs2_rdata_comb;
-  logic [31:0] id_rs2_regfile_rdata_comb;
-  logic [31:0] ex_rs2_rdata_unforwarded_reg;
-  logic [31:0] ex_rs2_rdata_comb;
-  logic [31:0] mem1_rs2_rdata_reg;
-  logic [31:0] mem2_rs2_rdata_reg;
-  logic [31:0] wb_rs2_rdata_reg;
-
-  logic [4:0] id_rs1_addr_comb;
-  logic [4:0] ex_rs1_addr_raw_reg;
-  logic [4:0] ex_rs1_addr_actual_comb;
-  logic [4:0] mem1_rs1_addr_reg;
-  logic [4:0] mem2_rs1_addr_reg;
-  logic [4:0] wb_rs1_addr_reg;
-
-  logic [4:0] id_rs2_addr_comb;
-  logic [4:0] ex_rs2_addr_raw_reg;
-  logic [4:0] ex_rs2_addr_actual_comb;
-  logic [4:0] mem1_rs2_addr_reg;
-  logic [4:0] mem2_rs2_addr_reg;
-  logic [4:0] wb_rs2_addr_reg;
-
-  // actual csr being read/written
-  logic [11:0] id_csr_addr_comb;
-  logic [11:0] ex_csr_addr_raw_reg;
-  logic [11:0] ex_csr_addr_actual_comb;
-  logic [11:0] mem1_csr_addr_reg;
-  logic [11:0] mem2_csr_addr_reg;
-  logic [11:0] wb_csr_addr_raw_reg;
-  logic [11:0] wb_csr_addr_actual_comb;
-
-  // value used to write to a csr
-  logic [31:0] ex_csr_bitmask_comb;
-
-  // 00 = no csr write, 01 = direct write, 10 = clear bitmask, 11 = set bitmask
-  logic [1:0] id_csr_wr_type_comb;
-  logic [1:0] ex_csr_wr_type_reg;
-  //logic [1:0] mem1_csr_wr_type_reg;
-  //logic [1:0] mem2_csr_wr_type_reg;
-  //logic [1:0] wb_csr_wr_type_reg;
-
-  // 0 = register data value, 1 = immediate data value
-  logic [1:0] id_result_src_comb;
-  logic [1:0] ex_result_src_reg;
-  logic [1:0] mem1_result_src_reg;
-  logic [1:0] mem2_result_src_reg;
-  logic [1:0] wb_result_src_reg;
-
-  // 0 = register data value, 1 = immediate data value
-  logic id_csr_bitmask_sel_comb;
-  logic ex_csr_bitmask_sel_reg;
-
-  // extended immediate value depending on the immediate type
-  logic [31:0] id_imm_ext_comb;
-  logic [31:0] ex_imm_ext_reg;
-
-  // 00 = no write, 01 = word, 10 = half, 11 = byte
-  logic [3:0] mem_wmask_comb;
-  logic [3:0] dmem_wmask;
-  logic [3:0] axil_wmask;
-  logic [3:0] mem2_mem_wmask_reg;
-  logic [3:0] wb_mem_wmask_reg;
-
-  logic [3:0] mem_rmask_comb;
-  logic [3:0] dmem_rmask;
-
-  logic [3:0] axil_rmask;
-  logic [3:0] mem2_axil_rmask_reg;
-  logic [3:0] wb_mem_rmask_reg;
-
-  logic [31:0] mem2_axil_rdata_reg;
-
-  logic [1:0] id_mem_stype_comb;
-  logic [1:0] ex_mem_stype_reg;
-  logic [1:0] mem1_mem_stype_reg;
-
-  // register destination for writes
-  logic [4:0] id_rd_addr_comb;
-  logic [4:0] ex_rd_addr_raw_reg;
-  logic [4:0] ex_rd_addr_actual_comb;
-  logic [4:0] mem1_rd_addr_reg;
-  logic [4:0] mem2_rd_addr_reg;
-  logic [4:0] wb_rd_addr_raw_reg;
-  logic [4:0] wb_rd_addr_actual_comb;
-
-  // result of alu operation depending on the instruction type
-  logic [31:0] ex_alu_result_comb;
-  logic [31:0] mem1_alu_csr_result_reg;
-  logic [31:0] mem2_alu_csr_result_reg;
-  logic [31:0] wb_alu_csr_result_reg;
-
-  // 0 = pc, 1 = register source 1 data
-  logic id_pc_target_alu_src_comb;
-  logic ex_pc_target_alu_src_sel_reg;
-
-  // read data from data memory
-  logic [31:0] mem_rdata_comb;
-  logic [31:0] dmem_rdata_formatted;
-  logic [31:0] wb_mem_rdata_reg;
-
-  logic id_is_jalr_comb;
-  logic ex_is_jalr_reg;
-
-  // o = not a branch instruction, 1 = is a branch instruction
-  logic id_branch_comb;
-  logic ex_branch_reg;
-
-  logic [31:0] ex_mem_wdata_raw_comb;
-  logic [31:0] mem1_mem_wdata_raw_reg;
-
-  logic [3:0] id_alu_control_comb;
-  logic [3:0] ex_alu_control_reg;
-
-  logic id_alu_b_src_comb;
-  logic ex_alu_b_src_sel_reg;
-
-  logic [1:0] id_alu_a_src_comb;
-  logic [1:0] ex_alu_a_src_sel_reg;
-
-  logic [31:0] mem_wdata_comb;
-  logic [31:0] dmem_wdata;
-  logic [31:0] mem2_mem_wdata_reg;
-  logic [31:0] wb_mem_wdata_reg;
-
-  // 0 = not an actual instruction, or stalled.
-  logic if_a_valid_insn_reg;
+  logic if_a_valid_insn_r;
   logic if_a_valid_insn_comb;
-  logic if_b_valid_insn_reg;
-  logic id_valid_insn_reg;
-  logic ex_valid_insn_reg;
-  logic mem1_valid_insn_reg;
-  logic mem2_valid_insn_reg;
-  logic wb_valid_insn_reg;
-
-  // used for rvfi interface
-  logic if_a_intr_reg;
+  logic if_b_valid_insn_r;
+  logic if_a_intr_r;
   logic if_a_intr_comb;
-  logic if_b_intr_reg;
-  logic id_intr_reg;
-  logic ex_intr_reg;
-  logic mem1_intr_reg;
-  logic mem2_intr_reg;
-  logic wb_intr_reg;
+  logic if_b_intr_r;
+  logic [31:0] if_b_pc_rdata_r;
+  logic [31:0] if_b_pc_plus_4_r;
+  logic [31:0] next_pc_comb;
+  logic [31:0] trap_handler_addr_q;
 
-  // INSTRUCTION DECODE specific signals
-  logic [2:0] id_imm_src_comb;
+  rvfi_t if_rvfi;
+  rvfi_t id_rvfi;
+  rvfi_t ex_rvfi;
+  rvfi_t mem_rvfi;
+  rvfi_t wb_rvfi;
+
+  //////////////////////////////////////
+  //
+  //
+  //
+  //
+  // INSTRUCTION DECODE SIGNALS
+  //
+  //
+  //
+  //
+  ///////////////////////////////////////
+  trap_info_t id_trap_d;
+  logic [31:0] id_rs1_rdata_d;
+  logic [31:0] id_rs1_rfile_rdata_comb;
+  logic [31:0] id_rs2_rdata_d;
+  logic [31:0] id_rs2_rfile_rdata_comb;
+  logic [4:0] id_rs1_addr_d;
+  logic [4:0] id_rs2_addr_d;
+  logic [11:0] id_csr_addr_d;
+  logic [31:0] id_imm_ext_d;
+  logic [4:0] id_rd_addr_d;
+  alu_control_t id_alu_control_d;
+
+  // directly taken from instruction word
   logic [6:0] id_op_comb;
   logic [2:0] id_funct3_comb;
   logic id_funct7b5_comb;
@@ -329,14 +155,54 @@ module dtcore32 #(
   logic id_itype_alt_comb;
   logic id_forward_a_comb;
   logic id_forward_b_comb;
-  logic id_valid_rs1_addr_comb;
-  logic id_valid_rs2_addr_comb;
-  logic id_valid_rd_addr_comb;
-  logic [30:0] maindec_mcause_comb;
-  logic maindec_trap_valid_comb;
+  logic id_rs1_valid_comb;
+  logic id_rs2_valid_comb;
+  logic id_rd_valid_comb;
+  logic [30:0] id_maindec_mcause_comb;
+  logic id_maindec_trap_valid_comb;
+
+  mem_op_t id_mem_op_d;
+  cf_op_t id_cf_op_d;
+  csr_op_t id_csr_op_d;
+  imm_ext_op id_imm_ext_op;
+  alu_control_t id_alu_control;
+  alu_a_sel_t id_alu_a_sel_d;
+  alu_b_sel_t id_alu_b_sel_d;
+  pc_alu_sel_t id_pc_alu_sel_d;
+  result_sel_t id_result_sel_d;
+  csr_bitmask_sel_t id_csr_bitmask_sel_d;
 
 
-  // EXECUTE stage specific signals
+  //////////////////////////////////////
+  //
+  //
+  //
+  //
+  // INSTRUCTION EXECUTE SIGNALS
+  //
+  //
+  //
+  //
+  ///////////////////////////////////////
+
+  logic [31:0] ex_pc_rdata_q;
+  logic [31:0] ex_pc_wdata_d;
+  logic [31:0] ex_pc_plus_4_q;
+  logic [31:0] ex_insn_q;
+  trap_info_t ex_trap_d;
+  trap_info_t ex_carried_trap_q;
+  logic [31:0] ex_rs1_rdata_q;
+  logic [31:0] ex_rs1_rdata_d;
+  logic [31:0] ex_rs2_rdata_q;
+  logic [31:0] ex_rs2_rdata_d;
+  logic [4:0] ex_rs1_addr_q;
+  logic [4:0] ex_rs1_addr_d;
+  logic [4:0] ex_rs2_addr_q;
+  logic [4:0] ex_rs2_addr_d;
+  logic [11:0] ex_csr_addr_q;
+  logic [11:0] ex_csr_addr_d;
+  logic [31:0] ex_csr_bitmask_comb;
+  logic [31:0] ex_imm_ext_q;
   logic [2:0] ex_forward_a_sel_comb;
   logic [2:0] ex_forward_b_sel_comb;
   logic ex_pc_src_raw_comb;
@@ -348,32 +214,124 @@ module dtcore32 #(
   logic [31:0] ex_pc_target_src_a_comb;
   logic ex_branch_cond_comb;
   logic ex_misaligned_jump_or_branch_comb;
+  logic [31:0] ex_csr_rdata_q;
+  logic [4:0] ex_rd_addr_q;
+  logic [4:0] ex_rd_addr_d;
+  logic [31:0] ex_store_wdata_raw_comb;
+  logic ex_valid_q;
+  logic ex_intr_q;
+  logic [31:0] ex_alu_result_comb;
+  logic ex_load_trap_valid;
+  logic [30:0] ex_store_mcause;
+  logic ex_store_trap_valid;
+  logic [30:0] ex_load_trap_mcause;
+  logic [31:0] ex_alu_csr_result_d;
 
-  // DATA MEMORY stage specific signals
-  logic MEM_misaligned_store;
+  logic [31:0] ex_store_wdata_d;
+  logic [3:0] ex_store_wmask_d;
+  logic ex_load_is_signed_d;
+  logic [3:0] ex_load_rmask_d;
 
-  // WRITEBACK stage specific signals
-  logic [31:0] ex_csr_rdata_reg;
-  logic [31:0] mem1_csr_rdata_reg;
-  logic [31:0] mem2_csr_rdata_reg;
-  logic [31:0] wb_csr_rdata_reg;
-  logic [31:0] wb_result_comb;
+  cpu_control_t ex_cpu_control_q;
 
+
+  ///////////////////////////////////////
+  //
+  //
+  //
+  //
+  // DATA MEMORY STAGE
+  //
+  //
+  //
+  //
+  ///////////////////////////////////////
+
+  logic [31:0] mem_pc_rdata_r;
+  logic [31:0] mem_pc_plus_4_r;
+  logic [31:0] mem_insn_r;
+  trap_info_t mem_trap_d;
+  trap_info_t mem_carried_trap_r;
+  mem_op_t mem_mem_op_r;
+  logic mem_misaligned_store;
+  logic [31:0] mem_csr_rdata_r;
+  logic [31:0] mem_csr_wdata_r;
+  logic [31:0] mem_rs1_rdata_r;
+  logic [31:0] mem_rs2_rdata_r;
+  logic [4:0] mem_rs1_addr_r;
+  logic [4:0] mem_rs2_addr_r;
+  logic [11:0] mem_csr_addr_r;
+  logic [1:0] mem_result_src_r;
+  logic [3:0] mem_store_wmask_d;
+  logic [3:0] mem_axil_rmask_r;
+  logic [31:0] mem_alu_csr_result_r;
+  logic [3:0] ex_dmem_wmask;
+  logic [3:0] mem_dmem_wmask;
+  logic [3:0] axil_wmask;
+  logic [3:0] axil_rmask;
+  logic [3:0] mem_load_rmask_d;
+  logic [3:0] dmem_rmask;
+  logic [3:0] ex_dmem_rmask;
+  logic [31:0] mem_axil_rdata_r;
+  logic [4:0] mem_rd_addr_r;
+  logic [31:0] mem_load_rdata_d;
+  logic [31:0] dmem_rdata_formatted;
+  logic [31:0] mem_dmem_wdata_raw_r;
+  logic [31:0] mem_dmem_wdata;
+  logic mem_intr_r;
+  logic mem_valid_insn_r;
+  logic [31:0] axil_addr;
+  logic mem_dmem_read_valid_raw_r;
+  logic mem_axil_read_valid_raw_r;
+  logic mem_dmem_read_valid_actual_comb;
+  logic mem_axil_read_valid_actual_comb;
+  logic dmem_actual_en;
+  logic axil_actual_en;
+  logic dmem_raw_en;
+  logic axil_raw_en;
+
+  logic [31:0] mem_store_wdata_d;
+  logic [3:0] mem_store_wmask_r;
+  logic mem_load_is_signed_r;
+  logic [3:0] mem_load_rmask_r;
+
+  cpu_control_t mem_cpu_control_r;
+
+  ///////////////////////////////////////
+  //
+  //
+  //
+  //
+  // WRITEBACK SIGNALS
+  //
+  //
+  //
+  //
+  ///////////////////////////////////////
+  logic [4:0] wb_rd_addr_masked;
+  logic [31:0] wb_rd_wdata_masked;
   logic [31:0] wb_rd_wdata_comb;
-
   logic [31:0] wb_csr_rmask_comb;
   logic [31:0] wb_csr_wmask_comb;
+  logic [31:0] ex_csr_wdata_d;
+  trap_info_t wb_trap_d;
+  cpu_control_t wb_cpu_control_r;
 
-  logic [31:0] ex_csr_wdata_comb;
-  logic [31:0] mem1_csr_wdata_reg;
-  logic [31:0] mem2_csr_wdata_reg;
-  logic [31:0] wb_csr_wdata_reg;
 
-  logic MEM2_load_trap_valid;
-  logic [30:0] MEM2_load_trap_code;
 
-  logic [30:0] MEM1_store_trap_code;
-  logic mem1_store_trap_valid;
+
+  // hazard unit signals
+  // stops signals from propagating through the pipeline
+  logic if_id_stall;
+  logic id_ex_stall;
+  logic ex_mem_stall;
+  logic mem_wb_stall;
+
+  // resets the pipeline to control signals of a NOP instruction
+  logic if_id_flush;
+  logic id_ex_flush;
+  logic ex_mem_flush;
+  logic mem_wb_flush;
 
   //////////////////////////////////////
   //
@@ -381,7 +339,7 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  logic [31:0] if_b_pc_rdata_reg;
+
   logic [31:0] pc_plus_4;
   logic [31:0] START_ADDR;
   assign START_ADDR = 32'd0;
@@ -404,45 +362,36 @@ module dtcore32 #(
     endcase
   end
 
-  assign if_a_intr_comb = wb_trap_comb.valid ? 1 : 0;
-  assign if_a_pc_rdata_comb = wb_trap_comb.valid ? trap_handler_addr_reg : next_pc_comb;
+  assign if_a_intr_comb = wb_trap_d.valid ? 1 : 0;
+  assign if_a_pc_rdata_comb = wb_trap_d.valid ? trap_handler_addr_q : next_pc_comb;
 
   // pc incremented by 4
-  assign pc_plus_4 = if_a_pc_rdata_reg + 4;
+  assign pc_plus_4 = if_a_pc_rdata_r + 4;
 
   // register A 
   always_ff @(posedge CLK) begin
     if (RST) begin
-      if_a_pc_rdata_reg <= 0;
-      if_a_intr_reg <= 0;
-      if_a_valid_insn_reg <= 0;
-    end else if (wb_trap_comb.valid) begin  // jump to trap handler if retired instrucion has a trap
-      if_a_pc_rdata_reg <= trap_handler_addr_reg;
-      if_a_intr_reg <= 1;
-      if_a_valid_insn_reg <= 1;
+      if_a_pc_rdata_r <= 0;
+      if_a_intr_r <= 0;
+      if_a_valid_insn_r <= 0;
     end else if (!if_id_stall) begin
-      if_a_pc_rdata_reg <= next_pc_comb;
-      if_a_intr_reg <= 0;
-      if_a_valid_insn_reg <= 1;
+      if_a_pc_rdata_r <= next_pc_comb;
+      if_a_intr_r <= 0;
+      if_a_valid_insn_r <= 1;
     end
   end
   // register B
   always_ff @(posedge CLK) begin
     if (RST) begin
-      if_b_pc_rdata_reg <= START_ADDR;
-      if_b_pc_plus_4_reg <= START_ADDR + 4;
-      if_b_intr_reg <= 0;
-      if_b_valid_insn_reg <= 1;
-    end else if (if_id_flush) begin
-      if_b_pc_rdata_reg <= 0;
-      if_b_pc_plus_4_reg <= 0;
-      if_b_intr_reg <= 0;
-      if_b_valid_insn_reg <= 0;
+      if_b_pc_rdata_r <= START_ADDR;
+      if_b_pc_plus_4_r <= START_ADDR + 4;
+      if_b_intr_r <= 0;
+      if_b_valid_insn_r <= 1;
     end else if (!if_id_stall) begin
-      if_b_pc_rdata_reg <= if_a_pc_rdata_reg;
-      if_b_pc_plus_4_reg <= pc_plus_4;
-      if_b_intr_reg <= if_a_intr_reg;
-      if_b_valid_insn_reg <= if_a_valid_insn_reg;
+      if_b_pc_rdata_r <= if_a_pc_rdata_r;
+      if_b_pc_plus_4_r <= pc_plus_4;
+      if_b_intr_r <= if_a_intr_r;
+      if_b_valid_insn_r <= if_a_valid_insn_r;
     end
   end
 
@@ -454,87 +403,80 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  assign id_op_comb = id_insn_reg[6:0];
-  assign id_funct3_comb = id_insn_reg[14:12];
-  assign id_funct7b5_comb = id_insn_reg[30];
-  assign id_funct7_comb = id_insn_reg[31:25];
-  assign id_funct12_comb = id_insn_reg[31:20];
+  assign id_op_comb = id_pipeline.insn[6:0];
+  assign id_funct3_comb = id_pipeline.insn[14:12];
+  assign id_funct7b5_comb = id_pipeline.insn[30];
+  assign id_funct7_comb = id_pipeline.insn[31:25];
+  assign id_funct12_comb = id_pipeline.insn[31:20];
 
   assign id_rtype_alt_comb = id_op_comb[5] & id_funct7b5_comb;
   assign id_itype_alt_comb = ~id_op_comb[5] & id_funct7b5_comb;
-  assign id_rs1_addr_comb = (id_valid_rs1_addr_comb) ? id_insn_reg[19:15] : 0;
-  assign id_rs2_addr_comb = (id_valid_rs2_addr_comb) ? id_insn_reg[24:20] : 0;
-  assign id_rd_addr_comb = (id_valid_rd_addr_comb) ? id_insn_reg[11:7] : 0;
-  assign id_csr_addr_comb = (id_valid_insn_reg) ? id_insn_reg[31:20] : 0;
+  assign id_rs1_addr_d = (id_cpu_control_comb.rs1_valid) ? id_pipeline.insn[19:15] : 0;
+  assign id_rs2_addr_d = (id_cpu_control_comb.rs2_valid) ? id_pipeline.insn[24:20] : 0;
+  assign id_rd_addr_d = (id_cpu_control_comb.rd_valid) ? id_pipeline.insn[11:7] : 0;
+  assign id_csr_addr_d = (id_pipeline.valid) ? id_pipeline.insn[31:20] : 0;
 
   // select forwarded rs1 or rs2 rdata if needed
-  assign id_rs1_rdata_comb = id_forward_a_comb ? wb_rd_wdata_comb : id_rs1_regfile_rdata_comb;
-  assign id_rs2_rdata_comb = id_forward_b_comb ? wb_rd_wdata_comb : id_rs2_regfile_rdata_comb;
+  assign id_rs1_rdata_d = id_forward_a_comb ? wb_rd_wdata_masked : id_rs1_rfile_rdata_comb;
+  assign id_rs2_rdata_d = id_forward_b_comb ? wb_rd_wdata_masked : id_rs2_rfile_rdata_comb;
 
+  decoder decoder_inst (
+      .OP(id_op_comb),
+      .FUNCT3(id_funct3_comb),
+      .FUNCT7(id_funct7_comb),
+      .FUNCT12(id_funct12_comb),
+      .RS1_ADDR(id_rs1_addr_d),
+      .RD_ADDR(id_rd_addr_d),
+      .RTYPE_ALT(id_rtype_alt_comb),
+      .ITYPE_ALT(id_itype_alt_comb),
+      .RD_VALID(id_rd_valid_comb),
+      .RS1_VALID(id_rs1_valid_comb),
+      .RS2_VALID(id_rs2_valid_comb),
+      .MEM_OP(id_mem_op_d),
+      .CF_OP(id_cf_op_d),
+      .CSR_OP(id_csr_op_d),
+      .ALU_CONTROL(id_alu_control_d),
+      .IMM_EXT_OP(id_imm_ext_op),
+      .ALU_A_SRC(id_alu_a_sel_d),
+      .ALU_B_SRC(id_alu_b_sel_d),
+      .PC_ALU_SRC(id_pc_alu_sel_d),
+      .RESULT_SRC(id_result_sel_d),
+      .CSR_BITMASK_SEL(id_csr_bitmask_sel_d),
+      .TRAP_MCAUSE(id_maindec_mcause_comb),
+      .TRAP_VALID(id_maindec_trap_valid_comb)
 
-  maindec maindec_inst (
-      .op_i(id_op_comb),
-      .funct3_i(id_funct3_comb),
-      .funct7_i(id_funct7_comb),
-      .funct12_i(id_funct12_comb),
-      .rs1_addr_i(id_rs1_addr_comb),
-      .rd_addr_i(id_rd_addr_comb),
-      .valid_rd_addr_o(id_valid_rd_addr_comb),
-      .valid_rs1_addr_o(id_valid_rs1_addr_comb),
-      .valid_rs2_addr_o(id_valid_rs2_addr_comb),
-      .imm_src_o(id_imm_src_comb),
-      .alu_a_src_o(id_alu_a_src_comb),
-      .alu_b_src_o(id_alu_b_src_comb),
-      .mem_stype_o(id_mem_stype_comb),
-      .result_src_o(id_result_src_comb),
-      .branch_o(id_branch_comb),
-      .alu_op_o(id_alu_op_comb),
-      .jump_o(id_jump_comb),
-      .pc_target_alu_src_o(id_pc_target_alu_src_comb),
-      .mem_ltype_o(id_mem_ltype_comb),
-      .csr_wtype_o(id_csr_wr_type_comb),
-      .csr_write_src_o(id_csr_bitmask_sel_comb),
-      .is_jalr_o(id_is_jalr_comb),
-      .trap_mcause_o(maindec_mcause_comb),
-      .trap_valid_o(maindec_trap_valid_comb)
   );
 
   extend extend_inst (
-      .insn_i(id_insn_reg),
-      .imm_src_i(id_imm_src_comb),
-      .imm_ext_o(id_imm_ext_comb)
+      .insn_i(id_pipeline.insn),
+      .IMM_EXT_OP(id_imm_ext_op),
+      .IMM_EXT(id_imm_ext_d)
   );
-  aludec aludec_inst (
-      .alu_op_i(id_alu_op_comb),
-      .rtype_alt_i(id_rtype_alt_comb),
-      .itype_alt_i(id_itype_alt_comb),
-      .funct3_i(id_funct3_comb),
-      .alu_control_o(id_alu_control_comb)
-  );
+
   // register file
   regfile regfile_inst (
       .clk_i(CLK),
       .rst_i(RST),
-      .rs1_addr_i(id_rs1_addr_comb),
-      .rs2_addr_i(id_rs2_addr_comb),
-      .rd_addr_i(wb_rd_addr_actual_comb),
-      .reg_wr_data_i(wb_rd_wdata_comb),
-      .rs1_rdata_o(id_rs1_regfile_rdata_comb),
-      .rs2_rdata_o(id_rs2_regfile_rdata_comb)
+      .rs1_addr_i(id_rs1_addr_d),
+      .rs2_addr_i(id_rs2_addr_d),
+      .rd_addr_i(wb_rd_addr_masked),
+      .reg_wr_data_i(wb_rd_wdata_masked),
+      .rs1_rdata_o(id_rs1_rfile_rdata_comb),
+      .rs2_rdata_o(id_rs2_rfile_rdata_comb)
   );
 
 
   csrfile csrfile_inst (
       .CLK(CLK),
       .RST(RST),
-      .WB_RD_ADDR(wb_rd_addr_actual_comb),
-      .CSR_RADDR(id_csr_addr_comb),
-      .CSR_WADDR(wb_csr_addr_actual_comb),
-      .CSR_WDATA(wb_csr_wdata_reg),
-      .WB_VALID_INSN(wb_valid_insn_reg),
-      .WB_TRAP(wb_trap_comb),
-      .TRAP_HANDLER_ADDR(trap_handler_addr_reg),
-      .CSR_RDATA_REG(ex_csr_rdata_reg),
+      .WB_RD_ADDR(wb_rd_addr_masked),
+      .CSR_RADDR(id_csr_addr_d),
+      .CSR_WADDR(wb_csr_addr_masked),
+      .CSR_WDATA(wb_pipeline.csr_wdata),
+      .WB_VALID_INSN(wb_pipeline.valid),
+      .WB_TRAP(wb_trap_d),
+      .TRAP_HANDLER_ADDR(trap_handler_addr_q),
+      .CSR_RDATA_REG(ex_csr_rdata_q),
       .CSR_RMASK(wb_csr_rmask_comb),
       .CSR_WMASK(wb_csr_wmask_comb)
   );
@@ -552,126 +494,150 @@ module dtcore32 #(
   ///////////////////////////////////////
   logic [31:0] ex_pc_target_raw_comb;
 
-  assign ex_rs1_rdata_comb = ex_src_a_tick_comb;
-  assign ex_rs2_rdata_comb = ex_mem_wdata_raw_comb;
-  assign ex_pc_src_raw_comb = (ex_jump_reg | (ex_branch_reg & ex_branch_cond_comb));
+  assign ex_rs1_rdata_d = ex_src_a_tick_comb;
+  assign ex_rs2_rdata_d = ex_store_wdata_raw_comb;
+  assign ex_pc_src_raw_comb = (ex_cpu_control_q.cf_op[0] | (ex_cpu_control_q.cf_op[1] & ex_branch_cond_comb));
 
-  assign ex_pc_wdata_comb = (ex_pc_src_actual_comb) ? ex_pc_target_actual_comb : ex_pc_plus_4_reg;
+  assign ex_pc_wdata_d = (ex_pc_src_actual_comb) ? ex_pc_target_actual_comb : ex_pc_plus_4_q;
   // trap if a jump or branch address is misaligned
   //assign ex_misaligned_jump_or_branch_comb = ex_pc_src_actual_comb & (next_pc_comb[1] | next_pc_comb[0]);
   assign ex_misaligned_jump_or_branch_comb = ex_pc_src_actual_comb & (next_pc_comb[1] | next_pc_comb[0]);
 
-  assign ex_pc_target_raw_comb = ex_pc_target_src_a_comb + ex_imm_ext_reg;
-  assign ex_pc_target_actual_comb     = ex_is_jalr_reg ? (ex_pc_target_raw_comb & ~(1)) : ex_pc_target_raw_comb;
+  assign ex_pc_target_raw_comb = ex_pc_target_src_a_comb + ex_imm_ext_q;
+  assign ex_pc_target_actual_comb     = (ex_cpu_control_q.cf_op == CF_JALR) ? (ex_pc_target_raw_comb & ~(1)) : ex_pc_target_raw_comb;
 
   // disable ex stage if trap propagates from previous stage
   // disable jumps, and set all register addresses to zero
-  assign ex_rs1_addr_actual_comb = ex_carried_trap_reg.valid ? 0 : ex_rs1_addr_raw_reg;
-  assign ex_rs2_addr_actual_comb = ex_carried_trap_reg.valid ? 0 : ex_rs2_addr_raw_reg;
-  assign ex_rd_addr_actual_comb = ex_carried_trap_reg.valid ? 0 : ex_rd_addr_raw_reg;
-  assign ex_csr_addr_actual_comb = ex_carried_trap_reg.valid ? 0 : ex_csr_addr_raw_reg;
-  assign ex_pc_src_actual_comb = ex_carried_trap_reg.valid ? 0 : ex_pc_src_raw_comb;
+  assign ex_rs1_addr_d = ex_carried_trap_q.valid ? 0 : ex_rs1_addr_q;
+  assign ex_rs2_addr_d = ex_carried_trap_q.valid ? 0 : ex_rs2_addr_q;
+  assign ex_rd_addr_d = ex_carried_trap_q.valid ? 0 : ex_rd_addr_q;
+  assign ex_csr_addr_d = ex_carried_trap_q.valid ? 0 : ex_csr_addr_q;
+  assign ex_pc_src_actual_comb = ex_carried_trap_q.valid ? 0 : ex_pc_src_raw_comb;
   // alu input 1 data path
   // select reg 1 data or data forwarded from WB or MEM stage
   always_comb begin
     case (ex_forward_a_sel_comb)
-      FORWARD_SEL_NO_FORWARD:      ex_src_a_tick_comb = ex_rs1_rdata_unforwarded_reg;
-      FORWARD_SEL_MEM1_ALU_RESULT: ex_src_a_tick_comb = mem1_alu_csr_result_reg;
-      FORWARD_SEL_MEM2_ALU_RESULT: ex_src_a_tick_comb = mem2_alu_csr_result_reg;
-      FORWARD_SEL_MEM2_MEM_RDATA:  ex_src_a_tick_comb = mem_rdata_comb;
-      FORWARD_SEL_WB_RESULT:       ex_src_a_tick_comb = wb_result_comb;
-      default:                     ex_src_a_tick_comb = 0;
+      NO_FORWARD_SEL:             ex_src_a_tick_comb = ex_rs1_rdata_q;
+      FORWARD_SEL_MEM_ALU_RESULT: ex_src_a_tick_comb = mem_alu_csr_result_r;
+      FORWARD_SEL_MEM_LOAD_RDATA: ex_src_a_tick_comb = mem_load_rdata_d;
+      FORWARD_SEL_WB_RESULT:      ex_src_a_tick_comb = wb_rd_wdata_masked;
+      default:                    ex_src_a_tick_comb = 0;
     endcase
   end
   // select data from first mux, zero, or pc
   always_comb begin
-    case (ex_alu_a_src_sel_reg)
-      ALU_A_SRC_SELECT_REG_DATA: ex_src_a_comb = ex_src_a_tick_comb;
-      ALU_A_SRC_SELECT_ZERO:     ex_src_a_comb = 0;
-      ALU_A_SRC_SELECT_PC:       ex_src_a_comb = ex_pc_rdata_reg;
-      default:                   ex_src_a_comb = 0;
+    case (ex_cpu_control_q.alu_a_src)
+      ALU_A_SEL_REG_DATA: ex_src_a_comb = ex_src_a_tick_comb;
+      ALU_A_SEL_ZERO:     ex_src_a_comb = 0;
+      ALU_A_SEL_PC:       ex_src_a_comb = ex_pc_rdata_q;
+      default:            ex_src_a_comb = 0;
     endcase
   end
   // alu input 2 data path
   // select reg 2 data or data forwarded from WB or MEM stage
   always_comb begin
     case (ex_forward_b_sel_comb)
-      FORWARD_SEL_NO_FORWARD:      ex_mem_wdata_raw_comb = ex_rs2_rdata_unforwarded_reg;
-      FORWARD_SEL_MEM1_ALU_RESULT: ex_mem_wdata_raw_comb = mem1_alu_csr_result_reg;
-      FORWARD_SEL_MEM2_ALU_RESULT: ex_mem_wdata_raw_comb = mem2_alu_csr_result_reg;
-      FORWARD_SEL_MEM2_MEM_RDATA:  ex_mem_wdata_raw_comb = mem_rdata_comb;
-      FORWARD_SEL_WB_RESULT:       ex_mem_wdata_raw_comb = wb_result_comb;
-      default:                     ex_mem_wdata_raw_comb = 0;
+      NO_FORWARD_SEL:             ex_store_wdata_raw_comb = ex_rs2_rdata_q;
+      FORWARD_SEL_MEM_ALU_RESULT: ex_store_wdata_raw_comb = mem_alu_csr_result_r;
+      FORWARD_SEL_MEM_LOAD_RDATA: ex_store_wdata_raw_comb = mem_load_rdata_d;
+      FORWARD_SEL_WB_RESULT:      ex_store_wdata_raw_comb = wb_rd_wdata_masked;
+      default:                    ex_store_wdata_raw_comb = 0;
     endcase
   end
   // select data from first mux, or extended immediate
   always_comb begin
-    unique case (ex_alu_b_src_sel_reg)
-      ALU_B_SRC_SELECT_REG_DATA: ex_src_b_comb = ex_mem_wdata_raw_comb;
-      ALU_B_SRC_SELECT_IMM:      ex_src_b_comb = ex_imm_ext_reg;
+    unique case (ex_cpu_control_q.alu_b_src)
+      ALU_B_SEL_REG_DATA: ex_src_b_comb = ex_store_wdata_raw_comb;
+      ALU_B_SEL_IMM:      ex_src_b_comb = ex_imm_ext_q;
     endcase
   end
   // select base address for branch/jump address, selecting either
   // the current pc or reg1_data.
   always_comb begin
-    unique case (ex_pc_target_alu_src_sel_reg)
-      PC_TARGET_ALU_SRC_SELECT_PC:       ex_pc_target_src_a_comb = ex_pc_rdata_reg;
-      PC_TARGET_ALU_SRC_SELECT_REG_DATA: ex_pc_target_src_a_comb = ex_src_a_tick_comb;
+    unique case (ex_cpu_control_q.pc_alu_src)
+      PC_ALU_SEL_PC:          ex_pc_target_src_a_comb = ex_pc_rdata_q;
+      PC_ALU_SELECT_REG_DATA: ex_pc_target_src_a_comb = ex_src_a_tick_comb;
     endcase
   end
   // select write value to be used in a csr instruction
   always_comb begin
-    unique case (ex_csr_bitmask_sel_reg)
-      CSR_SRC_SELECT_REG_DATA: ex_csr_bitmask_comb = ex_src_a_tick_comb;
-      CSR_SRC_SELECT_IMM:      ex_csr_bitmask_comb = ex_imm_ext_reg;
+    unique case (ex_cpu_control_q.csr_bitmask_sel)
+      CSR_BITMASK_SEL_REG_DATA: ex_csr_bitmask_comb = ex_src_a_tick_comb;
+      CSR_BITMASK_SEL_IMM:      ex_csr_bitmask_comb = ex_imm_ext_q;
     endcase
   end
 
   always_comb begin
-    ex_csr_wdata_comb = 0;
-    case (ex_csr_wr_type_reg)
-      CSR_WRITE_RAW_VALUE:      ex_csr_wdata_comb = ex_csr_bitmask_comb;
-      CSR_WRITE_CLEAR_BIT_MASK: ex_csr_wdata_comb = (ex_csr_rdata_reg & ~ex_csr_bitmask_comb);
-      CSR_WRITE_SET_BIT_MASK:   ex_csr_wdata_comb = (ex_csr_rdata_reg | ex_csr_bitmask_comb);
-      default:                  ;
+    ex_csr_wdata_d = 0;
+    case (ex_cpu_control_q.csr_op)
+      CSR_WRITE: ex_csr_wdata_d = ex_csr_bitmask_comb;
+      CSR_CLEAR: ex_csr_wdata_d = (ex_csr_rdata_q & ~ex_csr_bitmask_comb);
+      CSR_SET:   ex_csr_wdata_d = (ex_csr_rdata_q | ex_csr_bitmask_comb);
+      default:   ;
     endcase
   end
 
-  logic [31:0] ex_alu_csr_result_comb;
-  assign ex_alu_csr_result_comb = (|ex_csr_wr_type_reg) ? ex_csr_rdata_reg : ex_alu_result_comb;
+
+  assign ex_alu_csr_result_d = (ex_cpu_control_q.csr_op != CSR_NONE) ? ex_csr_rdata_q : ex_alu_result_comb;
 
   alu alu_inst (
       .a_i(ex_src_a_comb),
       .b_i(ex_src_b_comb),
-      .control_i(ex_alu_control_reg),
+      .control_i(ex_cpu_control_q.alu_control),
       .branch_cond_o(ex_branch_cond_comb),
       .result_o(ex_alu_result_comb)
   );
 
+  // format store data for MEM stage
+  store_unit store_unit_inst (
+      .MEM_OP(ex_mem_op_r),
+      .ADDR_LSB2(ex_alu_csr_result_d[1:0]),
+      .STORE_WDATA_UNFORMATTED(ex_store_wdata_raw_comb),
+      .STORE_TRAP_VALID(ex_store_trap_valid),
+      .STORE_TRAP_MCAUSE(ex_store_mcause),
+      .STORE_WMASK(ex_store_wmask_d),
+      .STORE_WDATA(ex_store_wdata_d)
+  );
 
-  //////////////////////////////////////
+
+  load_unit load_unit_inst (
+      .MEM_OP(ex_cpu_control_q.mem_op),
+      .ADDR_LSB2(ex_alu_csr_result_d[1:0]),
+      .LOAD_TRAP_VALID(ex_load_trap_valid),
+      .LOAD_TRAP_MCAUSE(ex_load_trap_mcause),
+      .LOAD_RMASK(ex_load_rmask_d),
+      .LOAD_IS_SIGNED(ex_load_is_signed_d)
+  );
+
+  ///////////////////////////////////////
   //
-  //  DATA MEMORY 1 STAGE
+  //
+  //
+  //
+  // DATA MEMORY STAGE
+  //
+  //
   //
   //
   ///////////////////////////////////////
 
-  logic dmem_actual_en;
-  logic axil_actual_en;
-  logic dmem_raw_en;
-  logic axil_raw_en;
+  always_ff @(posedge CLK) begin
+    if (RST) begin
+      mem_axil_rdata_r <= 0;
+      mem_dmem_read_valid_raw_r <= 0;
+      mem_axil_read_valid_raw_r <= 0;
+      mem_axil_rmask_r <= 0;
+    end else begin
+      mem_axil_rdata_r <= AXIL_TRANSACTION_RDATA;
+      mem_dmem_read_valid_raw_r <= dmem_actual_en;
+      mem_axil_read_valid_raw_r <= AXIL_DONE_READ;
+      mem_axil_rmask_r <= axil_rmask;
+    end
+  end
 
-  assign dmem_actual_en = mem1_carried_trap_reg.valid ? 0 : dmem_raw_en;
-  assign axil_actual_en = mem1_carried_trap_reg.valid ? 0 : axil_raw_en;
-  assign DMEM_EN = dmem_actual_en;
-
-  // enables DMEM or AXIL
-  mem_router #(
-      .ADDR_WIDTH(32)
-  ) mem_router_inst (
-      .MEM1_ALU_RESULT(mem1_alu_csr_result_reg),
-      .MEM1_MEM_LTYPE(mem1_mem_ltype_reg),
-      .MEM1_MEM_STYPE(mem1_mem_stype_reg),
+  mem_router mem_router_inst (
+      .MEM_ALU_RESULT(mem_alu_csr_result_r),
+      .MEM_OP(mem_mem_op_r),
       .DMEM_EN(dmem_raw_en),
       .AXIL_EN(axil_raw_en),
       .AXIL_ADDR(axil_addr)
@@ -683,10 +649,9 @@ module dtcore32 #(
       .CLK(CLK),
       .RST(RST),
       .EN(axil_actual_en),
-      .MEM1_ALU_RESULT(mem1_alu_csr_result_reg),
-      .MEM1_MEM_LTYPE(mem1_mem_ltype_reg),
-      .MEM1_MEM_STYPE(mem1_mem_stype_reg),
-      .MEM1_WDATA_RAW(mem1_mem_wdata_raw_reg),
+      .MEM1_ALU_RESULT(mem_alu_csr_result_r),
+      .MEM_OP(mem_mem_op_r),
+      .MEM_WDATA_RAW(mem_store_wdata_d),
       .AXIL_ADDR(axil_addr),
       .AXIL_DONE_READ(AXIL_DONE_READ),
       .AXIL_DONE_WRITE(AXIL_DONE_WRITE),
@@ -698,66 +663,46 @@ module dtcore32 #(
       .AXIL_TRANSACTION_WSTRB(AXIL_TRANSACTION_WSTRB),
       .AXIL_TRANSACTION_RADDR(AXIL_TRANSACTION_RADDR)
   );
-  assign axil_rmask = 4'hf;
+
   // disable dmem if address maps to axil peripheral
-
-  store_unit store_unit_inst (
-      .en(dmem_actual_en),
-      .store_size_i(mem1_mem_stype_reg),
-      .addr_lsb2_i(mem1_alu_csr_result_reg[1:0]),
-      .wdata_unformatted_i(mem1_mem_wdata_raw_reg),
-      .store_trap_o(mem1_store_trap_valid),
-      .trap_code_o(MEM1_store_trap_code),
-      .wmask_o(dmem_wmask),
-      .wdata_formatted_o(dmem_wdata)
-  );
-
+  logic [31:0] mem_actual_store_wdata_comb;
+  logic [31:0] mem_actual_store_wmask_comb;
+  logic [31:0] mem_actual_load_rdata_comb;
+  logic [31:0] mem_actual_load_rmask_comb;
 
   // select dmem write data OR axil write data OR neither
   always_comb begin
-    mem_wdata_comb = 0;
-    mem_wmask_comb = 0;
+    mem_actual_store_wdata_comb = 0;
+    mem_actual_store_wmask_comb = 0;
     if (dmem_actual_en) begin
-      mem_wdata_comb = dmem_wdata;
-      mem_wmask_comb = dmem_wmask;
+      mem_actual_store_wdata_comb = mem_dmem_wdata;
+      mem_actual_store_wmask_comb = mem_dmem_wmask;
     end else if (axil_actual_en) begin
-      mem_wdata_comb = AXIL_TRANSACTION_WRDATA;
-      mem_wmask_comb = 4'hf;
+      mem_actual_store_wdata_comb = AXIL_TRANSACTION_WRDATA;
+      mem_actual_store_wmask_comb = 4'hf;
     end
   end
 
-
-  //////////////////////////////////////
-  //
-  //  DATA MEMORY 2 STAGE
-  //
-  //
-  ///////////////////////////////////////
-  assign mem2_axil_read_valid_actual_comb = mem2_carried_trap_reg.valid ? 0 : mem2_axil_read_valid_raw_reg;
-  assign mem2_dmem_read_valid_actual_comb = mem2_carried_trap_reg.valid ? 0 : mem2_dmem_read_valid_raw_reg;
-  load_unit load_unit_inst (
-      .en(mem2_dmem_read_valid_actual_comb),
-      .load_type(mem2_mem_ltype_reg),
-      .addr_lsb2(mem2_alu_csr_result_reg[1:0]),
-      .rdata_unformatted_i(DMEM_RDATA),
-      .load_trap_o(MEM2_load_trap_valid),
-      .load_trap_code_o(MEM2_load_trap_code),
-      .rmask_o(dmem_rmask),
-      .rdata_formatted_o(dmem_rdata_formatted)
-  );
   // select dmem read data OR axil read data OR neither
   always_comb begin
-    mem_rdata_comb = 0;
-    mem_rmask_comb = 0;
-    if (mem2_axil_read_valid_actual_comb) begin
-      mem_rdata_comb = mem2_axil_rdata_reg;
-      mem_rmask_comb = 4'hf;
-    end else if (mem2_dmem_read_valid_actual_comb) begin
-      mem_rdata_comb = dmem_rdata_formatted;
-      mem_rmask_comb = dmem_rmask;
+    mem_actual_load_rdata_comb = 0;
+    mem_actual_load_rmask_comb = 0;
+    if (mem_axil_read_valid_actual_comb) begin
+      mem_actual_load_rdata_comb = AXIL_TRANSACTION_RDATA;
+      mem_actual_load_rmask_comb = 4'hf;
+    end else if (mem_dmem_read_valid_actual_comb) begin
+      mem_actual_load_rdata_comb = dmem_rdata_formatted;
+      mem_actual_load_rmask_comb = dmem_rmask;
     end
   end
 
+  assign axil_rmask = 4'hf;
+  assign dmem_actual_en = mem_carried_trap_r.valid ? 0 : dmem_raw_en;
+  assign axil_actual_en = mem_carried_trap_r.valid ? 0 : axil_raw_en;
+  assign DMEM_EN = dmem_actual_en;
+
+  assign mem_axil_read_valid_actual_comb = mem_carried_trap_r.valid ? 0 : mem_axil_read_valid_raw_r;
+  assign mem_dmem_read_valid_actual_comb = mem_carried_trap_r.valid ? 0 : mem_dmem_read_valid_raw_r;
 
 
   //////////////////////////////////////
@@ -767,18 +712,18 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
   // trap disable logic
-  assign wb_rd_addr_actual_comb = wb_carried_trap_reg.valid ? 0 : wb_rd_addr_raw_reg;
-  assign wb_csr_addr_actual_comb = wb_carried_trap_reg.valid ? 0 : wb_csr_addr_raw_reg;
+  assign wb_rd_addr_masked = wb_pipeline.carried_trap.valid ? 0 : wb_pipeline.rd_addr;
+  assign wb_csr_addr_masked = wb_pipeline.carried_trap.valid ? 0 : wb_pipeline.csr_addr;
 
   // disable register and csr writes for an excepted instruction
   // make sure that instructions that dont write to any register address have x0 as rd and 0 as rd_wdata
-  assign wb_rd_wdata_comb = (wb_rd_addr_actual_comb != 0) ? wb_result_comb : 0;
+  assign wb_rd_wdata_masked = (wb_rd_addr_masked != 0) ? wb_rd_wdata_comb : 0;
   always_comb begin
-    unique case (wb_result_src_reg)
-      2'b00: wb_result_comb = wb_alu_csr_result_reg;
-      2'b01: wb_result_comb = wb_mem_rdata_reg;
-      2'b10: wb_result_comb = wb_pc_plus_4;
-      2'b11: wb_result_comb = wb_csr_rdata_reg;
+    unique case (wb_pipeline.result_sel)
+      2'b00: wb_rd_wdata_comb = wb_pipeline.alu_csr_result;
+      2'b01: wb_rd_wdata_comb = wb_pipeline.load_rdata;
+      2'b10: wb_rd_wdata_comb = wb_pipeline.pc_plus_4;
+      2'b11: wb_rd_wdata_comb = wb_pipeline.csr_rdata;
     endcase
   end
 
@@ -789,237 +734,176 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
 
+  pipeline_t if_pipeline;
+  pipeline_t id_pipeline;
+  pipeline_t ex_pipeline;
+  pipeline_t mem_pipeline;
   //IF/ID
   always_ff @(posedge CLK) begin
     if (RST) begin
-      id_insn_reg <= NOP_INSTRUCTION;
-      id_pc_rdata_reg <= 0;
-      id_pc_plus_4_reg <= 0;
-      id_valid_insn_reg <= 0;
-      id_intr_reg <= 0;
-    end else if (if_id_flush) begin
-      id_insn_reg <= NOP_INSTRUCTION;
-      id_pc_rdata_reg <= 0;
-      id_pc_plus_4_reg <= 0;
-      id_valid_insn_reg <= 0;
-      id_intr_reg <= 0;
+      id_pipeline <= PIPELINE_T_RESET;
     end else if (!if_id_stall) begin
-      if (!if_b_valid_insn_reg) begin
-        id_insn_reg <= NOP_INSTRUCTION;
-        id_pc_rdata_reg <= 0;
-        id_pc_plus_4_reg <= 0;
-        id_valid_insn_reg <= 0;
-        id_intr_reg <= 0;
-      end else begin
-        id_insn_reg <= IMEM_RDATA;
-        id_pc_rdata_reg <= if_b_pc_rdata_reg;
-        id_pc_plus_4_reg <= if_b_pc_plus_4_reg;
-        id_valid_insn_reg <= if_b_valid_insn_reg;
-        id_intr_reg <= if_b_intr_reg;
-      end
+      id_pipeline <= '{
+          pc: if_b_pc_rdata_r,
+          pc_plus_4: if_b_pc_plus_4_r,
+          insn: IMEM_RDATA,
+          //rs1_addr: id_pipeline.rs1_addr,
+          //rs2_addr: id_pipeline.rs2_addr,
+          //rd_addr: id_pipeline.rd_addr,
+          //rs1_data: id_pipeline.rs1_data,
+          //rs2_data: id_pipeline.rs2_data,
+          //imm_ext: id_pipeline.imm_ext,
+          //csr_addr: id_pipeline.csr_addr,
+          //csr_wdata: 0,
+          //csr_rdata: 0,
+          //csr_op: CSR_NONE,
+          //cf_op: CF_NONE,
+          //alu_control:id_pipeline.alu_control,
+          //result_sel: RESULT_SEL_ALU_RESULT,
+          //alu_a_sel: ALU_A_SEL_REG_DATA,
+          //alu_b_sel: ALU_B_SEL_REG_DATA,
+          //pc_alu_sel: PC_ALU_SEL_PC,
+          //csr_bitmask_sel: CSR_BITMASK_SEL_REG_DATA,
+          //mem_op: id_pipeline.mem_op,
+          //load_is_signed: 0,
+          //load_rmask: 0,
+          //store_wdata: 0,
+          //store_wmask: 0,
+          //alu_csr_result: 0,
+          //load_rdata: 0,
+          //pc_wdata: 0,
+          valid:
+          if_b_valid_insn_r,
+          intr: if_b_intr_r
+      //carried_trap:
+      };
     end
   end
   // ID/EX register
   always_ff @(posedge CLK) begin
-    if (RST || id_ex_flush) begin
-      ex_result_src_reg <= 0;
-      ex_mem_ltype_reg <= 0;
-      ex_mem_stype_reg <= 0;
-      ex_jump_reg <= 0;
-      ex_branch_reg <= 0;
-      ex_alu_control_reg <= 0;
-      ex_alu_a_src_sel_reg <= 0;
-      ex_alu_b_src_sel_reg <= 0;
-      ex_pc_target_alu_src_sel_reg <= 0;
-      ex_rs1_rdata_unforwarded_reg <= 0;
-      ex_rs2_rdata_unforwarded_reg <= 0;
-      ex_pc_rdata_reg <= 0;
-      ex_rs1_addr_raw_reg <= 0;
-      ex_rs2_addr_raw_reg <= 0;
-      ex_rd_addr_raw_reg <= 0;
-      ex_imm_ext_reg <= 0;
-      ex_pc_plus_4_reg <= 0;
-      ex_insn_reg <= NOP_INSTRUCTION;
-      ex_csr_addr_raw_reg <= 0;
-      ex_csr_bitmask_sel_reg <= 0;
-      ex_csr_wr_type_reg <= 0;
-      ex_is_jalr_reg <= 0;
-      ex_carried_trap_reg <= '{default: 0};
-      ex_valid_insn_reg <= 0;
-      ex_intr_reg <= 0;
+    if (RST) begin
+      ex_pipeline <= PIPELINE_T_RESET;
     end else if (!id_ex_stall) begin
-      ex_result_src_reg <= id_result_src_comb;
-      ex_mem_ltype_reg <= id_mem_ltype_comb;
-      ex_mem_stype_reg <= id_mem_stype_comb;
-      ex_jump_reg <= id_jump_comb;
-      ex_branch_reg <= id_branch_comb;
-      ex_alu_control_reg <= id_alu_control_comb;
-      ex_alu_a_src_sel_reg <= id_alu_a_src_comb;
-      ex_alu_b_src_sel_reg <= id_alu_b_src_comb;
-      ex_pc_target_alu_src_sel_reg <= id_pc_target_alu_src_comb;
-      ex_rs1_rdata_unforwarded_reg <= id_rs1_rdata_comb;
-      ex_rs2_rdata_unforwarded_reg <= id_rs2_rdata_comb;
-      ex_pc_rdata_reg <= id_pc_rdata_reg;
-      ex_rs1_addr_raw_reg <= id_rs1_addr_comb;
-      ex_rs2_addr_raw_reg <= id_rs2_addr_comb;
-      ex_rd_addr_raw_reg <= id_rd_addr_comb;
-      ex_imm_ext_reg <= id_imm_ext_comb;
-      ex_pc_plus_4_reg <= id_pc_plus_4_reg;
-      ex_insn_reg <= id_insn_reg;
-      ex_carried_trap_reg <= id_trap_comb;
-      ex_csr_addr_raw_reg <= id_csr_addr_comb;
-      ex_csr_bitmask_sel_reg <= id_csr_bitmask_sel_comb;
-      ex_csr_wr_type_reg <= id_csr_wr_type_comb;
-      ex_valid_insn_reg <= id_valid_insn_reg;
-      ex_intr_reg <= id_intr_reg;
-      ex_is_jalr_reg <= id_is_jalr_comb;
+      ex_pipeline <= '{
+          pc: id_pipeline.pc,
+          pc_plus_4: id_pipeline.pc_plus_4,
+          insn: id_pipeline.insn,
+          rs1_addr: id_rs1_addr_d,
+          rs2_addr: id_rs2_addr_d,
+          rd_addr: id_rd_addr_d,
+          rs1_data: id_rs1_rdata_d,
+          rs2_data: id_rs2_rdata_d,
+          imm_ext: id_imm_ext_d,
+          csr_addr: id_csr_addr_d,
+          //csr_wdata: 0,
+          //csr_rdata: 0,
+          csr_op:
+          id_csr_op_d,
+          cf_op: id_cf_op_d,
+          alu_control: id_alu_control_d,
+          result_sel: id_result_sel_d,
+          alu_a_sel: id_alu_a_sel_d,
+          alu_b_sel: id_alu_b_sel_d,
+          pc_alu_sel: id_pc_alu_sel_d,
+          csr_bitmask_sel: id_csr_bitmask_sel_d,
+          mem_op: id_mem_op_d,
+          //load_is_signed: 0,
+          //load_rmask: 0,
+          //store_wdata: 0,
+          //store_wmask: 0,
+          //alu_csr_result: 0,
+          //load_rdata: 0,
+          //pc_wdata: 0,
+          valid:
+          id_pipeline.valid,
+          intr: id_pipeline.intr,
+          carried_trap: id_trap_d
+      };
     end
   end
   // EX/MEM1 register
   always_ff @(posedge CLK) begin
-    if (RST || ex_mem1_flush) begin
-      mem1_result_src_reg <= 0;
-      mem1_mem_ltype_reg <= 0;
-      mem1_mem_stype_reg <= 0;
-      mem1_alu_csr_result_reg <= 0;
-      mem1_mem_wdata_raw_reg <= 0;
-      mem1_rd_addr_reg <= 0;
-      mem1_pc_rdata_reg <= 0;
-      mem1_pc_plus_4_reg <= 0;
-      mem1_insn_reg <= NOP_INSTRUCTION;
-      mem1_csr_addr_reg <= 0;
-      mem1_rs1_rdata_reg <= 0;
-      mem1_rs2_rdata_reg <= 0;
-      mem1_rs1_addr_reg <= 0;
-      mem1_rs2_addr_reg <= 0;
-      mem1_pc_wdata_reg <= 0;
-      mem1_carried_trap_reg <= '{default: 0};
-      mem1_valid_insn_reg <= 0;
-      mem1_intr_reg <= 0;
-      mem1_csr_wdata_reg <= 0;
-      mem1_csr_rdata_reg <= 0;
-    end else if (!ex_mem1_stall) begin
-      mem1_result_src_reg <= ex_result_src_reg;
-      mem1_mem_ltype_reg <= ex_mem_ltype_reg;
-      mem1_mem_stype_reg <= ex_mem_stype_reg;
-      mem1_alu_csr_result_reg <= ex_alu_csr_result_comb;
-      mem1_mem_wdata_raw_reg <= ex_mem_wdata_raw_comb;
-      mem1_rd_addr_reg <= ex_rd_addr_actual_comb;
-      mem1_pc_rdata_reg <= ex_pc_rdata_reg;
-      mem1_pc_plus_4_reg <= ex_pc_plus_4_reg;
-      mem1_carried_trap_reg <= ex_trap_comb;
-      mem1_insn_reg <= ex_insn_reg;
-      mem1_csr_addr_reg <= ex_csr_addr_actual_comb;
-      mem1_valid_insn_reg <= ex_valid_insn_reg;
-      mem1_intr_reg <= ex_intr_reg;
-      mem1_rs1_rdata_reg <= ex_rs1_rdata_comb;
-      mem1_rs2_rdata_reg <= ex_rs2_rdata_comb;
-      mem1_rs1_addr_reg <= ex_rs1_addr_actual_comb;
-      mem1_rs2_addr_reg <= ex_rs2_addr_actual_comb;
-      mem1_pc_wdata_reg <= ex_pc_wdata_comb;
-      mem1_csr_wdata_reg <= ex_csr_wdata_comb;
-      mem1_csr_rdata_reg <= ex_csr_rdata_reg;
+    if (RST) begin
+      mem_pipeline <= PIPELINE_T_RESET;
+    end else if (!ex_mem_stall) begin
+      mem_pipeline <= ex_pipeline <= '{
+          pc: ex_pipeline.pc,
+          pc_plus_4: ex_pipeline.pc_plus_4,
+          insn: ex_pipeline.insn,
+          rs1_addr: ex_rs1_addr_d,
+          rs2_addr: ex_rs2_addr_d,
+          rd_addr: ex_rd_addr_d,
+          rs1_data: ex_rs1_rdata_d,
+          rs2_data: ex_rs2_rdata_d,
+          imm_ext: ex_pipeline.imm_ext,
+          csr_addr: ex_csr_addr_d,
+          csr_wdata: ex_csr_wdata_d,
+          csr_rdata: ex_pipeline.csr_rdata,
+          csr_op:
+          ex_pipeline.csr_op,
+          cf_op: ex_pipeline.cf_op,
+          alu_control: ex_pipeline.alu_control,
+          result_sel: ex_pipeline.result_sel,
+          alu_a_sel: ex_pipeline.alu_a_sel,
+          alu_b_sel: ex_pipeline.alu_b_sel,
+          pc_alu_sel: ex_pipeline.pc_alu_sel,
+          csr_bitmask_sel: ex_pipeline.csr_bitmask_sel,
+          mem_op: ex_pipeline.mem_op,
+          load_is_signed: ex_load_is_signed_d,
+          load_rmask: ex_load_rmask_d,
+          store_wdata: ex_store_wdata_d,
+          store_wmask: ex_store_wmask_d,
+          alu_csr_result: ex_alu_csr_result_d,
+          //load_rdata: 0,
+          pc_wdata:
+          ex_pc_wdata_d,
+          valid: ex_pipeline.valid,
+          intr: ex_pipeline.intr,
+          carried_trap: ex_trap_d
+      };
     end
   end
-  // MEM1/MEM2
+  //MEM/WB
   always_ff @(posedge CLK) begin
-    if (RST || mem1_mem2_flush) begin
-      mem2_result_src_reg <= 0;
-      mem2_mem_ltype_reg <= 0;
-      mem2_alu_csr_result_reg <= 0;
-      mem2_rd_addr_reg <= 0;
-      mem2_pc_rdata_reg <= 0;
-      mem2_pc_plus_4_reg <= 0;
-      mem2_insn_reg <= NOP_INSTRUCTION;
-      mem2_csr_addr_reg <= 0;
-      mem2_rs1_rdata_reg <= 0;
-      mem2_rs2_rdata_reg <= 0;
-      mem2_rs1_addr_reg <= 0;
-      mem2_rs2_addr_reg <= 0;
-      mem2_pc_wdata_reg <= 0;
-      mem2_axil_rdata_reg <= 0;
-      mem2_dmem_read_valid_raw_reg <= 0;
-      mem2_axil_read_valid_raw_reg <= 0;
-      mem2_axil_rmask_reg <= 0;
-      mem2_carried_trap_reg <= '{default: 0};
-      mem2_valid_insn_reg <= 0;
-      mem2_intr_reg <= 0;
-      mem2_csr_wdata_reg <= 0;
-      mem2_csr_rdata_reg <= 0;
-    end else if (!mem1_mem2_stall) begin
-      mem2_result_src_reg <= mem1_result_src_reg;
-      mem2_mem_ltype_reg <= mem1_mem_ltype_reg;
-      mem2_alu_csr_result_reg <= mem1_alu_csr_result_reg;
-      mem2_rd_addr_reg <= mem1_rd_addr_reg;
-      mem2_pc_rdata_reg <= mem1_pc_rdata_reg;
-      mem2_pc_plus_4_reg <= mem1_pc_plus_4_reg;
-      mem2_carried_trap_reg <= mem1_trap_comb;
-      mem2_insn_reg <= mem1_insn_reg;
-      mem2_csr_addr_reg <= mem1_csr_addr_reg;
-      mem2_valid_insn_reg <= mem1_valid_insn_reg;
-      mem2_intr_reg <= mem1_intr_reg;
-      mem2_rs1_rdata_reg <= mem1_rs1_rdata_reg;
-      mem2_rs2_rdata_reg <= mem1_rs2_rdata_reg;
-      mem2_rs1_addr_reg <= mem1_rs1_addr_reg;
-      mem2_rs2_addr_reg <= mem1_rs2_addr_reg;
-      mem2_pc_wdata_reg <= mem1_pc_wdata_reg;
-      mem2_mem_wdata_reg <= mem_wdata_comb;
-      mem2_mem_wmask_reg <= mem_wmask_comb;
-      mem2_axil_rdata_reg <= AXIL_TRANSACTION_RDATA;
-      mem2_dmem_read_valid_raw_reg <= dmem_actual_en;
-      mem2_axil_read_valid_raw_reg <= AXIL_DONE_READ;
-      mem2_axil_rmask_reg <= axil_rmask;
-      mem2_csr_wdata_reg <= mem1_csr_wdata_reg;
-      mem2_csr_rdata_reg <= mem1_csr_rdata_reg;
-    end
-  end
-  //MEM2/WB
-  always_ff @(posedge CLK) begin
-    if (RST || mem2_wb_flush) begin
-      wb_rd_addr_raw_reg <= 0;
-      wb_insn_reg <= NOP_INSTRUCTION;
-      wb_alu_csr_result_reg <= 0;
-      wb_mem_rdata_reg <= 0;
-      wb_pc_rdata_reg <= 0;
-      wb_pc_plus_4 <= 0;
-      wb_result_src_reg <= 0;
-      wb_csr_addr_raw_reg <= 0;
-      wb_rs1_rdata_reg <= 0;
-      wb_rs2_rdata_reg <= 0;
-      wb_rs1_addr_reg <= 0;
-      wb_rs2_addr_reg <= 0;
-      wb_mem_rdata_reg <= 0;
-      wb_mem_rmask_reg <= 0;
-      wb_mem_wdata_reg <= 0;
-      wb_mem_wmask_reg <= 0;
-      wb_pc_wdata_reg <= 0;
-      wb_carried_trap_reg <= '{default: 0};
-      wb_valid_insn_reg <= 0;
-      wb_intr_reg <= 0;
-      wb_csr_wdata_reg <= 0;
-      wb_csr_rdata_reg <= 0;
-    end else if (!mem2_wb_stall) begin
-      wb_rd_addr_raw_reg <= mem2_rd_addr_reg;
-      wb_insn_reg <= mem2_insn_reg;
-      wb_alu_csr_result_reg <= mem2_alu_csr_result_reg;
-      wb_pc_rdata_reg <= mem2_pc_rdata_reg;
-      wb_pc_plus_4 <= mem2_pc_plus_4_reg;
-      wb_result_src_reg <= mem2_result_src_reg;
-      wb_carried_trap_reg <= mem2_trap_comb;
-      wb_csr_addr_raw_reg <= mem2_csr_addr_reg;
-      wb_valid_insn_reg <= mem2_valid_insn_reg;
-      wb_intr_reg <= mem2_intr_reg;
-      wb_rs1_rdata_reg <= mem2_rs1_rdata_reg;
-      wb_rs2_rdata_reg <= mem2_rs2_rdata_reg;
-      wb_rs1_addr_reg <= mem2_rs1_addr_reg;
-      wb_rs2_addr_reg <= mem2_rs2_addr_reg;
-      wb_mem_rdata_reg <= mem_rdata_comb;
-      wb_mem_rmask_reg <= mem_rmask_comb;
-      wb_mem_wdata_reg <= mem2_mem_wdata_reg;
-      wb_mem_wmask_reg <= mem2_mem_wmask_reg;
-      wb_pc_wdata_reg <= mem2_pc_wdata_reg;
-      wb_csr_wdata_reg <= mem2_csr_wdata_reg;
-      wb_csr_rdata_reg <= mem2_csr_rdata_reg;
+    if (RST) begin
+      wb_pipeline <= PIPELINE_T_RESET;
+    end else if (!mem_wb_stall) begin
+      wb_pipeline <= '{
+          pc: wb_pipeline.pc,
+          pc_plus_4: wb_pipeline.pc_plus_4,
+          insn: wb_pipeline.insn,
+          rs1_addr: mem_pipeline.rs1_addr,
+          rs2_addr: mem_pipeline.rs2_addr,
+          rd_addr: mem_pipeline.rd_addr,
+          rs1_data: mem_pipeline.rs1_data,
+          rs2_data: mem_pipeline.rs2_data,
+          imm_ext: mem_pipeline.imm_ext,
+          csr_addr: mem_pipeline.csr_addr,
+          csr_wdata: mem_pipeline.csr_wdata,
+          csr_rdata: mem_pipeline.csr_rdata,
+          csr_op:
+          mem_pipeline.csr_op,
+          cf_op: mem_pipeline.cf_op,
+          //alu_control: mem_pipeline.alu_control,
+          result_sel:
+          mem_pipeline.result_sel,
+          //alu_a_sel: mem_pipeline.alu_a_sel,
+          //alu_b_sel: mem_pipeline.alu_b_sel,
+          //pc_alu_sel: mem_pipeline.pc_alu_sel,
+          //csr_bitmask_sel: mem_pipeline.csr_bitmask_sel,
+          mem_op:
+          mem_pipeline.mem_op,
+          load_is_signed: mem_load_is_signed_d,
+          load_rmask: mem_load_rmask_d,
+          store_wdata: mem_store_wdata_d,
+          store_wmask: mem_store_wmask_d,
+          alu_csr_result: mem_pipeline.alu_csr_result,
+          load_rdata: mem_load_rdata_d,
+          pc_wdata: mem_pipeline.pc_wdata,
+          valid: mem_pipeline.valid,
+          intr: mem_pipeline.intr,
+          carried_trap: mem_trap_d
+      };
     end
   end
 
@@ -1031,14 +915,14 @@ module dtcore32 #(
   ///////////////////////////////////////
   // determine if the instruction generates a trap
   always_comb begin
-    if (maindec_trap_valid_comb) begin
-      id_trap_comb = '{
+    if (id_maindec_trap_valid_comb) begin
+      id_trap_d = '{
           valid: 1,
           is_interrupt: 0,
-          insn: id_insn_reg,
-          mcause: maindec_mcause_comb,
-          pc: id_pc_rdata_reg,
-          next_pc: trap_handler_addr_reg,
+          insn: id_pipeline.insn,
+          mcause: id_maindec_mcause_comb,
+          pc: id_pipeline.pc_rdata,
+          next_pc: trap_handler_addr_q,
           rs1_addr: 0,
           rs2_addr: 0,
           rd_addr: 0,
@@ -1047,80 +931,78 @@ module dtcore32 #(
           rd_wdata: 0
       };
     end else begin
-      id_trap_comb = '{default: 0};
+      id_trap_d = '{default: 0};
     end
   end
 
   always_comb begin
-    if (ex_carried_trap_reg.valid) begin
-      ex_trap_comb = ex_carried_trap_reg;
+    ex_trap_d = '{default: 0};
+    /*
+    if (ex_carried_trap_q.valid) begin
+      ex_trap_d = ex_carried_trap_q;
     end else if (ex_misaligned_jump_or_branch_comb) begin
-      ex_trap_comb = '{
+      ex_trap_d = '{
           valid: 1,
           is_interrupt: 0,
-          insn: ex_insn_reg,
+          insn: ex_insn_q,
           mcause: TRAP_CODE_INSTR_ADDR_MISALIGNED,
-          pc: ex_pc_rdata_reg,
-          next_pc: trap_handler_addr_reg,
-          rs1_addr: ex_rs1_addr_raw_reg,
-          rs2_addr: ex_rs2_addr_raw_reg,
-          rd_addr: ex_rd_addr_raw_reg,
-          rs1_rdata: ex_rs1_rdata_comb,
-          rs2_rdata: ex_rs2_rdata_comb,
+          pc: ex_pc_rdata_q,
+          next_pc: trap_handler_addr_q,
+          rs1_addr: ex_rs1_addr_q,
+          rs2_addr: ex_rs2_addr_q,
+          rd_addr: ex_rd_addr_q,
+          rs1_rdata: ex_rs1_rdata_d,
+          rs2_rdata: ex_rs2_rdata_d,
           rd_wdata: 0
       };
     end else begin
-      ex_trap_comb = '{default: 0};
+      ex_trap_d = '{default: 0};
     end
+      */
   end
 
   always_comb begin
-    if (mem1_carried_trap_reg.valid) begin
-      mem1_trap_comb = mem1_carried_trap_reg;
-    end else if (mem1_store_trap_valid) begin
-      mem1_trap_comb = '{
+    mem_trap_d = '{default: 0};
+    /*
+    if (mem_carried_trap_r.valid) begin
+      mem_trap_d = mem_carried_trap_r;
+    end else if (ex_store_trap_valid) begin
+      mem_trap_d = '{
           valid: 1,
           is_interrupt: 0,
-          insn: mem1_insn_reg,
-          mcause: MEM1_store_trap_code,
-          pc: mem1_pc_rdata_reg,
-          next_pc: trap_handler_addr_reg,
-          rs1_addr: mem1_rs1_addr_reg,
-          rs2_addr: mem1_rs2_addr_reg,
-          rd_addr: mem1_rd_addr_reg,
-          rs1_rdata: mem1_rs1_rdata_reg,
-          rs2_rdata: mem1_rs2_rdata_reg,
+          insn: mem_insn_r,
+          mcause: ex_store_mcause,
+          pc: mem_pc_rdata_r,
+          next_pc: trap_handler_addr_q,
+          rs1_addr: mem_rs1_addr_r,
+          rs2_addr: mem_rs2_addr_r,
+          rd_addr: mem_rd_addr_r,
+          rs1_rdata: mem_rs1_rdata_r,
+          rs2_rdata: mem_rs2_rdata_r,
+          rd_wdata: 0
+      };
+    end else if (ex_load_trap_valid) begin
+      mem_trap_d = '{
+          valid: 1,
+          is_interrupt: 0,
+          insn: mem_insn_r,
+          mcause: ex_load_trap_mcause,
+          pc: mem_pc_rdata_r,
+          next_pc: trap_handler_addr_q,
+          rs1_addr: mem_rs1_addr_r,
+          rs2_addr: mem_rs2_addr_r,
+          rd_addr: mem_rd_addr_r,
+          rs1_rdata: mem_rs1_rdata_r,
+          rs2_rdata: mem_rs2_rdata_r,
           rd_wdata: 0
       };
     end else begin
-      mem1_trap_comb = '{default: 0};
+      mem_trap_d = '{default: 0};
     end
+    */
   end
 
-  always_comb begin
-    if (mem2_carried_trap_reg.valid) begin
-      mem2_trap_comb = mem2_carried_trap_reg;
-    end else if (MEM2_load_trap_valid) begin
-      mem2_trap_comb = '{
-          valid: 1,
-          is_interrupt: 0,
-          insn: mem2_insn_reg,
-          mcause: MEM2_load_trap_code,
-          pc: mem2_pc_rdata_reg,
-          next_pc: trap_handler_addr_reg,
-          rs1_addr: mem2_rs1_addr_reg,
-          rs2_addr: mem2_rs2_addr_reg,
-          rd_addr: mem2_rd_addr_reg,
-          rs1_rdata: mem2_rs1_rdata_reg,
-          rs2_rdata: mem2_rs2_rdata_reg,
-          rd_wdata: 0
-      };
-    end else begin
-      mem2_trap_comb = '{default: 0};
-    end
-  end
-
-  assign wb_trap_comb = wb_carried_trap_reg.valid ? wb_carried_trap_reg : '{default: 0};
+  assign wb_trap_d = wb_carried_trap_r.valid ? wb_carried_trap_r : '{default: 0};
 
   //////////////////////////////////////
   //
@@ -1130,17 +1012,15 @@ module dtcore32 #(
   ///////////////////////////////////////
 
   hazard_unit hazard_unit_inst (
-      .EX_RS1_ADDR(ex_rs1_addr_actual_comb),
-      .EX_RS2_ADDR(ex_rs2_addr_actual_comb),
-      .MEM1_RD_ADDR(mem1_rd_addr_reg),
-      .MEM2_RD_ADDR(mem2_rd_addr_reg),
-      .WB_RD_ADDR(wb_rd_addr_actual_comb),
-      .EX_RESULT_SRC(ex_result_src_reg),
-      .MEM1_RESULT_SRC(mem1_result_src_reg),
-      .MEM2_RESULT_SRC(mem2_result_src_reg),
-      .ID_RS1_ADDR(id_rs1_addr_comb),
-      .ID_RS2_ADDR(id_rs2_addr_comb),
-      .EX_RD_ADDR(ex_rd_addr_actual_comb),
+      .EX_RS1_ADDR(ex_rs1_addr_d),
+      .EX_RS2_ADDR(ex_rs2_addr_d),
+      .MEM_RD_ADDR(mem_rd_addr_r),
+      .WB_RD_ADDR(wb_rd_addr_masked),
+      .EX_RESULT_SRC(ex_result_src_r),
+      .MEM_RESULT_SRC(mem_result_src_r),
+      .ID_RS1_ADDR(id_rs1_addr_d),
+      .ID_RS2_ADDR(id_rs2_addr_d),
+      .EX_RD_ADDR(ex_rd_addr_d),
       .EX_PC_SRC(ex_pc_src_actual_comb),
       .EX_FORWARD_A(ex_forward_a_sel_comb),
       .EX_FORWARD_B(ex_forward_b_sel_comb),
@@ -1148,27 +1028,24 @@ module dtcore32 #(
       .ID_FORWARD_B(id_forward_b_comb),
       .IF_ID_FLUSH(if_id_flush),
       .ID_EX_FLUSH(id_ex_flush),
-      .EX_MEM1_FLUSH(ex_mem1_flush),
-      .MEM1_MEM2_FLUSH(mem1_mem2_flush),
-      .MEM2_WB_FLUSH(mem2_wb_flush),
+      .EX_MEM_FLUSH(ex_mem_flush),
+      .MEM_WB_FLUSH(mem_wb_flush),
       .IF_ID_STALL(if_id_stall),
       .ID_EX_STALL(id_ex_stall),
-      .MEM1_MEM2_STALL(mem1_mem2_stall),
-      .MEM2_WB_STALL(mem2_wb_stall),
-      .EX_MEM1_STALL(ex_mem1_stall),
-      .EX_TRAP_VALID(ex_carried_trap_reg.valid),
-      .MEM1_TRAP_VALID(mem1_carried_trap_reg.valid),
-      .MEM2_TRAP_VALID(mem2_carried_trap_reg.valid),
-      .WB_TRAP_VALID(wb_carried_trap_reg.valid),
+      .EX_MEM_STALL(ex_mem_stall),
+      .MEM_WB_STALL(mem_wb_stall),
+      .EX_TRAP_VALID(ex_carried_trap_q.valid),
+      .MEM_TRAP_VALID(mem_carried_trap_r.valid),
+      .WB_TRAP_VALID(wb_carried_trap_r.valid),
       .AXIL_EN(axil_actual_en),
       .AXIL_DONE_READ(AXIL_DONE_READ),
       .AXIL_DONE_WRITE(AXIL_DONE_WRITE)
   );
 
-  assign DMEM_ADDR  = mem1_alu_csr_result_reg[DMEM_ADDR_WIDTH-1:0];
-  assign IMEM_ADDR  = if_a_pc_rdata_reg[IMEM_ADDR_WIDTH-1:0];
-  assign DMEM_WDATA = mem_wdata_comb;
-  assign DMEM_WMASK = mem_wmask_comb;
+  assign DMEM_ADDR  = mem_alu_csr_result_r[DMEM_ADDR_WIDTH-1:0];
+  assign IMEM_ADDR  = if_a_pc_rdata_r[IMEM_ADDR_WIDTH-1:0];
+  assign DMEM_WDATA = mem_store_wdata_d;
+  assign DMEM_WMASK = mem_store_wmask_d;
 
   //////////////////////////////////////
   //
@@ -1199,7 +1076,7 @@ module dtcore32 #(
   logic is_csr_mhartid;
   logic is_csr_mconfigptr;
   logic rvfi_valid_next;
-  assign rvfi_valid_next = mem2_wb_stall ? 0 : wb_valid_insn_reg;
+  assign rvfi_valid_next = mem_wb_stall ? 0 : wb_pipeline.valid;
 
   always_comb begin
     is_csr_mstatus = 0;
@@ -1220,7 +1097,7 @@ module dtcore32 #(
     is_csr_mimpid = 0;
     is_csr_mhartid = 0;
     is_csr_mconfigptr = 0;
-    case (wb_csr_addr_actual_comb)
+    case (wb_csr_addr_masked)
       12'h300: is_csr_mstatus = 1;
       12'h301: is_csr_misa = 1;
       12'h304: is_csr_mie = 1;
@@ -1301,45 +1178,45 @@ module dtcore32 #(
       rvfi_mode <= 3;
       rvfi_ixl  <= 1;
       rvfi_halt <= 0;
-      rvfi_trap <= wb_trap_comb.valid;
-      rvfi_intr <= wb_intr_reg;
+      rvfi_trap <= wb_trap_d.valid;
+      rvfi_intr <= wb_intr_r;
 
-      if (wb_trap_comb.valid) begin
-        rvfi_insn <= wb_trap_comb.insn;
-        rvfi_rs1_addr <= wb_trap_comb.rs1_addr;
-        rvfi_rs2_addr <= wb_trap_comb.rs2_addr;
-        rvfi_rs1_rdata <= wb_trap_comb.rs1_rdata;
-        rvfi_rs2_rdata <= wb_trap_comb.rs2_rdata;
+      if (wb_trap_d.valid) begin
+        rvfi_insn <= wb_trap_d.insn;
+        rvfi_rs1_addr <= wb_trap_d.rs1_addr;
+        rvfi_rs2_addr <= wb_trap_d.rs2_addr;
+        rvfi_rs1_rdata <= wb_trap_d.rs1_rdata;
+        rvfi_rs2_rdata <= wb_trap_d.rs2_rdata;
 
-        rvfi_rd_addr <= wb_trap_comb.rd_addr;
-        rvfi_rd_wdata <= wb_trap_comb.rd_wdata;
+        rvfi_rd_addr <= wb_trap_d.rd_addr;
+        rvfi_rd_wdata <= wb_trap_d.rd_wdata;
 
-        rvfi_pc_rdata <= wb_trap_comb.pc;
-        rvfi_pc_wdata <= wb_trap_comb.next_pc;
+        rvfi_pc_rdata <= wb_trap_d.pc;
+        rvfi_pc_wdata <= wb_trap_d.next_pc;
 
-        rvfi_mem_addr <= wb_alu_csr_result_reg;
-        rvfi_mem_rmask <= wb_mem_rmask_reg;
-        rvfi_mem_wmask <= wb_mem_wmask_reg;
-        rvfi_mem_rdata <= wb_mem_rdata_reg;
-        rvfi_mem_wdata <= wb_mem_wdata_reg;
+        rvfi_mem_addr <= wb_alu_csr_result_r;
+        rvfi_mem_rmask <= wb_load_rmask_r;
+        rvfi_mem_wmask <= wb_store_wmask_r;
+        rvfi_mem_rdata <= wb_load_rdata_r;
+        rvfi_mem_wdata <= wb_store_wdata_r;
       end else begin
-        rvfi_insn <= wb_insn_reg;
-        rvfi_rs1_addr <= wb_rs1_addr_reg;
-        rvfi_rs2_addr <= wb_rs2_addr_reg;
-        rvfi_rs1_rdata <= wb_rs1_rdata_reg;
-        rvfi_rs2_rdata <= wb_rs2_rdata_reg;
+        rvfi_insn <= wb_pipeline.insn;
+        rvfi_rs1_addr <= wb_rs1_addr_r;
+        rvfi_rs2_addr <= wb_rs2_addr_r;
+        rvfi_rs1_rdata <= wb_rs1_rdata_r;
+        rvfi_rs2_rdata <= wb_rs2_rdata_r;
 
-        rvfi_rd_addr <= wb_rd_addr_actual_comb;
-        rvfi_rd_wdata <= wb_rd_wdata_comb;
+        rvfi_rd_addr <= wb_rd_addr_masked;
+        rvfi_rd_wdata <= wb_rd_wdata_masked;
 
-        rvfi_pc_rdata <= wb_pc_rdata_reg;
-        rvfi_pc_wdata <= wb_trap_comb.valid ? trap_handler_addr_reg : wb_pc_wdata_reg;
+        rvfi_pc_rdata <= wb_pipeline.pc;
+        rvfi_pc_wdata <= wb_trap_d.valid ? trap_handler_addr_q : wb_pipeline.pc_wdata;
 
-        rvfi_mem_addr <= wb_alu_csr_result_reg;
-        rvfi_mem_rmask <= wb_mem_rmask_reg;
-        rvfi_mem_wmask <= wb_mem_wmask_reg;
-        rvfi_mem_rdata <= wb_mem_rdata_reg;
-        rvfi_mem_wdata <= wb_mem_wdata_reg;
+        rvfi_mem_addr <= wb_alu_csr_result_r;
+        rvfi_mem_rmask <= wb_load_rmask_r;
+        rvfi_mem_wmask <= wb_store_wmask_r;
+        rvfi_mem_rdata <= wb_load_rdata_r;
+        rvfi_mem_wdata <= wb_store_wdata_r;
       end
 
 
@@ -1364,26 +1241,26 @@ module dtcore32 #(
       rvfi_csr_mtvec_rmask <= is_csr_mtvec ? wb_csr_rmask_comb : 32'd0;
       rvfi_csr_mepc_rmask <= is_csr_mepc ? wb_csr_rmask_comb : 32'd0;
 
-      rvfi_csr_mcycle_rdata <= is_csr_mcycleh ? {wb_csr_rdata_reg, 32'd0} :
-          is_csr_mcycle  ? {32'd0, wb_csr_rdata_reg} :
+      rvfi_csr_mcycle_rdata <= is_csr_mcycleh ? {wb_csr_rdata_r, 32'd0} :
+          is_csr_mcycle  ? {32'd0, wb_csr_rdata_r} :
           64'd0;
-      rvfi_csr_minstret_rdata <= is_csr_minstreth ? {wb_csr_rdata_reg, 32'd0} :
-          is_csr_minstret  ? {32'd0, wb_csr_rdata_reg} :
+      rvfi_csr_minstret_rdata <= is_csr_minstreth ? {wb_csr_rdata_r, 32'd0} :
+          is_csr_minstret  ? {32'd0, wb_csr_rdata_r} :
           64'd0;
       // csr rdata logic
-      rvfi_csr_mcause_rdata <= is_csr_mcause ? wb_csr_rdata_reg : 32'd0;
-      rvfi_csr_mtvec_rdata <= is_csr_mtvec ? wb_csr_rdata_reg : 32'd0;
-      rvfi_csr_mepc_rdata <= is_csr_mepc ? wb_csr_rdata_reg : 32'd0;
+      rvfi_csr_mcause_rdata <= is_csr_mcause ? wb_csr_rdata_r : 32'd0;
+      rvfi_csr_mtvec_rdata <= is_csr_mtvec ? wb_csr_rdata_r : 32'd0;
+      rvfi_csr_mepc_rdata <= is_csr_mepc ? wb_csr_rdata_r : 32'd0;
 
-      rvfi_csr_mcycle_wdata <= is_csr_mcycleh ? {wb_csr_wdata_reg, 32'd0} :
-          is_csr_mcycle  ? {32'd0, wb_csr_wdata_reg} :
+      rvfi_csr_mcycle_wdata <= is_csr_mcycleh ? {wb_pipeline.csr_wdata, 32'd0} :
+          is_csr_mcycle  ? {32'd0, wb_pipeline.csr_wdata} :
           64'd0;
-      rvfi_csr_minstret_wdata <= is_csr_minstreth ? {wb_csr_wdata_reg, 32'd0} :
-          is_csr_minstret  ? {32'd0, wb_csr_wdata_reg} :
+      rvfi_csr_minstret_wdata <= is_csr_minstreth ? {wb_pipeline.csr_wdata, 32'd0} :
+          is_csr_minstret  ? {32'd0, wb_pipeline.csr_wdata} :
           64'd0;
-      rvfi_csr_mcause_wdata <= is_csr_mcause ? wb_csr_wdata_reg : 32'd0;
-      rvfi_csr_mtvec_wdata <= is_csr_mtvec ? wb_csr_wdata_reg : 32'd0;
-      rvfi_csr_mepc_wdata <= is_csr_mepc ? wb_csr_wdata_reg : 32'd0;
+      rvfi_csr_mcause_wdata <= is_csr_mcause ? wb_pipeline.csr_wdata : 32'd0;
+      rvfi_csr_mtvec_wdata <= is_csr_mtvec ? wb_pipeline.csr_wdata : 32'd0;
+      rvfi_csr_mepc_wdata <= is_csr_mepc ? wb_pipeline.csr_wdata : 32'd0;
 
     end
   end

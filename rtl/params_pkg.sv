@@ -7,83 +7,127 @@
 package params_pkg;
 
 
-  typedef struct {
-    logic valid;
-    logic is_interrupt;
-    logic [31:0] insn;
-    logic [30:0] mcause;
-    logic [31:0] pc;
-    logic [31:0] next_pc;
-    logic [4:0] rs1_addr;
-    logic [4:0] rs2_addr;
-    logic [4:0] rd_addr; 
-    logic [31:0] rs1_rdata;
-    logic [31:0] rs2_rdata;
-    logic [31:0] rd_wdata;
-  } trap_info_t;
+  // ALU control signals
+  typedef enum logic [3:0] {
+    ADD_ALU_CONTROL       = 4'h0,
+    SUB_ALU_CONTROL       = 4'h1,
+    AND_ALU_CONTROL       = 4'h2,
+    OR_ALU_CONTROL        = 4'h3,
+    L_SHIFT_ALU_CONTROL   = 4'h4,
+    LT_ALU_CONTROL        = 4'h5,
+    LTU_ALU_CONTROL       = 4'h6,
+    XOR_ALU_CONTROL       = 4'h7,
+    R_SHIFT_A_ALU_CONTROL = 4'h8,
+    R_SHIFT_L_ALU_CONTROL = 4'h9,
+    GE_ALU_CONTROL        = 4'hA,
+    GEU_ALU_CONTROL       = 4'hB,
+    NE_ALU_CONTROL        = 4'hC,
+    JALR_ALU_CONTROL      = 4'hD
+  } alu_control_t;
+
+  // Forwarding select
+  typedef enum logic [1:0] {
+    NO_FORWARD_SEL             = 2'h0,
+    FORWARD_SEL_MEM_ALU_RESULT = 2'h1,
+    FORWARD_SEL_MEM_LOAD_RDATA = 2'h2,
+    FORWARD_SEL_WB_RESULT      = 2'h3
+  } forward_sel_t;
+
+  // Result source selection
+  typedef enum logic [1:0] {
+    RESULT_SEL_ALU_RESULT      = 2'b00,
+    RESULT_SEL_DMEM_RD_DATA    = 2'b01,
+    RESULT_SEL_NEXT_INSTR_ADDR = 2'b10,
+    RESULT_SEL_CSR_READ_DATA   = 2'b11
+  } result_sel_t;
+
+  typedef enum logic [4:0] {
+    MEM_NONE = 5'b00000,
+
+    MEM_LB  = 5'b1_0_0_00,  // signed byte
+    MEM_LBU = 5'b1_0_1_00,  // unsigned byte
+    MEM_LH  = 5'b1_0_0_01,  // signed half
+    MEM_LHU = 5'b1_0_1_01,  // unsigned half
+    MEM_LW  = 5'b1_0_0_10,  // word (signed/unsigned same)
+
+    MEM_SB = 5'b1_1_0_00,  // store byte
+    MEM_SH = 5'b1_1_0_01,  // store half
+    MEM_SW = 5'b1_1_0_10   // store word
+  } mem_op_t;
+
+  // branch_jump op
+  typedef enum logic [1:0] {
+    CF_NONE   = 2'b00,
+    CF_JUMP   = 2'b01,
+    CF_BRANCH = 2'b10,
+    CF_JALR   = 2'b11
+  } cf_op_t;
+
+  // branch_jump op
+  typedef enum logic [1:0] {
+    CSR_NONE  = 2'b00,
+    CSR_WRITE = 2'b01,
+    CSR_SET   = 2'b10,
+    CSR_CLEAR = 2'b11
+  } csr_op_t;
+
+  typedef enum logic [2:0] {
+    I_ALU_TYPE = 3'b000,
+    S_TYPE = 3'b001,
+    B_TYPE = 3'b010,
+    J_TYPE = 3'b011,
+    I_SHIFT_TYPE = 3'b100,
+    U_TYPE = 3'b101,
+    CSR_TYPE = 3'b110
+  } imm_ext_op_t;
 
 
-  localparam logic [3:0] ADD_ALU_CONTROL = 4'h0;
-  localparam logic [3:0] SUB_ALU_CONTROL = 4'h1;
-  localparam logic [3:0] AND_ALU_CONTROL = 4'h2;
-  localparam logic [3:0] OR_ALU_CONTROL = 4'h3;
-  localparam logic [3:0] L_SHIFT_ALU_CONTROL = 4'h4;
-  localparam logic [3:0] LT_ALU_CONTROL = 4'h5;
-  localparam logic [3:0] LTU_ALU_CONTROL = 4'h6;
-  localparam logic [3:0] XOR_ALU_CONTROL = 4'h7;
-  localparam logic [3:0] R_SHIFT_A_ALU_CONTROL = 4'h8;
-  localparam logic [3:0] R_SHIFT_L_ALU_CONTROL = 4'h9;
-  localparam logic [3:0] GE_ALU_CONTROL = 4'hA;
-  localparam logic [3:0] GEU_ALU_CONTROL = 4'hB;
-  localparam logic [3:0] BNE_ALU_CONTROL = 4'hC;
-  localparam logic [3:0] NE_ALU_CONTROL = 4'hC;
-  localparam logic [3:0] JALR_ALU_CONTROL = 4'hD;
-  
-  
+  // EX stage ALU A select
+  typedef enum logic [1:0] {
+    ALU_A_SEL_REG_DATA = 2'b00,
+    ALU_A_SEL_ZERO     = 2'b01,
+    ALU_A_SEL_PC       = 2'b10
+  } alu_a_sel_t;
 
-  localparam logic [2:0] FORWARD_SEL_NO_FORWARD = 3'h0;
-  localparam logic [2:0] FORWARD_SEL_MEM1_ALU_RESULT = 3'h1;
-  localparam logic [2:0] FORWARD_SEL_MEM2_ALU_RESULT = 3'h2;
-  localparam logic [2:0] FORWARD_SEL_MEM2_MEM_RDATA = 3'h3;
-  localparam logic [2:0] FORWARD_SEL_WB_RESULT = 3'h4;
+  // EX stage ALU B select
+  typedef enum logic {
+    ALU_B_SEL_REG_DATA = 1'b0,
+    ALU_B_SEL_IMM      = 1'b1
+  } alu_b_sel_t;
+
+  // EX stage ALU operation
+  typedef enum logic [1:0] {
+    ALU_OP_ILOAD_S_U_TYPE     = 2'b00,
+    ALU_OP_B_TYPE             = 2'b01,
+    ALU_OP_IALU_ISHIFT_R_TYPE = 2'b10,
+    ALU_OP_JALR               = 2'b11
+  } alu_op_t;
+
+  // EX stage PC target ALU select
+  typedef enum logic {
+    PC_ALU_SEL_PC       = 1'b0,
+    PC_ALU_SEL_REG_DATA = 1'b1
+  } pc_alu_sel_t;
+
+  // EX stage CSR operand select
+  typedef enum logic {
+    CSR_BITMASK_SEL_REG_DATA = 1'b0,
+    CSR_BITMASK_SEL_IMM      = 1'b1
+  } csr_bitmask_sel_t;
 
 
 
-  localparam logic REGFILE_WRITE_ENABLE = 1'b1;
 
-  // extended immediate source types used by different instructions
-  localparam logic [2:0] I_ALU_TYPE_IMM_SRC = 3'b000;
-  localparam logic [2:0] S_TYPE_IMM_SRC = 3'b001;
-  localparam logic [2:0] B_TYPE_IMM_SRC = 3'b010;
-  localparam logic [2:0] J_TYPE_IMM_SRC = 3'b011;
-  localparam logic [2:0] I_SHIFT_TYPE_IMM_SRC = 3'b100;
-  localparam logic [2:0] U_TYPE_IMM_SRC = 3'b101;
-  localparam logic [2:0] CSR_TYPE_IMM_SRC = 3'b110;
 
+  /*
   //ID_alu_a_src
-  localparam logic [1:0] ALU_A_SRC_SELECT_REG_DATA = 2'b00;
-  localparam logic [1:0] ALU_A_SRC_SELECT_ZERO = 2'b01;
-  localparam logic [1:0] ALU_A_SRC_SELECT_PC = 2'b10;
+  localparam logic [1:0] ALU_A_SEL_REG_DATA = 2'b00;
+  localparam logic [1:0] ALU_A_SEL_ZERO = 2'b01;
+  localparam logic [1:0] ALU_A_SEL_PC = 2'b10;
 
   //ID_alu_b_src
-  localparam logic ALU_B_SRC_SELECT_REG_DATA = 1'b0;
-  localparam logic ALU_B_SRC_SELECT_IMM = 1'b1;
-
-  //ID_mem_wr_size
-  localparam logic [1:0] MEM_NO_DMEM_WR = 2'h0;
-  localparam logic [1:0] MEM_WORD_WR = 2'h1;
-  localparam logic [1:0] MEM_HALF_WR = 2'h2;
-  localparam logic [1:0] MEM_BYTE_WR = 2'h3;
-
-  //ID_result_src
-  localparam logic [1:0] RESULT_SRC_SELECT_ALU_RESULT = 2'b00;
-  localparam logic [1:0] RESULT_SRC_SELECT_DMEM_RD_DATA = 2'b01;
-  localparam logic [1:0] RESULT_SRC_SELECT_NEXT_INSTR_ADDR = 2'b10;
-  localparam logic [1:0] RESULT_SRC_SELECT_CSR_READ_DATA = 2'b11;
-
-  //ID_branch
-  localparam logic IS_BRANCH_INSTR = 1'b1;
-  localparam logic IS_NOT_BRANCH_INSTR = 1'b0;
+  localparam logic ALU_B_SEL_REG_DATA = 1'b0;
+  localparam logic ALU_B_SEL_IMM = 1'b1;
 
   //ID_alu_op
   localparam logic [1:0] ALU_OP_ILOAD_S_U_TYPE = 2'b00;
@@ -91,30 +135,16 @@ package params_pkg;
   localparam logic [1:0] ALU_OP_IALU_ISHIFT_R_TYPE = 2'b10;
   localparam logic [1:0] ALU_OP_JALR = 2'b11;
 
-  //ID_jump
-  localparam logic IS_JUMP_INSTR = 1'b1;
-  localparam logic IS_NOT_JUMP_INSTR = 1'b0;
 
-  //ID_load_size
-  localparam logic [2:0] DMEM_LOAD_SIZE_NO_LOAD = 3'b000;
-  localparam logic [2:0] DMEM_LOAD_SIZE_WORD = 3'b001;
-  localparam logic [2:0] DMEM_LOAD_SIZE_HALF = 3'b010;
-  localparam logic [2:0] DMEM_LOAD_SIZE_HALFU = 3'b011;
-  localparam logic [2:0] DMEM_LOAD_SIZE_BYTE = 3'b100;
-  localparam logic [2:0] DMEM_LOAD_SIZE_BYTEU = 3'b101;
 
   //ID_pc_target_alu_src
-  localparam logic PC_TARGET_ALU_SRC_SELECT_PC = 1'b0;
-  localparam logic PC_TARGET_ALU_SRC_SELECT_REG_DATA = 1'b1;
-  // ID_csr_wr_type
-  localparam logic [1:0] CSR_WRITE_DISABLE = 2'b00;
-  localparam logic [1:0] CSR_WRITE_RAW_VALUE = 2'b01;
-  localparam logic [1:0] CSR_WRITE_SET_BIT_MASK = 2'b10;
-  localparam logic [1:0] CSR_WRITE_CLEAR_BIT_MASK = 2'b11;
+  localparam logic PC_ALU_SEL_PC = 1'b0;
+  localparam logic PC_ALU_SELECT_REG_DATA = 1'b1;
 
   // ID_csr_wr_operand_src
-  localparam logic CSR_SRC_SELECT_REG_DATA = 1'b0;
-  localparam logic CSR_SRC_SELECT_IMM = 1'b1;
+  localparam logic CSR_BITMASK_SEL_REG_DATA = 1'b0;
+  localparam logic CSR_BITMASK_SEL_IMM = 1'b1;
+  */
 
   // OPCODES
   localparam logic [6:0] OPCODE_LOAD = 7'b0000011;
@@ -219,4 +249,126 @@ package params_pkg;
   localparam logic [11:0] CSR_ADDR_MCONFIGPTR = 12'hF15;
   localparam logic [11:0] CSR_ADDR_NO_ADDR = 12'h000;
 
+  typedef struct packed{
+    logic valid;
+    logic is_interrupt;
+    logic [31:0] insn;
+    logic [30:0] mcause;
+    logic [31:0] pc;
+    logic [31:0] next_pc;
+    logic [4:0] rs1_addr;
+    logic [4:0] rs2_addr;
+    logic [4:0] rd_addr;
+    logic [31:0] rs1_rdata;
+    logic [31:0] rs2_rdata;
+    logic [31:0] rd_wdata;
+  } trap_info_t;
+
+  typedef struct packed {
+
+    logic        valid;
+    logic [63:0] order;
+    logic [31:0] insn;
+    logic        trap;
+    logic        intr;
+    logic [4:0]  rs1_addr;
+    logic [4:0]  rs2_addr;
+    logic [31:0] rs1_rdata;
+    logic [31:0] rs2_rdata;
+    logic [4:0]  rd_addr;
+    logic [31:0] rd_wdata;
+    logic [31:0] pc_rdata;
+    logic [31:0] pc_wdata;
+    logic [31:0] mem_addr;
+    logic [3:0]  mem_rmask;
+    logic [3:0]  mem_wmask;
+    logic [31:0] mem_rdata;
+    logic [31:0] mem_wdata;
+  } rvfi_t;
+
+
+
+
+  typedef struct packed {
+    // Instruction and PC
+    logic [31:0] pc;
+    logic [31:0] pc_plus_4;
+    logic [31:0] insn;
+
+    // Register operands
+    logic [4:0]  rs1_addr;
+    logic [4:0]  rs2_addr;
+    logic [4:0]  rd_addr;
+    logic [31:0] rs1_data;
+    logic [31:0] rs2_data;
+    logic [31:0] imm_ext;
+
+    // CSR
+    logic [11:0] csr_addr;
+    logic [31:0] csr_wdata;
+    logic [31:0] csr_rdata;
+    csr_op_t csr_op;
+
+    // ALU / MEM control
+    cf_op_t cf_op;
+    alu_control_t alu_control;
+    result_sel_t result_sel;
+    alu_a_sel_t alu_a_sel;
+    alu_b_sel_t alu_b_sel;
+    pc_alu_sel_t pc_alu_sel;
+    csr_bitmask_sel_t csr_bitmask_sel;
+
+    mem_op_t     mem_op;
+    logic        load_is_signed;
+    logic [3:0]  load_rmask;
+    logic [31:0] store_wdata;
+    logic [3:0]  store_wmask;
+
+    // Execution results
+    logic [31:0] alu_csr_result;
+    logic [31:0] load_rdata;
+    logic [31:0] pc_wdata;
+
+    // Control & status
+    logic valid;
+    logic intr;
+    // trap from previous stage
+    trap_info_t carried_trap;
+
+    // decoded control
+  } pipeline_t;
+
+  localparam pipeline_t PIPELINE_T_RESET = '{
+      pc: 0,
+      pc_plus_4: 0,
+      insn: NOP_INSTRUCTION,
+      rs1_addr: 0,
+      rs2_addr: 0,
+      rd_addr: 0,
+      rs1_data: 0,
+      rs2_data: 0,
+      imm_ext: 0,
+      csr_addr: 0,
+      csr_wdata: 0,
+      csr_rdata: 0,
+      csr_op: CSR_NONE,
+      cf_op: CF_NONE,
+      alu_control: ADD_ALU_CONTROL,
+      result_sel: RESULT_SEL_ALU_RESULT,
+      alu_a_sel: ALU_A_SEL_REG_DATA,
+      alu_b_sel: ALU_B_SEL_REG_DATA,
+      pc_alu_sel: PC_ALU_SEL_PC,
+      csr_bitmask_sel: CSR_BITMASK_SEL_REG_DATA,
+      mem_op: MEM_NONE,
+      load_is_signed: 0,
+      load_rmask: 0,
+      store_wdata: 0,
+      store_wmask: 0,
+      alu_csr_result: 0,
+      load_rdata: 0,
+      pc_wdata: 0,
+      valid: 0,
+      intr: 0,
+      carried_trap: '{default:0}
+  };
 endpackage

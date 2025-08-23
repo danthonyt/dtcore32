@@ -15,7 +15,7 @@ module alu
 	always_comb begin
 		case (control_i)
 			SUB_ALU_CONTROL: branch_cond = (a_i == b_i) ? 1 : 0;  // beq
-			BNE_ALU_CONTROL,NE_ALU_CONTROL: branch_cond = (a_i != b_i) ? 1 : 0;
+			NE_ALU_CONTROL: branch_cond = (a_i != b_i) ? 1 : 0;
 			LT_ALU_CONTROL: branch_cond = ($signed(a_i) < $signed(b_i)) ? 1 : 0;
 			LTU_ALU_CONTROL: branch_cond = (a_i < b_i) ? 1 : 0;
 			GE_ALU_CONTROL: branch_cond = ($signed(a_i) >= $signed(b_i)) ? 1 : 0;
