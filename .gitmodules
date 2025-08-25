@@ -4,3 +4,6 @@
 [submodule "axi-lite"]
 	path = axi-lite
 	url = git@github.com:danthonyt/axi_lite_interface.git
+[submodule "peripherals/wishbone"]
+	path = peripherals/wishbone
+	url = git@github.com:danthonyt/wishbone.git
