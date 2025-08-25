@@ -17,13 +17,13 @@ module decoder
     output mem_op_t MEM_OP,
     output cf_op_t CF_OP,
     output csr_op_t CSR_OP,
-    output logic [3:0] ALU_CONTROL,
+    output alu_control_t ALU_CONTROL,
     output imm_ext_op_t IMM_EXT_OP,
-    output logic [1:0] ALU_A_SRC,
-    output logic ALU_B_SRC,
-    output logic PC_ALU_SRC,
-    output logic [1:0] RESULT_SRC,
-    output logic CSR_BITMASK_SEL,
+    output alu_a_sel_t ALU_A_SRC,
+    output alu_b_sel_t ALU_B_SRC,
+    output pc_alu_sel_t PC_ALU_SRC,
+    output result_sel_t RESULT_SRC,
+    output csr_bitmask_sel_t CSR_BITMASK_SEL,
     output logic [30:0] TRAP_MCAUSE,
     output logic TRAP_VALID
 );
@@ -34,15 +34,15 @@ module decoder
   mem_op_t mem_op;
   cf_op_t cf_op;
   csr_op_t csr_op;
-  logic [3:0] alu_control;
+  alu_control_t alu_control;
   imm_ext_op_t imm_ext_op;
-  logic [1:0] alu_a_src;
-  logic alu_b_src;
-  logic pc_alu_src;
-  logic [1:0] result_src;
-  logic csr_bitmask_sel;
+  alu_a_sel_t alu_a_src;
+  alu_b_sel_t alu_b_src;
+  pc_alu_sel_t pc_alu_src;
+  result_sel_t result_src;
+  csr_bitmask_sel_t csr_bitmask_sel;
 
-  logic [1:0] alu_op;
+  alu_op_t alu_op;
   logic is_itype;
   logic is_rtype;
   logic is_SRAI_funct3;
@@ -80,7 +80,7 @@ module decoder
     mem_op = MEM_NONE;
     cf_op = CF_NONE;
     csr_op = CSR_NONE;
-    alu_op = 0;
+    alu_op = ALU_OP_ILOAD_S_U_TYPE;
     // sources
     imm_ext_op = I_ALU_TYPE;
     alu_a_src = ALU_A_SEL_REG_DATA;
@@ -132,12 +132,12 @@ module decoder
           end
           FUNCT3_CSRRS: begin
             result_src = RESULT_SEL_CSR_READ_DATA;
-            csr_op = (RS1_ADDR == 0) ? CSR_NONE : CSR_SET;
+            csr_op = (RS1_ADDR == 0) ? CSR_READ : CSR_SET;
             csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRC: begin
             result_src = RESULT_SEL_CSR_READ_DATA;
-            csr_op = (RS1_ADDR == 0) ? CSR_NONE : CSR_CLEAR;
+            csr_op = (RS1_ADDR == 0) ? CSR_READ : CSR_CLEAR;
             csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRWI: begin
@@ -149,13 +149,13 @@ module decoder
           FUNCT3_CSRRSI: begin
             result_src = RESULT_SEL_CSR_READ_DATA;
             imm_ext_op = CSR_TYPE;
-            csr_op = (RS1_ADDR == 0) ? CSR_NONE : CSR_SET;
+            csr_op = (RS1_ADDR == 0) ? CSR_READ : CSR_SET;
             csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
           end
           FUNCT3_CSRRCI: begin
             result_src = RESULT_SEL_CSR_READ_DATA;
             imm_ext_op = CSR_TYPE;
-            csr_op = (RS1_ADDR == 0) ? CSR_NONE : CSR_CLEAR;
+            csr_op = (RS1_ADDR == 0) ? CSR_READ : CSR_CLEAR;
             csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
           end
           default: begin
@@ -267,7 +267,7 @@ module decoder
         result_src = RESULT_SEL_NEXT_INSTR_ADDR;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
         cf_op = CF_JALR;
-        pc_alu_src = PC_ALU_SEL_PC;
+        pc_alu_src = PC_ALU_SEL_REG_DATA;
       end
       default: begin
         TRAP_VALID  = 1;
@@ -279,7 +279,7 @@ module decoder
 
 
   always_comb begin
-    alu_control = 0;
+    alu_control = ADD_ALU_CONTROL;
     case (alu_op)
       //I-type Load, S-type, U-type
       ALU_OP_ILOAD_S_U_TYPE:
@@ -315,18 +315,18 @@ module decoder
     endcase
   end
 
-  assign rd_valid = RD_VALID;
-  assign rs1_valid = RS1_VALID;
-  assign rs2_valid = RS2_VALID;
-  assign mem_op = MEM_OP;
-  assign cf_op = CF_OP;
-  assign csr_op = CSR_OP;
-  assign alu_control = ALU_CONTROL;
-  assign imm_ext_op = IMM_EXT_OP;
-  assign alu_a_src = ALU_A_SRC;
-  assign alu_b_src = ALU_B_SRC;
-  assign pc_alu_src = PC_ALU_SRC;
-  assign result_src = RESULT_SRC;
-  assign csr_bitmask_sel = CSR_BITMASK_SEL;
+  assign RD_VALID = rd_valid;
+  assign RS1_VALID = rs1_valid;
+  assign RS2_VALID = rs2_valid;
+  assign MEM_OP = mem_op;
+  assign CF_OP = cf_op;
+  assign CSR_OP = csr_op;
+  assign ALU_CONTROL = alu_control;
+  assign IMM_EXT_OP = imm_ext_op;
+  assign ALU_A_SRC = alu_a_src;
+  assign ALU_B_SRC = alu_b_src;
+  assign PC_ALU_SRC = pc_alu_src;
+  assign RESULT_SRC = result_src;
+  assign CSR_BITMASK_SEL = csr_bitmask_sel;
 
 endmodule

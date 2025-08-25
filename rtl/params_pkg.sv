@@ -29,8 +29,8 @@ package params_pkg;
   typedef enum logic [1:0] {
     NO_FORWARD_SEL             = 2'h0,
     FORWARD_SEL_MEM_ALU_RESULT = 2'h1,
-    FORWARD_SEL_MEM_LOAD_RDATA = 2'h2,
-    FORWARD_SEL_WB_RESULT      = 2'h3
+    FORWARD_SEL_WB_LOAD_RDATA = 2'h2,
+    FORWARD_SEL_WB_ALU_RESULT      = 2'h3
   } forward_sel_t;
 
   // Result source selection
@@ -64,11 +64,12 @@ package params_pkg;
   } cf_op_t;
 
   // branch_jump op
-  typedef enum logic [1:0] {
-    CSR_NONE  = 2'b00,
-    CSR_WRITE = 2'b01,
-    CSR_SET   = 2'b10,
-    CSR_CLEAR = 2'b11
+  typedef enum logic [2:0] {
+    CSR_NONE  = 3'b00,
+    CSR_READ  = 3'b01,
+    CSR_WRITE = 3'b10,
+    CSR_SET   = 3'b11,
+    CSR_CLEAR = 3'b100
   } csr_op_t;
 
   typedef enum logic [2:0] {
@@ -299,8 +300,8 @@ package params_pkg;
     logic [4:0]  rs1_addr;
     logic [4:0]  rs2_addr;
     logic [4:0]  rd_addr;
-    logic [31:0] rs1_data;
-    logic [31:0] rs2_data;
+    logic [31:0] rs1_rdata;
+    logic [31:0] rs2_rdata;
     logic [31:0] imm_ext;
 
     // CSR
@@ -344,8 +345,8 @@ package params_pkg;
       rs1_addr: 0,
       rs2_addr: 0,
       rd_addr: 0,
-      rs1_data: 0,
-      rs2_data: 0,
+      rs1_rdata: 0,
+      rs2_rdata: 0,
       imm_ext: 0,
       csr_addr: 0,
       csr_wdata: 0,

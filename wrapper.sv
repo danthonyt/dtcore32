@@ -1,104 +1,85 @@
 module rvfi_wrapper (
-	input         clock,
-	input         reset,
-	`RVFI_OUTPUTS
+    input clock,
+    input reset,
+    `RVFI_OUTPUTS
 );
 
-localparam BUS_WIDTH = 32;
-localparam ADDR_WIDTH = 32;
-localparam DMEM_ADDR_WIDTH = 10;
-localparam IMEM_ADDR_WIDTH = 10;
-(* keep *) `rvformal_rand_reg [31:0] imem_rdata;
-(* keep *) logic [IMEM_ADDR_WIDTH-1:0] imem_addr;
-//(* keep *) `rvformal_rand_reg [31:0] dmem_rdata;
-(* keep *) logic [31:0] dmem_rdata;
-(* keep *) logic [DMEM_ADDR_WIDTH-1:0] dmem_addr;
-(* keep *) logic [31:0] dmem_wdata;
-(* keep *) logic [3:0] dmem_wmask;
-(* keep *) logic dmem_en;
-(* keep *) logic imem_en;
+  localparam WISHBONE_BUS_WIDTH = 32;
+  localparam WISHBONE_ADDR_WIDTH = 32;
 
-  dtcore32 # (
-    .DMEM_ADDR_WIDTH(DMEM_ADDR_WIDTH),
-    .IMEM_ADDR_WIDTH(IMEM_ADDR_WIDTH)
-  )
-  dtcore32_inst (
-    .CLK(clock),
-    .RST(reset),
-    .IMEM_RDATA(imem_rdata),
-    .DMEM_RDATA(dmem_rdata),
-    .rvfi_valid(rvfi_valid),
-    .rvfi_order(rvfi_order),
-    .rvfi_insn(rvfi_insn),
-    .rvfi_trap(rvfi_trap),
-    .rvfi_halt(rvfi_halt),
-    .rvfi_intr(rvfi_intr),
-    .rvfi_mode(rvfi_mode),
-    .rvfi_ixl(rvfi_ixl),
-    .rvfi_rs1_addr(rvfi_rs1_addr),
-    .rvfi_rs2_addr(rvfi_rs2_addr),
-    .rvfi_rs1_rdata(rvfi_rs1_rdata),
-    .rvfi_rs2_rdata(rvfi_rs2_rdata),
-    .rvfi_rd_addr(rvfi_rd_addr),
-    .rvfi_rd_wdata(rvfi_rd_wdata),
-    .rvfi_pc_rdata(rvfi_pc_rdata),
-    .rvfi_pc_wdata(rvfi_pc_wdata),
-    .rvfi_mem_addr(rvfi_mem_addr),
-    .rvfi_mem_rmask(rvfi_mem_rmask),
-    .rvfi_mem_wmask(rvfi_mem_wmask),
-    .rvfi_mem_rdata(rvfi_mem_rdata),
-    .rvfi_mem_wdata(rvfi_mem_wdata),
-    .rvfi_csr_mcycle_rmask(rvfi_csr_mcycle_rmask),
-    .rvfi_csr_mcycle_wmask(rvfi_csr_mcycle_wmask),
-    .rvfi_csr_mcycle_rdata(rvfi_csr_mcycle_rdata),
-    .rvfi_csr_mcycle_wdata(rvfi_csr_mcycle_wdata),
-    .rvfi_csr_minstret_rmask(rvfi_csr_minstret_rmask),
-    .rvfi_csr_minstret_wmask(rvfi_csr_minstret_wmask),
-    .rvfi_csr_minstret_rdata(rvfi_csr_minstret_rdata),
-    .rvfi_csr_minstret_wdata(rvfi_csr_minstret_wdata),
-    .rvfi_csr_mcause_rmask(rvfi_csr_mcause_rmask),
-    .rvfi_csr_mcause_wmask(rvfi_csr_mcause_wmask),
-    .rvfi_csr_mcause_rdata(rvfi_csr_mcause_rdata),
-    .rvfi_csr_mcause_wdata(rvfi_csr_mcause_wdata),
-    .rvfi_csr_mepc_rmask(rvfi_csr_mepc_rmask),
-    .rvfi_csr_mepc_wmask(rvfi_csr_mepc_wmask),
-    .rvfi_csr_mepc_rdata(rvfi_csr_mepc_rdata),
-    .rvfi_csr_mepc_wdata(rvfi_csr_mepc_wdata),
-    .rvfi_csr_mtvec_rmask(rvfi_csr_mtvec_rmask),
-    .rvfi_csr_mtvec_wmask(rvfi_csr_mtvec_wmask),
-    .rvfi_csr_mtvec_rdata(rvfi_csr_mtvec_rdata),
-    .rvfi_csr_mtvec_wdata(rvfi_csr_mtvec_wdata),
-    .IMEM_ADDR(imem_addr),
-    .DMEM_ADDR(dmem_addr),
-    .DMEM_WDATA(dmem_wdata),
-    .DMEM_WMASK(dmem_wmask),
-    .DMEM_EN(dmem_en),
-    .IMEM_EN(imem_en),
-    .AXIL_START_READ(),
-    .AXIL_START_WRITE(),
-    .AXIL_DONE_READ(1'b0),
-    .AXIL_DONE_WRITE(1'b0),
-    .AXIL_BUSY_READ(1'b0),
-    .AXIL_BUSY_WRITE(1'b0),
-    .AXIL_TRANSACTION_WRADDR(),
-    .AXIL_TRANSACTION_WRDATA(),
-    .AXIL_TRANSACTION_WSTRB(),
-    .AXIL_TRANSACTION_RADDR(),
-    .AXIL_TRANSACTION_RDATA(32'd0)
+  (* keep *) logic [WISHBONE_ADDR_WIDTH-1:0] IMEM_CMD_ADDR_O;
+  (* keep *) `rvformal_rand_reg [31:0] IMEM_CMD_RDATA_I;
+  (* keep *) logic MEM_CMD_BUSY_I;
+  (* keep *) logic MEM_CMD_START_O;
+  (* keep *) logic MEM_CMD_WE_O;
+  (* keep *) logic [WISHBONE_ADDR_WIDTH-1:0] MEM_CMD_ADDR_O;
+  (* keep *) logic [WISHBONE_BUS_WIDTH-1:0] MEM_CMD_WDATA_O;
+  (* keep *) logic [(WISHBONE_BUS_WIDTH/8)-1:0] MEM_CMD_SEL_O;
+  (* keep *) `rvformal_rand_reg [31:0] MEM_CMD_RDATA_I;
+  assign MEM_CMD_BUSY_I = 0;
+
+
+  dtcore32 #(
+      .WISHBONE_ADDR_WIDTH(WISHBONE_ADDR_WIDTH),
+      .WISHBONE_BUS_WIDTH (WISHBONE_BUS_WIDTH)
+  ) dtcore32_inst (
+      .CLK(clock),
+      .RST(reset),
+      .rvfi_valid(rvfi_valid),
+      .rvfi_order(rvfi_order),
+      .rvfi_insn(rvfi_insn),
+      .rvfi_trap(rvfi_trap),
+      .rvfi_halt(rvfi_halt),
+      .rvfi_intr(rvfi_intr),
+      .rvfi_mode(rvfi_mode),
+      .rvfi_ixl(rvfi_ixl),
+      .rvfi_rs1_addr(rvfi_rs1_addr),
+      .rvfi_rs2_addr(rvfi_rs2_addr),
+      .rvfi_rs1_rdata(rvfi_rs1_rdata),
+      .rvfi_rs2_rdata(rvfi_rs2_rdata),
+      .rvfi_rd_addr(rvfi_rd_addr),
+      .rvfi_rd_wdata(rvfi_rd_wdata),
+      .rvfi_pc_rdata(rvfi_pc_rdata),
+      .rvfi_pc_wdata(rvfi_pc_wdata),
+      .rvfi_mem_addr(rvfi_mem_addr),
+      .rvfi_mem_rmask(rvfi_mem_rmask),
+      .rvfi_mem_wmask(rvfi_mem_wmask),
+      .rvfi_mem_rdata(rvfi_mem_rdata),
+      .rvfi_mem_wdata(rvfi_mem_wdata),
+      .rvfi_csr_mcycle_rmask(rvfi_csr_mcycle_rmask),
+      .rvfi_csr_mcycle_wmask(rvfi_csr_mcycle_wmask),
+      .rvfi_csr_mcycle_rdata(rvfi_csr_mcycle_rdata),
+      .rvfi_csr_mcycle_wdata(rvfi_csr_mcycle_wdata),
+      .rvfi_csr_minstret_rmask(rvfi_csr_minstret_rmask),
+      .rvfi_csr_minstret_wmask(rvfi_csr_minstret_wmask),
+      .rvfi_csr_minstret_rdata(rvfi_csr_minstret_rdata),
+      .rvfi_csr_minstret_wdata(rvfi_csr_minstret_wdata),
+      .rvfi_csr_mcause_rmask(rvfi_csr_mcause_rmask),
+      .rvfi_csr_mcause_wmask(rvfi_csr_mcause_wmask),
+      .rvfi_csr_mcause_rdata(rvfi_csr_mcause_rdata),
+      .rvfi_csr_mcause_wdata(rvfi_csr_mcause_wdata),
+      .rvfi_csr_mepc_rmask(rvfi_csr_mepc_rmask),
+      .rvfi_csr_mepc_wmask(rvfi_csr_mepc_wmask),
+      .rvfi_csr_mepc_rdata(rvfi_csr_mepc_rdata),
+      .rvfi_csr_mepc_wdata(rvfi_csr_mepc_wdata),
+      .rvfi_csr_mtvec_rmask(rvfi_csr_mtvec_rmask),
+      .rvfi_csr_mtvec_wmask(rvfi_csr_mtvec_wmask),
+      .rvfi_csr_mtvec_rdata(rvfi_csr_mtvec_rdata),
+      .rvfi_csr_mtvec_wdata(rvfi_csr_mtvec_wdata),
+      .IMEM_CMD_ADDR_O(IMEM_CMD_ADDR_O),
+      .IMEM_CMD_RDATA_I(IMEM_CMD_RDATA_I),
+      .MEM_CMD_START_O(MEM_CMD_START_O),
+      .MEM_CMD_WE_O(MEM_CMD_WE_O),
+      .MEM_CMD_ADDR_O(MEM_CMD_ADDR_O),
+      .MEM_CMD_WDATA_O(MEM_CMD_WDATA_O),
+      .MEM_CMD_SEL_O(MEM_CMD_SEL_O),
+      .MEM_CMD_RDATA_I(MEM_CMD_RDATA_I),
+      .MEM_CMD_BUSY_I(MEM_CMD_BUSY_I)
   );
 
 
 
-  dmem  #(.ADDR_WIDTH(DMEM_ADDR_WIDTH)) dmem_inst (
-    .CLK(clock),
-    .WE(dmem_wmask),
-    .EN(dmem_en),
-    .ADDR(dmem_addr),
-    .WDATA(dmem_wdata),
-    .RDATA(dmem_rdata)
-  );
-
-
+  /*
 // MMIO address range
 localparam MMIO_BASE = 32'h2400;
 localparam MMIO_END  = 32'h2410;
@@ -122,6 +103,7 @@ assume property (@(posedge clock)
          (rvfi_insn[6:0] == 7'b0100011 && rvfi_insn[14:12] == 3'b010)) && // SW
          (rvfi_mem_addr[1:0] == 2'b00 ))  
 );
+*/
 
 endmodule
 

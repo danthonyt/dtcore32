@@ -1,20 +1,20 @@
 [*]
 [*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
-[*] Sat Aug 16 19:40:06 2025
+[*] Sun Aug 24 20:37:52 2025
 [*]
 [dumpfile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/checks/pc_fwd_ch0/engine_0/trace.vcd"
-[dumpfile_mtime] "Sat Aug 16 19:30:48 2025"
-[dumpfile_size] 231769
+[dumpfile_mtime] "Sun Aug 24 20:20:17 2025"
+[dumpfile_size] 243594
 [savefile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/fwd_config.gtkw"
 [timestart] 0
 [size] 2494 1361
 [pos] -1 -1
-*-5.166809 60 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-5.166809 100 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] rvfi_testbench.
 [treeopen] rvfi_testbench.wrapper.
 [treeopen] rvfi_testbench.wrapper.dtcore32_inst.
 [sst_width] 278
-[signals_width] 485
+[signals_width] 607
 [sst_expanded] 1
 [sst_vpaned_height] 405
 @28
@@ -57,31 +57,38 @@ rvfi_testbench.checker_inst.rvfi_rs2_rdata[31:0]
 @28
 rvfi_testbench.checker_inst.rvfi_trap
 rvfi_testbench.checker_inst.rvfi_valid
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.axil_stall
 @22
-rvfi_testbench.wrapper.dtcore32_inst.IF_pc_rdata[31:0]
-rvfi_testbench.wrapper.dtcore32_inst.ID_pc_rdata[31:0]
-rvfi_testbench.wrapper.dtcore32_inst.EX_pc_rdata[31:0]
-rvfi_testbench.wrapper.dtcore32_inst.MEM1_pc_rdata[31:0]
-rvfi_testbench.wrapper.dtcore32_inst.MEM2_pc_rdata[31:0]
-rvfi_testbench.wrapper.dtcore32_inst.WB_pc_rdata[31:0]
-rvfi_testbench.wrapper.dtcore32_inst.IMEM_RDATA[31:0]
-rvfi_testbench.wrapper.dtcore32_inst.ID_insn[31:0]
-rvfi_testbench.wrapper.dtcore32_inst.EX_insn[31:0]
-rvfi_testbench.wrapper.dtcore32_inst.MEM1_insn[31:0]
-rvfi_testbench.wrapper.dtcore32_inst.MEM2_insn[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.IMEM_CMD_RDATA_I[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.id_pipeline<insn>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.ex_pipeline<insn>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.mem_pipeline<insn>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.wb_pipeline<insn>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.IMEM_CMD_ADDR_O[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.id_pipeline<pc>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.ex_pipeline<pc>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.mem_pipeline<pc>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.wb_pipeline<pc>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.ex_pipeline<pc_plus_4>[31:0]
 @28
-rvfi_testbench.wrapper.dtcore32_inst.MEM2_valid_insn
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.IF_FLUSH
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.ID_FLUSH
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.EX_FLUSH
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.MEM1_FLUSH
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.MEM2_FLUSH
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.IF_STALL
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.ID_STALL
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.EX_STALL
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.csr_read_use_stall
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.csr_read_use_stall
-rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.load_use_stall
+rvfi_testbench.wrapper.dtcore32_inst.if_valid_q
+rvfi_testbench.wrapper.dtcore32_inst.id_pipeline<valid>
+rvfi_testbench.wrapper.dtcore32_inst.ex_pipeline<valid>
+rvfi_testbench.wrapper.dtcore32_inst.mem_pipeline<valid>
+rvfi_testbench.wrapper.dtcore32_inst.wb_pipeline<valid>
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.IF_ID_STALL
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.ID_EX_STALL
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.EX_MEM_STALL
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.MEM_WB_STALL
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.IF_ID_FLUSH
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.ID_EX_FLUSH
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.EX_MEM_FLUSH
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.MEM_WB_FLUSH
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.EX_TRAP_VALID
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.MEM_TRAP_VALID
+rvfi_testbench.wrapper.dtcore32_inst.hazard_unit_inst.WB_TRAP_VALID
+@22
+rvfi_testbench.wrapper.dtcore32_inst.ex_pc_wdata_d[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.mem_pipeline<pc_wdata>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.wb_pipeline<pc_wdata>[31:0]
 [pattern_trace] 1
 [pattern_trace] 0

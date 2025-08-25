@@ -1,80 +1,70 @@
 
 module dtcore32 #(
-    parameter DMEM_ADDR_WIDTH = 10,
-    parameter IMEM_ADDR_WIDTH = 10,
-    parameter AXIL_ADDR_WIDTH = 32,
-    parameter AXIL_BUS_WIDTH  = 32
+    parameter WISHBONE_ADDR_WIDTH = 32,
+    parameter WISHBONE_BUS_WIDTH  = 32
 ) (
-    input  logic        CLK,
-    input  logic        RST,
-    //input  logic [               31:0] IMEM_RDATA,
-    //input  logic [               31:0] DMEM_RDATA,
-    //input logic DMEM_RVALID,
+    input  logic                           CLK,
+    input  logic                           RST,
 `ifdef RISCV_FORMAL
-    output logic        rvfi_valid,
-    output logic [63:0] rvfi_order,
-    output logic [31:0] rvfi_insn,
-    output logic        rvfi_trap,
-    output logic        rvfi_halt,
-    output logic        rvfi_intr,
-    output logic [ 1:0] rvfi_mode,
-    output logic [ 1:0] rvfi_ixl,
-    output logic [ 4:0] rvfi_rs1_addr,
-    output logic [ 4:0] rvfi_rs2_addr,
-    output logic [31:0] rvfi_rs1_rdata,
-    output logic [31:0] rvfi_rs2_rdata,
-    output logic [ 4:0] rvfi_rd_addr,
-    output logic [31:0] rvfi_rd_wdata,
-    output logic [31:0] rvfi_pc_rdata,
-    output logic [31:0] rvfi_pc_wdata,
-    output logic [31:0] rvfi_mem_addr,
-    output logic [ 3:0] rvfi_mem_rmask,
-    output logic [ 3:0] rvfi_mem_wmask,
-    output logic [31:0] rvfi_mem_rdata,
-    output logic [31:0] rvfi_mem_wdata,
-    output logic [63:0] rvfi_csr_mcycle_rmask,
-    output logic [63:0] rvfi_csr_mcycle_wmask,
-    output logic [63:0] rvfi_csr_mcycle_rdata,
-    output logic [63:0] rvfi_csr_mcycle_wdata,
-    output logic [63:0] rvfi_csr_minstret_rmask,
-    output logic [63:0] rvfi_csr_minstret_wmask,
-    output logic [63:0] rvfi_csr_minstret_rdata,
-    output logic [63:0] rvfi_csr_minstret_wdata,
-    output logic [31:0] rvfi_csr_mcause_rmask,
-    output logic [31:0] rvfi_csr_mcause_wmask,
-    output logic [31:0] rvfi_csr_mcause_rdata,
-    output logic [31:0] rvfi_csr_mcause_wdata,
-    output logic [31:0] rvfi_csr_mepc_rmask,
-    output logic [31:0] rvfi_csr_mepc_wmask,
-    output logic [31:0] rvfi_csr_mepc_rdata,
-    output logic [31:0] rvfi_csr_mepc_wdata,
-    output logic [31:0] rvfi_csr_mtvec_rmask,
-    output logic [31:0] rvfi_csr_mtvec_wmask,
-    output logic [31:0] rvfi_csr_mtvec_rdata,
-    output logic [31:0] rvfi_csr_mtvec_wdata,
+    output logic                           rvfi_valid,
+    output logic [                   63:0] rvfi_order,
+    output logic [                   31:0] rvfi_insn,
+    output logic                           rvfi_trap,
+    output logic                           rvfi_halt,
+    output logic                           rvfi_intr,
+    output logic [                    1:0] rvfi_mode,
+    output logic [                    1:0] rvfi_ixl,
+    output logic [                    4:0] rvfi_rs1_addr,
+    output logic [                    4:0] rvfi_rs2_addr,
+    output logic [                   31:0] rvfi_rs1_rdata,
+    output logic [                   31:0] rvfi_rs2_rdata,
+    output logic [                    4:0] rvfi_rd_addr,
+    output logic [                   31:0] rvfi_rd_wdata,
+    output logic [                   31:0] rvfi_pc_rdata,
+    output logic [                   31:0] rvfi_pc_wdata,
+    output logic [                   31:0] rvfi_mem_addr,
+    output logic [                    3:0] rvfi_mem_rmask,
+    output logic [                    3:0] rvfi_mem_wmask,
+    output logic [                   31:0] rvfi_mem_rdata,
+    output logic [                   31:0] rvfi_mem_wdata,
+    output logic [                   63:0] rvfi_csr_mcycle_rmask,
+    output logic [                   63:0] rvfi_csr_mcycle_wmask,
+    output logic [                   63:0] rvfi_csr_mcycle_rdata,
+    output logic [                   63:0] rvfi_csr_mcycle_wdata,
+    output logic [                   63:0] rvfi_csr_minstret_rmask,
+    output logic [                   63:0] rvfi_csr_minstret_wmask,
+    output logic [                   63:0] rvfi_csr_minstret_rdata,
+    output logic [                   63:0] rvfi_csr_minstret_wdata,
+    output logic [                   31:0] rvfi_csr_mcause_rmask,
+    output logic [                   31:0] rvfi_csr_mcause_wmask,
+    output logic [                   31:0] rvfi_csr_mcause_rdata,
+    output logic [                   31:0] rvfi_csr_mcause_wdata,
+    output logic [                   31:0] rvfi_csr_mepc_rmask,
+    output logic [                   31:0] rvfi_csr_mepc_wmask,
+    output logic [                   31:0] rvfi_csr_mepc_rdata,
+    output logic [                   31:0] rvfi_csr_mepc_wdata,
+    output logic [                   31:0] rvfi_csr_mtvec_rmask,
+    output logic [                   31:0] rvfi_csr_mtvec_wmask,
+    output logic [                   31:0] rvfi_csr_mtvec_rdata,
+    output logic [                   31:0] rvfi_csr_mtvec_wdata,
 `endif
-    //output logic [IMEM_ADDR_WIDTH-1:0] IMEM_ADDR,
-    //output logic [DMEM_ADDR_WIDTH-1:0] DMEM_ADDR,
-    //output logic [               31:0] DMEM_WDATA,
-    //output logic [                3:0] DMEM_WMASK,
-    //output logic                       IMEM_EN,
-    //output logic                       DMEM_EN,
-    // axi lite master interface
-    output logic        AXIL_START_READ,
-    output logic        AXIL_START_WRITE,
-    input  logic        AXIL_DONE_READ,
-    input  logic        AXIL_DONE_WRITE,
-    input  logic        AXIL_BUSY_READ,
-    input  logic        AXIL_BUSY_WRITE,
+    // wishbone master interface signals for IF stage
+    //output logic IMEM_CMD_START_O,
+    // output logic CMD_WE_O, always read
+    output logic [WISHBONE_ADDR_WIDTH-1:0] IMEM_CMD_ADDR_O,
+    // output logic [WISHBONE_BUS_WIDTH-1:0] CMD_WDATA_O,
+    // output logic [(WISHBONE_BUS_WIDTH/8)-1:0] CMD_SEL_O,
+    input  logic [ WISHBONE_BUS_WIDTH-1:0] IMEM_CMD_RDATA_I,
+    //input logic IMEM_CMD_BUSY_I,
 
-    // peripheral interface
-    // put on the axi line
-    output logic [AXIL_ADDR_WIDTH-1:0] AXIL_TRANSACTION_WRADDR,
-    output logic [AXIL_BUS_WIDTH-1:0] AXIL_TRANSACTION_WRDATA,
-    output logic [(AXIL_BUS_WIDTH/8)-1:0] AXIL_TRANSACTION_WSTRB,
-    output logic [AXIL_ADDR_WIDTH-1:0] AXIL_TRANSACTION_RADDR,
-    // taken from the axi line
-    input logic [AXIL_BUS_WIDTH-1:0] AXIL_TRANSACTION_RDATA
+    // wishbone master interface signals for mem stage
+    output logic MEM_CMD_START_O,
+    output logic MEM_CMD_WE_O,
+    output logic [WISHBONE_ADDR_WIDTH-1:0] MEM_CMD_ADDR_O,
+    output logic [WISHBONE_BUS_WIDTH-1:0] MEM_CMD_WDATA_O,
+    output logic [(WISHBONE_BUS_WIDTH/8)-1:0] MEM_CMD_SEL_O,
+    input logic [WISHBONE_BUS_WIDTH-1:0] MEM_CMD_RDATA_I,
+    input logic MEM_CMD_BUSY_I
 );
   /////////////////////////////////////////////
   //
@@ -102,28 +92,29 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
+  logic [31:0] if_pc_plus_4_d;
+  logic [31:0] if_a_pc_plus_4_q;
+  logic [31:0] START_ADDR;
+  logic if_a_intr_d;
+  logic if_a_intr_q;
+  logic [31:0] if_a_pc_d;
+  logic [31:0] if_a_pc_q;
+  logic if_a_valid_d;
+  logic if_a_valid_q;
 
-  logic [31:0] if_a_pc_rdata_q;
-  logic [31:0] if_a_pc_rdata_comb;
-  logic if_a_valid_insn_r;
-  logic if_a_valid_insn_comb;
-  logic if_b_valid_insn_r;
-  logic if_a_intr_r;
-  logic if_a_intr_comb;
-  logic if_b_intr_r;
-  logic [31:0] if_b_pc_rdata_r;
-  logic [31:0] if_b_pc_plus_4_r;
-  logic [31:0] next_pc_comb;
+  logic [31:0] if_b_pc_plus_4_q;
+  logic if_b_intr_q;
+  logic [31:0] if_b_pc_q;
+  logic if_b_valid_q;
+
+  logic [31:0] if_c_pc_plus_4_q;
+  logic if_c_intr_q;
+  logic [31:0] if_c_pc_q;
+  logic if_c_valid_q;
+  logic [31:0] if_c_insn_q;
+
   logic [31:0] trap_handler_addr_q;
   pipeline_t if_pipeline;
-
-
-
-  rvfi_t if_rvfi;
-  rvfi_t id_rvfi;
-  rvfi_t ex_rvfi;
-  rvfi_t mem_rvfi;
-  rvfi_t wb_rvfi;
 
   //////////////////////////////////////
   //
@@ -168,13 +159,14 @@ module dtcore32 #(
   mem_op_t id_mem_op_d;
   cf_op_t id_cf_op_d;
   csr_op_t id_csr_op_d;
-  imm_ext_op id_imm_ext_op;
+  imm_ext_op_t id_imm_ext_op;
   alu_control_t id_alu_control;
   alu_a_sel_t id_alu_a_sel_d;
   alu_b_sel_t id_alu_b_sel_d;
   pc_alu_sel_t id_pc_alu_sel_d;
   result_sel_t id_result_sel_d;
   csr_bitmask_sel_t id_csr_bitmask_sel_d;
+  pipeline_t id_pipeline_buffer;
   pipeline_t id_pipeline;
 
 
@@ -190,7 +182,6 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
   trap_info_t ex_trap_d;
-  trap_info_t ex_carried_trap_q;
   logic [31:0] ex_rs1_rdata_d;
   logic [31:0] ex_rs2_rdata_d;
   logic [4:0] ex_rs1_addr_d;
@@ -199,25 +190,25 @@ module dtcore32 #(
   logic [31:0] ex_csr_bitmask_comb;
   logic [2:0] ex_forward_a_sel_comb;
   logic [2:0] ex_forward_b_sel_comb;
-  logic ex_pc_src_raw_comb;
-  logic ex_pc_src_actual_comb;
-  logic [31:0] ex_pc_target_actual_comb;
+  logic ex_is_pc_redirect;
+  logic [31:0] ex_pc_target;
   logic [31:0] ex_src_a_tick_comb;
   logic [31:0] ex_src_a_comb;
   logic [31:0] ex_src_b_comb;
-  logic [31:0] ex_pc_target_src_a_comb;
+  logic [31:0] ex_pc_base;
   logic ex_branch_cond_comb;
   logic ex_misaligned_jump_or_branch_comb;
   logic [4:0] ex_rd_addr_d;
   logic [31:0] ex_alu_result_comb;
   logic ex_load_trap_valid;
-  
+  logic [31:0] ex_pc_target_non_jalr;
+
   logic [31:0] ex_alu_csr_result_d;
 
   logic [31:0] ex_store_wdata_d;
 
 
-  
+
 
   pipeline_t ex_pipeline;
 
@@ -237,18 +228,8 @@ module dtcore32 #(
   trap_info_t mem_trap_d;
   logic mem_misaligned_store;
 
-  logic [3:0] mem_dmem_wmask;
-  logic [3:0] axil_rmask_d;
   logic [3:0] mem_load_rmask_comb;
-  logic [3:0] dmem_rmask;
-  logic [3:0] ex_dmem_rmask;
-  logic [4:0] mem_rd_addr_r;
   logic [31:0] mem_load_rdata_d;
-  logic [31:0] dmem_rdata_formatted;
-  logic [31:0] mem_dmem_wdata;
-  logic [31:0] axil_addr;
-  logic axil_en_d;
-  logic dmem_read_req;
 
   logic [31:0] mem_store_wdata_d;
   pipeline_t mem_pipeline;
@@ -276,11 +257,11 @@ module dtcore32 #(
   logic [4:0] wb_rd_addr_masked;
   logic [31:0] wb_rd_wdata_masked;
   logic [31:0] wb_rd_wdata_comb;
-  logic [31:0] wb_csr_rmask_comb;
   logic [31:0] wb_csr_wmask_comb;
+  logic [31:0] wb_csr_rmask_comb;
   logic [31:0] ex_csr_wdata_d;
   trap_info_t wb_trap_d;
-  cpu_control_t wb_cpu_control_r;
+  logic [11:0] wb_csr_addr_masked;
 
   pipeline_t wb_pipeline;
 
@@ -307,84 +288,63 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
 
-  logic [31:0] pc_plus_4;
-  logic [31:0] START_ADDR;
   assign START_ADDR = 32'd0;
+  assign IMEM_CMD_ADDR_O = if_a_pc_q;
 
   // next pc logic
-  always_comb begin
-    unique case (ex_pc_src_actual_comb)
-      // select pc incremented by 4
-      1'b0: begin
-        next_pc_comb = pc_plus_4;
-      end
-      // select pc from execute stage
-      1'b1: begin
-        next_pc_comb = ex_pc_target_actual_comb;
-      end
-      default: begin
-        next_pc_comb = 0;
-      end
-    endcase
-  end
+  assign if_a_pc_d = wb_trap_d.valid ? trap_handler_addr_q : 
+  ex_is_pc_redirect ? ex_pc_target : if_a_pc_q + 4;
 
-  assign if_a_intr_comb = wb_trap_d.valid ? 1 : 0;
-  assign if_a_pc_rdata_comb = wb_trap_d.valid ? trap_handler_addr_q : next_pc_comb;
+  assign if_a_intr_d = wb_trap_d.valid ? 1 : 0;
+  assign if_a_valid_d = 1;
 
-  // pc incremented by 4
-  assign pc_plus_4 = if_a_pc_rdata_q + 4;
-
-  // register A 
+  // input into the memory
   always_ff @(posedge CLK) begin
     if (RST) begin
-      if_a_pc_rdata_q <= 0;
-      if_a_intr_r <= 0;
-      if_a_valid_insn_r <= 0;
-    end else if (!if_id_stall) begin
-      if_a_pc_rdata_q <= next_pc_comb;
-      if_a_intr_r <= 0;
-      if_a_valid_insn_r <= 1;
-    end
-  end
-  // register B
-  always_ff @(posedge CLK) begin
-    if (RST) begin
-      if_b_pc_rdata_r <= START_ADDR;
-      if_b_pc_plus_4_r <= START_ADDR + 4;
-      if_b_intr_r <= 0;
-      if_b_valid_insn_r <= 1;
-    end else if (!if_id_stall) begin
-      if_b_pc_rdata_r <= if_a_pc_rdata_q;
-      if_b_pc_plus_4_r <= pc_plus_4;
-      if_b_intr_r <= if_a_intr_r;
-      if_b_valid_insn_r <= if_a_valid_insn_r;
+      if_a_pc_q <= START_ADDR;
+      if_a_pc_plus_4_q <= START_ADDR + 4;
+      if_a_intr_q <= 0;
+      if_a_valid_q <= 1;
+    end else begin
+      if_a_pc_q <= if_a_pc_d;
+      if_a_pc_plus_4_q <= if_a_pc_d + 4;
+      if_a_intr_q <= if_a_intr_d;
+      if_a_valid_q <= if_a_valid_d;
     end
   end
 
-  axil_interface #(
-      .ADDR_WIDTH(AXIL_ADDR_WIDTH),
-      .BUS_WIDTH(IMEM_ADDR_WIDTH),
-      .ENABLE_WRITE('0)
-  ) axil_interface_if (
-      .CLK(CLK),
-      .RST(RST),
-      .EN(axil_en_d),
-      .MEM1_ALU_RESULT(mem_pipeline.alu_csr_result),
-      .MEM_OP(mem_pipeline.mem_op),
-      .MEM_WDATA_RAW(mem_store_wdata_d),
-      .AXIL_ADDR(axil_addr),
-      .AXIL_DONE_READ(AXIL_DONE_READ),
-      .AXIL_DONE_WRITE(AXIL_DONE_WRITE),
-      .AXIL_TRANSACTION_RDATA(AXIL_TRANSACTION_RDATA),
-      .AXIL_START_READ(AXIL_START_READ),
-      .AXIL_START_WRITE(AXIL_START_WRITE),
-      .AXIL_TRANSACTION_WRADDR(AXIL_TRANSACTION_WRADDR),
-      .AXIL_TRANSACTION_WRDATA(AXIL_TRANSACTION_WRDATA),
-      .AXIL_TRANSACTION_WSTRB(AXIL_TRANSACTION_WSTRB),
-      .AXIL_TRANSACTION_RADDR(AXIL_TRANSACTION_RADDR)
-  );
+  // synchronize metadata with memory latency
+  always_ff @(posedge CLK) begin
+    if (RST || if_id_flush) begin
+      if_b_pc_q <= 0;
+      if_b_pc_plus_4_q <= 0;
+      if_b_intr_q <= 0;
+      if_b_valid_q <= 0;
+    end else if (!if_id_stall) begin
+      if_b_pc_q <= if_a_pc_q;
+      if_b_pc_plus_4_q <= if_a_pc_plus_4_q;
+      if_b_intr_q <= if_a_intr_q;
+      if_b_valid_q <= if_a_valid_q;
+    end
+  end
 
+  always_ff @(posedge CLK) begin
+    if (RST || if_id_flush) begin
+      if_c_pc_q <= 0;
+      if_c_pc_plus_4_q <= 0;
+      if_c_intr_q <= 0;
+      if_c_valid_q <= 0;
+      if_c_insn_q <= NOP_INSTRUCTION;
+    end else if (!if_id_stall) begin
+      if_c_pc_q <= if_b_pc_q;
+      if_c_pc_plus_4_q <= if_b_pc_plus_4_q;
+      if_c_intr_q <= if_b_intr_q;
+      if_c_valid_q <= if_b_valid_q;
+      if_c_insn_q <= IMEM_CMD_RDATA_I;
+    end
+  end
 
+  // goes into the if/id pipeline
 
   //////////////////////////////////////
   //
@@ -400,10 +360,10 @@ module dtcore32 #(
 
   assign id_rtype_alt_comb = id_op_comb[5] & id_funct7b5_comb;
   assign id_itype_alt_comb = ~id_op_comb[5] & id_funct7b5_comb;
-  assign id_rs1_addr_d = (id_cpu_control_comb.rs1_valid) ? id_pipeline.insn[19:15] : 0;
-  assign id_rs2_addr_d = (id_cpu_control_comb.rs2_valid) ? id_pipeline.insn[24:20] : 0;
-  assign id_rd_addr_d = (id_cpu_control_comb.rd_valid) ? id_pipeline.insn[11:7] : 0;
-  assign id_csr_addr_d = (id_pipeline.valid) ? id_pipeline.insn[31:20] : 0;
+  assign id_rs1_addr_d = (id_rs1_valid_comb) ? id_pipeline.insn[19:15] : 0;
+  assign id_rs2_addr_d = (id_rs2_valid_comb) ? id_pipeline.insn[24:20] : 0;
+  assign id_rd_addr_d = (id_rd_valid_comb) ? id_pipeline.insn[11:7] : 0;
+  assign id_csr_addr_d = (id_csr_op_d != CSR_NONE) ? id_pipeline.insn[31:20] : 0;
 
   // select forwarded rs1 or rs2 rdata if needed
   assign id_rs1_rdata_d = id_forward_a_comb ? wb_rd_wdata_masked : id_rs1_rfile_rdata_comb;
@@ -454,6 +414,8 @@ module dtcore32 #(
       .rs2_rdata_o(id_rs2_rfile_rdata_comb)
   );
 
+  logic [31:0] ex_csr_rdata_d;
+
 
   csrfile csrfile_inst (
       .CLK(CLK),
@@ -464,8 +426,11 @@ module dtcore32 #(
       .CSR_WDATA(wb_pipeline.csr_wdata),
       .WB_VALID_INSN(wb_pipeline.valid),
       .WB_TRAP(wb_trap_d),
+      .EX_VALID(ex_pipeline.valid),
+      .MEM_VALID(mem_pipeline.valid),
+      .WB_VALID(wb_pipeline.valid),
       .TRAP_HANDLER_ADDR(trap_handler_addr_q),
-      .CSR_RDATA_REG(ex_pipeline.csr_rdata),
+      .CSR_RDATA_REG(ex_csr_rdata_d),
       .CSR_RMASK(wb_csr_rmask_comb),
       .CSR_WMASK(wb_csr_wmask_comb)
   );
@@ -481,41 +446,44 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  logic [31:0] ex_pc_target_raw_comb;
 
+
+  logic [31:0] ex_pc_wdata_d;
   assign ex_rs1_rdata_d = ex_src_a_tick_comb;
   assign ex_rs2_rdata_d = ex_store_wdata_d;
-  assign ex_pc_src_raw_comb = (ex_pipeline.cf_op[0] | (ex_pipeline.cf_op[1] & ex_branch_cond_comb));
 
-  assign ex_pc_wdata_d = (ex_pc_src_actual_comb) ? ex_pc_target_actual_comb : ex_pipeline.pc_plus_4;
+
+  // for rvfi
+  assign ex_pc_wdata_d = (ex_is_pc_redirect) ? ex_pc_target : ex_pipeline.pc_plus_4;
   // trap if a jump or branch address is misaligned
-  //assign ex_misaligned_jump_or_branch_comb = ex_pc_src_actual_comb & (next_pc_comb[1] | next_pc_comb[0]);
-  assign ex_misaligned_jump_or_branch_comb = ex_pc_src_actual_comb & (next_pc_comb[1] | next_pc_comb[0]);
+  //assign ex_misaligned_jump_or_branch_comb = ex_is_pc_redirect & (if_a_pc_d[1] | if_a_pc_d[0]);
+  assign ex_misaligned_jump_or_branch_comb = ex_is_pc_redirect & (if_a_pc_d[1] | if_a_pc_d[0]);
 
-  assign ex_pc_target_raw_comb = ex_pc_target_src_a_comb + ex_pipeline.imm_ext;
-  assign ex_pc_target_actual_comb     = (ex_pipeline.cf_op == CF_JALR) ? (ex_pc_target_raw_comb & ~(1)) : ex_pc_target_raw_comb;
+  assign ex_pc_target_non_jalr = (ex_pc_base + ex_pipeline.imm_ext);
+  assign ex_pc_target     = (ex_pipeline.cf_op == CF_JALR) ? (ex_pc_target_non_jalr & ~(1'b1)) : ex_pc_target_non_jalr;
+  assign ex_is_pc_redirect = (ex_pipeline.cf_op[0] | (ex_pipeline.cf_op[1] & ex_branch_cond_comb));
 
   // disable ex stage if trap propagates from previous stage
   // disable jumps, and set all register addresses to zero
-  assign ex_rs1_addr_d = ex_carried_trap_q.valid ? 0 : ex_pipeline.rs1_addr;
-  assign ex_rs2_addr_d = ex_carried_trap_q.valid ? 0 : ex_pipeline.rs2_addr;
-  assign ex_rd_addr_d = ex_carried_trap_q.valid ? 0 : ex_pipeline.rd_addr;
-  assign ex_csr_addr_d = ex_carried_trap_q.valid ? 0 : ex_pipeline.csr_addr;
-  assign ex_pc_src_actual_comb = ex_carried_trap_q.valid ? 0 : ex_pc_src_raw_comb;
+  assign ex_rs1_addr_d = ex_pipeline.rs1_addr;
+  assign ex_rs2_addr_d = ex_pipeline.rs2_addr;
+  assign ex_rd_addr_d = ex_pipeline.rd_addr;
+  assign ex_csr_addr_d = ex_pipeline.csr_addr;
+
   // alu input 1 data path
   // select reg 1 data or data forwarded from WB or MEM stage
   always_comb begin
     case (ex_forward_a_sel_comb)
-      NO_FORWARD_SEL:             ex_src_a_tick_comb = ex_pipeline.rs1_data;
+      NO_FORWARD_SEL:             ex_src_a_tick_comb = ex_pipeline.rs1_rdata;
       FORWARD_SEL_MEM_ALU_RESULT: ex_src_a_tick_comb = mem_pipeline.alu_csr_result;
-      FORWARD_SEL_MEM_LOAD_RDATA: ex_src_a_tick_comb = mem_load_rdata_d;
-      FORWARD_SEL_WB_RESULT:      ex_src_a_tick_comb = wb_rd_wdata_masked;
+      FORWARD_SEL_WB_LOAD_RDATA:  ex_src_a_tick_comb = wb_pipeline.load_rdata;
+      FORWARD_SEL_WB_ALU_RESULT:  ex_src_a_tick_comb = wb_pipeline.alu_csr_result;
       default:                    ex_src_a_tick_comb = 0;
     endcase
   end
   // select data from first mux, zero, or pc
   always_comb begin
-    case (ex_pipeline.alu_a_src)
+    case (ex_pipeline.alu_a_sel)
       ALU_A_SEL_REG_DATA: ex_src_a_comb = ex_src_a_tick_comb;
       ALU_A_SEL_ZERO:     ex_src_a_comb = 0;
       ALU_A_SEL_PC:       ex_src_a_comb = ex_pipeline.pc;
@@ -526,16 +494,16 @@ module dtcore32 #(
   // select reg 2 data or data forwarded from WB or MEM stage
   always_comb begin
     case (ex_forward_b_sel_comb)
-      NO_FORWARD_SEL:             ex_store_wdata_d = ex_pipeline.rs2_data;
+      NO_FORWARD_SEL:             ex_store_wdata_d = ex_pipeline.rs2_rdata;
       FORWARD_SEL_MEM_ALU_RESULT: ex_store_wdata_d = mem_pipeline.alu_csr_result;
-      FORWARD_SEL_MEM_LOAD_RDATA: ex_store_wdata_d = mem_load_rdata_d;
-      FORWARD_SEL_WB_RESULT:      ex_store_wdata_d = wb_rd_wdata_masked;
+      FORWARD_SEL_WB_LOAD_RDATA:  ex_store_wdata_d = wb_pipeline.load_rdata;
+      FORWARD_SEL_WB_ALU_RESULT:  ex_store_wdata_d = wb_pipeline.alu_csr_result;
       default:                    ex_store_wdata_d = 0;
     endcase
   end
   // select data from first mux, or extended immediate
   always_comb begin
-    unique case (ex_pipeline.alu_b_src)
+    unique case (ex_pipeline.alu_b_sel)
       ALU_B_SEL_REG_DATA: ex_src_b_comb = ex_store_wdata_d;
       ALU_B_SEL_IMM:      ex_src_b_comb = ex_pipeline.imm_ext;
     endcase
@@ -543,9 +511,9 @@ module dtcore32 #(
   // select base address for branch/jump address, selecting either
   // the current pc or reg1_data.
   always_comb begin
-    unique case (ex_pipeline.pc_alu_src)
-      PC_ALU_SEL_PC:       ex_pc_target_src_a_comb = ex_pipeline.pc;
-      PC_ALU_SEL_REG_DATA: ex_pc_target_src_a_comb = ex_src_a_tick_comb;
+    unique case (ex_pipeline.pc_alu_sel)
+      PC_ALU_SEL_PC:       ex_pc_base = ex_pipeline.pc;
+      PC_ALU_SEL_REG_DATA: ex_pc_base = ex_src_a_tick_comb;
     endcase
   end
   // select write value to be used in a csr instruction
@@ -567,7 +535,7 @@ module dtcore32 #(
   end
 
 
-  assign ex_alu_csr_result_d = (ex_pipeline.csr_op != CSR_NONE) ? ex_pipeline.csr_rdata : ex_alu_result_comb;
+  assign ex_alu_csr_result_d = (ex_pipeline.csr_op != CSR_NONE) ? ex_csr_rdata_d : ex_alu_result_comb;
 
   alu alu_inst (
       .a_i(ex_src_a_comb),
@@ -577,7 +545,7 @@ module dtcore32 #(
       .result_o(ex_alu_result_comb)
   );
 
-  
+
 
 
   ///////////////////////////////////////
@@ -592,62 +560,48 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
 
-  axil_interface #(
-      .BUS_WIDTH(AXIL_BUS_WIDTH)
-  ) axil_interface_mem (
-      .CLK(CLK),
-      .RST(RST),
-      .EN(axil_en_d),
-      .MEM1_ALU_RESULT(mem_pipeline.alu_csr_result),
-      .MEM_OP(mem_pipeline.mem_op),
-      .MEM_WDATA_RAW(mem_store_wdata_d),
-      .MEM_WSTRB(mem_axil_wstrb),
-      .AXIL_ADDR(mem_pipeline.alu_csr_result),
-      .AXIL_DONE_READ(AXIL_DONE_READ),
-      .AXIL_DONE_WRITE(AXIL_DONE_WRITE),
-      .AXIL_TRANSACTION_RDATA(AXIL_TRANSACTION_RDATA),
-      .AXIL_START_READ(AXIL_START_READ),
-      .AXIL_START_WRITE(AXIL_START_WRITE),
-      .AXIL_TRANSACTION_WRADDR(AXIL_TRANSACTION_WRADDR),
-      .AXIL_TRANSACTION_WRDATA(AXIL_TRANSACTION_WRDATA),
-      .AXIL_TRANSACTION_WSTRB(AXIL_TRANSACTION_WSTRB),
-      .AXIL_TRANSACTION_RADDR(AXIL_TRANSACTION_RADDR)
-  );
-  logic mem_axil_req;
-  logic [3:0] mem_axil_wstrb;
+  logic [ 3:0] mem_store_wmask_comb;
 
-  logic [3:0] mem_store_wmask_comb;
-  // Assert AXI Lite request for any memory instruction
-  assign mem_axil_req = (mem_pipeline.mem_op != MEM_NONE);
+  logic [31:0] mem_formatted_load_rdata;
+
+  //logic [WISHBONE_BUS_WIDTH-1:0] mem_cmd_rdata;
+  //logic mem_cmd_busy;
+
+  // start a wishbone req if a memory instruction
+  assign MEM_CMD_START_O = !mem_pipeline.carried_trap.valid && (mem_pipeline.mem_op != MEM_NONE);
+  // high when store instruction
+  assign MEM_CMD_WE_O = mem_pipeline.mem_op[4] & mem_pipeline.mem_op[3];
+  assign MEM_CMD_ADDR_O = mem_pipeline.alu_csr_result;
+  assign MEM_CMD_WDATA_O = mem_pipeline.store_wdata;
 
   // disable dmem if address maps to axil peripheral
 
   assign mem_store_wdata_d = mem_pipeline.store_wdata;
-  assign mem_store_wmask_d = axil_en_d ? mem_store_wmask_comb : 0;
+  assign mem_store_wmask_d =  (mem_pipeline.mem_op[4] & mem_pipeline.mem_op[3]) ? mem_store_wmask_comb : 0;
   assign mem_load_rdata_d = mem_formatted_load_rdata;
-  assign mem_load_rmask_d = AXIL_DONE_READ ? mem_load_rmask_comb : 0;
+  assign mem_load_rmask_d = (mem_pipeline.mem_op[4] & !mem_pipeline.mem_op[3]) ? mem_load_rmask_comb : 0;
 
-  assign axil_en_d = !mem_pipeline.carried_trap.valid && mem_axil_req;
-  logic [31:0] mem_formatted_load_rdata;
 
   // format store data for MEM stage
-  store_unit store_unit_inst (
+  store_unit #(
+      .BUS_WIDTH(WISHBONE_BUS_WIDTH)
+  ) store_unit_inst (
       .MEM_OP(mem_pipeline.mem_op),
       .ADDR_LSB2(mem_pipeline.alu_csr_result[1:0]),
       .STORE_TRAP_VALID(mem_store_trap_valid),
       .STORE_TRAP_MCAUSE(mem_store_trap_mcause),
-      .AXIL_WSTRB(mem_axil_wstrb),
+      .WSTRB(MEM_CMD_SEL_O),
       .STORE_WMASK(mem_store_wmask_comb)
   );
 
-  load_unit  load_unit_inst (
-    .MEM_OP(mem_pipeline.mem_op),
-    .ADDR_LSB2(mem_pipeline.alu_csr_result[1:0]),
-    .AXIL_RDATA(AXIL_TRANSACTION_RDATA),
-    .LOAD_TRAP_VALID(mem_load_trap_valid),
-    .LOAD_TRAP_MCAUSE(mem_load_trap_mcause),
-    .LOAD_RMASK(mem_load_rmask_comb),
-    .LOAD_FORMATTED(mem_formatted_load_rdata)
+  load_unit load_unit_inst (
+      .MEM_OP(mem_pipeline.mem_op),
+      .ADDR_LSB2(mem_pipeline.alu_csr_result[1:0]),
+      .RDATA_RAW(MEM_CMD_RDATA_I),
+      .LOAD_TRAP_VALID(mem_load_trap_valid),
+      .LOAD_TRAP_MCAUSE(mem_load_trap_mcause),
+      .LOAD_RMASK(mem_load_rmask_comb),
+      .LOAD_FORMATTED(mem_formatted_load_rdata)
   );
 
 
@@ -658,7 +612,7 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
   // trap disable logic
-  assign wb_rd_addr_masked = wb_pipeline.carried_trap.valid ? 0 : wb_pipeline.rd_addr;
+  assign wb_rd_addr_masked  = wb_pipeline.carried_trap.valid ? 0 : wb_pipeline.rd_addr;
   assign wb_csr_addr_masked = wb_pipeline.carried_trap.valid ? 0 : wb_pipeline.csr_addr;
 
   // disable register and csr writes for an excepted instruction
@@ -679,23 +633,23 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  logic[31:0] IMEM_RDATA;
+  logic [31:0] IMEM_RDATA;
 
 
   //IF/ID
   always_ff @(posedge CLK) begin
-    if (RST) begin
+    if (RST || if_id_flush) begin
       id_pipeline <= PIPELINE_T_RESET;
     end else if (!if_id_stall) begin
       id_pipeline <= '{
-          pc: if_b_pc_rdata_r,
-          pc_plus_4: if_b_pc_plus_4_r,
-          insn: IMEM_RDATA,
+          pc: if_c_pc_q,
+          pc_plus_4: if_c_pc_plus_4_q,
+          insn: if_c_insn_q,
           rs1_addr: 0,
           rs2_addr: 0,
           rd_addr: 0,
-          rs1_data: 0,
-          rs2_data: 0,
+          rs1_rdata: 0,
+          rs2_rdata: 0,
           imm_ext: 0,
           csr_addr: 0,
           csr_wdata: 0,
@@ -715,128 +669,139 @@ module dtcore32 #(
           alu_csr_result: 0,
           load_rdata: 0,
           pc_wdata: 0,
-          valid: if_b_valid_insn_r,
-          intr: if_b_intr_r,
+          valid: if_c_valid_q,
+          intr: if_c_intr_q,
           carried_trap: '{default: 0}  // zero the struct if not used yet
       };
-
     end
   end
   // ID/EX register
   always_ff @(posedge CLK) begin
-    if (RST) begin
+    if (RST || id_ex_flush) begin
       ex_pipeline <= PIPELINE_T_RESET;
     end else if (!id_ex_stall) begin
-      ex_pipeline <= '{
-          pc: id_pipeline.pc,
-          pc_plus_4: id_pipeline.pc_plus_4,
-          insn: id_pipeline.insn,
-          rs1_addr: id_rs1_addr_d,
-          rs2_addr: id_rs2_addr_d,
-          rd_addr: id_rd_addr_d,
-          rs1_data: id_rs1_rdata_d,
-          rs2_data: id_rs2_rdata_d,
-          imm_ext: id_imm_ext_d,
-          csr_addr: id_csr_addr_d,
-          csr_wdata: 0,
-          csr_rdata: 0,
-          csr_op: id_csr_op_d,
-          cf_op: id_cf_op_d,
-          alu_control: id_alu_control_d,
-          result_sel: id_result_sel_d,
-          alu_a_sel: id_alu_a_sel_d,
-          alu_b_sel: id_alu_b_sel_d,
-          pc_alu_sel: id_pc_alu_sel_d,
-          csr_bitmask_sel: id_csr_bitmask_sel_d,
-          mem_op: id_mem_op_d,
-          load_rmask: 0,
-          store_wdata: 0,
-          store_wmask: 0,
-          alu_csr_result: 0,
-          load_rdata: 0,
-          pc_wdata: 0,
-          valid: id_pipeline.valid,
-          intr: id_pipeline.intr,
-          carried_trap: id_trap_d
-      };
+      if (if_id_stall) begin
+        ex_pipeline <= PIPELINE_T_RESET;
+      end else begin
+        ex_pipeline <= '{
+            pc: id_pipeline.pc,
+            pc_plus_4: id_pipeline.pc_plus_4,
+            insn: id_pipeline.insn,
+            rs1_addr: id_rs1_addr_d,
+            rs2_addr: id_rs2_addr_d,
+            rd_addr: id_rd_addr_d,
+            rs1_rdata: id_rs1_rdata_d,
+            rs2_rdata: id_rs2_rdata_d,
+            imm_ext: id_imm_ext_d,
+            csr_addr: id_csr_addr_d,
+            csr_wdata: 0,
+            csr_rdata: 0,
+            csr_op: id_csr_op_d,
+            cf_op: id_cf_op_d,
+            alu_control: id_alu_control_d,
+            result_sel: id_result_sel_d,
+            alu_a_sel: id_alu_a_sel_d,
+            alu_b_sel: id_alu_b_sel_d,
+            pc_alu_sel: id_pc_alu_sel_d,
+            csr_bitmask_sel: id_csr_bitmask_sel_d,
+            mem_op: id_mem_op_d,
+            load_rmask: 0,
+            store_wdata: 0,
+            store_wmask: 0,
+            alu_csr_result: 0,
+            load_rdata: 0,
+            pc_wdata: 0,
+            valid: id_pipeline.valid,
+            intr: id_pipeline.intr,
+            carried_trap: id_trap_d
+        };
+      end
     end
   end
-  // EX/MEM1 register
+  // EX/MEM register
   always_ff @(posedge CLK) begin
-    if (RST) begin
+    if (RST || ex_mem_flush) begin
       mem_pipeline <= PIPELINE_T_RESET;
     end else if (!ex_mem_stall) begin
-      mem_pipeline <= '{
-          pc: ex_pipeline.pc,
-          pc_plus_4: ex_pipeline.pc_plus_4,
-          insn: ex_pipeline.insn,
-          rs1_addr: ex_rs1_addr_d,
-          rs2_addr: ex_rs2_addr_d,
-          rd_addr: ex_rd_addr_d,
-          rs1_data: ex_rs1_rdata_d,
-          rs2_data: ex_rs2_rdata_d,
-          imm_ext: ex_pipeline.imm_ext,
-          csr_addr: ex_csr_addr_d,
-          csr_wdata: ex_csr_wdata_d,
-          csr_rdata: ex_pipeline.csr_rdata,
-          csr_op: ex_pipeline.csr_op,
-          cf_op: ex_pipeline.cf_op,
-          alu_control: ex_pipeline.alu_control,
-          result_sel: ex_pipeline.result_sel,
-          alu_a_sel: ex_pipeline.alu_a_sel,
-          alu_b_sel: ex_pipeline.alu_b_sel,
-          pc_alu_sel: ex_pipeline.pc_alu_sel,
-          csr_bitmask_sel: ex_pipeline.csr_bitmask_sel,
-          mem_op: ex_pipeline.mem_op,
-          load_rmask: 0,
-          store_wdata: ex_store_wdata_d,
-          store_wmask: 0,
-          alu_csr_result: ex_alu_csr_result_d,
-          load_rdata: 0,
-          pc_wdata: ex_pc_wdata_d,
-          valid: ex_pipeline.valid,
-          intr: ex_pipeline.intr,
-          carried_trap: ex_trap_d
-      };
+      if (id_ex_stall) begin
+        mem_pipeline <= PIPELINE_T_RESET;
+      end else begin
+        mem_pipeline <= '{
+            pc: ex_pipeline.pc,
+            pc_plus_4: ex_pipeline.pc_plus_4,
+            insn: ex_pipeline.insn,
+            rs1_addr: ex_rs1_addr_d,
+            rs2_addr: ex_rs2_addr_d,
+            rd_addr: ex_rd_addr_d,
+            rs1_rdata: ex_src_a_tick_comb,
+            rs2_rdata: ex_store_wdata_d,
+            imm_ext: ex_pipeline.imm_ext,
+            csr_addr: ex_csr_addr_d,
+            csr_wdata: ex_csr_wdata_d,
+            csr_rdata: ex_csr_rdata_d,
+            csr_op: ex_pipeline.csr_op,
+            cf_op: ex_pipeline.cf_op,
+            alu_control: ex_pipeline.alu_control,
+            result_sel: ex_pipeline.result_sel,
+            alu_a_sel: ex_pipeline.alu_a_sel,
+            alu_b_sel: ex_pipeline.alu_b_sel,
+            pc_alu_sel: ex_pipeline.pc_alu_sel,
+            csr_bitmask_sel: ex_pipeline.csr_bitmask_sel,
+            mem_op: ex_pipeline.mem_op,
+            load_rmask: 0,
+            store_wdata: ex_store_wdata_d,
+            store_wmask: 0,
+            alu_csr_result: ex_alu_csr_result_d,
+            load_rdata: 0,
+            pc_wdata: ex_pc_wdata_d,
+            valid: ex_pipeline.valid,
+            intr: ex_pipeline.intr,
+            carried_trap: ex_trap_d
+        };
+      end
     end
   end
   //MEM/WB
   always_ff @(posedge CLK) begin
-    if (RST) begin
+    if (RST || mem_wb_flush) begin
       wb_pipeline <= PIPELINE_T_RESET;
     end else if (!mem_wb_stall) begin
-      wb_pipeline <= '{
-          pc: wb_pipeline.pc,
-          pc_plus_4: wb_pipeline.pc_plus_4,
-          insn: wb_pipeline.insn,
-          rs1_addr: mem_pipeline.rs1_addr,
-          rs2_addr: mem_pipeline.rs2_addr,
-          rd_addr: mem_pipeline.rd_addr,
-          rs1_data: mem_pipeline.rs1_data,
-          rs2_data: mem_pipeline.rs2_data,
-          imm_ext: mem_pipeline.imm_ext,
-          csr_addr: mem_pipeline.csr_addr,
-          csr_wdata: mem_pipeline.csr_wdata,
-          csr_rdata: mem_pipeline.csr_rdata,
-          csr_op: mem_pipeline.csr_op,
-          cf_op: mem_pipeline.cf_op,
-          alu_control: mem_pipeline.alu_control,
-          result_sel: mem_pipeline.result_sel,
-          alu_a_sel: mem_pipeline.alu_a_sel,
-          alu_b_sel: mem_pipeline.alu_b_sel,
-          pc_alu_sel: mem_pipeline.pc_alu_sel,
-          csr_bitmask_sel: mem_pipeline.csr_bitmask_sel,
-          mem_op: mem_pipeline.mem_op,
-          load_rmask: mem_load_rmask_d,
-          store_wdata: mem_store_wdata_d,
-          store_wmask: mem_store_wmask_d,
-          alu_csr_result: mem_pipeline.alu_csr_result,
-          load_rdata: mem_load_rdata_d,
-          pc_wdata: mem_pipeline.pc_wdata,
-          valid: mem_pipeline.valid,
-          intr: mem_pipeline.intr,
-          carried_trap: mem_trap_d
-      };
+      if (ex_mem_stall) begin
+        wb_pipeline <= PIPELINE_T_RESET;
+      end else begin
+        wb_pipeline <= '{
+            pc: mem_pipeline.pc,
+            pc_plus_4: mem_pipeline.pc_plus_4,
+            insn: mem_pipeline.insn,
+            rs1_addr: mem_pipeline.rs1_addr,
+            rs2_addr: mem_pipeline.rs2_addr,
+            rd_addr: mem_pipeline.rd_addr,
+            rs1_rdata: mem_pipeline.rs1_rdata,
+            rs2_rdata: mem_pipeline.rs2_rdata,
+            imm_ext: mem_pipeline.imm_ext,
+            csr_addr: mem_pipeline.csr_addr,
+            csr_wdata: mem_pipeline.csr_wdata,
+            csr_rdata: mem_pipeline.csr_rdata,
+            csr_op: mem_pipeline.csr_op,
+            cf_op: mem_pipeline.cf_op,
+            alu_control: mem_pipeline.alu_control,
+            result_sel: mem_pipeline.result_sel,
+            alu_a_sel: mem_pipeline.alu_a_sel,
+            alu_b_sel: mem_pipeline.alu_b_sel,
+            pc_alu_sel: mem_pipeline.pc_alu_sel,
+            csr_bitmask_sel: mem_pipeline.csr_bitmask_sel,
+            mem_op: mem_pipeline.mem_op,
+            load_rmask: mem_load_rmask_d,
+            store_wdata: mem_store_wdata_d,
+            store_wmask: mem_store_wmask_d,
+            alu_csr_result: mem_pipeline.alu_csr_result,
+            load_rdata: mem_load_rdata_d,
+            pc_wdata: mem_pipeline.pc_wdata,
+            valid: mem_pipeline.valid,
+            intr: mem_pipeline.intr,
+            carried_trap: mem_trap_d
+        };
+      end
     end
   end
 
@@ -854,7 +819,7 @@ module dtcore32 #(
           is_interrupt: 0,
           insn: id_pipeline.insn,
           mcause: id_maindec_mcause_comb,
-          pc: id_pipeline.pc_rdata,
+          pc: id_pipeline.pc,
           next_pc: trap_handler_addr_q,
           rs1_addr: 0,
           rs2_addr: 0,
@@ -870,9 +835,9 @@ module dtcore32 #(
 
   always_comb begin
     ex_trap_d = '{default: 0};
-    
-    if (ex_carried_trap_q.valid) begin
-      ex_trap_d = ex_carried_trap_q;
+
+    if (ex_pipeline.carried_trap.valid) begin
+      ex_trap_d = ex_pipeline.carried_trap;
     end else if (ex_misaligned_jump_or_branch_comb) begin
       ex_trap_d = '{
           valid: 1,
@@ -880,7 +845,7 @@ module dtcore32 #(
           insn: ex_pipeline.insn,
           mcause: TRAP_CODE_INSTR_ADDR_MISALIGNED,
           pc: ex_pipeline.pc,
-          next_pc: trap_handler_addr_q,
+          next_pc: ex_pc_wdata_d,
           rs1_addr: ex_pipeline.rs1_addr,
           rs2_addr: ex_pipeline.rs2_addr,
           rd_addr: ex_pipeline.rd_addr,
@@ -891,12 +856,12 @@ module dtcore32 #(
     end else begin
       ex_trap_d = '{default: 0};
     end
-    
+
   end
 
   always_comb begin
     mem_trap_d = '{default: 0};
-    
+
     if (mem_pipeline.carried_trap.valid) begin
       mem_trap_d = mem_pipeline.carried_trap;
     end else if (mem_store_trap_valid) begin
@@ -906,10 +871,10 @@ module dtcore32 #(
           insn: mem_pipeline.insn,
           mcause: mem_store_trap_mcause,
           pc: mem_pipeline.pc,
-          next_pc: trap_handler_addr_q,
+          next_pc: mem_pipeline.pc_wdata,
           rs1_addr: mem_pipeline.rs1_addr,
           rs2_addr: mem_pipeline.rs2_addr,
-          rd_addr: mem_rd_addr_r,
+          rd_addr: mem_pipeline.rd_addr,
           rs1_rdata: mem_pipeline.rs1_rdata,
           rs2_rdata: mem_pipeline.rs2_rdata,
           rd_wdata: 0
@@ -921,10 +886,10 @@ module dtcore32 #(
           insn: mem_pipeline.insn,
           mcause: mem_load_trap_mcause,
           pc: mem_pipeline.pc,
-          next_pc: trap_handler_addr_q,
+          next_pc: mem_pipeline.pc_wdata,
           rs1_addr: mem_pipeline.rs1_addr,
           rs2_addr: mem_pipeline.rs2_addr,
-          rd_addr: mem_rd_addr_r,
+          rd_addr: mem_pipeline.rd_addr,
           rs1_rdata: mem_pipeline.rs1_rdata,
           rs2_rdata: mem_pipeline.rs2_rdata,
           rd_wdata: 0
@@ -932,7 +897,7 @@ module dtcore32 #(
     end else begin
       mem_trap_d = '{default: 0};
     end
-    
+
   end
 
   assign wb_trap_d = wb_pipeline.carried_trap.valid ? wb_pipeline.carried_trap : '{default: 0};
@@ -947,14 +912,15 @@ module dtcore32 #(
   hazard_unit hazard_unit_inst (
       .EX_RS1_ADDR(ex_rs1_addr_d),
       .EX_RS2_ADDR(ex_rs2_addr_d),
-      .MEM_RD_ADDR(mem_rd_addr_r),
+      .MEM_RD_ADDR(mem_pipeline.rd_addr),
       .WB_RD_ADDR(wb_rd_addr_masked),
-      .EX_RESULT_SRC(ex_result_src_r),
-      .MEM_RESULT_SRC(mem_pipeline.result_sel),
+      .EX_RESULT_SEL(ex_pipeline.result_sel),
+      .MEM_RESULT_SEL(mem_pipeline.result_sel),
+      .WB_RESULT_SEL(wb_pipeline.result_sel),
       .ID_RS1_ADDR(id_rs1_addr_d),
       .ID_RS2_ADDR(id_rs2_addr_d),
       .EX_RD_ADDR(ex_rd_addr_d),
-      .EX_PC_SRC(ex_pc_src_actual_comb),
+      .EX_IS_PC_REDIRECT(ex_is_pc_redirect),
       .EX_FORWARD_A(ex_forward_a_sel_comb),
       .EX_FORWARD_B(ex_forward_b_sel_comb),
       .ID_FORWARD_A(id_forward_a_comb),
@@ -967,17 +933,15 @@ module dtcore32 #(
       .ID_EX_STALL(id_ex_stall),
       .EX_MEM_STALL(ex_mem_stall),
       .MEM_WB_STALL(mem_wb_stall),
-      .EX_TRAP_VALID(ex_carried_trap_q.valid),
-      .MEM_TRAP_VALID(mem_pipeline.carried_trap.valid),
-      .WB_TRAP_VALID(wb_carried_trap_r.valid),
-      .AXIL_EN(axil_en_d),
-      .AXIL_DONE_READ(AXIL_DONE_READ),
-      .AXIL_DONE_WRITE(AXIL_DONE_WRITE)
+      .EX_TRAP_VALID(ex_trap_d.valid),
+      .MEM_TRAP_VALID(mem_trap_d.valid),
+      .WB_TRAP_VALID(wb_trap_d.valid),
+      .WISHBONE_BUSY(MEM_CMD_BUSY_I)
   );
 
   /*
   assign DMEM_ADDR  = mem_pipeline.alu_csr_result[DMEM_ADDR_WIDTH-1:0];
-  assign IMEM_ADDR  = if_a_pc_rdata_q[IMEM_ADDR_WIDTH-1:0];
+  assign IMEM_ADDR  = if_a_pc_q[IMEM_ADDR_WIDTH-1:0];
   assign DMEM_WDATA = mem_store_wdata_d;
   assign DMEM_WMASK = mem_store_wmask_d;
   */
@@ -1114,7 +1078,7 @@ module dtcore32 #(
       rvfi_ixl  <= 1;
       rvfi_halt <= 0;
       rvfi_trap <= wb_trap_d.valid;
-      rvfi_intr <= wb_intr_r;
+      rvfi_intr <= wb_pipeline.intr;
 
       if (wb_trap_d.valid) begin
         rvfi_insn <= wb_trap_d.insn;
@@ -1129,17 +1093,17 @@ module dtcore32 #(
         rvfi_pc_rdata <= wb_trap_d.pc;
         rvfi_pc_wdata <= wb_trap_d.next_pc;
 
-        rvfi_mem_addr <= wb_alu_csr_result_r;
-        rvfi_mem_rmask <= wb_load_rmask_r;
-        rvfi_mem_wmask <= wb_store_wmask_r;
-        rvfi_mem_rdata <= wb_load_rdata_r;
-        rvfi_mem_wdata <= wb_store_wdata_r;
+        rvfi_mem_addr <= wb_pipeline.alu_csr_result;
+        rvfi_mem_rmask <= wb_pipeline.load_rmask;
+        rvfi_mem_wmask <= wb_pipeline.store_wmask;
+        rvfi_mem_rdata <= wb_pipeline.load_rdata;
+        rvfi_mem_wdata <= wb_pipeline.store_wdata;
       end else begin
         rvfi_insn <= wb_pipeline.insn;
-        rvfi_rs1_addr <= wb_rs1_addr_r;
-        rvfi_rs2_addr <= wb_rs2_addr_r;
-        rvfi_rs1_rdata <= wb_rs1_rdata_r;
-        rvfi_rs2_rdata <= wb_rs2_rdata_r;
+        rvfi_rs1_addr <= wb_pipeline.rs1_addr;
+        rvfi_rs2_addr <= wb_pipeline.rs2_addr;
+        rvfi_rs1_rdata <= wb_pipeline.rs1_rdata;
+        rvfi_rs2_rdata <= wb_pipeline.rs2_rdata;
 
         rvfi_rd_addr <= wb_rd_addr_masked;
         rvfi_rd_wdata <= wb_rd_wdata_masked;
@@ -1147,11 +1111,11 @@ module dtcore32 #(
         rvfi_pc_rdata <= wb_pipeline.pc;
         rvfi_pc_wdata <= wb_trap_d.valid ? trap_handler_addr_q : wb_pipeline.pc_wdata;
 
-        rvfi_mem_addr <= wb_alu_csr_result_r;
-        rvfi_mem_rmask <= wb_load_rmask_r;
-        rvfi_mem_wmask <= wb_store_wmask_r;
-        rvfi_mem_rdata <= wb_load_rdata_r;
-        rvfi_mem_wdata <= wb_store_wdata_r;
+        rvfi_mem_addr <= wb_pipeline.alu_csr_result;
+        rvfi_mem_rmask <= wb_pipeline.load_rmask;
+        rvfi_mem_wmask <= wb_pipeline.store_wmask;
+        rvfi_mem_rdata <= wb_pipeline.load_rdata;
+        rvfi_mem_wdata <= wb_pipeline.store_wdata;
       end
 
 
@@ -1176,16 +1140,16 @@ module dtcore32 #(
       rvfi_csr_mtvec_rmask <= is_csr_mtvec ? wb_csr_rmask_comb : 32'd0;
       rvfi_csr_mepc_rmask <= is_csr_mepc ? wb_csr_rmask_comb : 32'd0;
 
-      rvfi_csr_mcycle_rdata <= is_csr_mcycleh ? {wb_csr_rdata_r, 32'd0} :
-          is_csr_mcycle  ? {32'd0, wb_csr_rdata_r} :
+      rvfi_csr_mcycle_rdata <= is_csr_mcycleh ? {wb_pipeline.csr_rdata, 32'd0} :
+          is_csr_mcycle  ? {32'd0, wb_pipeline.csr_rdata} :
           64'd0;
-      rvfi_csr_minstret_rdata <= is_csr_minstreth ? {wb_csr_rdata_r, 32'd0} :
-          is_csr_minstret  ? {32'd0, wb_csr_rdata_r} :
+      rvfi_csr_minstret_rdata <= is_csr_minstreth ? {wb_pipeline.csr_rdata, 32'd0} :
+          is_csr_minstret  ? {32'd0, wb_pipeline.csr_rdata} :
           64'd0;
       // csr rdata logic
-      rvfi_csr_mcause_rdata <= is_csr_mcause ? wb_csr_rdata_r : 32'd0;
-      rvfi_csr_mtvec_rdata <= is_csr_mtvec ? wb_csr_rdata_r : 32'd0;
-      rvfi_csr_mepc_rdata <= is_csr_mepc ? wb_csr_rdata_r : 32'd0;
+      rvfi_csr_mcause_rdata <= is_csr_mcause ? wb_pipeline.csr_rdata : 32'd0;
+      rvfi_csr_mtvec_rdata <= is_csr_mtvec ? wb_pipeline.csr_rdata : 32'd0;
+      rvfi_csr_mepc_rdata <= is_csr_mepc ? wb_pipeline.csr_rdata : 32'd0;
 
       rvfi_csr_mcycle_wdata <= is_csr_mcycleh ? {wb_pipeline.csr_wdata, 32'd0} :
           is_csr_mcycle  ? {32'd0, wb_pipeline.csr_wdata} :

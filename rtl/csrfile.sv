@@ -9,6 +9,9 @@ module csrfile
     input logic [31:0] CSR_WDATA,
     input logic WB_VALID_INSN,
     input trap_info_t WB_TRAP,
+    input logic EX_VALID,
+    input logic MEM_VALID,
+    input logic WB_VALID,
     output logic [31:0] TRAP_HANDLER_ADDR,
     output logic [31:0] CSR_RDATA_REG,
     output logic [31:0] CSR_RMASK,
@@ -53,7 +56,8 @@ module csrfile
       CSR_ADDR_MTVAL:     csr_rdata = csr_mtval_reg;
       CSR_ADDR_MCYCLE:    csr_rdata = csr_mcycle_reg[31:0];
       CSR_ADDR_MCYCLEH:   csr_rdata = csr_mcycle_reg[63:32];
-      CSR_ADDR_MINSTRET:  csr_rdata = csr_minstret_reg[31:0];
+      // since we are reading in ID stage add stages that will retire before to the count
+      CSR_ADDR_MINSTRET:  csr_rdata = csr_minstret_reg[31:0] + EX_VALID + MEM_VALID + WB_VALID;
       CSR_ADDR_MINSTRETH: csr_rdata = csr_minstret_reg[63:32];
       default:            ;
     endcase

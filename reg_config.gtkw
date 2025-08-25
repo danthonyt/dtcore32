@@ -1,0 +1,47 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Mon Aug 25 00:06:51 2025
+[*]
+[dumpfile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/checks/reg_ch0/engine_0/trace.vcd"
+[dumpfile_mtime] "Sun Aug 24 23:42:02 2025"
+[dumpfile_size] 233075
+[savefile] "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/reg_config.gtkw"
+[timestart] 0
+[size] 2494 1361
+[pos] -51 -51
+*-5.166809 70 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] rvfi_testbench.
+[treeopen] rvfi_testbench.wrapper.
+[sst_width] 447
+[signals_width] 511
+[sst_expanded] 1
+[sst_vpaned_height] 422
+@28
+rvfi_testbench.clock
+rvfi_testbench.wrapper.dtcore32_inst.ex_forward_a_sel_comb[2:0]
+rvfi_testbench.wrapper.dtcore32_inst.ex_forward_b_sel_comb[2:0]
+rvfi_testbench.reset
+rvfi_testbench.rvfi_valid
+@22
+rvfi_testbench.rvfi_insn[31:0]
+rvfi_testbench.checker_inst.register_index[4:0]
+rvfi_testbench.checker_inst.register_shadow[31:0]
+@28
+rvfi_testbench.checker_inst.register_written
+@22
+rvfi_testbench.rvfi_rs1_addr[4:0]
+rvfi_testbench.rvfi_rs1_rdata[31:0]
+rvfi_testbench.rvfi_rs2_addr[4:0]
+rvfi_testbench.rvfi_rs2_rdata[31:0]
+rvfi_testbench.rvfi_rd_addr[4:0]
+rvfi_testbench.rvfi_rd_wdata[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.id_pipeline<insn>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.ex_pipeline<insn>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.mem_pipeline<insn>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.wb_pipeline<insn>[31:0]
+rvfi_testbench.wrapper.dtcore32_inst.id_rs1_addr_d[4:0]
+rvfi_testbench.wrapper.dtcore32_inst.id_rs2_addr_d[4:0]
+rvfi_testbench.wrapper.dtcore32_inst.ex_pipeline<rs1_addr>[4:0]
+rvfi_testbench.wrapper.dtcore32_inst.ex_pipeline<rs2_addr>[4:0]
+[pattern_trace] 1
+[pattern_trace] 0
