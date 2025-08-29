@@ -1,4 +1,5 @@
 checks/
 *.o
 *.s
-vivado_riscv
+sby_config/**/
+!sby_config/*.sby

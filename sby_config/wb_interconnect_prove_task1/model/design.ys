@@ -1,9 +1,0 @@
-# running in ../sby_config/wb_interconnect_prove_task1/src/
-read -formal wb_interconnect.sv
-hierarchy -check -top wb_interconnect
-prep -top wb_interconnect
-
-hierarchy -smtcheck
-rename -witness
-write_jny -no-connections ../model/design.json
-write_rtlil ../model/design.il

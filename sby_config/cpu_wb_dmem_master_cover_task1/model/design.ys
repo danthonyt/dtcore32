@@ -1,9 +1,0 @@
-# running in ../sby_config/cpu_wb_dmem_master_cover_task1/src/
-read -formal cpu_wb_dmem_master.sv
-hierarchy -check -top cpu_wb_dmem_master
-prep -top cpu_wb_dmem_master
-
-hierarchy -smtcheck
-rename -witness
-write_jny -no-connections ../model/design.json
-write_rtlil ../model/design.il
