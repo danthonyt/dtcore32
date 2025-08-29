@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+<testsuite timestamp="2025-08-28T22:49:40" hostname="dtorres-MS-7D46" package="cpu_wb_imem_master" id="0" name="basic" tests="2" errors="0" failures="0" time="0" skipped="0">
+<properties>
+<property name="os" value="Linux"/>
+<property name="expect" value="PASS"/>
+<property name="status" value="PASS"/>
+</properties>
+<testcase classname="basic" name="build execution" time="0">
+</testcase>
+<testcase classname="basic" name="Property ASSERT in cpu_wb_imem_master at cpu_wb_imem_master.sv:47.3-47.48" time="0" type="ASSERT" location="cpu_wb_imem_master.sv:47.3-47.48" id="_witness_.assert_auto_verificsva_cc_1735_import_38">
+</testcase>
+<testcase classname="basic" name="Property ASSERT in cpu_wb_imem_master at cpu_wb_imem_master.sv:45.3-45.48" time="0" type="ASSERT" location="cpu_wb_imem_master.sv:45.3-45.48" id="_witness_.assert_auto_verificsva_cc_1735_import_75">
+</testcase>
+<system-out>SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] Copy '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/rtl/cpu_wb_imem_master.sv' to '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/sby_config/cpu_wb_imem_master_basic/src/cpu_wb_imem_master.sv'.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: smtbmc boolector
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] base: starting process &quot;cd ../sby_config/cpu_wb_imem_master_basic/src; yosys -ql ../model/design.log ../model/design.ys&quot;
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] base: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] base: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] base: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] base: This license was issued to David Torres.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] base: Customer PoC: David Torres &lt;davidtorres321@gmail.com&gt;.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] base: finished (returncode=0)
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] prep: starting process &quot;cd ../sby_config/cpu_wb_imem_master_basic/model; yosys -ql design_prep.log design_prep.ys&quot;
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] prep: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] prep: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] prep: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] prep: This license was issued to David Torres.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] prep: Customer PoC: David Torres &lt;davidtorres321@gmail.com&gt;.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] prep: finished (returncode=0)
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] smt2: starting process &quot;cd ../sby_config/cpu_wb_imem_master_basic/model; yosys -ql design_smt2.log design_smt2.ys&quot;
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] smt2: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] smt2: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] smt2: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] smt2: This license was issued to David Torres.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] smt2: Customer PoC: David Torres &lt;davidtorres321@gmail.com&gt;.
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] smt2: finished (returncode=0)
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: starting process &quot;cd ../sby_config/cpu_wb_imem_master_basic; yosys-smtbmc -s boolector --presat --unroll --noprogress -t 10  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2&quot;
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Solver: boolector
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assumptions in step 0..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assertions in step 0..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assumptions in step 1..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assertions in step 1..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assumptions in step 2..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assertions in step 2..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assumptions in step 3..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assertions in step 3..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assumptions in step 4..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assertions in step 4..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assumptions in step 5..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assertions in step 5..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assumptions in step 6..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assertions in step 6..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assumptions in step 7..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assertions in step 7..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assumptions in step 8..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assertions in step 8..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assumptions in step 9..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Checking assertions in step 9..
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: ##   0:00:00  Status: passed
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: finished (returncode=0)
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] engine_0: Status returned by engine: pass
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] summary: engine_0 (smtbmc boolector) returned pass
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] summary: engine_0 did not produce any traces
+SBY 22:49:40 [../sby_config/cpu_wb_imem_master_basic] DONE (PASS, rc=0)
+</system-out>
+<system-err>
+</system-err>
+</testsuite>
+</testsuites>

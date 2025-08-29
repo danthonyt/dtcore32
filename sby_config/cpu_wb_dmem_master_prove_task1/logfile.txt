@@ -1,0 +1,88 @@
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_basic] Removing directory '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/sby_config/cpu_wb_dmem_master_basic'.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_cover_task1] Removing directory '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/sby_config/cpu_wb_dmem_master_cover_task1'.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] Removing directory '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/sby_config/cpu_wb_dmem_master_prove_task1'.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] Copy '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/rtl/cpu_wb_dmem_master.sv' to '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/sby_config/cpu_wb_dmem_master_prove_task1/src/cpu_wb_dmem_master.sv'.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0: smtbmc boolector
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] base: starting process "cd ../sby_config/cpu_wb_dmem_master_prove_task1/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] base: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] base: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] base: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] base: This license was issued to David Torres.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] base: Customer PoC: David Torres <davidtorres321@gmail.com>.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] base: finished (returncode=0)
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] prep: starting process "cd ../sby_config/cpu_wb_dmem_master_prove_task1/model; yosys -ql design_prep.log design_prep.ys"
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] prep: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] prep: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] prep: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] prep: This license was issued to David Torres.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] prep: Customer PoC: David Torres <davidtorres321@gmail.com>.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] prep: finished (returncode=0)
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] smt2: starting process "cd ../sby_config/cpu_wb_dmem_master_prove_task1/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] smt2: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] smt2: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] smt2: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] smt2: This license was issued to David Torres.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] smt2: Customer PoC: David Torres <davidtorres321@gmail.com>.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] smt2: finished (returncode=0)
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: starting process "cd ../sby_config/cpu_wb_dmem_master_prove_task1; yosys-smtbmc -s boolector --presat --unroll --noprogress -t 20  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.induction: starting process "cd ../sby_config/cpu_wb_dmem_master_prove_task1; yosys-smtbmc -s boolector --presat --unroll -i --noprogress -t 20  --append 0 --dump-vcd engine_0/trace_induct.vcd --dump-yw engine_0/trace_induct.yw --dump-vlogtb engine_0/trace_induct_tb.v --dump-smtc engine_0/trace_induct.smtc model/design_smt2.smt2"
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Solver: boolector
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 0..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 0..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 1..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 1..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 2..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 2..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 3..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 3..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 4..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 4..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 5..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 5..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 6..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 6..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 7..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 7..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 8..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 8..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 9..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 9..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 10..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 10..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 11..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 11..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.induction: ##   0:00:00  Solver: boolector
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 12..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.induction: ##   0:00:00  Trying induction in step 20..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 12..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.induction: ##   0:00:00  Trying induction in step 19..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 13..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.induction: ##   0:00:00  Trying induction in step 18..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 13..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.induction: ##   0:00:00  Trying induction in step 17..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.induction: ##   0:00:00  Temporal induction successful.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.induction: ##   0:00:00  Status: passed
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 14..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 14..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.induction: finished (returncode=0)
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.induction: Status returned by engine for induction: pass
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 15..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 15..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 16..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 16..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 17..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 17..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 18..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 18..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assumptions in step 19..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Checking assertions in step 19..
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: ##   0:00:00  Status: passed
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: finished (returncode=0)
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] engine_0.basecase: Status returned by engine for basecase: pass
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] summary: engine_0 (smtbmc boolector) returned pass for basecase
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] summary: engine_0 (smtbmc boolector) returned pass for induction
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] summary: engine_0 did not produce any traces
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] summary: successful proof by k-induction.
+SBY  0:43:02 [../sby_config/cpu_wb_dmem_master_prove_task1] DONE (PASS, rc=0)

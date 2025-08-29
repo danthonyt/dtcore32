@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+<testsuite timestamp="2025-08-28T21:47:59" hostname="dtorres-MS-7D46" package="wb_interconnect" id="0" name="basic" tests="2" errors="0" failures="0" time="0" skipped="0">
+<properties>
+<property name="os" value="Linux"/>
+<property name="expect" value="PASS"/>
+<property name="status" value="PASS"/>
+</properties>
+<testcase classname="basic" name="build execution" time="0">
+</testcase>
+<testcase classname="basic" name="Property ASSERT in wb_interconnect at wb_interconnect.sv:103.3-109.39" time="0" type="ASSERT" location="wb_interconnect.sv:103.3-109.39" id="_witness_.assert_auto_verificsva_cc_1735_import_128">
+</testcase>
+<testcase classname="basic" name="Property ASSERT in wb_interconnect at wb_interconnect.sv:95.3-101.31" time="0" type="ASSERT" location="wb_interconnect.sv:95.3-101.31" id="_witness_.assert_auto_verificsva_cc_1735_import_157">
+</testcase>
+<system-out>SBY 21:47:59 [../sby_config/wb_interconnect_basic] Removing directory '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/sby_config/wb_interconnect_basic'.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] Copy '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/rtl/wb_interconnect.sv' to '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/sby_config/wb_interconnect_basic/src/wb_interconnect.sv'.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: smtbmc boolector
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] base: starting process &quot;cd ../sby_config/wb_interconnect_basic/src; yosys -ql ../model/design.log ../model/design.ys&quot;
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] base: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] base: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] base: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] base: This license was issued to David Torres.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] base: Customer PoC: David Torres &lt;davidtorres321@gmail.com&gt;.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] base: VERIFIC-WARNING [VDB-1002] wb_interconnect.sv:90: net 'clk' does not have a driver
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] base: Warning: Wire wb_interconnect.\clk is used but has no driver.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] base: finished (returncode=0)
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] prep: starting process &quot;cd ../sby_config/wb_interconnect_basic/model; yosys -ql design_prep.log design_prep.ys&quot;
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] prep: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] prep: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] prep: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] prep: This license was issued to David Torres.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] prep: Customer PoC: David Torres &lt;davidtorres321@gmail.com&gt;.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] prep: finished (returncode=0)
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] smt2: starting process &quot;cd ../sby_config/wb_interconnect_basic/model; yosys -ql design_smt2.log design_smt2.ys&quot;
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] smt2: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] smt2: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] smt2: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] smt2: This license was issued to David Torres.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] smt2: Customer PoC: David Torres &lt;davidtorres321@gmail.com&gt;.
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] smt2: finished (returncode=0)
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: starting process &quot;cd ../sby_config/wb_interconnect_basic; yosys-smtbmc -s boolector --presat --unroll --noprogress -t 10  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2&quot;
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Solver: boolector
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assumptions in step 0..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assertions in step 0..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assumptions in step 1..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assertions in step 1..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assumptions in step 2..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assertions in step 2..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assumptions in step 3..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assertions in step 3..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assumptions in step 4..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assertions in step 4..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assumptions in step 5..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assertions in step 5..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assumptions in step 6..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assertions in step 6..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assumptions in step 7..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assertions in step 7..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assumptions in step 8..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assertions in step 8..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assumptions in step 9..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Checking assertions in step 9..
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: ##   0:00:00  Status: passed
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: finished (returncode=0)
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] engine_0: Status returned by engine: pass
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] summary: engine_0 (smtbmc boolector) returned pass
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] summary: engine_0 did not produce any traces
+SBY 21:47:59 [../sby_config/wb_interconnect_basic] DONE (PASS, rc=0)
+</system-out>
+<system-err>
+</system-err>
+</testsuite>
+</testsuites>

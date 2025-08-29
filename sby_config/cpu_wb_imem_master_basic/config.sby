@@ -1,0 +1,14 @@
+[options]
+mode bmc
+depth 10
+
+[engines]
+smtbmc boolector
+
+[script]
+read -formal cpu_wb_imem_master.sv
+hierarchy -check -top cpu_wb_imem_master 
+prep -top cpu_wb_imem_master
+
+[files]
+cpu_wb_imem_master.sv

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+<testsuite timestamp="2025-08-28T21:47:59" hostname="dtorres-MS-7D46" package="wb_interconnect" id="0" name="cover_task1" tests="2" errors="0" failures="0" time="0" skipped="2">
+<properties>
+<property name="os" value="Linux"/>
+<property name="expect" value="PASS"/>
+<property name="status" value="PASS"/>
+</properties>
+<testcase classname="cover_task1" name="build execution" time="0">
+</testcase>
+<testcase classname="cover_task1" name="Property ASSERT in wb_interconnect at wb_interconnect.sv:103.3-109.39" time="0" type="ASSERT" location="wb_interconnect.sv:103.3-109.39" id="_witness_.assert_auto_verificsva_cc_1735_import_128">
+<skipped />
+</testcase>
+<testcase classname="cover_task1" name="Property ASSERT in wb_interconnect at wb_interconnect.sv:95.3-101.31" time="0" type="ASSERT" location="wb_interconnect.sv:95.3-101.31" id="_witness_.assert_auto_verificsva_cc_1735_import_157">
+<skipped />
+</testcase>
+<system-out>SBY 21:47:59 [../sby_config/wb_interconnect_basic] Removing directory '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/sby_config/wb_interconnect_basic'.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] Removing directory '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/sby_config/wb_interconnect_cover_task1'.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] Copy '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/rtl/wb_interconnect.sv' to '/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/sby_config/wb_interconnect_cover_task1/src/wb_interconnect.sv'.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] engine_0: smtbmc boolector
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] base: starting process &quot;cd ../sby_config/wb_interconnect_cover_task1/src; yosys -ql ../model/design.log ../model/design.ys&quot;
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] base: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] base: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] base: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] base: This license was issued to David Torres.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] base: Customer PoC: David Torres &lt;davidtorres321@gmail.com&gt;.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] base: VERIFIC-WARNING [VDB-1002] wb_interconnect.sv:90: net 'clk' does not have a driver
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] base: Warning: Wire wb_interconnect.\clk is used but has no driver.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] base: finished (returncode=0)
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] prep: starting process &quot;cd ../sby_config/wb_interconnect_cover_task1/model; yosys -ql design_prep.log design_prep.ys&quot;
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] prep: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] prep: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] prep: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] prep: This license was issued to David Torres.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] prep: Customer PoC: David Torres &lt;davidtorres321@gmail.com&gt;.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] prep: finished (returncode=0)
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] smt2: starting process &quot;cd ../sby_config/wb_interconnect_cover_task1/model; yosys -ql design_smt2.log design_smt2.ys&quot;
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] smt2: This is an EVALUATION LICENSE of Tabby CAD Suite.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] smt2: This license is granted for the limited purpose of evaluating Tabby CAD Suite only.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] smt2: It is forbidden to use this license to perform services for a fee or other consideration; or in the generation or verification of hardware or hardware designs for sale or license with a view to profit or for a fee or other consideration.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] smt2: This license was issued to David Torres.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] smt2: Customer PoC: David Torres &lt;davidtorres321@gmail.com&gt;.
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] smt2: finished (returncode=0)
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] engine_0: starting process &quot;cd ../sby_config/wb_interconnect_cover_task1; yosys-smtbmc -s boolector --presat --unroll -c --noprogress -t 10  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2&quot;
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] engine_0: ##   0:00:00  Solver: boolector
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] engine_0: ##   0:00:00  Status: passed
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] engine_0: finished (returncode=0)
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] engine_0: Status returned by engine: pass
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] summary: engine_0 (smtbmc boolector) returned pass
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] summary: engine_0 did not produce any traces
+SBY 21:47:59 [../sby_config/wb_interconnect_cover_task1] DONE (PASS, rc=0)
+</system-out>
+<system-err>
+</system-err>
+</testsuite>
+</testsuites>

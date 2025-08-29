@@ -1,0 +1,27 @@
+[tasks]
+basic bmc
+cover_task1 cover
+prove_task1 prove
+
+
+[options]
+bmc: 
+mode bmc
+depth 10
+cover:
+mode cover
+depth 10
+prove:
+mode prove
+--
+
+[engines]
+smtbmc boolector
+
+[script]
+read -formal wb_interconnect.sv
+hierarchy -check -top wb_interconnect 
+prep -top wb_interconnect
+
+[files]
+wb_interconnect.sv

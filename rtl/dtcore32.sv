@@ -49,15 +49,13 @@ module dtcore32 #(
     output logic [                   31:0] rvfi_csr_mtvec_wdata,
 `endif
     // wishbone master interface signals for IF stage
-    //output logic IMEM_CMD_START_O,
-    // output logic CMD_WE_O, always read
+    // wishbone pipelined B4
     output logic [WISHBONE_ADDR_WIDTH-1:0] IMEM_CMD_ADDR_O,
-    // output logic [WISHBONE_BUS_WIDTH-1:0] CMD_WDATA_O,
-    // output logic [(WISHBONE_BUS_WIDTH/8)-1:0] CMD_SEL_O,
     input  logic [ WISHBONE_BUS_WIDTH-1:0] IMEM_CMD_RDATA_I,
-    //input logic IMEM_CMD_BUSY_I,
+    input logic IMEM_RDATA_VALID_I,
 
     // wishbone master interface signals for mem stage
+    // standard wishbone B4
     output logic MEM_CMD_START_O,
     output logic MEM_CMD_WE_O,
     output logic [WISHBONE_ADDR_WIDTH-1:0] MEM_CMD_ADDR_O,
@@ -92,29 +90,22 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  logic [31:0] if_pc_plus_4_d;
   logic [31:0] if_a_pc_plus_4_q;
   logic [31:0] START_ADDR;
   logic if_a_intr_d;
   logic if_a_intr_q;
   logic [31:0] if_a_pc_d;
   logic [31:0] if_a_pc_q;
-  logic if_a_valid_d;
-  logic if_a_valid_q;
-
   logic [31:0] if_b_pc_plus_4_q;
   logic if_b_intr_q;
   logic [31:0] if_b_pc_q;
   logic if_b_valid_q;
-
   logic [31:0] if_c_pc_plus_4_q;
   logic if_c_intr_q;
   logic [31:0] if_c_pc_q;
   logic if_c_valid_q;
   logic [31:0] if_c_insn_q;
-
   logic [31:0] trap_handler_addr_q;
-  pipeline_t if_pipeline;
 
   //////////////////////////////////////
   //
@@ -145,7 +136,6 @@ module dtcore32 #(
   logic id_funct7b5_comb;
   logic [6:0] id_funct7_comb;
   logic [11:0] id_funct12_comb;
-  logic [1:0] id_alu_op_comb;
   logic id_rtype_alt_comb;
   logic id_itype_alt_comb;
   logic id_forward_a_comb;
@@ -155,18 +145,15 @@ module dtcore32 #(
   logic id_rd_valid_comb;
   logic [30:0] id_maindec_mcause_comb;
   logic id_maindec_trap_valid_comb;
-
   mem_op_t id_mem_op_d;
   cf_op_t id_cf_op_d;
   csr_op_t id_csr_op_d;
   imm_ext_op_t id_imm_ext_op;
-  alu_control_t id_alu_control;
   alu_a_sel_t id_alu_a_sel_d;
   alu_b_sel_t id_alu_b_sel_d;
   pc_alu_sel_t id_pc_alu_sel_d;
   result_sel_t id_result_sel_d;
   csr_bitmask_sel_t id_csr_bitmask_sel_d;
-  pipeline_t id_pipeline_buffer;
   pipeline_t id_pipeline;
 
 
@@ -200,20 +187,10 @@ module dtcore32 #(
   logic ex_misaligned_jump_or_branch_comb;
   logic [4:0] ex_rd_addr_d;
   logic [31:0] ex_alu_result_comb;
-  logic ex_load_trap_valid;
   logic [31:0] ex_pc_target_non_jalr;
-
   logic [31:0] ex_alu_csr_result_d;
-
   logic [31:0] ex_store_wdata_d;
-
-
-
-
   pipeline_t ex_pipeline;
-
-
-
   ///////////////////////////////////////
   //
   //
@@ -226,19 +203,14 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
   trap_info_t mem_trap_d;
-  logic mem_misaligned_store;
-
   logic [3:0] mem_load_rmask_comb;
   logic [31:0] mem_load_rdata_d;
-
   logic [31:0] mem_store_wdata_d;
   pipeline_t mem_pipeline;
-
   logic [30:0] mem_store_trap_mcause;
   logic mem_store_trap_valid;
   logic [30:0] mem_load_trap_mcause;
   logic mem_load_trap_valid;
-
   logic [3:0] mem_store_wmask_d;
   logic [3:0] mem_load_rmask_d;
 
@@ -262,12 +234,7 @@ module dtcore32 #(
   logic [31:0] ex_csr_wdata_d;
   trap_info_t wb_trap_d;
   logic [11:0] wb_csr_addr_masked;
-
   pipeline_t wb_pipeline;
-
-
-
-
   // hazard unit signals
   // stops signals from propagating through the pipeline
   logic if_id_stall;
@@ -296,7 +263,6 @@ module dtcore32 #(
   ex_is_pc_redirect ? ex_pc_target : if_a_pc_q + 4;
 
   assign if_a_intr_d = wb_trap_d.valid ? 1 : 0;
-  assign if_a_valid_d = 1;
 
   // input into the memory
   always_ff @(posedge CLK) begin
@@ -304,15 +270,14 @@ module dtcore32 #(
       if_a_pc_q <= START_ADDR;
       if_a_pc_plus_4_q <= START_ADDR + 4;
       if_a_intr_q <= 0;
-      if_a_valid_q <= 1;
     end else begin
       if_a_pc_q <= if_a_pc_d;
       if_a_pc_plus_4_q <= if_a_pc_d + 4;
       if_a_intr_q <= if_a_intr_d;
-      if_a_valid_q <= if_a_valid_d;
     end
   end
 
+  
   // synchronize metadata with memory latency
   always_ff @(posedge CLK) begin
     if (RST || if_id_flush) begin
@@ -324,10 +289,12 @@ module dtcore32 #(
       if_b_pc_q <= if_a_pc_q;
       if_b_pc_plus_4_q <= if_a_pc_plus_4_q;
       if_b_intr_q <= if_a_intr_q;
-      if_b_valid_q <= if_a_valid_q;
+      if_b_valid_q <= IMEM_RDATA_VALID_I;
     end
   end
 
+  // need an additional register to hold imem
+  // rdata on stalls
   always_ff @(posedge CLK) begin
     if (RST || if_id_flush) begin
       if_c_pc_q <= 0;
@@ -561,7 +528,6 @@ module dtcore32 #(
   ///////////////////////////////////////
 
   logic [ 3:0] mem_store_wmask_comb;
-
   logic [31:0] mem_formatted_load_rdata;
 
   //logic [WISHBONE_BUS_WIDTH-1:0] mem_cmd_rdata;
@@ -573,8 +539,6 @@ module dtcore32 #(
   assign MEM_CMD_WE_O = mem_pipeline.mem_op[4] & mem_pipeline.mem_op[3];
   assign MEM_CMD_ADDR_O = mem_pipeline.alu_csr_result;
   assign MEM_CMD_WDATA_O = mem_pipeline.store_wdata;
-
-  // disable dmem if address maps to axil peripheral
 
   assign mem_store_wdata_d = mem_pipeline.store_wdata;
   assign mem_store_wmask_d =  (mem_pipeline.mem_op[4] & mem_pipeline.mem_op[3]) ? mem_store_wmask_comb : 0;
@@ -633,8 +597,6 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-  logic [31:0] IMEM_RDATA;
-
 
   //IF/ID
   always_ff @(posedge CLK) begin

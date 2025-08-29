@@ -1,0 +1,14 @@
+[options]
+mode bmc
+depth 10
+
+[engines]
+smtbmc boolector
+
+[script]
+read -formal wb_interconnect.sv
+hierarchy -check -top wb_interconnect 
+prep -top wb_interconnect
+
+[files]
+wb_interconnect.sv
