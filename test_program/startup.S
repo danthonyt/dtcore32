@@ -1,26 +1,34 @@
-    .section .text.reset
+    .section .text
     .globl _start
+    .globl main
+
 _start:
-    /* initialize sp from linker symbol _stack_top */
-    la   sp, _stack_top
+    /* Set stack pointer to top of reserved stack */
+    la sp, _stack_end
 
-    /* optional: zero .bss (if you have globals) */
-    la   t0, __bss_start
-    la   t1, __bss_end
-    beq  t0, t1, 1f
-0:
-    sw   x0, 0(t0)
+    /* Zero initialize .bss */
+    la   t0, __bss_start   /* start of .bss */
+    la   t1, __bss_end     /* end of .bss */
+    li   t2, 0
+
+bss_clear:
+    bge  t0, t1, bss_done
+    sw   t2, 0(t0)
     addi t0, t0, 4
-    blt  t0, t1, 0b
-1:
+    j    bss_clear
+bss_done:
 
-    /* call main */
+    /* (Optional) Copy .data init values if using AT > IMEM in linker script
+       For now we skip this because data lives directly in DMEM */
+
+    /* Jump to main() */
     call main
 
-/* hang */
-1:  j 1b
+    /* If main ever returns, just loop forever */
+hang:
+    j hang
 
-    /* symbols expected by linker (if using .data/.bss) */
-    .weak __bss_start
-    .weak __bss_end
-    .size _start, .-_start
+/* Symbols provided by the linker script */
+    .section .bss
+    .globl __bss_start
+    .globl __bss_end

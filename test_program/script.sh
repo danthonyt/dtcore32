@@ -38,6 +38,9 @@ od -An -t x4 -w4 -v $DMEM_BIN | awk '{$1=toupper($1); print $1}' > $DMEM_MEM
 # 5. Generate disassembly
 riscv32-unknown-elf-objdump -d $ELF > $DISASM
 
+# 6. Cleanup: keep only .mem and .dis
+rm -f $ELF $IMEM_BIN $DMEM_BIN
+
 echo "Build complete!"
 echo "  IMEM: $IMEM_MEM (256 × 32-bit words)"
 echo "  DMEM: $DMEM_MEM (256 × 32-bit words)"

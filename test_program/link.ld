@@ -1,31 +1,49 @@
+ENTRY(_start)
+
 MEMORY
 {
-  IMEM (rx)  : ORIGIN = 0x00000000,  LENGTH = 0x000003FF
-  DMEM (rw)  : ORIGIN = 0x00100000, LENGTH = 0x000003FF
+  IMEM (rx)  : ORIGIN = 0x00000000, LENGTH = 1K   /* instruction memory */
+  DMEM (rwx) : ORIGIN = 0x00100000, LENGTH = 1K   /* data memory */
 }
-
 
 SECTIONS
 {
-  .text   : { *(.text*) } > IMEM
-  .rodata : { *(.rodata*) } > DMEM
+  /* Code (instructions only) in IMEM */
+  .text : {
+    *(.text)       /* program code */
+    *(.text*)      
+  } > IMEM
+
+  /* Read-only data in DMEM (since you can’t load from IMEM) */
+  .rodata : {
+    *(.rodata)
+    *(.rodata*)
+  } > DMEM
+
+  /* Initialized data in DMEM */
   .data : {
-    _sdata = .;
+    *(.data)
     *(.data*)
-    _edata = .;
-} > DMEM AT> IMEM
+  } > DMEM
+
+  /* Uninitialized data in DMEM */
   .bss : {
-    _sbss = .;
+    __bss_start = .;
+    *(.bss)
     *(.bss*)
     *(COMMON)
-    _ebss = .;
-} > DMEM
+    __bss_end = .;
+  } > DMEM
 
+
+  /* Heap region */
+  .heap (NOLOAD) : {
+    _heap_start = .;
+  } > DMEM
+
+  /* Stack region at top of DMEM */
+  .stack (NOLOAD) : {
+    _stack_end = ORIGIN(DMEM) + LENGTH(DMEM);
+    _stack_start = _stack_end - 512; /* reserve 0.5KB for stack */
+  } > DMEM
 }
-
-/* define stack symbols at very end of DMEM */
-_stack_top    = 0x0010003FE;
-_stack_bottom = 0x0010002FF;
-
-
-

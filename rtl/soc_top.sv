@@ -11,7 +11,6 @@ module soc_top (
 
   logic [WISHBONE_ADDR_WIDTH-1:0] CPU_FETCH_CMD_ADDR_I;
   logic [WISHBONE_BUS_WIDTH-1:0] CPU_FETCH_CMD_RDATA_O;
-  logic CPU_FETCH_RDATA_VALID_O;
   logic [WISHBONE_BUS_WIDTH-1:0] CPU_FETCH_WBM_DAT_I;
   logic CPU_FETCH_WBM_CYC_O;
   logic CPU_FETCH_WBM_STB_O;
@@ -34,7 +33,6 @@ module soc_top (
   logic [WISHBONE_BUS_WIDTH-1:0] CPU_MEM_WBM_DAT_O;
   logic [WISHBONE_BUS_WIDTH/8-1:0] CPU_MEM_WBM_SEL_O;
 
-  logic DMEM_WBS_RST_I;
   logic [WISHBONE_ADDR_WIDTH-1:0] DMEM_WBS_ADR_I;
   logic DMEM_WBS_WE_I;
   logic [31:0] DMEM_WBS_DAT_I;
@@ -45,26 +43,6 @@ module soc_top (
   logic DMEM_WBS_ACK_O;
   logic DMEM_WBS_ERR_O;
 
-  logic IMEM_WBS_RST_I;
-  logic [WISHBONE_ADDR_WIDTH-1:0] IMEM_WBS_ADR_I;
-  logic IMEM_WBS_WE_I;
-  logic IMEM_WBS_CYC_I;
-  logic IMEM_WBS_STB_I;
-  logic [31:0] IMEM_WBS_DAT_O;
-  logic IMEM_WBS_ACK_O;
-  logic IMEM_WBS_ERR_O;
-  logic IMEM_WBS_STALL_O;
-
-
-  logic [WISHBONE_BUS_WIDTH-1:0] WBM_DAT_I;
-  logic WBM_ERR_I;
-  logic WBM_ACK_I;
-  logic WBM_CYC_O;
-  logic WBM_STB_O;
-  logic [WISHBONE_ADDR_WIDTH-1:0] WBM_ADR_O;
-  logic WBM_WE_O;
-  logic [WISHBONE_BUS_WIDTH-1:0] WBM_DAT_O;
-  logic [WISHBONE_BUS_WIDTH/8-1:0] WBM_SEL_O;
   logic [WISHBONE_ADDR_WIDTH-1:0] WBS_ADR_I;
   logic WBS_WE_I;
   logic [WISHBONE_BUS_WIDTH-1:0] WBS_DAT_I;
@@ -79,6 +57,7 @@ module soc_top (
   logic [WISHBONE_ADDR_WIDTH-1:0] UART_WBS_ADR_I;
   logic UART_WBS_WE_I;
   logic [31:0] UART_WBS_DAT_I;
+  logic MEM_CMD_DONE_I;
 
   dtcore32 #(
       .WISHBONE_ADDR_WIDTH(WISHBONE_ADDR_WIDTH),
@@ -95,7 +74,8 @@ module soc_top (
       .MEM_CMD_WDATA_O(CPU_MEM_CMD_WDATA_I),
       .MEM_CMD_SEL_O(CPU_MEM_CMD_SEL_I),
       .MEM_CMD_RDATA_I(CPU_MEM_CMD_RDATA_O),
-      .MEM_CMD_BUSY_I(CPU_MEM_CMD_BUSY_O)
+      .MEM_CMD_BUSY_I(CPU_MEM_CMD_BUSY_O),
+      .MEM_CMD_DONE_I(MEM_CMD_DONE_I)
   );
 
   cpu_wb_fetch_master #(
@@ -134,7 +114,8 @@ module soc_top (
       .CPU_MEM_WBM_ADR_O(CPU_MEM_WBM_ADR_O),
       .CPU_MEM_WBM_WE_O(CPU_MEM_WBM_WE_O),
       .CPU_MEM_WBM_DAT_O(CPU_MEM_WBM_DAT_O),
-      .CPU_MEM_WBM_SEL_O(CPU_MEM_WBM_SEL_O)
+      .CPU_MEM_WBM_SEL_O(CPU_MEM_WBM_SEL_O),
+      .CPU_MEM_CMD_DONE_O(MEM_CMD_DONE_I)
   );
 
   wb_ram #(

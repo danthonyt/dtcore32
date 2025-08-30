@@ -12,6 +12,7 @@ module cpu_wb_mem_master #(
     input logic [WISHBONE_BUS_WIDTH/8-1:0] CPU_MEM_CMD_SEL_I,
     output logic [WISHBONE_BUS_WIDTH-1:0] CPU_MEM_CMD_RDATA_O,
     output logic CPU_MEM_CMD_BUSY_O,
+    output logic CPU_MEM_CMD_DONE_O,
 
     input logic [WISHBONE_BUS_WIDTH-1:0] CPU_MEM_WBM_DAT_I,
     input logic CPU_MEM_WBM_ERR_I,
@@ -39,8 +40,10 @@ module cpu_wb_mem_master #(
       cmd_wdata_q <= 0;
       cmd_sel_q <= 0;
       cmd_we_q <= 0;
+      CPU_MEM_CMD_DONE_O <= 0;
     end else begin
           CPU_MEM_WBM_STB_O  <= 0;
+          CPU_MEM_CMD_DONE_O <= 0;
         if (CPU_MEM_CMD_START_I && !cmd_busy) begin
           CPU_MEM_WBM_CYC_O  <= 1;
           CPU_MEM_WBM_STB_O  <= 1;
@@ -57,6 +60,7 @@ module cpu_wb_mem_master #(
           cmd_wdata_q <= 0;
           cmd_sel_q <= 0;
           cmd_we_q <= 0;
+          CPU_MEM_CMD_DONE_O <= 1;
         end 
     end
   end

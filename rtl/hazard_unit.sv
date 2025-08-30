@@ -37,7 +37,8 @@ import params_pkg::*;
     input logic MEM_TRAP_VALID,
     input logic WB_TRAP_VALID,
 
-    input logic WISHBONE_BUSY
+    input logic WISHBONE_REQ,
+    input logic WISHBONE_DONE
 
 );
   
@@ -79,6 +80,10 @@ import params_pkg::*;
   // has a matching source register to that write register in the decode stage
   assign load_use_hazard = ((EX_RESULT_SEL == RESULT_SEL_MEM_DATA) && ((id_ex_rs1_match && nonzero_ID_rs1)
    || (id_ex_rs2_match && nonzero_ID_rs2))) ? 1 : 0;
+
+   logic wishbone_stall;
+
+   assign wishbone_stall = WISHBONE_REQ && !WISHBONE_DONE;
 
   /*****************************************/
   //
@@ -137,7 +142,8 @@ import params_pkg::*;
   // no need to stall if instructions are flushed anyway
   assign IF_ID_STALL = load_use_hazard | ID_EX_STALL; 
   assign ID_EX_STALL = EX_MEM_STALL;
-  assign EX_MEM_STALL = WISHBONE_BUSY | MEM_WB_STALL;
-  assign MEM_WB_STALL = WISHBONE_BUSY;
+  assign EX_MEM_STALL = wishbone_stall | MEM_WB_STALL;
+  assign MEM_WB_STALL = wishbone_stall;
+  // stall when wishbone is busy OR the cpu sent a start signal
 
 endmodule
