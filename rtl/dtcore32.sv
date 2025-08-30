@@ -50,9 +50,10 @@ module dtcore32 #(
 `endif
     // wishbone master interface signals for IF stage
     // wishbone pipelined B4
-    output logic [WISHBONE_ADDR_WIDTH-1:0] IMEM_CMD_ADDR_O,
-    input  logic [ WISHBONE_BUS_WIDTH-1:0] IMEM_CMD_RDATA_I,
-    input logic IMEM_RDATA_VALID_I,
+    output logic [WISHBONE_ADDR_WIDTH-1:0] CPU_FETCH_WBM_ADR_O,
+    input  logic [ WISHBONE_BUS_WIDTH-1:0] CPU_FETCH_WBM_DAT_I,
+    output logic                           CPU_FETCH_WBM_CYC_O,
+    output logic                           CPU_FETCH_WBM_STB_O,
 
     // wishbone master interface signals for mem stage
     // standard wishbone B4
@@ -92,10 +93,9 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
   logic [31:0] if_a_pc_plus_4_q;
-  logic [31:0] START_ADDR;
   logic if_a_intr_d;
   logic if_a_intr_q;
-  logic [31:0] if_a_pc_d;
+  logic [31:0] next_pc;
   logic [31:0] if_b_pc_plus_4_q;
   logic if_b_intr_q;
   logic [31:0] if_b_pc_q;
@@ -106,6 +106,14 @@ module dtcore32 #(
   logic if_c_valid_q;
   logic [31:0] if_c_insn_q;
   logic [31:0] trap_handler_addr_q;
+  logic [31:0] pc_plus_4;
+  logic [31:0] if_a_pc;
+  logic [31:0] if_b_insn;
+  logic if_a_valid_q;
+  localparam START_ADDR = 32'd0;
+  logic imem_buf_valid;
+  logic [31:0] if_insn_buf;
+  logic [31:0] if_insn;
 
   //////////////////////////////////////
   //
@@ -213,6 +221,9 @@ module dtcore32 #(
   logic mem_load_trap_valid;
   logic [3:0] mem_store_wmask_d;
   logic [3:0] mem_load_rmask_d;
+  logic [3:0] mem_store_wmask_comb;
+  logic [31:0] mem_formatted_load_rdata;
+  logic mem_cmd_req;
 
 
   ///////////////////////////////////////
@@ -254,60 +265,54 @@ module dtcore32 #(
   //
   //
   ///////////////////////////////////////
-
-  assign START_ADDR = 32'd0;
+  assign pc_plus_4 = CPU_FETCH_WBM_ADR_O + 4;
   // next pc logic
-  assign if_a_pc_d = wb_trap_d.valid ? trap_handler_addr_q : 
-  ex_is_pc_redirect ? ex_pc_target : IMEM_CMD_ADDR_O + 4;
+  assign next_pc = wb_trap_d.valid ? trap_handler_addr_q : 
+  ex_is_pc_redirect ? ex_pc_target : pc_plus_4;
 
-  assign if_a_intr_d = wb_trap_d.valid ? 1 : 0;
+  assign if_a_intr_d = wb_trap_d.valid;
 
-  // input into the memory
   always_ff @(posedge CLK) begin
     if (RST) begin
-      IMEM_CMD_ADDR_O <= START_ADDR;
-      if_a_pc_plus_4_q <= START_ADDR + 4;
+      CPU_FETCH_WBM_ADR_O <= START_ADDR;
       if_a_intr_q <= 0;
-    end else begin
-      IMEM_CMD_ADDR_O <= if_a_pc_d;
-      if_a_pc_plus_4_q <= if_a_pc_d + 4;
+    end else if (!if_id_stall) begin
+      CPU_FETCH_WBM_ADR_O <= next_pc;
       if_a_intr_q <= if_a_intr_d;
     end
   end
 
-  
-  // synchronize metadata with memory latency
   always_ff @(posedge CLK) begin
     if (RST || if_id_flush) begin
-      if_b_pc_q <= 0;
-      if_b_pc_plus_4_q <= 0;
-      if_b_intr_q <= 0;
       if_b_valid_q <= 0;
+      if_b_pc_q <= 0;
+      if_b_intr_q <= 0;
     end else if (!if_id_stall) begin
-      if_b_pc_q <= IMEM_CMD_ADDR_O;
-      if_b_pc_plus_4_q <= if_a_pc_plus_4_q;
+      if_b_valid_q <= 1;
+      if_b_pc_q <= CPU_FETCH_WBM_ADR_O;
       if_b_intr_q <= if_a_intr_q;
-      if_b_valid_q <= IMEM_RDATA_VALID_I;
     end
   end
 
-  // need an additional register to hold imem
-  // rdata on stalls
+  
+
+  // buffer instruction fetch on stalls
   always_ff @(posedge CLK) begin
     if (RST || if_id_flush) begin
-      if_c_pc_q <= 0;
-      if_c_pc_plus_4_q <= 0;
-      if_c_intr_q <= 0;
-      if_c_valid_q <= 0;
-      if_c_insn_q <= NOP_INSTRUCTION;
+      if_insn_buf <= 0;
+      imem_buf_valid <= 0;
+    end else if (if_id_stall && !imem_buf_valid) begin
+      if_insn_buf <= CPU_FETCH_WBM_DAT_I;
+      imem_buf_valid <= 1;
     end else if (!if_id_stall) begin
-      if_c_pc_q <= if_b_pc_q;
-      if_c_pc_plus_4_q <= if_b_pc_plus_4_q;
-      if_c_intr_q <= if_b_intr_q;
-      if_c_valid_q <= if_b_valid_q;
-      if_c_insn_q <= IMEM_CMD_RDATA_I;
+      if_insn_buf <= 0;
+      imem_buf_valid <= 0;
     end
   end
+
+  assign if_insn = imem_buf_valid ? if_insn_buf : CPU_FETCH_WBM_DAT_I;
+  assign CPU_FETCH_WBM_CYC_O = !if_id_stall;
+  assign CPU_FETCH_WBM_STB_O = !if_id_stall;
 
   // goes into the if/id pipeline
 
@@ -421,8 +426,8 @@ module dtcore32 #(
   // for rvfi
   assign ex_pc_wdata_d = (ex_is_pc_redirect) ? ex_pc_target : ex_pipeline.pc_plus_4;
   // trap if a jump or branch address is misaligned
-  //assign ex_misaligned_jump_or_branch_comb = ex_is_pc_redirect & (if_a_pc_d[1] | if_a_pc_d[0]);
-  assign ex_misaligned_jump_or_branch_comb = ex_is_pc_redirect & (if_a_pc_d[1] | if_a_pc_d[0]);
+  //assign ex_misaligned_jump_or_branch_comb = ex_is_pc_redirect & (next_pc[1] | next_pc[0]);
+  assign ex_misaligned_jump_or_branch_comb = ex_is_pc_redirect & (next_pc[1] | next_pc[0]);
 
   assign ex_pc_target_non_jalr = (ex_pc_base + ex_pipeline.imm_ext);
   assign ex_pc_target     = (ex_pipeline.cf_op == CF_JALR) ? (ex_pc_target_non_jalr & ~(1'b1)) : ex_pc_target_non_jalr;
@@ -525,10 +530,6 @@ module dtcore32 #(
   //
   ///////////////////////////////////////
 
-  logic [ 3:0] mem_store_wmask_comb;
-  logic [31:0] mem_formatted_load_rdata;
-  logic mem_cmd_req;
-
   //logic [WISHBONE_BUS_WIDTH-1:0] mem_cmd_rdata;
   //logic mem_cmd_busy;
 
@@ -545,12 +546,12 @@ module dtcore32 #(
   assign mem_load_rmask_d = (mem_pipeline.mem_op[4] & !mem_pipeline.mem_op[3]) ? mem_load_rmask_comb : 0;
 
   // a wishbone request sends a start pulse
-  pulse_generator  pulse_generator_inst (
+  pulse_generator pulse_generator_inst (
       .CLK_I(CLK),
       .RST_I(RST),
-      .EN_I(mem_cmd_req),
+      .EN_I(mem_cmd_req && !MEM_CMD_DONE_I),
       .PULSE_O(MEM_CMD_START_O)
-    );
+  );
   // format store data for MEM stage
   store_unit #(
       .BUS_WIDTH(WISHBONE_BUS_WIDTH)
@@ -605,49 +606,53 @@ module dtcore32 #(
 
   //IF/ID
   always_ff @(posedge CLK) begin
-    if (RST || if_id_flush || !if_c_valid_q) begin
+    if (RST || if_id_flush) begin
       id_pipeline <= PIPELINE_T_RESET;
     end else if (!if_id_stall) begin
-      id_pipeline <= '{
-          pc: if_c_pc_q,
-          pc_plus_4: if_c_pc_plus_4_q,
-          insn: if_c_insn_q,
-          rs1_addr: 0,
-          rs2_addr: 0,
-          rd_addr: 0,
-          rs1_rdata: 0,
-          rs2_rdata: 0,
-          imm_ext: 0,
-          csr_addr: 0,
-          csr_wdata: 0,
-          csr_rdata: 0,
-          csr_op: CSR_NONE,
-          cf_op: CF_NONE,
-          alu_control: ADD_ALU_CONTROL,
-          result_sel: RESULT_SEL_ALU_RESULT,
-          alu_a_sel: ALU_A_SEL_REG_DATA,
-          alu_b_sel: ALU_B_SEL_REG_DATA,
-          pc_alu_sel: PC_ALU_SEL_PC,
-          csr_bitmask_sel: CSR_BITMASK_SEL_REG_DATA,
-          mem_op: MEM_NONE,
-          load_rmask: 0,
-          store_wdata: 0,
-          store_wmask: 0,
-          alu_csr_result: 0,
-          load_rdata: 0,
-          pc_wdata: 0,
-          valid: if_c_valid_q,
-          intr: if_c_intr_q,
-          carried_trap: '{default: 0}  // zero the struct if not used yet
-      };
+      if (!if_b_valid_q) begin
+        id_pipeline <= PIPELINE_T_RESET;
+      end else begin
+        id_pipeline <= '{
+            pc: if_b_pc_q,
+            pc_plus_4: if_b_pc_q + 4,
+            insn: if_insn,
+            rs1_addr: 0,
+            rs2_addr: 0,
+            rd_addr: 0,
+            rs1_rdata: 0,
+            rs2_rdata: 0,
+            imm_ext: 0,
+            csr_addr: 0,
+            csr_wdata: 0,
+            csr_rdata: 0,
+            csr_op: CSR_NONE,
+            cf_op: CF_NONE,
+            alu_control: ADD_ALU_CONTROL,
+            result_sel: RESULT_SEL_ALU_RESULT,
+            alu_a_sel: ALU_A_SEL_REG_DATA,
+            alu_b_sel: ALU_B_SEL_REG_DATA,
+            pc_alu_sel: PC_ALU_SEL_PC,
+            csr_bitmask_sel: CSR_BITMASK_SEL_REG_DATA,
+            mem_op: MEM_NONE,
+            load_rmask: 0,
+            store_wdata: 0,
+            store_wmask: 0,
+            alu_csr_result: 0,
+            load_rdata: 0,
+            pc_wdata: 0,
+            valid: if_b_valid_q,
+            intr: if_b_intr_q,
+            carried_trap: '{default: 0}  // zero the struct if not used yet
+        };
+      end
     end
   end
   // ID/EX register
   always_ff @(posedge CLK) begin
-    if (RST || id_ex_flush || !id_pipeline.valid) begin
+    if (RST || id_ex_flush) begin
       ex_pipeline <= PIPELINE_T_RESET;
     end else if (!id_ex_stall) begin
-      if (if_id_stall) begin
+      if (if_id_stall || !id_pipeline.valid) begin
         ex_pipeline <= PIPELINE_T_RESET;
       end else begin
         ex_pipeline <= '{
@@ -687,10 +692,10 @@ module dtcore32 #(
   end
   // EX/MEM register
   always_ff @(posedge CLK) begin
-    if (RST || ex_mem_flush || !ex_pipeline.valid) begin
+    if (RST || ex_mem_flush) begin
       mem_pipeline <= PIPELINE_T_RESET;
     end else if (!ex_mem_stall) begin
-      if (id_ex_stall) begin
+      if (id_ex_stall || !ex_pipeline.valid) begin
         mem_pipeline <= PIPELINE_T_RESET;
       end else begin
         mem_pipeline <= '{
@@ -730,10 +735,10 @@ module dtcore32 #(
   end
   //MEM/WB
   always_ff @(posedge CLK) begin
-    if (RST || mem_wb_flush|| !mem_pipeline.valid) begin
+    if (RST || mem_wb_flush) begin
       wb_pipeline <= PIPELINE_T_RESET;
     end else if (!mem_wb_stall) begin
-      if (ex_mem_stall) begin
+      if (ex_mem_stall || !mem_pipeline.valid) begin
         wb_pipeline <= PIPELINE_T_RESET;
       end else begin
         wb_pipeline <= '{
@@ -904,7 +909,7 @@ module dtcore32 #(
       .MEM_TRAP_VALID(mem_trap_d.valid),
       .WB_TRAP_VALID(wb_trap_d.valid),
       .WISHBONE_REQ(mem_cmd_req),
-    .WISHBONE_DONE(MEM_CMD_DONE_I)
+      .WISHBONE_DONE(MEM_CMD_DONE_I)
   );
 
 

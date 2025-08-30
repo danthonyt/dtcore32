@@ -57,7 +57,6 @@ import params_pkg::*;
   logic ex_mem_rs1_match;
   logic ex_wb_rs2_match;
   logic ex_wb_rs1_match;
-  logic axil_stall;
   assign nonzero_ID_rs1 = |ID_RS1_ADDR;
   assign nonzero_ID_rs2 = |ID_RS2_ADDR;
   assign id_ex_rs1_match = (ID_RS1_ADDR == EX_RD_ADDR);

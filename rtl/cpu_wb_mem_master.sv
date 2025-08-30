@@ -28,6 +28,7 @@ module cpu_wb_mem_master #(
   logic [WISHBONE_ADDR_WIDTH-1:0] cmd_addr_q;
   logic [WISHBONE_BUS_WIDTH-1:0] cmd_wdata_q;
   logic [WISHBONE_BUS_WIDTH/8-1:0] cmd_sel_q;
+  logic [WISHBONE_BUS_WIDTH-1:0] cmd_rdata;
   logic cmd_we_q;
   logic cmd_busy;
 
@@ -41,6 +42,7 @@ module cpu_wb_mem_master #(
       cmd_sel_q <= 0;
       cmd_we_q <= 0;
       CPU_MEM_CMD_DONE_O <= 0;
+      cmd_rdata <= 0;
     end else begin
           CPU_MEM_WBM_STB_O  <= 0;
           CPU_MEM_CMD_DONE_O <= 0;
@@ -61,6 +63,7 @@ module cpu_wb_mem_master #(
           cmd_sel_q <= 0;
           cmd_we_q <= 0;
           CPU_MEM_CMD_DONE_O <= 1;
+          cmd_rdata <= CPU_MEM_WBM_DAT_I;
         end 
     end
   end
@@ -69,7 +72,7 @@ module cpu_wb_mem_master #(
   assign CPU_MEM_WBM_SEL_O = cmd_sel_q;
   assign CPU_MEM_WBM_ADR_O = cmd_addr_q;
   assign CPU_MEM_WBM_DAT_O = cmd_wdata_q;
-  assign CPU_MEM_CMD_RDATA_O = CPU_MEM_WBM_DAT_I;
+  assign CPU_MEM_CMD_RDATA_O = cmd_rdata;
   assign CPU_MEM_CMD_BUSY_O = cmd_busy;
 
   /******************************************/
