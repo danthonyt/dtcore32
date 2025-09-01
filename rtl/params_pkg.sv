@@ -117,36 +117,6 @@ package params_pkg;
   } csr_bitmask_sel_t;
 
 
-
-
-
-  /*
-  //ID_alu_a_src
-  localparam logic [1:0] ALU_A_SEL_REG_DATA = 2'b00;
-  localparam logic [1:0] ALU_A_SEL_ZERO = 2'b01;
-  localparam logic [1:0] ALU_A_SEL_PC = 2'b10;
-
-  //ID_alu_b_src
-  localparam logic ALU_B_SEL_REG_DATA = 1'b0;
-  localparam logic ALU_B_SEL_IMM = 1'b1;
-
-  //ID_alu_op
-  localparam logic [1:0] ALU_OP_ILOAD_S_U_TYPE = 2'b00;
-  localparam logic [1:0] ALU_OP_B_TYPE = 2'b01;
-  localparam logic [1:0] ALU_OP_IALU_ISHIFT_R_TYPE = 2'b10;
-  localparam logic [1:0] ALU_OP_JALR = 2'b11;
-
-
-
-  //ID_pc_target_alu_src
-  localparam logic PC_ALU_SEL_PC = 1'b0;
-  localparam logic PC_ALU_SELECT_REG_DATA = 1'b1;
-
-  // ID_csr_wr_operand_src
-  localparam logic CSR_BITMASK_SEL_REG_DATA = 1'b0;
-  localparam logic CSR_BITMASK_SEL_IMM = 1'b1;
-  */
-
   // OPCODES
   localparam logic [6:0] OPCODE_LOAD = 7'b0000011;
   localparam logic [6:0] OPCODE_STORE = 7'b0100011;

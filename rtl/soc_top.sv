@@ -7,7 +7,7 @@ module soc_top (
 );
   localparam WISHBONE_BUS_WIDTH = 32;
   localparam WISHBONE_ADDR_WIDTH = 32;
-  localparam MEM_DEPTH = 256;
+  localparam MEM_DEPTH = 2560;
 
   logic [WISHBONE_ADDR_WIDTH-1:0] CPU_FETCH_CMD_ADDR_I;
   logic [WISHBONE_BUS_WIDTH-1:0] CPU_FETCH_CMD_RDATA_O;

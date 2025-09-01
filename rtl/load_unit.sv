@@ -23,27 +23,27 @@ module load_unit
       //lw
       MEM_LW: begin
         rmask = 4'hf;
-        load_formatted = RDATA_RAW;
+        load_formatted = loaded;
       end
       //lb
       MEM_LB: begin
         rmask = 4'h1;
-        load_formatted = {{24{RDATA_RAW[7]}}, RDATA_RAW[7:0]};
+        load_formatted = {{24{loaded[7]}}, loaded[7:0]};
       end
       //lbu
       MEM_LBU: begin
         rmask = 4'h1;
-        load_formatted = {{24{1'b0}}, RDATA_RAW[7:0]};
+        load_formatted = {{24{1'b0}}, loaded[7:0]};
       end
       //lh
       MEM_LH: begin
         rmask = 4'h3;
-        load_formatted = {{16{RDATA_RAW[15]}}, RDATA_RAW[15:0]};
+        load_formatted = {{16{loaded[15]}}, loaded[15:0]};
       end
       //lhu
       MEM_LHU: begin
         rmask = 4'h3;
-        load_formatted = {{16{1'b0}}, RDATA_RAW[15:0]};
+        load_formatted = {{16{1'b0}}, loaded[15:0]};
       end
       default: ;
     endcase

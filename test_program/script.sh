@@ -13,7 +13,8 @@ LINKER_SCRIPT=link.ld
 
 # 1. Compile and link (with startup)
 riscv32-unknown-elf-gcc -march=rv32i -mabi=ilp32 -nostdlib -nostartfiles \
-    -Wl,-T,$LINKER_SCRIPT -o $ELF $STARTUP $SRC
+    -Wl,-T,$LINKER_SCRIPT -o $ELF $STARTUP $SRC -lgcc
+
 
 # 2. Generate raw binaries
 # IMEM: just .text
@@ -25,8 +26,8 @@ riscv32-unknown-elf-objcopy -O binary \
     $ELF $DMEM_BIN
 
 # 3. Pad binaries to match IMEM/DMEM sizes (1 KB = 256 words)
-truncate -s 1024 $IMEM_BIN
-truncate -s 1024 $DMEM_BIN
+truncate -s 10240 $IMEM_BIN
+truncate -s 10240 $DMEM_BIN
 
 # 4. Convert to 32-bit hex words, one per line
 # IMEM
@@ -42,6 +43,6 @@ riscv32-unknown-elf-objdump -d $ELF > $DISASM
 rm -f $ELF $IMEM_BIN $DMEM_BIN
 
 echo "Build complete!"
-echo "  IMEM: $IMEM_MEM (256 × 32-bit words)"
-echo "  DMEM: $DMEM_MEM (256 × 32-bit words)"
+echo "  IMEM: $IMEM_MEM (2560 × 32-bit words)"
+echo "  DMEM: $DMEM_MEM (2560 × 32-bit words)"
 echo "  Disassembly: $DISASM"

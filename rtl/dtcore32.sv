@@ -222,7 +222,6 @@ module dtcore32 #(
   logic [3:0] mem_store_wmask_d;
   logic [3:0] mem_load_rmask_d;
   logic [3:0] mem_store_wmask_comb;
-  logic [31:0] mem_formatted_load_rdata;
   logic mem_cmd_req;
 
 
@@ -532,18 +531,25 @@ module dtcore32 #(
 
   //logic [WISHBONE_BUS_WIDTH-1:0] mem_cmd_rdata;
   //logic mem_cmd_busy;
+  logic [31:0] mem_store_wdata_formatted;
+  logic [31:0] mem_load_rdata_raw;
+  logic [31:0] mem_load_rdata_formatted;
 
   // start a wishbone req if a memory instruction
   assign mem_cmd_req = !mem_pipeline.carried_trap.valid && (mem_pipeline.mem_op != MEM_NONE);
   // high when store instruction
   assign MEM_CMD_WE_O = mem_pipeline.mem_op[4] & mem_pipeline.mem_op[3];
   assign MEM_CMD_ADDR_O = mem_pipeline.alu_csr_result;
-  assign MEM_CMD_WDATA_O = mem_pipeline.store_wdata;
 
-  assign mem_store_wdata_d = mem_pipeline.store_wdata;
+  assign mem_store_wdata_d = mem_store_wdata_formatted;
   assign mem_store_wmask_d =  (mem_pipeline.mem_op[4] & mem_pipeline.mem_op[3]) ? mem_store_wmask_comb : 0;
-  assign mem_load_rdata_d = mem_formatted_load_rdata;
+
+  assign mem_load_rdata_d = mem_load_rdata_formatted;
   assign mem_load_rmask_d = (mem_pipeline.mem_op[4] & !mem_pipeline.mem_op[3]) ? mem_load_rmask_comb : 0;
+
+  assign mem_load_rdata_raw = MEM_CMD_RDATA_I;
+  assign MEM_CMD_SEL_O = mem_store_wmask_d;
+  assign MEM_CMD_WDATA_O = mem_store_wdata_formatted;
 
   // a wishbone request sends a start pulse
   pulse_generator pulse_generator_inst (
@@ -552,26 +558,25 @@ module dtcore32 #(
       .EN_I(mem_cmd_req && !MEM_CMD_DONE_I),
       .PULSE_O(MEM_CMD_START_O)
   );
-  // format store data for MEM stage
-  store_unit #(
-      .BUS_WIDTH(WISHBONE_BUS_WIDTH)
-  ) store_unit_inst (
-      .MEM_OP(mem_pipeline.mem_op),
-      .ADDR_LSB2(mem_pipeline.alu_csr_result[1:0]),
-      .STORE_TRAP_VALID(mem_store_trap_valid),
-      .STORE_TRAP_MCAUSE(mem_store_trap_mcause),
-      .WSTRB(MEM_CMD_SEL_O),
-      .STORE_WMASK(mem_store_wmask_comb)
+
+  store_unit  store_unit_inst (
+    .MEM_OP(mem_pipeline.mem_op),
+    .ADDR_LSB2(mem_pipeline.alu_csr_result[1:0]),
+    .STORE_WDATA_RAW(mem_pipeline.store_wdata),
+    .STORE_TRAP_VALID(mem_store_trap_valid),
+    .STORE_TRAP_MCAUSE(mem_store_trap_mcause),
+    .WMASK(mem_store_wmask_comb),
+    .STORE_WDATA_FORMATTED(mem_store_wdata_formatted)
   );
 
   load_unit load_unit_inst (
       .MEM_OP(mem_pipeline.mem_op),
       .ADDR_LSB2(mem_pipeline.alu_csr_result[1:0]),
-      .RDATA_RAW(MEM_CMD_RDATA_I),
+      .RDATA_RAW(mem_load_rdata_raw),
       .LOAD_TRAP_VALID(mem_load_trap_valid),
       .LOAD_TRAP_MCAUSE(mem_load_trap_mcause),
       .LOAD_RMASK(mem_load_rmask_comb),
-      .LOAD_FORMATTED(mem_formatted_load_rdata)
+      .LOAD_FORMATTED(mem_load_rdata_formatted)
   );
 
 
