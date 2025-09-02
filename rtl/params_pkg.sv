@@ -29,14 +29,14 @@ package params_pkg;
   typedef enum logic [1:0] {
     NO_FORWARD_SEL             = 2'h0,
     FORWARD_SEL_MEM_ALU_RESULT = 2'h1,
-    FORWARD_SEL_WB_LOAD_RDATA = 2'h2,
-    FORWARD_SEL_WB_ALU_RESULT      = 2'h3
+    FORWARD_SEL_WB_LOAD_RDATA  = 2'h2,
+    FORWARD_SEL_WB_ALU_RESULT  = 2'h3
   } forward_sel_t;
 
   // Result source selection
   typedef enum logic [1:0] {
     RESULT_SEL_ALU_RESULT      = 2'b00,
-    RESULT_SEL_MEM_DATA    = 2'b01,
+    RESULT_SEL_MEM_DATA        = 2'b01,
     RESULT_SEL_NEXT_INSTR_ADDR = 2'b10,
     RESULT_SEL_CSR_READ_DATA   = 2'b11
   } result_sel_t;
@@ -220,7 +220,7 @@ package params_pkg;
   localparam logic [11:0] CSR_ADDR_MCONFIGPTR = 12'hF15;
   localparam logic [11:0] CSR_ADDR_NO_ADDR = 12'h000;
 
-  typedef struct packed{
+  typedef struct packed {
     logic valid;
     logic is_interrupt;
     logic [31:0] insn;
@@ -236,51 +236,27 @@ package params_pkg;
   } trap_info_t;
 
   typedef struct packed {
-
-    logic        valid;
-    logic [63:0] order;
-    logic [31:0] insn;
-    logic        trap;
-    logic        intr;
-    logic [4:0]  rs1_addr;
-    logic [4:0]  rs2_addr;
-    logic [31:0] rs1_rdata;
-    logic [31:0] rs2_rdata;
-    logic [4:0]  rd_addr;
-    logic [31:0] rd_wdata;
-    logic [31:0] pc_rdata;
-    logic [31:0] pc_wdata;
-    logic [31:0] mem_addr;
-    logic [3:0]  mem_rmask;
-    logic [3:0]  mem_wmask;
-    logic [31:0] mem_rdata;
-    logic [31:0] mem_wdata;
-  } rvfi_t;
-
-
-
-
-  typedef struct packed {
-    // Instruction and PC
     logic [31:0] pc;
     logic [31:0] pc_plus_4;
     logic [31:0] insn;
+    logic        valid;
+    logic        intr;
+  } if_id_t;
 
-    // Register operands
-    logic [4:0]  rs1_addr;
-    logic [4:0]  rs2_addr;
-    logic [4:0]  rd_addr;
+  typedef struct packed {
+    logic [31:0] pc;
+    logic [31:0] pc_plus_4;
+    logic [31:0] insn;
+    logic valid;
+    logic intr;
+    logic [4:0] rs1_addr;
+    logic [4:0] rs2_addr;
+    logic [4:0] rd_addr;
     logic [31:0] rs1_rdata;
     logic [31:0] rs2_rdata;
     logic [31:0] imm_ext;
-
-    // CSR
     logic [11:0] csr_addr;
-    logic [31:0] csr_wdata;
-    logic [31:0] csr_rdata;
     csr_op_t csr_op;
-
-    // ALU / MEM control
     cf_op_t cf_op;
     alu_control_t alu_control;
     result_sel_t result_sel;
@@ -288,56 +264,79 @@ package params_pkg;
     alu_b_sel_t alu_b_sel;
     pc_alu_sel_t pc_alu_sel;
     csr_bitmask_sel_t csr_bitmask_sel;
-
-    mem_op_t     mem_op;
-    logic [3:0]  load_rmask;
-    logic [31:0] store_wdata;
-    logic [3:0]  store_wmask;
-
-    // Execution results
-    logic [31:0] alu_csr_result;
-    logic [31:0] load_rdata;
-    logic [31:0] pc_wdata;
-
-    // Control & status
-    logic valid;
-    logic intr;
-    // trap from previous stage
+    mem_op_t mem_op;
     trap_info_t carried_trap;
+  } id_ex_t;
 
-    // decoded control
-  } pipeline_t;
+  typedef struct packed {
+    logic [31:0] pc;
+    logic [31:0] pc_plus_4;
+    logic [31:0] next_pc;
+    logic [31:0] insn;
+    logic        valid;
+    logic        intr;
+    logic [4:0]  rs1_addr;
+    logic [4:0]  rs2_addr;
+    logic [4:0]  rd_addr;
+    logic [31:0] rs1_rdata;
+    logic [31:0] rs2_rdata;
+    logic [11:0] csr_addr;
+    logic [31:0] csr_wdata;
+    logic [31:0] csr_rdata;
+    result_sel_t result_sel;
+    mem_op_t     mem_op;
+    logic [31:0] store_wdata;
+    logic [31:0] alu_csr_result;
+    trap_info_t  carried_trap;
+  } ex_mem_t;
 
-  localparam pipeline_t PIPELINE_T_RESET = '{
-      pc: 0,
-      pc_plus_4: 0,
-      insn: NOP_INSTRUCTION,
-      rs1_addr: 0,
-      rs2_addr: 0,
-      rd_addr: 0,
-      rs1_rdata: 0,
-      rs2_rdata: 0,
-      imm_ext: 0,
-      csr_addr: 0,
-      csr_wdata: 0,
-      csr_rdata: 0,
-      csr_op: CSR_NONE,
-      cf_op: CF_NONE,
-      alu_control: ADD_ALU_CONTROL,
-      result_sel: RESULT_SEL_ALU_RESULT,
-      alu_a_sel: ALU_A_SEL_REG_DATA,
-      alu_b_sel: ALU_B_SEL_REG_DATA,
-      pc_alu_sel: PC_ALU_SEL_PC,
-      csr_bitmask_sel: CSR_BITMASK_SEL_REG_DATA,
-      mem_op: MEM_NONE,
-      load_rmask: 0,
-      store_wdata: 0,
-      store_wmask: 0,
-      alu_csr_result: 0,
-      load_rdata: 0,
-      pc_wdata: 0,
-      valid: 0,
-      intr: 0,
-      carried_trap: '{default:0}
-  };
+  typedef struct packed {
+    logic [31:0] pc;
+    logic [31:0] pc_plus_4;
+    logic [31:0] next_pc;
+    logic [31:0] insn;
+    logic        valid;
+    logic        intr;
+    logic [4:0]  rs1_addr;
+    logic [4:0]  rs2_addr;
+    logic [4:0]  rd_addr;
+    logic [31:0] rs1_rdata;
+    logic [31:0] rs2_rdata;
+    logic [11:0] csr_addr;
+    logic [31:0] csr_wdata;
+    logic [31:0] csr_rdata;
+    result_sel_t result_sel;
+    logic [3:0]  load_rmask;
+    logic [31:0] load_rdata;
+    logic [3:0]  store_wmask;
+    logic [31:0] store_wdata;
+    logic [31:0] alu_csr_result;
+    trap_info_t  carried_trap;
+  } mem_wb_t;
+
+
+  typedef struct packed {
+    logic [31:0] pc_rdata;
+    logic [31:0] pc_wdata;
+    logic [31:0] insn;
+    logic        valid;
+    logic        intr;
+    logic [4:0]  rs1_addr;
+    logic [4:0]  rs2_addr;
+    logic [4:0]  rd_addr;
+    logic [31:0] rs1_rdata;
+    logic [31:0] rs2_rdata;
+    logic [31:0] rd_wdata;
+    logic [11:0] csr_addr;
+    logic [31:0] csr_wdata;
+    logic [3:0]  csr_wmask;
+    logic [31:0] csr_rdata;
+    logic [3:0]  csr_rmask;
+    logic [3:0]  mem_rmask;
+    logic [31:0] mem_rdata;
+    logic [3:0]  mem_wmask;
+    logic [31:0] mem_wdata;
+    trap_info_t  trap;
+  } rvfi_t;
+
 endpackage

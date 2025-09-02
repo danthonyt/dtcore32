@@ -1,0 +1,29 @@
+[tasks]
+basic bmc
+cover_task1 cover
+prove_task1 prove
+
+
+[options]
+bmc: 
+mode bmc
+depth 10
+cover:
+mode cover
+depth 10
+prove:
+mode prove
+--
+
+[engines]
+smtbmc boolector
+
+[script]
+read -sv params_pkg.sv
+read -formal ex_mem_reg.sv
+hierarchy -check -top ex_mem_reg 
+prep -top ex_mem_reg
+
+[files]
+ex_mem_reg.sv
+params_pkg.sv

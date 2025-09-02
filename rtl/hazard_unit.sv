@@ -1,47 +1,38 @@
-module hazard_unit 
-import params_pkg::*;
+module hazard_unit
+  import params_pkg::*;
 (
     //Forwarding
-    input logic [4:0] EX_RS1_ADDR,
-    input logic [4:0] EX_RS2_ADDR,
-    input logic [4:0] MEM_RD_ADDR,
-    input logic [4:0] WB_RD_ADDR,
-    //Stalling
-    input result_sel_t EX_RESULT_SEL,
-    input result_sel_t MEM_RESULT_SEL,
-    input result_sel_t WB_RESULT_SEL,
-    input logic [4:0] ID_RS1_ADDR,
-    input logic [4:0] ID_RS2_ADDR,
-    input logic [4:0] EX_RD_ADDR,
-    //branch control hazard
-    input logic EX_IS_PC_REDIRECT,
-    // axi lite stall
-    output logic [2:0] EX_FORWARD_A,
-    output logic [2:0] EX_FORWARD_B,
-    output logic ID_FORWARD_A,
-    output logic ID_FORWARD_B,
-
-    output logic IF_ID_FLUSH,
-    output logic ID_EX_FLUSH,
-    output logic EX_MEM_FLUSH,
-    output logic MEM_WB_FLUSH,
-
-    output logic IF_ID_STALL,
-    output logic ID_EX_STALL,
-    output logic EX_MEM_STALL,
-    output logic MEM_WB_STALL,
-    
-
-    // trap logic
-    input logic EX_TRAP_VALID,
-    input logic MEM_TRAP_VALID,
-    input logic WB_TRAP_VALID,
-
-    input logic WISHBONE_REQ,
-    input logic WISHBONE_DONE
+    input logic [4:0] ex_rs1_addr_i,
+    input logic [4:0] ex_rs1_addr_i,
+    input logic [4:0] mem_rd_addr_i,
+    input logic [4:0] wb_rd_addr_i,
+    input result_sel_t ex_result_sel_i,
+    input result_sel_t wb_result_sel_i,
+    input logic [4:0] id_rs1_addr_i,
+    input logic [4:0] id_rs2_addr_i,
+    input logic [4:0] ex_rd_addr_i,
+    input logic ex_is_pc_redirect_i,
+    output logic [2:0] ex_forward_a_sel_o,
+    output logic [2:0] ex_forward_b_sel_o,
+    output logic id_forward_a_o,
+    output logic id_forward_b_o,
+    output logic if_id_flush_o,
+    output logic id_ex_flush_o,
+    output logic ex_mem_flush_o,
+    output logic mem_wb_flush_o,
+    output logic if_id_stall_o,
+    output logic id_ex_stall_o,
+    output logic ex_mem_stall_o,
+    output logic mem_wb_stall_o,
+    input logic ex_trap_valid_i,
+    input logic mem_trap_valid_i,
+    input logic wb_trap_valid_i,
+    input logic wishbone_req_i,
+    input logic wishbone_done_i
 
 );
-  
+
+  logic wishbone_stall;
   logic [2:0] ex_forward_a;
   logic [2:0] ex_forward_b;
   logic if_forward_a;
@@ -57,16 +48,16 @@ import params_pkg::*;
   logic ex_mem_rs1_match;
   logic ex_wb_rs2_match;
   logic ex_wb_rs1_match;
-  assign nonzero_ID_rs1 = |ID_RS1_ADDR;
-  assign nonzero_ID_rs2 = |ID_RS2_ADDR;
-  assign id_ex_rs1_match = (ID_RS1_ADDR == EX_RD_ADDR);
-  assign id_mem_rs1_match = (ID_RS1_ADDR == MEM_RD_ADDR);
-  assign id_ex_rs2_match = (ID_RS2_ADDR == EX_RD_ADDR);
-  assign id_mem_rs2_match = (ID_RS2_ADDR == MEM_RD_ADDR);
-  assign ex_mem_rs1_match = ((EX_RS1_ADDR == MEM_RD_ADDR) && (EX_RS1_ADDR != 0));
-  assign ex_mem_rs2_match = ((EX_RS2_ADDR == MEM_RD_ADDR) && (EX_RS2_ADDR != 0));
-  assign ex_wb_rs1_match = ((EX_RS1_ADDR == WB_RD_ADDR) && (EX_RS1_ADDR != 0));
-  assign ex_wb_rs2_match = ((EX_RS2_ADDR == WB_RD_ADDR) && (EX_RS2_ADDR != 0));
+  assign nonzero_ID_rs1 = |id_rs1_addr_i;
+  assign nonzero_ID_rs2 = |id_rs2_addr_i;
+  assign id_ex_rs1_match = (id_rs1_addr_i == ex_rd_addr_i);
+  assign id_mem_rs1_match = (id_rs1_addr_i == mem_rd_addr_i);
+  assign id_ex_rs2_match = (id_rs2_addr_i == ex_rd_addr_i);
+  assign id_mem_rs2_match = (id_rs2_addr_i == mem_rd_addr_i);
+  assign ex_mem_rs1_match = ((ex_rs1_addr_i == mem_rd_addr_i) && (ex_rs1_addr_i != 0));
+  assign ex_mem_rs2_match = ((ex_rs1_addr_i == mem_rd_addr_i) && (ex_rs1_addr_i != 0));
+  assign ex_wb_rs1_match = ((ex_rs1_addr_i == wb_rd_addr_i) && (ex_rs1_addr_i != 0));
+  assign ex_wb_rs2_match = ((ex_rs1_addr_i == wb_rd_addr_i) && (ex_rs1_addr_i != 0));
 
   /*****************************************/
   //
@@ -77,12 +68,10 @@ import params_pkg::*;
 
   // We must stall if a load instruction is in the execute stage while another instruction 
   // has a matching source register to that write register in the decode stage
-  assign load_use_hazard = ((EX_RESULT_SEL == RESULT_SEL_MEM_DATA) && ((id_ex_rs1_match && nonzero_ID_rs1)
+  assign load_use_hazard = ((ex_result_sel_i == RESULT_SEL_MEM_DATA) && ((id_ex_rs1_match && nonzero_ID_rs1)
    || (id_ex_rs2_match && nonzero_ID_rs2))) ? 1 : 0;
 
-   logic wishbone_stall;
-
-   assign wishbone_stall = WISHBONE_REQ && !WISHBONE_DONE;
+  assign wishbone_stall = wishbone_req_i && !wishbone_done_i;
 
   /*****************************************/
   //
@@ -94,27 +83,23 @@ import params_pkg::*;
   //instruction we must forward that value from the previous instruction so the updated
   //value is used.
   always_comb begin
-    if (ex_mem_rs1_match)
-      ex_forward_a = FORWARD_SEL_MEM_ALU_RESULT;
-    else if (ex_wb_rs1_match && (WB_RESULT_SEL == RESULT_SEL_MEM_DATA))
+    if (ex_mem_rs1_match) ex_forward_a = FORWARD_SEL_MEM_ALU_RESULT;
+    else if (ex_wb_rs1_match && (wb_result_sel_i == RESULT_SEL_MEM_DATA))
       ex_forward_a = FORWARD_SEL_WB_LOAD_RDATA;
-    else if (ex_wb_rs1_match)
-      ex_forward_a = FORWARD_SEL_WB_ALU_RESULT;
+    else if (ex_wb_rs1_match) ex_forward_a = FORWARD_SEL_WB_ALU_RESULT;
     else ex_forward_a = NO_FORWARD_SEL;
 
-    if (ex_mem_rs2_match)
-      ex_forward_b = FORWARD_SEL_MEM_ALU_RESULT;
-    else if (ex_wb_rs2_match && (WB_RESULT_SEL == RESULT_SEL_MEM_DATA))
+    if (ex_mem_rs2_match) ex_forward_b = FORWARD_SEL_MEM_ALU_RESULT;
+    else if (ex_wb_rs2_match && (wb_result_sel_i == RESULT_SEL_MEM_DATA))
       ex_forward_b = FORWARD_SEL_WB_LOAD_RDATA;
-    else if (ex_wb_rs2_match)
-      ex_forward_b = FORWARD_SEL_WB_ALU_RESULT;
+    else if (ex_wb_rs2_match) ex_forward_b = FORWARD_SEL_WB_ALU_RESULT;
     else ex_forward_b = NO_FORWARD_SEL;
   end
 
-  assign EX_FORWARD_A = ex_forward_a;
-  assign EX_FORWARD_B = ex_forward_b;
-  assign if_forward_a = (ID_RS1_ADDR == WB_RD_ADDR);
-  assign id_forward_b = (ID_RS2_ADDR == WB_RD_ADDR);
+  assign ex_forward_a_sel_o = ex_forward_a;
+  assign ex_forward_b_sel_o = ex_forward_b;
+  assign if_forward_a = (id_rs1_addr_i == wb_rd_addr_i);
+  assign id_forward_b = (id_rs2_addr_i == wb_rd_addr_i);
 
 
   // LOAD USE FLUSHES ID/EX AND STALLS IF/ID
@@ -124,25 +109,18 @@ import params_pkg::*;
   //
   /*****************************************/
 
-  assign ID_FORWARD_A = if_forward_a;
-  assign ID_FORWARD_B = id_forward_b;
+  assign id_forward_a_o = if_forward_a;
+  assign id_forward_b_o = id_forward_b;
 
-  // if a jump instruction is in EX, and an axil transaction is stalling in MEM1, 
-  // the ID flush resulting from a branch hazard must be disabled until the stall ends, or else the branch instruction 
-  // will be lost
-  // this is avoided for traps by never flushing a stage before the one that has a trap. For example, if 
-  // there is a trap in ID, only flush IF once the trap moves to the EX stage. This is only necessary for stages
-  // that can be stalled, which would result in the trap being cleared without propagating.
-  // insert bubbles for any stages where the previous stage is stalled and the current one is not stalled
-  assign IF_ID_FLUSH = EX_IS_PC_REDIRECT | (EX_TRAP_VALID | MEM_TRAP_VALID | WB_TRAP_VALID);
-  assign ID_EX_FLUSH = (EX_IS_PC_REDIRECT   & ~EX_MEM_STALL) |(MEM_TRAP_VALID | WB_TRAP_VALID);
-  assign EX_MEM_FLUSH =  MEM_TRAP_VALID | WB_TRAP_VALID;
-  assign MEM_WB_FLUSH = WB_TRAP_VALID;
-  // no need to stall if instructions are flushed anyway
-  assign IF_ID_STALL = load_use_hazard | ID_EX_STALL; 
-  assign ID_EX_STALL = EX_MEM_STALL;
-  assign EX_MEM_STALL = wishbone_stall | MEM_WB_STALL;
-  assign MEM_WB_STALL = wishbone_stall;
-  // stall when wishbone is busy OR the cpu sent a start signal
+  assign if_id_flush_o = ex_is_pc_redirect_i | (ex_trap_valid_i | mem_trap_valid_i | wb_trap_valid_i);
+  assign id_ex_flush_o = (ex_is_pc_redirect_i & ~ex_mem_stall_o) | (mem_trap_valid_i | wb_trap_valid_i);
+  assign ex_mem_flush_o = mem_trap_valid_i | wb_trap_valid_i;
+  assign mem_wb_flush_o = wb_trap_valid_i;
+
+  assign if_id_stall_o = load_use_hazard | id_ex_stall_o;
+  assign id_ex_stall_o = ex_mem_stall_o;
+  assign ex_mem_stall_o = wishbone_stall;
+  assign mem_wb_stall_o = wishbone_stall;
+
 
 endmodule

@@ -1,27 +1,27 @@
 module pulse_generator(
-    input logic CLK_I,
-    input logic RST_I,
-    input logic EN_I,
-    output logic PULSE_O
+    input logic clk_i,
+    input logic rst_i,
+    input logic en_i,
+    output logic pulse_o
 );
     logic en_q;
 
-    always_ff @(posedge CLK_I) begin
-        if (RST_I) begin
+    always_ff @(posedge clk_i) begin
+        if (rst_i) begin
             en_q <= 0;
         end else begin
-            en_q <= EN_I;
+            en_q <= en_i;
         end
     end
 
 
-    always_ff @(posedge CLK_I) begin
-        if (RST_I) begin
-            PULSE_O <= 0; 
-        end else if (!en_q && EN_I) begin
-            PULSE_O <= 1;
+    always_ff @(posedge clk_i) begin
+        if (rst_i) begin
+            pulse_o <= 0; 
+        end else if (!en_q && en_i) begin
+            pulse_o <= 1;
         end else begin
-            PULSE_O <= 0;
+            pulse_o <= 0;
         end
     end
 endmodule

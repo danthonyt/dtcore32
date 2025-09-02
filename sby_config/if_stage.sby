@@ -1,0 +1,29 @@
+[tasks]
+basic bmc
+cover_task1 cover
+prove_task1 prove
+
+
+[options]
+bmc: 
+mode bmc
+depth 10
+cover:
+mode cover
+depth 10
+prove:
+mode prove
+--
+
+[engines]
+smtbmc boolector
+
+[script]
+read -sv params_pkg.sv
+read -formal if_stage.sv
+hierarchy -check -top if_stage 
+prep -top if_stage
+
+[files]
+if_stage.sv
+params_pkg.sv
