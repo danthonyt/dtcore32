@@ -7,12 +7,18 @@ module if_stage
     input logic rst_i,
     input logic if_id_stall_i,
     input logic if_id_flush_i,
+    // from instruction memory 
     input logic [31:0] imem_rdata_i,
+    // to instruction memory
+    output logic [31:0] imem_addr_o,
+    // from instruction execute stage
     input logic ex_is_pc_redirect_i,
     input logic [31:0] ex_pc_target_i,
+    // from writeback stage
     input logic wb_trap_valid_i,
+    // from csr file
     input logic [31:0] trap_handler_addr_i,
-    output logic [31:0] imem_addr_o,
+    // pipeline
     output if_id_t if_pipeline_d
 );
   logic if_intr_d;
@@ -22,6 +28,7 @@ module if_stage
   logic [31:0] if_pc_qq;
   logic if_valid_qq;
   logic imem_buf_valid;
+  logic [31:0] if_insn;
   logic [31:0] if_insn_buf;
   logic [31:0] if_pc_q;
   logic [31:0] if_pc;

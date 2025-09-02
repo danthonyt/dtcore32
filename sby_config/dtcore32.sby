@@ -1,0 +1,59 @@
+[tasks]
+basic bmc
+cover_task1 cover
+prove_task1 prove
+
+
+[options]
+bmc: 
+mode bmc
+depth 10
+cover:
+mode cover
+depth 10
+prove:
+mode prove
+--
+
+[engines]
+smtbmc boolector
+
+[script]
+read -sv params_pkg.sv
+read -formal dtcore32.sv
+read -sv regfile.sv
+read -sv load_unit.sv
+read -sv store_unit.sv
+read -sv csrfile.sv
+read -sv alu.sv
+read -sv decoder.sv
+read -sv extend.sv
+read -sv hazard_unit.sv
+read -sv pulse_generator.sv
+read -sv if_stage.sv
+read -sv id_stage.sv
+read -sv ex_stage.sv
+read -sv mem_stage.sv
+read -sv wb_stage.sv
+read -sv pipeline_reg.sv
+hierarchy -check -top dtcore32 
+prep -top dtcore32
+
+[files]
+params_pkg.sv
+dtcore32.sv
+regfile.sv
+load_unit.sv
+store_unit.sv
+csrfile.sv
+alu.sv
+decoder.sv
+extend.sv
+hazard_unit.sv
+pulse_generator.sv
+if_stage.sv
+id_stage.sv
+ex_stage.sv
+mem_stage.sv
+wb_stage.sv
+pipeline_reg.sv

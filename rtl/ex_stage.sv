@@ -23,6 +23,8 @@ module ex_stage
   logic [4:0] ex_rs2_addr_d;
   logic [11:0] ex_csr_addr_d;
   logic [31:0] ex_csr_bitmask_comb;
+  logic [31:0] ex_csr_wdata_d;
+  logic [31:0] ex_next_pc_d;
 
   logic [31:0] ex_src_a_tick_comb;
   logic [31:0] ex_src_a_comb;
@@ -143,7 +145,7 @@ module ex_stage
   end
 
 
-  assign ex_alu_csr_result_d = (ex_pipeline_q.csr_op != CSR_NONE) ? ex_csr_rdata_d : ex_alu_result_comb;
+  assign ex_alu_csr_result_d = (ex_pipeline_q.csr_op != CSR_NONE) ? ex_pipeline_q.csr_rdata : ex_alu_result_comb;
 
   alu alu_inst (
       .a_i(ex_src_a_comb),
@@ -154,10 +156,6 @@ module ex_stage
   );
 
   always_comb begin
-    // Default everything to zero (optional, prevents latches)
-    ex_pipeline_d                 = '{default: 0};
-
-    // Explicitly assign each field from the previous stage
     ex_pipeline_d.pc              = ex_pipeline_q.pc;
     ex_pipeline_d.pc_plus_4       = ex_pipeline_q.pc_plus_4;
     ex_pipeline_d.next_pc         = ex_next_pc_d;
@@ -171,7 +169,7 @@ module ex_stage
     ex_pipeline_d.rs2_rdata       = ex_store_wdata_d;
     ex_pipeline_d.csr_addr        = ex_csr_addr_d;
     ex_pipeline_d.csr_wdata       = ex_csr_wdata_d;
-    ex_pipeline_d.csr_rdata       = ex_csr_rdata_d;
+    ex_pipeline_d.csr_rdata       = ex_pipeline_q.csr_rdata;
     ex_pipeline_d.result_sel      = ex_pipeline_q.result_sel;
     ex_pipeline_d.mem_op          = ex_pipeline_q.mem_op;
     ex_pipeline_d.store_wdata     = ex_store_wdata_d;

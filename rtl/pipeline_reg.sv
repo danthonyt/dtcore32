@@ -8,6 +8,7 @@ module pipeline_reg
     input logic rst_i,
     input logic stall_i,
     input logic flush_i,
+    input logic prev_stage_stall_i,
     input pipeline_t pipeline_d,
     output pipeline_t pipeline_q
 );
@@ -16,7 +17,7 @@ module pipeline_reg
     if (rst_i || flush_i) begin
       pipeline_q <= RESET_PIPELINE;
     end else if (!stall_i) begin
-      if (!pipeline_d.valid) begin
+      if (!pipeline_d.valid || prev_stage_stall_i) begin
         pipeline_q <= RESET_PIPELINE;
       end else begin
         pipeline_q <= pipeline_d;

@@ -4,24 +4,19 @@ module rvfi_wrapper (
     `RVFI_OUTPUTS
 );
 
-  localparam WISHBONE_BUS_WIDTH = 32;
-  localparam WISHBONE_ADDR_WIDTH = 32;
-
-
-  (* keep *) logic [WISHBONE_ADDR_WIDTH-1:0] IMEM_CMD_ADDR_O;
-  (* keep *) `rvformal_rand_reg [31:0] IMEM_CMD_RDATA_I;
-  (* keep *) logic IMEM_RDATA_VALID_I;
-  (* keep *) logic MEM_CMD_START_O;
-  (* keep *) logic MEM_CMD_WE_O;
-  (* keep *) logic [WISHBONE_ADDR_WIDTH-1:0] MEM_CMD_ADDR_O;
-  (* keep *) logic [WISHBONE_BUS_WIDTH-1:0] MEM_CMD_WDATA_O;
-  (* keep *) logic [(WISHBONE_BUS_WIDTH/8)-1:0] MEM_CMD_SEL_O;
-  (* keep *) `rvformal_rand_reg [WISHBONE_BUS_WIDTH-1:0] MEM_CMD_RDATA_I;
-  (* keep *) `rvformal_rand_reg MEM_CMD_DONE_I;
-  (* keep *) `rvformal_rand_reg MEM_CMD_BUSY_I;
+  (* keep *) logic [31:0] imem_addr;
+  (* keep *) `rvformal_rand_reg [31:0] imem_rdata;
+  (* keep *) logic imem_valid;
+  (* keep *) logic mem_valid;
+  (* keep *) logic mem_wen;
+  (* keep *) logic [31:0] mem_addr;
+  (* keep *) logic [31:0] mem_wdata;
+  (* keep *) logic [3:0] mem_strb;
+  (* keep *) `rvformal_rand_reg [31:0] mem_rdata;
+  (* keep *) `rvformal_rand_reg mem_done;
   
   // mem done will eventually rise after start pulse
-  assume property (@(posedge clock) MEM_CMD_START_O |-> ##[1:$] MEM_CMD_DONE_I);
+  assume property (@(posedge clock) mem_valid |-> ##[1:$] mem_done);
   //(* keep *) `rvformal_rand_reg [31:0] rand_rdata;
   /*
   int counter;
@@ -47,22 +42,10 @@ module rvfi_wrapper (
     end
   end
 */
-  // emulate a wishbone peripheral for the fetch stage
-  always_ff @(posedge clock)begin
-    if (reset) begin
-        IMEM_RDATA_VALID_I <= 0;
-    end else begin 
-        IMEM_RDATA_VALID_I <= 1;
-    end
-  end
 
-  dtcore32 # (
-    .WISHBONE_ADDR_WIDTH(WISHBONE_ADDR_WIDTH),
-    .WISHBONE_BUS_WIDTH(WISHBONE_BUS_WIDTH)
-  )
-  dtcore32_inst (
-    .CLK(clock),
-    .RST(reset),
+  dtcore32  dtcore32_inst (
+    .clk_i(clock),
+    .rst_i(reset),
     .rvfi_valid(rvfi_valid),
     .rvfi_order(rvfi_order),
     .rvfi_insn(rvfi_insn),
@@ -104,45 +87,17 @@ module rvfi_wrapper (
     .rvfi_csr_mtvec_wmask(rvfi_csr_mtvec_wmask),
     .rvfi_csr_mtvec_rdata(rvfi_csr_mtvec_rdata),
     .rvfi_csr_mtvec_wdata(rvfi_csr_mtvec_wdata),
-    .IMEM_CMD_ADDR_O(IMEM_CMD_ADDR_O),
-    .IMEM_CMD_RDATA_I(IMEM_CMD_RDATA_I),
-    .IMEM_RDATA_VALID_I(IMEM_RDATA_VALID_I),
-    .MEM_CMD_START_O(MEM_CMD_START_O),
-    .MEM_CMD_WE_O(MEM_CMD_WE_O),
-    .MEM_CMD_ADDR_O(MEM_CMD_ADDR_O),
-    .MEM_CMD_WDATA_O(MEM_CMD_WDATA_O),
-    .MEM_CMD_SEL_O(MEM_CMD_SEL_O),
-    .MEM_CMD_RDATA_I(MEM_CMD_RDATA_I),
-    .MEM_CMD_BUSY_I(MEM_CMD_BUSY_I),
-    .MEM_CMD_DONE_I(MEM_CMD_DONE_I)
+    .imem_rdata_i(imem_rdata),
+    .imem_addr_o(imem_addr),
+    .imem_valid_o(imem_valid),
+    .mem_rdata_i(mem_rdata),
+    .mem_done_i(mem_done),
+    .mem_valid_o(mem_valid),
+    .mem_wen_o(mem_wen),
+    .mem_addr_o(mem_addr),
+    .mem_wdata_o(mem_wdata),
+    .mem_strb_o(mem_strb)
   );
-
-
-  /*
-// MMIO address range
-localparam MMIO_BASE = 32'h2400;
-localparam MMIO_END  = 32'h2410;
-localparam DMEM_BASE = 32'h1000;
-localparam DMEM_END  = 32'h1400;
-sequence MMIO_MEM_INSTR;
-(rvfi_mem_addr < MMIO_END) && (rvfi_mem_addr >= MMIO_BASE) ||  (rvfi_mem_rmask == 0 || rvfi_mem_wmask == 0);
-endsequence
-sequence DMEM_MEM_INSTR;
-(rvfi_insn[6:0] != 7'b0000011 && rvfi_insn[6:0] != 7'b0100011) // not LW/SW 801fa103
-    || ((rvfi_mem_addr >= DMEM_BASE && rvfi_mem_addr < DMEM_END));
-endsequence
-
-assume property(@(posedge clock) disable iff (reset) DMEM_MEM_INSTR);
-
-assume property (@(posedge clock)
-    // if memory access is inside MMIO region
-    ((rvfi_mem_addr >= MMIO_BASE) && (rvfi_mem_addr < MMIO_END)) |-> 
-        // instruction must be LW or SW
-        (((rvfi_insn[6:0] == 7'b0000011 && rvfi_insn[14:12] == 3'b010) || // LW
-         (rvfi_insn[6:0] == 7'b0100011 && rvfi_insn[14:12] == 3'b010)) && // SW
-         (rvfi_mem_addr[1:0] == 2'b00 ))  
-);
-*/
 
 endmodule
 

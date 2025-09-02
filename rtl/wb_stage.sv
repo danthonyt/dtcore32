@@ -4,8 +4,12 @@ module wb_stage
     input logic clk_i,
     input logic rst_i,
     input mem_wb_t wb_pipeline_q,
+    // from csr file
+    input logic [31:0] wb_csr_rmask_i,
+    input logic [31:0] wb_csr_wmask_i,
     // to csr file 
     output logic [11:0] wb_csr_addr_o,
+    output logic [31:0] wb_csr_wdata_o,
     // to regfile
     output logic [4:0] wb_rd_addr_o,
     output logic [31:0] wb_rd_wdata_o,
@@ -20,8 +24,6 @@ module wb_stage
   logic [31:0] wb_rd_wdata_masked;
   logic [31:0] wb_rd_wdata_comb;
   logic [11:0] wb_csr_addr_masked;
-  logic [31:0] wb_csr_wmask_comb;
-  logic [31:0] wb_csr_rmask_comb;
 
   assign wb_trap_valid_o = wb_trap_d.valid;
   assign wb_trap_d = wb_pipeline_q.carried_trap.valid ? wb_pipeline_q.carried_trap : '{default: 0};
@@ -45,6 +47,7 @@ module wb_stage
   assign wb_csr_addr_o = wb_csr_addr_masked;
   assign wb_rd_addr_o  = wb_rd_addr_masked;
   assign wb_rd_wdata_o = wb_rd_wdata_masked;
+  assign wb_csr_wdata_o = wb_pipeline_q.csr_wdata;
 
   always_comb begin
     // PC + instruction flow
@@ -65,15 +68,16 @@ module wb_stage
     // CSR signals
     rvfi_o.csr_addr  = wb_csr_addr_masked;
     rvfi_o.csr_wdata = wb_pipeline_q.csr_wdata;
-    rvfi_o.csr_wmask = wb_pipeline_q.csr_wmask;
+    rvfi_o.csr_wmask = wb_csr_wmask_i;
     rvfi_o.csr_rdata = wb_pipeline_q.csr_rdata;
-    rvfi_o.csr_rmask = wb_pipeline_q.csr_rmask;
+    rvfi_o.csr_rmask = wb_csr_rmask_i;
 
     // Memory interface
-    rvfi_o.mem_rmask = wb_pipeline_q.mem_rmask;
-    rvfi_o.mem_rdata = wb_pipeline_q.mem_rdata;
-    rvfi_o.mem_wmask = wb_pipeline_q.mem_wmask;
-    rvfi_o.mem_wdata = wb_pipeline_q.mem_wdata;
+    rvfi_o.mem_addr = wb_pipeline_q.alu_csr_result;
+    rvfi_o.mem_rmask = wb_pipeline_q.load_rmask;
+    rvfi_o.mem_rdata = wb_pipeline_q.load_rdata;
+    rvfi_o.mem_wmask = wb_pipeline_q.store_wmask;
+    rvfi_o.mem_wdata = wb_pipeline_q.store_wdata;
 
     // Trap info
     rvfi_o.trap      = wb_trap_d;

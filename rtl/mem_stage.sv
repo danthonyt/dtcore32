@@ -1,19 +1,18 @@
-module mem_stage #(
-    WISHBONE_ADDR_WIDTH = 32,
-    WISHBONE_BUS_WIDTH  = 32
-) (
+module mem_stage 
+import params_pkg::*;
+(
     input logic clk_i,
     input logic rst_i,
     input ex_mem_t mem_pipeline_q,
     output mem_wb_t mem_pipeline_d,
-    // memory read or write request
-    output logic mem_start_req_o,
+    // memory request
+    input logic [31:0] mem_rdata_i,
+    input logic mem_done_i,
+    output logic mem_valid_o,
     output logic mem_wen_o,
-    output logic [WISHBONE_ADDR_WIDTH-1:0] mem_adr_o,
-    output logic [WISHBONE_BUS_WIDTH-1:0] mem_wdata_o,
-    output logic [(WISHBONE_BUS_WIDTH/8)-1:0] mem_sel_o,
-    input logic [WISHBONE_BUS_WIDTH-1:0] mem_rdata_i,
-    input logic mem_done_req_i
+    output logic [31:0] mem_addr_o,
+    output logic [31:0] mem_wdata_o,
+    output logic [3:0] mem_strb_o
 
 );
   trap_info_t mem_trap_d;
@@ -44,7 +43,7 @@ module mem_stage #(
           insn: mem_pipeline_q.insn,
           mcause: mem_store_trap_mcause,
           pc: mem_pipeline_q.pc,
-          next_pc: mem_pipeline_q.pc_wdata,
+          next_pc: mem_pipeline_q.next_pc,
           rs1_addr: mem_pipeline_q.rs1_addr,
           rs2_addr: mem_pipeline_q.rs2_addr,
           rd_addr: mem_pipeline_q.rd_addr,
@@ -59,7 +58,7 @@ module mem_stage #(
           insn: mem_pipeline_q.insn,
           mcause: mem_load_trap_mcause,
           pc: mem_pipeline_q.pc,
-          next_pc: mem_pipeline_q.pc_wdata,
+          next_pc: mem_pipeline_q.next_pc,
           rs1_addr: mem_pipeline_q.rs1_addr,
           rs2_addr: mem_pipeline_q.rs2_addr,
           rd_addr: mem_pipeline_q.rd_addr,
@@ -76,7 +75,7 @@ module mem_stage #(
   assign mem_req = !mem_pipeline_q.carried_trap.valid && (mem_pipeline_q.mem_op != MEM_NONE);
 
   assign mem_wen_o = mem_pipeline_q.mem_op[4] & mem_pipeline_q.mem_op[3];
-  assign mem_adr_o = mem_pipeline_q.alu_csr_result;
+  assign mem_addr_o = mem_pipeline_q.alu_csr_result;
 
   assign mem_store_wdata_d = mem_store_wdata_formatted;
   assign mem_store_wmask_d =  (mem_pipeline_q.mem_op[4] & mem_pipeline_q.mem_op[3]) ? mem_store_wmask_comb : 0;
@@ -85,15 +84,15 @@ module mem_stage #(
   assign mem_load_rmask_d = (mem_pipeline_q.mem_op[4] & !mem_pipeline_q.mem_op[3]) ? mem_load_rmask_comb : 0;
 
   assign mem_load_rdata_raw = mem_rdata_i;
-  assign mem_sel_o = mem_store_wmask_d;
+  assign mem_strb_o = mem_store_wmask_d;
   assign mem_wdata_o = mem_store_wdata_formatted;
 
   // a memory request sends a start pulse
   pulse_generator pulse_generator_inst (
       .clk_i(clk_i),
       .rst_i(rst_i),
-      .en_i(mem_req && !mem_done_req_i),
-      .pulse_o(mem_start_req_o)
+      .en_i(mem_req && !mem_done_i),
+      .pulse_o(mem_valid_o)
   );
 
   store_unit store_unit_inst (

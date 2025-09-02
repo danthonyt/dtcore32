@@ -256,6 +256,7 @@ package params_pkg;
     logic [31:0] rs2_rdata;
     logic [31:0] imm_ext;
     logic [11:0] csr_addr;
+    logic [31:0] csr_rdata;
     csr_op_t csr_op;
     cf_op_t cf_op;
     alu_control_t alu_control;
@@ -332,6 +333,7 @@ package params_pkg;
     logic [3:0]  csr_wmask;
     logic [31:0] csr_rdata;
     logic [3:0]  csr_rmask;
+    logic [31:0] mem_addr;
     logic [3:0]  mem_rmask;
     logic [31:0] mem_rdata;
     logic [3:0]  mem_wmask;
@@ -339,4 +341,39 @@ package params_pkg;
     trap_info_t  trap;
   } rvfi_t;
 
+function automatic id_ex_t reset_id_ex();
+  reset_id_ex = '{
+    default: '0,
+    insn: NOP_INSTRUCTION,
+    csr_op: csr_op_t'('0),
+    cf_op_t: cf_op_t'('0),
+    alu_control: alu_control_t'('0),
+    alu_a_sel: alu_a_sel_t'('0),
+    alu_b_sel: alu_b_sel_t'('0),
+    pc_alu_sel: pc_alu_sel_t'('0),
+    csr_bitmask_sel: csr_bitmask_sel_t'('0),
+    result_sel: result_sel_t'('0),
+    mem_op: mem_op_t'('0),
+    carried_trap: trap_info_t'('0)
+  };
+endfunction
+
+function automatic ex_mem_t reset_ex_mem();
+  reset_ex_mem = '{
+    default: '0,
+    insn: NOP_INSTRUCTION,
+    result_sel: result_sel_t'('0),
+    mem_op: mem_op_t'(0),
+    carried_trap: trap_info_t'('0)
+  };
+endfunction
+function automatic mem_wb_t reset_mem_wb();
+  reset_mem_wb = '{
+    default: '0,
+    insn: NOP_INSTRUCTION,
+    result_sel: result_sel_t'('0),
+    carried_trap: trap_info_t'('0)
+  };
+endfunction
+  
 endpackage

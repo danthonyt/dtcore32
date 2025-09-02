@@ -3,7 +3,7 @@ module hazard_unit
 (
     //Forwarding
     input logic [4:0] ex_rs1_addr_i,
-    input logic [4:0] ex_rs1_addr_i,
+    input logic [4:0] ex_rs2_addr_i,
     input logic [4:0] mem_rd_addr_i,
     input logic [4:0] wb_rd_addr_i,
     input result_sel_t ex_result_sel_i,
@@ -27,8 +27,8 @@ module hazard_unit
     input logic ex_trap_valid_i,
     input logic mem_trap_valid_i,
     input logic wb_trap_valid_i,
-    input logic wishbone_req_i,
-    input logic wishbone_done_i
+    input logic mem_req_i,
+    input logic mem_done_i
 
 );
 
@@ -55,9 +55,9 @@ module hazard_unit
   assign id_ex_rs2_match = (id_rs2_addr_i == ex_rd_addr_i);
   assign id_mem_rs2_match = (id_rs2_addr_i == mem_rd_addr_i);
   assign ex_mem_rs1_match = ((ex_rs1_addr_i == mem_rd_addr_i) && (ex_rs1_addr_i != 0));
-  assign ex_mem_rs2_match = ((ex_rs1_addr_i == mem_rd_addr_i) && (ex_rs1_addr_i != 0));
+  assign ex_mem_rs2_match = ((ex_rs2_addr_i == mem_rd_addr_i) && (ex_rs2_addr_i != 0));
   assign ex_wb_rs1_match = ((ex_rs1_addr_i == wb_rd_addr_i) && (ex_rs1_addr_i != 0));
-  assign ex_wb_rs2_match = ((ex_rs1_addr_i == wb_rd_addr_i) && (ex_rs1_addr_i != 0));
+  assign ex_wb_rs2_match = ((ex_rs2_addr_i == wb_rd_addr_i) && (ex_rs2_addr_i != 0));
 
   /*****************************************/
   //
@@ -71,7 +71,7 @@ module hazard_unit
   assign load_use_hazard = ((ex_result_sel_i == RESULT_SEL_MEM_DATA) && ((id_ex_rs1_match && nonzero_ID_rs1)
    || (id_ex_rs2_match && nonzero_ID_rs2))) ? 1 : 0;
 
-  assign wishbone_stall = wishbone_req_i && !wishbone_done_i;
+  assign wishbone_stall = mem_req_i && !mem_done_i;
 
   /*****************************************/
   //

@@ -1,244 +1,326 @@
 
-module dtcore32 #(
-    parameter WISHBONE_ADDR_WIDTH = 32,
-    parameter WISHBONE_BUS_WIDTH  = 32
-) (
-    input  logic                           CLK,
-    input  logic                           RST,
+module dtcore32 (
+    input  logic        clk_i,
+    input  logic        rst_i,
 `ifdef RISCV_FORMAL
-    output logic                           rvfi_valid,
-    output logic [                   63:0] rvfi_order,
-    output logic [                   31:0] rvfi_insn,
-    output logic                           rvfi_trap,
-    output logic                           rvfi_halt,
-    output logic                           rvfi_intr,
-    output logic [                    1:0] rvfi_mode,
-    output logic [                    1:0] rvfi_ixl,
-    output logic [                    4:0] rvfi_rs1_addr,
-    output logic [                    4:0] rvfi_rs2_addr,
-    output logic [                   31:0] rvfi_rs1_rdata,
-    output logic [                   31:0] rvfi_rs2_rdata,
-    output logic [                    4:0] rvfi_rd_addr,
-    output logic [                   31:0] rvfi_rd_wdata,
-    output logic [                   31:0] rvfi_pc_rdata,
-    output logic [                   31:0] rvfi_pc_wdata,
-    output logic [                   31:0] rvfi_mem_addr,
-    output logic [                    3:0] rvfi_mem_rmask,
-    output logic [                    3:0] rvfi_mem_wmask,
-    output logic [                   31:0] rvfi_mem_rdata,
-    output logic [                   31:0] rvfi_mem_wdata,
-    output logic [                   63:0] rvfi_csr_mcycle_rmask,
-    output logic [                   63:0] rvfi_csr_mcycle_wmask,
-    output logic [                   63:0] rvfi_csr_mcycle_rdata,
-    output logic [                   63:0] rvfi_csr_mcycle_wdata,
-    output logic [                   63:0] rvfi_csr_minstret_rmask,
-    output logic [                   63:0] rvfi_csr_minstret_wmask,
-    output logic [                   63:0] rvfi_csr_minstret_rdata,
-    output logic [                   63:0] rvfi_csr_minstret_wdata,
-    output logic [                   31:0] rvfi_csr_mcause_rmask,
-    output logic [                   31:0] rvfi_csr_mcause_wmask,
-    output logic [                   31:0] rvfi_csr_mcause_rdata,
-    output logic [                   31:0] rvfi_csr_mcause_wdata,
-    output logic [                   31:0] rvfi_csr_mepc_rmask,
-    output logic [                   31:0] rvfi_csr_mepc_wmask,
-    output logic [                   31:0] rvfi_csr_mepc_rdata,
-    output logic [                   31:0] rvfi_csr_mepc_wdata,
-    output logic [                   31:0] rvfi_csr_mtvec_rmask,
-    output logic [                   31:0] rvfi_csr_mtvec_wmask,
-    output logic [                   31:0] rvfi_csr_mtvec_rdata,
-    output logic [                   31:0] rvfi_csr_mtvec_wdata,
+    output logic        rvfi_valid,
+    output logic [63:0] rvfi_order,
+    output logic [31:0] rvfi_insn,
+    output logic        rvfi_trap,
+    output logic        rvfi_halt,
+    output logic        rvfi_intr,
+    output logic [ 1:0] rvfi_mode,
+    output logic [ 1:0] rvfi_ixl,
+    output logic [ 4:0] rvfi_rs1_addr,
+    output logic [ 4:0] rvfi_rs2_addr,
+    output logic [31:0] rvfi_rs1_rdata,
+    output logic [31:0] rvfi_rs2_rdata,
+    output logic [ 4:0] rvfi_rd_addr,
+    output logic [31:0] rvfi_rd_wdata,
+    output logic [31:0] rvfi_pc_rdata,
+    output logic [31:0] rvfi_pc_wdata,
+    output logic [31:0] rvfi_mem_addr,
+    output logic [ 3:0] rvfi_mem_rmask,
+    output logic [ 3:0] rvfi_mem_wmask,
+    output logic [31:0] rvfi_mem_rdata,
+    output logic [31:0] rvfi_mem_wdata,
+    output logic [63:0] rvfi_csr_mcycle_rmask,
+    output logic [63:0] rvfi_csr_mcycle_wmask,
+    output logic [63:0] rvfi_csr_mcycle_rdata,
+    output logic [63:0] rvfi_csr_mcycle_wdata,
+    output logic [63:0] rvfi_csr_minstret_rmask,
+    output logic [63:0] rvfi_csr_minstret_wmask,
+    output logic [63:0] rvfi_csr_minstret_rdata,
+    output logic [63:0] rvfi_csr_minstret_wdata,
+    output logic [31:0] rvfi_csr_mcause_rmask,
+    output logic [31:0] rvfi_csr_mcause_wmask,
+    output logic [31:0] rvfi_csr_mcause_rdata,
+    output logic [31:0] rvfi_csr_mcause_wdata,
+    output logic [31:0] rvfi_csr_mepc_rmask,
+    output logic [31:0] rvfi_csr_mepc_wmask,
+    output logic [31:0] rvfi_csr_mepc_rdata,
+    output logic [31:0] rvfi_csr_mepc_wdata,
+    output logic [31:0] rvfi_csr_mtvec_rmask,
+    output logic [31:0] rvfi_csr_mtvec_wmask,
+    output logic [31:0] rvfi_csr_mtvec_rdata,
+    output logic [31:0] rvfi_csr_mtvec_wdata,
 `endif
-    // wishbone master interface signals for IF stage
-    // wishbone pipelined B4
-    output logic [WISHBONE_ADDR_WIDTH-1:0] CPU_FETCH_WBM_ADR_O,
-    input  logic [ WISHBONE_BUS_WIDTH-1:0] CPU_FETCH_WBM_DAT_I,
-    output logic                           CPU_FETCH_WBM_CYC_O,
-    output logic                           CPU_FETCH_WBM_STB_O,
+    // to instruction memory interface
+    input  logic [31:0] imem_rdata_i,
+    output logic [31:0] imem_addr_o,
+    output logic        imem_valid_o,
 
-    // wishbone master interface signals for mem stage
-    // standard wishbone B4
-    output logic MEM_CMD_START_O,
-    output logic MEM_CMD_WE_O,
-    output logic [WISHBONE_ADDR_WIDTH-1:0] MEM_CMD_ADDR_O,
-    output logic [WISHBONE_BUS_WIDTH-1:0] MEM_CMD_WDATA_O,
-    output logic [(WISHBONE_BUS_WIDTH/8)-1:0] MEM_CMD_SEL_O,
-    input logic [WISHBONE_BUS_WIDTH-1:0] MEM_CMD_RDATA_I,
-    input logic MEM_CMD_BUSY_I,
-    input logic MEM_CMD_DONE_I
+    // to data memory and peripheral interface
+    input logic [31:0] mem_rdata_i,
+    input logic mem_done_i,
+    output logic mem_valid_o,
+    output logic mem_wen_o,
+    output logic [31:0] mem_addr_o,
+    output logic [31:0] mem_wdata_o,
+    output logic [3:0] mem_strb_o
+
 );
   import params_pkg::*;
-  // instruction memory wishbone request is always active
-  // unless instruction fetch is stalled 
-  assign CPU_FETCH_WBM_CYC_O = !if_id_stall;
-  assign CPU_FETCH_WBM_STB_O = !if_id_stall;
+  localparam RESET_PC = 32'd0;
 
-  logic if_id_stall;
-  logic if_id_flush;
+
+  logic   if_id_stall;
+  logic   if_id_flush;
   if_id_t if_pipeline_d;
   if_id_t id_pipeline_q;
   localparam if_id_t IF_ID_RESET = '{default: 0, insn: NOP_INSTRUCTION};
 
-  logic id_ex_stall;
-  logic id_ex_flush;
+  logic   id_ex_stall;
+  logic   id_ex_flush;
   id_ex_t id_pipeline_d;
   id_ex_t ex_pipeline_q;
-  localparam id_ex_t ID_EX_RESET = '{default: 0, insn: NOP_INSTRUCTION};
+  localparam id_ex_t ID_EX_RESET = reset_id_ex();
 
   logic ex_mem_stall;
   logic ex_mem_flush;
   ex_mem_t ex_pipeline_d;
   ex_mem_t mem_pipeline_q;
-  localparam ex_mem_t EX_MEM_RESET = '{default: 0, insn: NOP_INSTRUCTION};
+  localparam ex_mem_t EX_MEM_RESET = reset_ex_mem();
 
   logic mem_wb_stall;
   logic mem_wb_flush;
   mem_wb_t mem_pipeline_d;
   mem_wb_t wb_pipeline_q;
-  localparam mem_wb_t MEM_WB_RESET = '{default: 0, insn: NOP_INSTRUCTION};
+  localparam mem_wb_t MEM_WB_RESET = reset_mem_wb();
 
-  pipeline_reg # (
-    .pipeline_t(if_id_t),
-    .RESET_PIPELINE(IF_ID_RESET)
-  )
-  if_id_reg_inst (
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .stall_i(if_id_stall),
-    .flush_i(if_id_flush),
-    .pipeline_d(if_pipeline_d),
-    .pipeline_q(id_pipeline_q)
+  logic [31:0] imem_addr;
+  logic ex_is_pc_redirect;
+  logic [31:0] ex_pc_target;
+  logic wb_trap_valid;
+
+  logic id_forward_a;
+  logic id_forward_b;
+  logic [31:0] regfile_rs1_rdata;
+  logic [31:0] regfile_rs2_rdata;
+  logic [31:0] wb_rd_wdata;
+
+  logic [2:0] ex_forward_a_sel;
+  logic [2:0] ex_forward_b_sel;
+  logic [31:0] mem_alu_csr_result;
+  logic [31:0] wb_load_rdata;
+  logic [31:0] wb_alu_csr_result;
+  logic [31:0] id_csrfile_rdata;
+
+  logic [31:0] mem_rdata;
+  logic mem_done;
+  logic mem_valid;
+  logic mem_wen;
+  logic [31:0] mem_addr;
+  logic [31:0] mem_wdata;
+  logic [3:0] mem_strb;
+
+  logic [31:0] wb_csr_rmask;
+  logic [31:0] wb_csr_wmask;
+  logic [11:0] wb_csr_addr;
+  logic [31:0] wb_csr_wdata;
+  logic [4:0] wb_rd_addr;
+  rvfi_t rvfi;
+  logic [11:0] id_csrfile_addr;
+
+  logic [31:0] trap_handler_addr_q;
+
+  if_stage #(
+      .RESET_PC(RESET_PC)
+  ) if_stage_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .if_id_stall_i(if_id_stall),
+      .if_id_flush_i(if_id_flush),
+      .imem_rdata_i(imem_rdata_i),
+      .imem_addr_o(imem_addr),
+      .ex_is_pc_redirect_i(ex_is_pc_redirect),
+      .ex_pc_target_i(ex_pc_target),
+      .wb_trap_valid_i(wb_trap_valid),
+      .trap_handler_addr_i(trap_handler_addr_q),
+      .if_pipeline_d(if_pipeline_d)
   );
 
-  pipeline_reg # (
-    .pipeline_t(id_ex_t),
-    .RESET_PIPELINE(ID_EX_RESET)
-  )
-  id_ex_reg_inst (
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .stall_i(id_ex_stall),
-    .flush_i(id_ex_flush),
-    .pipeline_d(id_pipeline_d),
-    .pipeline_q(ex_pipeline_q)
+  pipeline_reg #(
+      .pipeline_t(if_id_t),
+      .RESET_PIPELINE(IF_ID_RESET)
+  ) if_id_reg_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .stall_i(if_id_stall),
+      .prev_stage_stall_i(1'b0),
+      .flush_i(if_id_flush),
+      .pipeline_d(if_pipeline_d),
+      .pipeline_q(id_pipeline_q)
   );
 
-  ex_stage  ex_stage_inst (
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .ex_forward_a_sel_i(ex_forward_a_sel_i),
-    .ex_forward_b_sel_i(ex_forward_b_sel_i),
-    .mem_alu_csr_result_i(mem_alu_csr_result_i),
-    .wb_load_rdata_i(wb_load_rdata_i),
-    .wb_alu_csr_result_i(wb_alu_csr_result_i),
-    .ex_is_pc_redirect_o(ex_is_pc_redirect_o),
-    .ex_pc_target_o(ex_pc_target_o),
-    .ex_pipeline_q(ex_pipeline_q),
-    .ex_pipeline_d(ex_pipeline_d)
+  
+
+
+  id_stage id_stage_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .id_forward_a_i(id_forward_a),
+      .id_forward_b_i(id_forward_b),
+      .regfile_rs1_rdata_i(regfile_rs1_rdata),
+      .regfile_rs2_rdata_i(regfile_rs2_rdata),
+      .id_csrfile_rdata_i(id_csrfile_rdata),
+      .id_csrfile_addr_o(id_csrfile_addr),
+      .wb_rd_wdata_i(wb_rd_wdata),
+      .id_pipeline_q(id_pipeline_q),
+      .id_pipeline_d(id_pipeline_d)
   );
 
-  pipeline_reg # (
-    .pipeline_t(ex_mem_t),
-    .RESET_PIPELINE(EX_MEM_RESET)
-  )
-  ex_mem_reg_inst (
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .stall_i(ex_mem_stall),
-    .flush_i(ex_mem_flush),
-    .pipeline_d(ex_pipeline_d),
-    .pipeline_q(mem_pipeline_q)
+  pipeline_reg #(
+      .pipeline_t(id_ex_t),
+      .RESET_PIPELINE(ID_EX_RESET)
+  ) id_ex_reg_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .stall_i(id_ex_stall),
+      .prev_stage_stall_i(if_id_stall),
+      .flush_i(id_ex_flush),
+      .pipeline_d(id_pipeline_d),
+      .pipeline_q(ex_pipeline_q)
   );
 
-  pipeline_reg # (
-    .pipeline_t(mem_wb_t),
-    .RESET_PIPELINE(MEM_WB_RESET)
-  )
-  mem_wb_reg_inst (
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .stall_i(mem_wb_stall),
-    .flush_i(mem_wb_flush),
-    .pipeline_d(mem_pipeline_d),
-    .pipeline_q(wb_pipeline_q)
+  ex_stage ex_stage_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .ex_forward_a_sel_i(ex_forward_a_sel),
+      .ex_forward_b_sel_i(ex_forward_b_sel),
+      .mem_alu_csr_result_i(mem_pipeline_q.alu_csr_result),
+      .wb_load_rdata_i(wb_pipeline_q.load_rdata),
+      .wb_alu_csr_result_i(wb_pipeline_q.alu_csr_result),
+      .ex_is_pc_redirect_o(ex_is_pc_redirect),
+      .ex_pc_target_o(ex_pc_target),
+      .ex_pipeline_q(ex_pipeline_q),
+      .ex_pipeline_d(ex_pipeline_d)
   );
 
-  csrfile csrfile_inst (
-      .CLK(CLK),
-      .RST(RST),
-      .WB_RD_ADDR(wb_rd_addr_masked),
-      .CSR_RADDR(id_csr_addr_d),
-      .CSR_WADDR(wb_csr_addr_masked),
-      .CSR_WDATA(wb_pipeline.csr_wdata),
-      .WB_VALID_INSN(wb_pipeline.valid),
-      .WB_TRAP(wb_trap_d),
-      .EX_VALID(ex_pipeline.valid),
-      .MEM_VALID(mem_pipeline.valid),
-      .WB_VALID(wb_pipeline.valid),
-      .TRAP_HANDLER_ADDR(trap_handler_addr_q),
-      .CSR_RDATA_REG(ex_csr_rdata_d),
-      .CSR_RMASK(wb_csr_rmask_comb),
-      .CSR_WMASK(wb_csr_wmask_comb)
+  pipeline_reg #(
+      .pipeline_t(ex_mem_t),
+      .RESET_PIPELINE(EX_MEM_RESET)
+  ) ex_mem_reg_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .stall_i(ex_mem_stall),
+      .prev_stage_stall_i(id_ex_stall),
+      .flush_i(ex_mem_flush),
+      .pipeline_d(ex_pipeline_d),
+      .pipeline_q(mem_pipeline_q)
   );
 
+  mem_stage mem_stage_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .mem_pipeline_q(mem_pipeline_q),
+      .mem_pipeline_d(mem_pipeline_d),
+      .mem_rdata_i(mem_rdata_i),
+      .mem_done_i(mem_done_i),
+      .mem_valid_o(mem_valid),
+      .mem_wen_o(mem_wen),
+      .mem_addr_o(mem_addr),
+      .mem_wdata_o(mem_wdata),
+      .mem_strb_o(mem_strb)
+  );
+
+  pipeline_reg #(
+      .pipeline_t(mem_wb_t),
+      .RESET_PIPELINE(MEM_WB_RESET)
+  ) mem_wb_reg_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .stall_i(mem_wb_stall),
+      .prev_stage_stall_i(ex_mem_stall),
+      .flush_i(mem_wb_flush),
+      .pipeline_d(mem_pipeline_d),
+      .pipeline_q(wb_pipeline_q)
+  );
+
+  wb_stage wb_stage_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .wb_pipeline_q(wb_pipeline_q),
+      .wb_csr_rmask_i(wb_csr_rmask),
+      .wb_csr_wmask_i(wb_csr_wmask),
+      .wb_csr_addr_o(wb_csr_addr),
+      .wb_csr_wdata_o(wb_csr_wdata),
+      .wb_rd_addr_o(wb_rd_addr),
+      .wb_rd_wdata_o(wb_rd_wdata),
+      .wb_trap_valid_o(wb_trap_valid),
+      .rvfi_o(rvfi)
+  );
+
+  // regfile outputs read data to the instruction decode stage 
+  // and receives write data from the writeback stage
   regfile regfile_inst (
       .clk_i(clk_i),
       .rst_i(rst_i),
-      .rs1_addr_i(id_rs1_addr_d),
-      .rs2_addr_i(id_rs2_addr_d),
-      .rd_addr_i(wb_rd_addr_masked),
-      .reg_wr_data_i(wb_rd_wdata_masked),
-      .rs1_rdata_o(id_rs1_rfile_rdata_comb),
-      .rs2_rdata_o(id_rs2_rfile_rdata_comb)
+      .rs1_addr_i(id_pipeline_d.rs1_addr),
+      .rs2_addr_i(id_pipeline_d.rs2_addr),
+      .rd_addr_i(wb_rd_addr),
+      .reg_wr_data_i(wb_rd_wdata),
+      .rs1_rdata_o(regfile_rs1_rdata),
+      .rs2_rdata_o(regfile_rs2_rdata)
   );
 
-  csrfile  csrfile_inst (
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .wb_rd_addr_i(wb_rd_addr_i),
-    .csr_raddr_i(csr_raddr_i),
-    .csr_waddr_i(csr_waddr_i),
-    .csr_wdata_i(csr_wdata_i),
-    .wb_valid_i(wb_valid_i),
-    .wb_trap_i(wb_trap_i),
-    .ex_valid_i(ex_valid_i),
-    .mem_valid_i(mem_valid_i),
-    .wb_valid_i(wb_valid_i),
-    .trap_handler_addr_i(trap_handler_addr_i),
-    .csr_rdata_q(csr_rdata_q),
-    .csr_rmask_o(csr_rmask_o),
-    .csr_wmask_o(csr_wmask_o)
+  // csrfile outputs read data to the instruction execute stage,
+  // with control sent form the instruction decode stage. It
+  // receives write data from the write back stage
+  csrfile csrfile_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .id_csr_raddr_i(id_csrfile_addr),
+      .id_csr_rdata_o(id_csrfile_rdata),
+      .wb_rd_addr_i(wb_rd_addr),
+      .wb_csr_waddr_i(wb_csr_addr),
+      .wb_csr_wdata_i(wb_csr_wdata),
+      .wb_csr_rmask_o(wb_csr_rmask),
+      .wb_csr_wmask_o(wb_csr_wmask),
+      .wb_valid_i(rvfi.valid),
+      .ex_valid_i(ex_pipeline_d.valid),
+      .mem_valid_i(mem_pipeline_d.valid),
+      .wb_trap_i(rvfi.trap),
+      .trap_handler_addr_q(trap_handler_addr_q)
   );
 
-  hazard_unit  hazard_unit_inst (
-    .ex_rs1_addr_i(ex_pipeline_q.rs1_addr),
-    .ex_rs1_addr_i(ex_pipeline_q.rs2_addr),
-    .mem_rd_addr_i(mem_pipeline_q.rd_addr),
-    .wb_rd_addr_i(wb_pipeline_q.rd_addr),
-    .ex_result_sel_i(ex_pipeline_q.result_sel),
-    .wb_result_sel_i(wb_pipeline_q.result_sel),
-    .id_rs1_addr_i(id_pipeline_d.rs1_addr),
-    .id_rs2_addr_i(id_pipeline_d.rs2_addr),
-    .ex_rd_addr_i(ex_pipeline_q.rd_addr),
-    .ex_is_pc_redirect_i(ex_is_pc_redirect),
-    .ex_forward_a_sel_o(ex_forward_a_sel),
-    .ex_forward_b_sel_o(ex_forward_b_sel),
-    .id_forward_a_o(id_forward_a),
-    .id_forward_b_o(id_forward_b),
-    .if_id_flush_o(if_id_flush),
-    .id_ex_flush_o(id_ex_flush),
-    .ex_mem_flush_o(ex_mem_flush),
-    .mem_wb_flush_o(mem_wb_flush),
-    .if_id_stall_o(if_id_stall),
-    .id_ex_stall_o(id_ex_stall),
-    .ex_mem_stall_o(ex_mem_stall),
-    .mem_wb_stall_o(mem_wb_stall),
-    .ex_trap_valid_i(ex_pipeline_d.carried_trap.valid),
-    .mem_trap_valid_i(mem_pipeline_d.carried_trap.valid),
-    .wb_trap_valid_i(wb_pipeline_d.carried_trap.valid),
-    .wishbone_req_i(wishbone_req),
-    .wishbone_done_i(wishbone_done)
+  hazard_unit hazard_unit_inst (
+      .ex_rs1_addr_i(ex_pipeline_q.rs1_addr),
+      .ex_rs2_addr_i(ex_pipeline_q.rs2_addr),
+      .mem_rd_addr_i(mem_pipeline_q.rd_addr),
+      .wb_rd_addr_i(wb_pipeline_q.rd_addr),
+      .ex_result_sel_i(ex_pipeline_q.result_sel),
+      .wb_result_sel_i(wb_pipeline_q.result_sel),
+      .id_rs1_addr_i(id_pipeline_d.rs1_addr),
+      .id_rs2_addr_i(id_pipeline_d.rs2_addr),
+      .ex_rd_addr_i(ex_pipeline_q.rd_addr),
+      .ex_is_pc_redirect_i(ex_is_pc_redirect),
+      .ex_forward_a_sel_o(ex_forward_a_sel),
+      .ex_forward_b_sel_o(ex_forward_b_sel),
+      .id_forward_a_o(id_forward_a),
+      .id_forward_b_o(id_forward_b),
+      .if_id_flush_o(if_id_flush),
+      .id_ex_flush_o(id_ex_flush),
+      .ex_mem_flush_o(ex_mem_flush),
+      .mem_wb_flush_o(mem_wb_flush),
+      .if_id_stall_o(if_id_stall),
+      .id_ex_stall_o(id_ex_stall),
+      .ex_mem_stall_o(ex_mem_stall),
+      .mem_wb_stall_o(mem_wb_stall),
+      .ex_trap_valid_i(ex_pipeline_d.carried_trap.valid),
+      .mem_trap_valid_i(mem_pipeline_d.carried_trap.valid),
+      .wb_trap_valid_i(rvfi.trap.valid),
+      .mem_req_i(mem_valid),
+      .mem_done_i(mem_done_i)
   );
 
+  assign imem_valid_o = !if_id_stall;
+  assign imem_addr_o = imem_addr;
+  assign mem_valid_o = mem_valid;
+  assign mem_wen_o = mem_wen;
+  assign mem_addr_o = mem_addr;
+  assign mem_wdata_o = mem_wdata;
+  assign mem_strb_o = mem_strb;
 
   //////////////////////////////////////
   //
@@ -267,7 +349,7 @@ module dtcore32 #(
   logic is_csr_mhartid;
   logic is_csr_mconfigptr;
   logic rvfi_valid_next;
-  assign rvfi_valid_next = mem_wb_stall ? 0 : wb_pipeline.valid;
+  assign rvfi_valid_next = mem_wb_stall ? 0 : rvfi.valid;
 
   always_comb begin
     is_csr_mstatus = 0;
@@ -288,7 +370,7 @@ module dtcore32 #(
     is_csr_mimpid = 0;
     is_csr_mhartid = 0;
     is_csr_mconfigptr = 0;
-    case (wb_csr_addr_masked)
+    case (rvfi.csr_addr)
       12'h300: is_csr_mstatus = 1;
       12'h301: is_csr_misa = 1;
       12'h304: is_csr_mie = 1;
@@ -311,8 +393,8 @@ module dtcore32 #(
     endcase
   end
 
-  always_ff @(posedge CLK) begin
-    if (RST) begin
+  always_ff @(posedge clk_i) begin
+    if (rst_i) begin
       rvfi_valid <= 0;
       rvfi_order <= 0;
       rvfi_insn <= 0;
@@ -369,89 +451,89 @@ module dtcore32 #(
       rvfi_mode <= 3;
       rvfi_ixl  <= 1;
       rvfi_halt <= 0;
-      rvfi_trap <= wb_trap_d.valid;
-      rvfi_intr <= wb_pipeline.intr;
+      rvfi_trap <= rvfi.trap.valid;
+      rvfi_intr <= rvfi.intr;
 
-      if (wb_trap_d.valid) begin
-        rvfi_insn <= wb_trap_d.insn;
-        rvfi_rs1_addr <= wb_trap_d.rs1_addr;
-        rvfi_rs2_addr <= wb_trap_d.rs2_addr;
-        rvfi_rs1_rdata <= wb_trap_d.rs1_rdata;
-        rvfi_rs2_rdata <= wb_trap_d.rs2_rdata;
+      if (rvfi.trap.valid) begin
+        rvfi_insn <= rvfi.trap.insn;
+        rvfi_rs1_addr <= rvfi.trap.rs1_addr;
+        rvfi_rs2_addr <= rvfi.trap.rs2_addr;
+        rvfi_rs1_rdata <= rvfi.trap.rs1_rdata;
+        rvfi_rs2_rdata <= rvfi.trap.rs2_rdata;
 
-        rvfi_rd_addr <= wb_trap_d.rd_addr;
-        rvfi_rd_wdata <= wb_trap_d.rd_wdata;
+        rvfi_rd_addr <= rvfi.trap.rd_addr;
+        rvfi_rd_wdata <= rvfi.trap.rd_wdata;
 
-        rvfi_pc_rdata <= wb_trap_d.pc;
-        rvfi_pc_wdata <= wb_trap_d.next_pc;
+        rvfi_pc_rdata <= rvfi.trap.pc;
+        rvfi_pc_wdata <= rvfi.trap.next_pc;
 
-        rvfi_mem_addr <= wb_pipeline.alu_csr_result;
-        rvfi_mem_rmask <= wb_pipeline.load_rmask;
-        rvfi_mem_wmask <= wb_pipeline.store_wmask;
-        rvfi_mem_rdata <= wb_pipeline.load_rdata;
-        rvfi_mem_wdata <= wb_pipeline.store_wdata;
+        rvfi_mem_addr <= rvfi.mem_addr;
+        rvfi_mem_rmask <= rvfi.mem_rmask;
+        rvfi_mem_wmask <= rvfi.mem_wmask;
+        rvfi_mem_rdata <= rvfi.mem_rdata;
+        rvfi_mem_wdata <= rvfi.mem_wdata;
       end else begin
-        rvfi_insn <= wb_pipeline.insn;
-        rvfi_rs1_addr <= wb_pipeline.rs1_addr;
-        rvfi_rs2_addr <= wb_pipeline.rs2_addr;
-        rvfi_rs1_rdata <= wb_pipeline.rs1_rdata;
-        rvfi_rs2_rdata <= wb_pipeline.rs2_rdata;
+        rvfi_insn <= rvfi.insn;
+        rvfi_rs1_addr <= rvfi.rs1_addr;
+        rvfi_rs2_addr <= rvfi.rs2_addr;
+        rvfi_rs1_rdata <= rvfi.rs1_rdata;
+        rvfi_rs2_rdata <= rvfi.rs2_rdata;
 
-        rvfi_rd_addr <= wb_rd_addr_masked;
-        rvfi_rd_wdata <= wb_rd_wdata_masked;
+        rvfi_rd_addr <= rvfi.rd_addr;
+        rvfi_rd_wdata <= rvfi.rd_wdata;
 
-        rvfi_pc_rdata <= wb_pipeline.pc;
-        rvfi_pc_wdata <= wb_trap_d.valid ? trap_handler_addr_q : wb_pipeline.pc_wdata;
+        rvfi_pc_rdata <= rvfi.pc_rdata;
+        rvfi_pc_wdata <= rvfi.trap.valid ? trap_handler_addr_q : rvfi.pc_wdata;
 
-        rvfi_mem_addr <= wb_pipeline.alu_csr_result;
-        rvfi_mem_rmask <= wb_pipeline.load_rmask;
-        rvfi_mem_wmask <= wb_pipeline.store_wmask;
-        rvfi_mem_rdata <= wb_pipeline.load_rdata;
-        rvfi_mem_wdata <= wb_pipeline.store_wdata;
+        rvfi_mem_addr <= rvfi.mem_addr;
+        rvfi_mem_rmask <= rvfi.mem_rmask;
+        rvfi_mem_wmask <= rvfi.mem_wmask;
+        rvfi_mem_rdata <= rvfi.mem_rdata;
+        rvfi_mem_wdata <= rvfi.mem_wdata;
       end
 
 
       // make rmask and wmask cleared if an exception
-      rvfi_csr_mcycle_wmask <= is_csr_mcycleh ? {wb_csr_wmask_comb, 32'd0} :
-          is_csr_mcycle  ? {32'd0, wb_csr_wmask_comb} :
+      rvfi_csr_mcycle_wmask <= is_csr_mcycleh ? {wb_csr_wmask, 32'd0} :
+          is_csr_mcycle  ? {32'd0, wb_csr_wmask} :
           64'd0;
-      rvfi_csr_minstret_wmask <= is_csr_minstreth ? {wb_csr_wmask_comb, 32'd0} :
-          is_csr_minstret  ? {32'd0, wb_csr_wmask_comb} :
+      rvfi_csr_minstret_wmask <= is_csr_minstreth ? {wb_csr_wmask, 32'd0} :
+          is_csr_minstret  ? {32'd0, wb_csr_wmask} :
           64'd0;
-      rvfi_csr_mcause_wmask <= is_csr_mcause ? wb_csr_wmask_comb : 32'd0;
-      rvfi_csr_mepc_wmask <= is_csr_mepc ? wb_csr_wmask_comb : 32'd0;
-      rvfi_csr_mtvec_wmask <= is_csr_mtvec ? wb_csr_wmask_comb : 32'd0;
+      rvfi_csr_mcause_wmask <= is_csr_mcause ? wb_csr_wmask : 32'd0;
+      rvfi_csr_mepc_wmask <= is_csr_mepc ? wb_csr_wmask : 32'd0;
+      rvfi_csr_mtvec_wmask <= is_csr_mtvec ? wb_csr_wmask : 32'd0;
       // csr rmask logic
-      rvfi_csr_mcycle_rmask <= is_csr_mcycleh ? {wb_csr_rmask_comb, 32'd0} :
-          is_csr_mcycle  ? {32'd0, wb_csr_rmask_comb} :
+      rvfi_csr_mcycle_rmask <= is_csr_mcycleh ? {wb_csr_rmask, 32'd0} :
+          is_csr_mcycle  ? {32'd0, wb_csr_rmask} :
           64'd0;
-      rvfi_csr_minstret_rmask <= is_csr_minstreth ?  {wb_csr_rmask_comb, 32'd0} :
-          is_csr_minstret  ? {32'd0, wb_csr_rmask_comb} :
+      rvfi_csr_minstret_rmask <= is_csr_minstreth ?  {wb_csr_rmask, 32'd0} :
+          is_csr_minstret  ? {32'd0, wb_csr_rmask} :
           64'd0;
-      rvfi_csr_mcause_rmask <= is_csr_mcause ? wb_csr_rmask_comb : 32'd0;
-      rvfi_csr_mtvec_rmask <= is_csr_mtvec ? wb_csr_rmask_comb : 32'd0;
-      rvfi_csr_mepc_rmask <= is_csr_mepc ? wb_csr_rmask_comb : 32'd0;
+      rvfi_csr_mcause_rmask <= is_csr_mcause ? wb_csr_rmask : 32'd0;
+      rvfi_csr_mtvec_rmask <= is_csr_mtvec ? wb_csr_rmask : 32'd0;
+      rvfi_csr_mepc_rmask <= is_csr_mepc ? wb_csr_rmask : 32'd0;
 
-      rvfi_csr_mcycle_rdata <= is_csr_mcycleh ? {wb_pipeline.csr_rdata, 32'd0} :
-          is_csr_mcycle  ? {32'd0, wb_pipeline.csr_rdata} :
+      rvfi_csr_mcycle_rdata <= is_csr_mcycleh ? {rvfi.csr_rdata, 32'd0} :
+          is_csr_mcycle  ? {32'd0, rvfi.csr_rdata} :
           64'd0;
-      rvfi_csr_minstret_rdata <= is_csr_minstreth ? {wb_pipeline.csr_rdata, 32'd0} :
-          is_csr_minstret  ? {32'd0, wb_pipeline.csr_rdata} :
+      rvfi_csr_minstret_rdata <= is_csr_minstreth ? {rvfi.csr_rdata, 32'd0} :
+          is_csr_minstret  ? {32'd0, rvfi.csr_rdata} :
           64'd0;
       // csr rdata logic
-      rvfi_csr_mcause_rdata <= is_csr_mcause ? wb_pipeline.csr_rdata : 32'd0;
-      rvfi_csr_mtvec_rdata <= is_csr_mtvec ? wb_pipeline.csr_rdata : 32'd0;
-      rvfi_csr_mepc_rdata <= is_csr_mepc ? wb_pipeline.csr_rdata : 32'd0;
+      rvfi_csr_mcause_rdata <= is_csr_mcause ? rvfi.csr_rdata : 32'd0;
+      rvfi_csr_mtvec_rdata <= is_csr_mtvec ? rvfi.csr_rdata : 32'd0;
+      rvfi_csr_mepc_rdata <= is_csr_mepc ? rvfi.csr_rdata : 32'd0;
 
-      rvfi_csr_mcycle_wdata <= is_csr_mcycleh ? {wb_pipeline.csr_wdata, 32'd0} :
-          is_csr_mcycle  ? {32'd0, wb_pipeline.csr_wdata} :
+      rvfi_csr_mcycle_wdata <= is_csr_mcycleh ? {rvfi.csr_wdata, 32'd0} :
+          is_csr_mcycle  ? {32'd0, rvfi.csr_wdata} :
           64'd0;
-      rvfi_csr_minstret_wdata <= is_csr_minstreth ? {wb_pipeline.csr_wdata, 32'd0} :
-          is_csr_minstret  ? {32'd0, wb_pipeline.csr_wdata} :
+      rvfi_csr_minstret_wdata <= is_csr_minstreth ? {rvfi.csr_wdata, 32'd0} :
+          is_csr_minstret  ? {32'd0, rvfi.csr_wdata} :
           64'd0;
-      rvfi_csr_mcause_wdata <= is_csr_mcause ? wb_pipeline.csr_wdata : 32'd0;
-      rvfi_csr_mtvec_wdata <= is_csr_mtvec ? wb_pipeline.csr_wdata : 32'd0;
-      rvfi_csr_mepc_wdata <= is_csr_mepc ? wb_pipeline.csr_wdata : 32'd0;
+      rvfi_csr_mcause_wdata <= is_csr_mcause ? rvfi.csr_wdata : 32'd0;
+      rvfi_csr_mtvec_wdata <= is_csr_mtvec ? rvfi.csr_wdata : 32'd0;
+      rvfi_csr_mepc_wdata <= is_csr_mepc ? rvfi.csr_wdata : 32'd0;
 
     end
   end

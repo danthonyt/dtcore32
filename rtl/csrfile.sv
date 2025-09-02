@@ -5,8 +5,7 @@ module csrfile
     input logic rst_i,
     // from instruction decode
     input logic [11:0] id_csr_raddr_i,
-    // to execute
-    output logic [31:0] ex_csr_rdata_q,
+    output logic [31:0] id_csr_rdata_o,
     // from write back
     input logic [4:0] wb_rd_addr_i,
     input logic [11:0] wb_csr_waddr_i,
@@ -20,7 +19,7 @@ module csrfile
     input logic mem_valid_i,
     // for tracking traps
     input trap_info_t wb_trap_i,
-    output logic [31:0] trap_handler_addr_i
+    output logic [31:0] trap_handler_addr_q
 );
   logic [31:0] csr_mtvec_reg;
   logic [31:0] csr_mscratch_reg;
@@ -87,14 +86,6 @@ module csrfile
       default:           ;
     endcase
   end
-  // csr read
-  always_ff @(posedge clk_i) begin
-    if (rst_i) begin
-      ex_csr_rdata_q <= 0;
-    end else begin
-      ex_csr_rdata_q <= csr_rdata;
-    end
-  end
 
   // csr writes
   always_ff @(posedge clk_i) begin
@@ -119,10 +110,11 @@ module csrfile
 
   // synchronously update the trap handler register
   always_ff @(posedge clk_i) begin
-    if (rst_i) trap_handler_addr_i <= 0;
-    else trap_handler_addr_i <= {csr_mtvec_reg[31:2], 2'd0};
+    if (rst_i) trap_handler_addr_q <= 0;
+    else trap_handler_addr_q <= {csr_mtvec_reg[31:2], 2'd0};
   end
 
+  assign id_csr_rdata_o = csr_rdata;
   // a csr isntruction is a read only if the destination register is not x0
   assign wb_csr_rmask_o = (wb_rd_addr_i != 0) ? 32'hffff_ffff : '0;
   // a csr instruction is a write if its a csrrw or if its (not a csrrw and rs1 != 0)
