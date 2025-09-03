@@ -487,9 +487,11 @@ module dtcore32 (
 
         rvfi_mem_addr <= rvfi.mem_addr;
         rvfi_mem_rmask <= rvfi.mem_rmask;
-        rvfi_mem_wmask <= rvfi.mem_wmask;
+        // shift wmask and wdata if first nonzero bit is not at the lsb
+        // riscv formal expects this format
+        rvfi_mem_wmask <= rvfi.mem_wmask >> get_shift(rvfi.mem_wmask);
         rvfi_mem_rdata <= rvfi.mem_rdata;
-        rvfi_mem_wdata <= rvfi.mem_wdata;
+        rvfi_mem_wdata <= rvfi.mem_wdata >> 8 * get_shift(rvfi.mem_wmask);
       end
 
 
@@ -537,5 +539,23 @@ module dtcore32 (
 
     end
   end
+
+  // Returns the shift amount (LSB index of the mask)
+function integer get_shift;
+    input [3:0] wmask;
+    integer i;
+    logic found;
+begin
+    get_shift = 0; // default
+    found = 0;
+    for (i = 0; i < 4; i = i + 1) begin
+        if (!found && wmask[i]) begin
+            get_shift = i;
+            found = 1;
+        end
+    end
+end
+endfunction
+
 `endif
 endmodule
