@@ -1,8 +1,6 @@
 module id_stage
   import params_pkg::*;
 (
-    input logic clk_i,
-    input logic rst_i,
     // from hazard control 
     input logic id_forward_a_i,
     input logic id_forward_b_i,
@@ -147,15 +145,4 @@ module id_stage
     id_pipeline_d.carried_trap    = id_trap_d;
   end
 
-  /******************************************/
-  //
-  //    FORMAL VERIFICATION
-  //
-  /******************************************/
-`ifdef FORMAL
-  default clocking @(posedge clk_i);
-  endclocking
-  initial assume (rst_i);
-
-`endif
 endmodule

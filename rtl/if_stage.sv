@@ -31,7 +31,6 @@ module if_stage
   logic [31:0] if_insn;
   logic [31:0] if_insn_buf;
   logic [31:0] if_pc_q;
-  logic [31:0] if_pc;
 
   // On a trap, the next pc is the trap handler address,
   // else if a jump or branch, next pc is the specified jump/branch address

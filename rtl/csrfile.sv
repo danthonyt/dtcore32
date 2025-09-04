@@ -18,7 +18,10 @@ module csrfile
     input logic ex_valid_i,
     input logic mem_valid_i,
     // for tracking traps
-    input trap_info_t wb_trap_i,
+    input logic wb_trap_valid_i,
+    input logic [31:0] wb_trap_pc_i,
+    input logic wb_trap_irq_i,
+    input logic [30:0] wb_trap_mcause_i,
     output logic [31:0] trap_handler_addr_q
 );
   logic [31:0] csr_mtvec_reg;
@@ -35,7 +38,6 @@ module csrfile
   logic [31:0] csr_mtval_next;
   logic [63:0] csr_mcycle_next;
   logic [63:0] csr_minstret_next;
-  logic [31:0] csr_wdata;
   logic [31:0] csr_rdata;
   //////////////////////////////////////
   //
@@ -59,7 +61,8 @@ module csrfile
       CSR_ADDR_MCYCLE: csr_rdata = csr_mcycle_reg[31:0];
       CSR_ADDR_MCYCLEH: csr_rdata = csr_mcycle_reg[63:32];
       // since we are reading in ID stage add stages that will retire before to the count
-      CSR_ADDR_MINSTRET: csr_rdata = csr_minstret_reg[31:0] + ex_valid_i + mem_valid_i + wb_valid_i;
+      CSR_ADDR_MINSTRET: csr_rdata = csr_minstret_reg[31:0] + 
+      {31'd0, ex_valid_i} + {31'd0, mem_valid_i} + {31'd0, wb_valid_i};
       CSR_ADDR_MINSTRETH: csr_rdata = csr_minstret_reg[63:32];
       default: ;
     endcase
@@ -68,8 +71,8 @@ module csrfile
   always_comb begin
     csr_mtvec_next = csr_mtvec_reg;
     csr_mscratch_next = csr_mscratch_reg;
-    csr_mepc_next = (wb_valid_i && wb_trap_i.valid) ? wb_trap_i.pc : csr_mepc_reg;
-    csr_mcause_next = (wb_valid_i && wb_trap_i.valid) ? {wb_trap_i.is_interrupt, wb_trap_i.mcause} : csr_mcause_reg;
+    csr_mepc_next = (wb_valid_i && wb_trap_valid_i) ? wb_trap_pc_i : csr_mepc_reg;
+    csr_mcause_next = (wb_valid_i && wb_trap_valid_i) ? {wb_trap_irq_i, wb_trap_mcause_i} : csr_mcause_reg;
     csr_mtval_next = csr_mtval_reg;
     csr_mcycle_next = csr_mcycle_reg + 1;
     csr_minstret_next = wb_valid_i ? csr_minstret_reg + 1 : csr_minstret_reg;

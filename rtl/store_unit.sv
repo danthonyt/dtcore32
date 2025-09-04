@@ -30,6 +30,7 @@ module store_unit
         wmask = 4'b1 << ADDR_LSB2;
         store_wdata_formatted = STORE_WDATA_RAW << ADDR_LSB2 * 8;
       end
+      default:;
     endcase
   end
 

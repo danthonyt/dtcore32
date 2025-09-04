@@ -1,8 +1,6 @@
 module ex_stage
   import params_pkg::*;
 (
-    input logic clk_i,
-    input logic rst_i,
     // forward data
     input logic [2:0] ex_forward_a_sel_i,
     input logic [2:0] ex_forward_b_sel_i,

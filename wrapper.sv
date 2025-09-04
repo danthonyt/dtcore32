@@ -6,7 +6,6 @@ module rvfi_wrapper (
 
   (* keep *) logic [31:0] imem_addr;
   (* keep *) `rvformal_rand_reg [31:0] imem_rdata;
-  (* keep *) logic imem_valid;
   (* keep *) logic mem_valid;
   (* keep *) logic mem_wen;
   (* keep *) logic [31:0] mem_addr;
@@ -17,31 +16,6 @@ module rvfi_wrapper (
   
   // mem done will eventually rise after start pulse
   assume property (@(posedge clock) mem_valid |-> ##[1:$] mem_done);
-  //(* keep *) `rvformal_rand_reg [31:0] rand_rdata;
-  /*
-  int counter;
-  // emulate a wishbone peripheral for the mem stage
-  always_ff @(posedge clock)begin
-    if (reset) begin
-        MEM_CMD_RDATA_I <= 0;
-        MEM_CMD_BUSY_I <= 0;
-        counter <= 0;
-    end else begin 
-        counter <= counter + 1;
-        if (MEM_CMD_START_O && !MEM_CMD_BUSY_I)begin
-        // send data after 3 cycle delay
-            MEM_CMD_BUSY_I <= 1;
-            counter <= 0;
-        end
-        if (MEM_CMD_BUSY_I && counter >= 1) begin
-            MEM_CMD_BUSY_I <= 0;
-            MEM_CMD_RDATA_I <= rand_rdata;
-            counter <= 0;
-        end
-
-    end
-  end
-*/
 
   dtcore32  dtcore32_inst (
     .clk_i(clock),
@@ -89,7 +63,6 @@ module rvfi_wrapper (
     .rvfi_csr_mtvec_wdata(rvfi_csr_mtvec_wdata),
     .imem_rdata_i(imem_rdata),
     .imem_addr_o(imem_addr),
-    .imem_valid_o(imem_valid),
     .mem_rdata_i(mem_rdata),
     .mem_done_i(mem_done),
     .mem_valid_o(mem_valid),

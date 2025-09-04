@@ -1,8 +1,6 @@
 module wb_stage
   import params_pkg::*;
 (
-    input logic clk_i,
-    input logic rst_i,
     input mem_wb_t wb_pipeline_q,
     // from csr file
     input logic [31:0] wb_csr_rmask_i,

@@ -1,195 +1,150 @@
 module soc_top (
-    input  logic CLK_I,
-    input  logic RST_I,
-    input  logic RX_I,
-    output logic TX_O
+    input  logic clk_i,
+    input  logic rst_i,
+    input  logic rx_i,
+    output logic tx_o
 
 );
-  localparam WISHBONE_BUS_WIDTH = 32;
-  localparam WISHBONE_ADDR_WIDTH = 32;
   localparam MEM_DEPTH = 2560;
+  localparam CLKS_PER_BIT = 860;
+  localparam WISHBONE_ADDR_WIDTH = 32;
+  localparam WISHBONE_BUS_WIDTH = 32;
 
-  logic [WISHBONE_ADDR_WIDTH-1:0] CPU_FETCH_CMD_ADDR_I;
-  logic [WISHBONE_BUS_WIDTH-1:0] CPU_FETCH_CMD_RDATA_O;
-  logic [WISHBONE_BUS_WIDTH-1:0] CPU_FETCH_WBM_DAT_I;
-  logic CPU_FETCH_WBM_CYC_O;
-  logic CPU_FETCH_WBM_STB_O;
-  logic [WISHBONE_ADDR_WIDTH-1:0] CPU_FETCH_WBM_ADR_O;
+  logic [31:0] imem_rdata;
+  logic [31:0] imem_addr;
+  logic [31:0] mem_rdata;
+  logic mem_done;
+  logic mem_valid;
+  logic mem_wen;
+  logic [31:0] mem_addr;
+  logic [31:0] mem_wdata;
+  logic [3:0] mem_strb;
 
-  logic CPU_MEM_CMD_START_I;
-  logic CPU_MEM_CMD_WE_I;
-  logic [WISHBONE_ADDR_WIDTH-1:0] CPU_MEM_CMD_ADDR_I;
-  logic [WISHBONE_BUS_WIDTH-1:0] CPU_MEM_CMD_WDATA_I;
-  logic [WISHBONE_BUS_WIDTH/8-1:0] CPU_MEM_CMD_SEL_I;
-  logic [WISHBONE_BUS_WIDTH-1:0] CPU_MEM_CMD_RDATA_O;
-  logic CPU_MEM_CMD_BUSY_O;
-  logic [WISHBONE_BUS_WIDTH-1:0] CPU_MEM_WBM_DAT_I;
-  logic CPU_MEM_WBM_ERR_I;
-  logic CPU_MEM_WBM_ACK_I;
-  logic CPU_MEM_WBM_CYC_O;
-  logic CPU_MEM_WBM_STB_O;
-  logic [WISHBONE_ADDR_WIDTH-1:0] CPU_MEM_WBM_ADR_O;
-  logic CPU_MEM_WBM_WE_O;
-  logic [WISHBONE_BUS_WIDTH-1:0] CPU_MEM_WBM_DAT_O;
-  logic [WISHBONE_BUS_WIDTH/8-1:0] CPU_MEM_WBM_SEL_O;
+  logic [31:0] cpu_wbm_dat_i;
+  logic cpu_wbm_err;
+  logic cpu_wbm_ack;
+  logic cpu_wbm_cyc;
+  logic cpu_wbm_stb;
+  logic [31:0] cpu_wbm_adr;
+  logic cpu_wbm_we;
+  logic [31:0] cpu_wbm_dat_o;
+  logic [3:0] cpu_wbm_sel;
+  logic [31:0] dmem_rdata;
+  logic [31:0] dmem_addr;
+  logic dmem_en;
+  logic dmem_wen;
+  logic [31:0] dmem_wdata;
+  logic [3:0] dmem_wstrb;
 
-  logic [WISHBONE_ADDR_WIDTH-1:0] DMEM_WBS_ADR_I;
-  logic DMEM_WBS_WE_I;
-  logic [31:0] DMEM_WBS_DAT_I;
-  logic [3:0] DMEM_WBS_SEL_I;
-  logic DMEM_WBS_CYC_I;
-  logic DMEM_WBS_STB_I;
-  logic [31:0] DMEM_WBS_DAT_O;
-  logic DMEM_WBS_ACK_O;
-  logic DMEM_WBS_ERR_O;
+  logic [WISHBONE_ADDR_WIDTH-1:0] ic_wbs_adr;
+  logic ic_wbs_we;
+  logic [WISHBONE_BUS_WIDTH-1:0] ic_wbs_dat_i;
+  logic [WISHBONE_BUS_WIDTH/8-1:0] ic_wbs_sel;
+  logic uart_wbs_cyc;
+  logic uart_wbs_stb;
+  logic [WISHBONE_BUS_WIDTH-1:0] uart_wbs_dat_o;
+  logic uart_wbs_ack;
+  logic uart_wbs_err;
 
-  logic [WISHBONE_ADDR_WIDTH-1:0] WBS_ADR_I;
-  logic WBS_WE_I;
-  logic [WISHBONE_BUS_WIDTH-1:0] WBS_DAT_I;
-  logic [WISHBONE_BUS_WIDTH/8-1:0] WBS_SEL_I;
-
-  logic UART_WBS_CYC_I;
-  logic UART_WBS_STB_I;
-  logic [WISHBONE_BUS_WIDTH-1:0] UART_WBS_DAT_O;
-  logic UART_WBS_ACK_O;
-  logic UART_WBS_ERR_O;
-
-  logic [WISHBONE_ADDR_WIDTH-1:0] UART_WBS_ADR_I;
-  logic UART_WBS_WE_I;
-  logic [31:0] UART_WBS_DAT_I;
-  logic MEM_CMD_DONE_I;
-
-  logic CPU_FETCH_EN_O;
-
-  dtcore32 #(
-      .WISHBONE_ADDR_WIDTH(WISHBONE_ADDR_WIDTH),
-      .WISHBONE_BUS_WIDTH (WISHBONE_BUS_WIDTH)
-  ) dtcore32_inst (
-      .CLK(CLK_I),
-      .RST(RST_I),
-      .CPU_FETCH_WBM_ADR_O(CPU_FETCH_WBM_ADR_O),
-      .CPU_FETCH_WBM_DAT_I(CPU_FETCH_WBM_DAT_I),
-      .CPU_FETCH_WBM_CYC_O(CPU_FETCH_WBM_CYC_O),
-      .CPU_FETCH_WBM_STB_O(CPU_FETCH_WBM_STB_O),
-      .MEM_CMD_START_O(CPU_MEM_CMD_START_I),
-      .MEM_CMD_WE_O(CPU_MEM_CMD_WE_I),
-      .MEM_CMD_ADDR_O(CPU_MEM_CMD_ADDR_I),
-      .MEM_CMD_WDATA_O(CPU_MEM_CMD_WDATA_I),
-      .MEM_CMD_SEL_O(CPU_MEM_CMD_SEL_I),
-      .MEM_CMD_RDATA_I(CPU_MEM_CMD_RDATA_O),
-      .MEM_CMD_BUSY_I(CPU_MEM_CMD_BUSY_O),
-      .MEM_CMD_DONE_I(MEM_CMD_DONE_I)
+  dtcore32 dtcore32_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .imem_rdata_i(imem_rdata),
+      .imem_addr_o(imem_addr),
+      .mem_rdata_i(mem_rdata),
+      .mem_done_i(mem_done),
+      .mem_valid_o(mem_valid),
+      .mem_wen_o(mem_wen),
+      .mem_addr_o(mem_addr),
+      .mem_wdata_o(mem_wdata),
+      .mem_strb_o(mem_strb)
   );
 
-  cpu_wb_mem_master #(
-      .WISHBONE_ADDR_WIDTH(WISHBONE_ADDR_WIDTH),
-      .WISHBONE_BUS_WIDTH (WISHBONE_BUS_WIDTH)
-  ) cpu_wb_mem_master_inst (
-      .CLK_I(CLK_I),
-      .RST_I(RST_I),
-      .CPU_MEM_CMD_START_I(CPU_MEM_CMD_START_I),
-      .CPU_MEM_CMD_WE_I(CPU_MEM_CMD_WE_I),
-      .CPU_MEM_CMD_ADDR_I(CPU_MEM_CMD_ADDR_I),
-      .CPU_MEM_CMD_WDATA_I(CPU_MEM_CMD_WDATA_I),
-      .CPU_MEM_CMD_SEL_I(CPU_MEM_CMD_SEL_I),
-      .CPU_MEM_CMD_RDATA_O(CPU_MEM_CMD_RDATA_O),
-      .CPU_MEM_CMD_BUSY_O(CPU_MEM_CMD_BUSY_O),
-      .CPU_MEM_WBM_DAT_I(CPU_MEM_WBM_DAT_I),
-      .CPU_MEM_WBM_ERR_I(CPU_MEM_WBM_ERR_I),
-      .CPU_MEM_WBM_ACK_I(CPU_MEM_WBM_ACK_I),
-      .CPU_MEM_WBM_CYC_O(CPU_MEM_WBM_CYC_O),
-      .CPU_MEM_WBM_STB_O(CPU_MEM_WBM_STB_O),
-      .CPU_MEM_WBM_ADR_O(CPU_MEM_WBM_ADR_O),
-      .CPU_MEM_WBM_WE_O(CPU_MEM_WBM_WE_O),
-      .CPU_MEM_WBM_DAT_O(CPU_MEM_WBM_DAT_O),
-      .CPU_MEM_WBM_SEL_O(CPU_MEM_WBM_SEL_O),
-      .CPU_MEM_CMD_DONE_O(MEM_CMD_DONE_I)
+  cpu_bus_master cpu_bus_master_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .mem_valid_i(mem_valid),
+      .mem_wen_i(mem_wen),
+      .mem_addr_i(mem_addr),
+      .mem_wdata_i(mem_wdata),
+      .mem_strb_i(mem_strb),
+      .mem_rdata_o(mem_rdata),
+      .mem_done_o(mem_done),
+      .cpu_wbm_dat_i(cpu_wbm_dat_i),
+      .cpu_wbm_err_i(cpu_wbm_err),
+      .cpu_wbm_ack_i(cpu_wbm_ack),
+      .cpu_wbm_cyc_o(cpu_wbm_cyc),
+      .cpu_wbm_stb_o(cpu_wbm_stb),
+      .cpu_wbm_adr_o(cpu_wbm_adr),
+      .cpu_wbm_we_o(cpu_wbm_we),
+      .cpu_wbm_dat_o(cpu_wbm_dat_o),
+      .cpu_wbm_sel_o(cpu_wbm_sel),
+      .dmem_rdata_i(dmem_rdata),
+      .dmem_addr_o(dmem_addr),
+      .dmem_en_o(dmem_en),
+      .dmem_wen_o(dmem_wen),
+      .dmem_wdata_o(dmem_wdata),
+      .dmem_wstrb_o(dmem_wstrb)
   );
 
-  wb_ram #(
-      .MEM_DEPTH(MEM_DEPTH),
-      .WB_ADDR_WIDTH(WISHBONE_ADDR_WIDTH)
-  ) wb_ram_inst (
-      .CLK_I(CLK_I),
-      .WBS_RST_I(RST_I),
-      .WBS_ADR_I(DMEM_WBS_ADR_I),
-      .WBS_WE_I(DMEM_WBS_WE_I),
-      .WBS_DAT_I(DMEM_WBS_DAT_I),
-      .WBS_SEL_I(DMEM_WBS_SEL_I),
-      .WBS_CYC_I(DMEM_WBS_CYC_I),
-      .WBS_STB_I(DMEM_WBS_STB_I),
-      .WBS_DAT_O(DMEM_WBS_DAT_O),
-      .WBS_ACK_O(DMEM_WBS_ACK_O),
-      .WBS_ERR_O(DMEM_WBS_ERR_O)
+  ram #(
+      .MEM_DEPTH(MEM_DEPTH)
+  ) dmem_inst (
+      .clk_i(clk_i),
+      .addr_i(dmem_addr[$clog2(MEM_DEPTH)-1+2:2]),
+      .en_i(dmem_en),
+      .wen_i(dmem_wen),
+      .wdata_i(dmem_wdata),
+      .wstrb_i(dmem_wstrb),
+      .rdata_o(dmem_rdata)
   );
 
-  wb_rom #(
-      .MEM_DEPTH(MEM_DEPTH),
-      .WB_ADDR_WIDTH(WISHBONE_ADDR_WIDTH)
-  ) wb_rom_inst (
-      .CLK_I(CLK_I),
-      .WBS_RST_I(RST_I),
-      .WBS_ADR_I(CPU_FETCH_WBM_ADR_O),
-      .WBS_WE_I(1'b0),
-      .WBS_CYC_I(CPU_FETCH_WBM_CYC_O),
-      .WBS_STB_I(CPU_FETCH_WBM_STB_O),
-      .WBS_DAT_O(CPU_FETCH_WBM_DAT_I),
-      .WBS_ACK_O(),
-      .WBS_ERR_O(),
-      .WBS_STALL_O()
+  rom #(
+      .MEM_DEPTH(MEM_DEPTH)
+  ) imem_inst (
+      .clk_i  (clk_i),
+      .addr_i (imem_addr[$clog2(MEM_DEPTH)-1+2:2]),
+      .rdata_o(imem_rdata)
+  );
+
+  uart_wb_wrapper #(
+      .CLKS_PER_BIT(CLKS_PER_BIT)
+  ) uart_wb_wrapper_inst (
+      .clk_i(clk_i),
+      .rst_i(rst_i),
+      .wbs_adr_i(ic_wbs_adr[3:0]),
+      .wbs_we_i(ic_wbs_we),
+      .wbs_dat_i(ic_wbs_dat_i),
+      .wbs_cyc_i(uart_wbs_cyc),
+      .wbs_stb_i(uart_wbs_stb),
+      .wbs_dat_o(uart_wbs_dat_o),
+      .wbs_ack_o(uart_wbs_ack),
+      .wbs_err_o(uart_wbs_err),
+      .rx_i(rx_i),
+      .tx_o(tx_o)
   );
 
   wb_interconnect #(
       .WISHBONE_ADDR_WIDTH(WISHBONE_ADDR_WIDTH),
       .WISHBONE_BUS_WIDTH (WISHBONE_BUS_WIDTH)
   ) wb_interconnect_inst (
-      .WBM_DAT_I(CPU_MEM_WBM_DAT_I),
-      .WBM_ERR_I(CPU_MEM_WBM_ERR_I),
-      .WBM_ACK_I(CPU_MEM_WBM_ACK_I),
-      .WBM_CYC_O(CPU_MEM_WBM_CYC_O),
-      .WBM_STB_O(CPU_MEM_WBM_STB_O),
-      .WBM_ADR_O(CPU_MEM_WBM_ADR_O),
-      .WBM_WE_O(CPU_MEM_WBM_WE_O),
-      .WBM_DAT_O(CPU_MEM_WBM_DAT_O),
-      .WBM_SEL_O(CPU_MEM_WBM_SEL_O),
-      .WBS_ADR_I(WBS_ADR_I),
-      .WBS_WE_I(WBS_WE_I),
-      .WBS_DAT_I(WBS_DAT_I),
-      .WBS_SEL_I(WBS_SEL_I),
-      .DMEM_WBS_CYC_I(DMEM_WBS_CYC_I),
-      .DMEM_WBS_STB_I(DMEM_WBS_STB_I),
-      .DMEM_WBS_DAT_O(DMEM_WBS_DAT_O),
-      .DMEM_WBS_ACK_O(DMEM_WBS_ACK_O),
-      .DMEM_WBS_ERR_O(DMEM_WBS_ERR_O),
-      .UART_WBS_CYC_I(UART_WBS_CYC_I),
-      .UART_WBS_STB_I(UART_WBS_STB_I),
-      .UART_WBS_DAT_O(UART_WBS_DAT_O),
-      .UART_WBS_ACK_O(UART_WBS_ACK_O),
-      .UART_WBS_ERR_O(UART_WBS_ERR_O)
+      .wbm_cyc(cpu_wbm_cyc),
+      .wbm_stb(cpu_wbm_stb),
+      .wbm_adr(cpu_wbm_adr),
+      .wbm_we(cpu_wbm_we),
+      .wbm_dat_o(cpu_wbm_dat_o),
+      .wbm_sel(cpu_wbm_sel),
+      .wbm_dat_i(cpu_wbm_dat_i),
+      .wbm_err(cpu_wbm_err),
+      .wbm_ack(cpu_wbm_ack),
+      .ic_wbs_adr(ic_wbs_adr),
+      .ic_wbs_we(ic_wbs_we),
+      .ic_wbs_dat_i(ic_wbs_dat_i),
+      .ic_wbs_sel(ic_wbs_sel),
+      .uart_wbs_cyc(uart_wbs_cyc),
+      .uart_wbs_stb(uart_wbs_stb),
+      .uart_wbs_dat_o(uart_wbs_dat_o),
+      .uart_wbs_ack(uart_wbs_ack),
+      .uart_wbs_err(uart_wbs_err)
   );
-
-  wb_uart #(
-      .WB_ADDR_WIDTH(WISHBONE_ADDR_WIDTH)
-  ) wb_uart_inst (
-      .CLK_I(CLK_I),
-      .RST_I(RST_I),
-      .WB_ADR_I(UART_WBS_ADR_I),
-      .WB_WE_I(UART_WBS_WE_I),
-      .WB_DAT_I(UART_WBS_DAT_I),
-      .WB_CYC_I(UART_WBS_CYC_I),
-      .WB_STB_I(UART_WBS_STB_I),
-      .WB_DAT_O(UART_WBS_DAT_O),
-      .WB_ACK_O(UART_WBS_ACK_O),
-      .WB_ERR_O(UART_WBS_ERR_O),
-      .RX_I(RX_I),
-      .TX_O(TX_O)
-  );
-  assign UART_WBS_ADR_I = WBS_ADR_I;
-  assign DMEM_WBS_ADR_I = WBS_ADR_I;
-  assign UART_WBS_WE_I  = WBS_WE_I;
-  assign DMEM_WBS_WE_I  = WBS_WE_I;
-  assign UART_WBS_DAT_I = WBS_DAT_I;
-  assign DMEM_WBS_DAT_I = WBS_DAT_I;
-  assign DMEM_WBS_SEL_I = WBS_SEL_I;
-
 endmodule

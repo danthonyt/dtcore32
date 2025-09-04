@@ -48,7 +48,6 @@ module dtcore32 (
     // to instruction memory interface
     input  logic [31:0] imem_rdata_i,
     output logic [31:0] imem_addr_o,
-    output logic        imem_valid_o,
 
     // to data memory and peripheral interface
     input logic [31:0] mem_rdata_i,
@@ -101,13 +100,8 @@ module dtcore32 (
 
   logic [2:0] ex_forward_a_sel;
   logic [2:0] ex_forward_b_sel;
-  logic [31:0] mem_alu_csr_result;
-  logic [31:0] wb_load_rdata;
-  logic [31:0] wb_alu_csr_result;
   logic [31:0] id_csrfile_rdata;
 
-  logic [31:0] mem_rdata;
-  logic mem_done;
   logic mem_valid;
   logic mem_wen;
   logic [31:0] mem_addr;
@@ -153,12 +147,7 @@ module dtcore32 (
       .pipeline_q(id_pipeline_q)
   );
 
-  
-
-
   id_stage id_stage_inst (
-      .clk_i(clk_i),
-      .rst_i(rst_i),
       .id_forward_a_i(id_forward_a),
       .id_forward_b_i(id_forward_b),
       .regfile_rs1_rdata_i(regfile_rs1_rdata),
@@ -184,8 +173,6 @@ module dtcore32 (
   );
 
   ex_stage ex_stage_inst (
-      .clk_i(clk_i),
-      .rst_i(rst_i),
       .ex_forward_a_sel_i(ex_forward_a_sel),
       .ex_forward_b_sel_i(ex_forward_b_sel),
       .mem_alu_csr_result_i(mem_pipeline_q.alu_csr_result),
@@ -238,8 +225,6 @@ module dtcore32 (
   );
 
   wb_stage wb_stage_inst (
-      .clk_i(clk_i),
-      .rst_i(rst_i),
       .wb_pipeline_q(wb_pipeline_q),
       .wb_csr_rmask_i(wb_csr_rmask),
       .wb_csr_wmask_i(wb_csr_wmask),
@@ -280,7 +265,10 @@ module dtcore32 (
       .wb_valid_i(rvfi.valid),
       .ex_valid_i(ex_pipeline_d.valid),
       .mem_valid_i(mem_pipeline_d.valid),
-      .wb_trap_i(rvfi.trap),
+      .wb_trap_valid_i(rvfi.trap.valid),
+      .wb_trap_pc_i(rvfi.trap.pc),
+      .wb_trap_irq_i(rvfi.trap.is_interrupt),
+      .wb_trap_mcause_i(rvfi.trap.mcause),
       .trap_handler_addr_q(trap_handler_addr_q)
   );
 
@@ -314,13 +302,12 @@ module dtcore32 (
       .mem_done_i(mem_done_i)
   );
 
-  assign imem_valid_o = !if_id_stall;
   assign imem_addr_o = imem_addr;
   assign mem_valid_o = mem_valid;
-  assign mem_wen_o = mem_wen;
-  assign mem_addr_o = mem_addr;
+  assign mem_wen_o   = mem_wen;
+  assign mem_addr_o  = mem_addr;
   assign mem_wdata_o = mem_wdata;
-  assign mem_strb_o = mem_strb;
+  assign mem_strb_o  = mem_strb;
 
   //////////////////////////////////////
   //
@@ -541,21 +528,21 @@ module dtcore32 (
   end
 
   // Returns the shift amount (LSB index of the mask)
-function integer get_shift;
+  function integer get_shift;
     input [3:0] wmask;
     integer i;
-    logic found;
-begin
-    get_shift = 0; // default
-    found = 0;
-    for (i = 0; i < 4; i = i + 1) begin
+    logic   found;
+    begin
+      get_shift = 0;  // default
+      found = 0;
+      for (i = 0; i < 4; i = i + 1) begin
         if (!found && wmask[i]) begin
-            get_shift = i;
-            found = 1;
+          get_shift = i;
+          found = 1;
         end
+      end
     end
-end
-endfunction
+  endfunction
 
 `endif
 endmodule

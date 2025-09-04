@@ -41,9 +41,7 @@ module hazard_unit
   logic nonzero_ID_rs1;
   logic nonzero_ID_rs2;
   logic id_ex_rs1_match;
-  logic id_mem_rs1_match;
   logic id_ex_rs2_match;
-  logic id_mem_rs2_match;
   logic ex_mem_rs2_match;
   logic ex_mem_rs1_match;
   logic ex_wb_rs2_match;
@@ -51,9 +49,7 @@ module hazard_unit
   assign nonzero_ID_rs1 = |id_rs1_addr_i;
   assign nonzero_ID_rs2 = |id_rs2_addr_i;
   assign id_ex_rs1_match = (id_rs1_addr_i == ex_rd_addr_i);
-  assign id_mem_rs1_match = (id_rs1_addr_i == mem_rd_addr_i);
   assign id_ex_rs2_match = (id_rs2_addr_i == ex_rd_addr_i);
-  assign id_mem_rs2_match = (id_rs2_addr_i == mem_rd_addr_i);
   assign ex_mem_rs1_match = ((ex_rs1_addr_i == mem_rd_addr_i) && (ex_rs1_addr_i != 0));
   assign ex_mem_rs2_match = ((ex_rs2_addr_i == mem_rd_addr_i) && (ex_rs2_addr_i != 0));
   assign ex_wb_rs1_match = ((ex_rs1_addr_i == wb_rd_addr_i) && (ex_rs1_addr_i != 0));
