@@ -6,8 +6,6 @@ module hazard_unit
     input logic [4:0] ex_rs2_addr_i,
     input logic [4:0] mem_rd_addr_i,
     input logic [4:0] wb_rd_addr_i,
-    input result_sel_t ex_result_sel_i,
-    input result_sel_t wb_result_sel_i,
     input logic [4:0] id_rs1_addr_i,
     input logic [4:0] id_rs2_addr_i,
     input logic [4:0] ex_rd_addr_i,
@@ -28,11 +26,12 @@ module hazard_unit
     input logic mem_trap_valid_i,
     input logic wb_trap_valid_i,
     input logic mem_req_i,
-    input logic mem_done_i
+    input logic mem_done_i,
+    input mem_op_t ex_mem_op_i
 
 );
 
-  logic wishbone_stall;
+  logic mem_req_stall;
   logic [2:0] ex_forward_a;
   logic [2:0] ex_forward_b;
   logic if_forward_a;
@@ -68,10 +67,10 @@ module hazard_unit
 
   // We must stall if a load instruction is in the execute stage while another instruction 
   // has a matching source register to that write register in the decode stage
-  assign load_use_hazard = ((ex_result_sel_i == RESULT_SEL_MEM_DATA) && ((id_ex_rs1_match && nonzero_ID_rs1)
+  assign load_use_hazard = ((ex_mem_op_i[4] & ~ex_mem_op_i[3] ) && ((id_ex_rs1_match && nonzero_ID_rs1)
    || (id_ex_rs2_match && nonzero_ID_rs2))) ? 1 : 0;
 
-  assign wishbone_stall = mem_req_i && !mem_done_i;
+  assign mem_req_stall = mem_req_i && !mem_done_i;
 
   /*****************************************/
   //
@@ -83,16 +82,12 @@ module hazard_unit
   //instruction we must forward that value from the previous instruction so the updated
   //value is used.
   always_comb begin
-    if (ex_mem_rs1_match) ex_forward_a = FORWARD_SEL_MEM_ALU_RESULT;
-    else if (ex_wb_rs1_match && (wb_result_sel_i == RESULT_SEL_MEM_DATA))
-      ex_forward_a = FORWARD_SEL_WB_LOAD_RDATA;
-    else if (ex_wb_rs1_match) ex_forward_a = FORWARD_SEL_WB_ALU_RESULT;
+    if (ex_mem_rs1_match) ex_forward_a = FORWARD_SEL_MEM_RESULT;
+    else if (ex_wb_rs1_match) ex_forward_a = FORWARD_SEL_WB_RESULT;
     else ex_forward_a = NO_FORWARD_SEL;
 
-    if (ex_mem_rs2_match) ex_forward_b = FORWARD_SEL_MEM_ALU_RESULT;
-    else if (ex_wb_rs2_match && (wb_result_sel_i == RESULT_SEL_MEM_DATA))
-      ex_forward_b = FORWARD_SEL_WB_LOAD_RDATA;
-    else if (ex_wb_rs2_match) ex_forward_b = FORWARD_SEL_WB_ALU_RESULT;
+    if (ex_mem_rs2_match) ex_forward_b = FORWARD_SEL_MEM_RESULT;
+    else if (ex_wb_rs2_match) ex_forward_b = FORWARD_SEL_WB_RESULT;
     else ex_forward_b = NO_FORWARD_SEL;
   end
 
@@ -119,8 +114,8 @@ module hazard_unit
 
   assign if_id_stall_o = load_use_hazard | id_ex_stall_o;
   assign id_ex_stall_o = ex_mem_stall_o;
-  assign ex_mem_stall_o = wishbone_stall;
-  assign mem_wb_stall_o = wishbone_stall;
+  assign ex_mem_stall_o = mem_req_stall;
+  assign mem_wb_stall_o = mem_req_stall;
 
 
 endmodule

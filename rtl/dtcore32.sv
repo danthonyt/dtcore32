@@ -107,14 +107,32 @@ module dtcore32 (
   logic [31:0] mem_wdata;
   logic [3:0] mem_strb;
 
-  logic [31:0] wb_csr_rmask;
-  logic [31:0] wb_csr_wmask;
+  
   logic [11:0] wb_csr_addr;
   logic [31:0] wb_csr_wdata;
   logic [4:0] wb_rd_addr;
   logic [11:0] id_csrfile_addr;
 
   logic [31:0] trap_handler_addr_q;
+
+
+  logic [4:0] regfile_rs1_addr;
+  logic [4:0] regfile_rs2_addr;
+  logic [4:0] ex_rs1_addr;
+  logic [4:0] ex_rs2_addr;
+
+  logic wb_trap_valid;
+  logic [31:0] wb_trap_mcause;
+  logic [31:0] wb_trap_pc;
+
+  logic ex_trap_valid;
+
+  logic mem_trap_valid;
+
+  `ifdef RISCV_FORMAL 
+  logic [31:0] wb_csr_rmask;
+  logic [31:0] wb_csr_wmask;
+  `endif
 
   if_stage #(
       .RESET_PC(RESET_PC)
@@ -127,7 +145,7 @@ module dtcore32 (
       .imem_addr_o(imem_addr),
       .ex_is_pc_redirect_i(ex_is_pc_redirect),
       .ex_pc_target_i(ex_pc_target),
-      .wb_trap_valid_i(wb_pipeline_q.trap_valid),
+      .wb_trap_valid_i(wb_trap_valid),
       .trap_handler_addr_i(trap_handler_addr_q),
       .if_pipeline_d(if_pipeline_d)
   );
@@ -139,17 +157,19 @@ module dtcore32 (
       .clk_i(clk_i),
       .rst_i(rst_i),
       .stall_i(if_id_stall),
-      .prev_stage_stall_i(1'b0),
-      .flush_i(if_id_flush),
       .pipeline_d(if_pipeline_d),
       .pipeline_q(id_pipeline_q)
   );
 
   id_stage id_stage_inst (
+      .id_ex_stall_i(id_ex_stall),
+      .id_ex_flush_i(id_ex_flush),
       .id_forward_a_i(id_forward_a),
       .id_forward_b_i(id_forward_b),
       .regfile_rs1_rdata_i(regfile_rs1_rdata),
       .regfile_rs2_rdata_i(regfile_rs2_rdata),
+      .regfile_rs1_addr_o(regfile_rs1_addr),
+      .regfile_rs2_addr_o(regfile_rs2_addr),
       .id_csrfile_rdata_i(id_csrfile_rdata),
       .id_csrfile_addr_o(id_csrfile_addr),
       .wb_rd_wdata_i(wb_rd_wdata),
@@ -164,13 +184,13 @@ module dtcore32 (
       .clk_i(clk_i),
       .rst_i(rst_i),
       .stall_i(id_ex_stall),
-      .prev_stage_stall_i(if_id_stall),
-      .flush_i(id_ex_flush),
       .pipeline_d(id_pipeline_d),
       .pipeline_q(ex_pipeline_q)
   );
 
   ex_stage ex_stage_inst (
+      .ex_mem_stall_i(ex_mem_stall),
+      .ex_mem_flush_i(ex_mem_flush),
       .ex_forward_a_sel_i(ex_forward_a_sel),
       .ex_forward_b_sel_i(ex_forward_b_sel),
       .mem_alu_csr_result_i(mem_pipeline_q.alu_csr_result),
@@ -179,7 +199,10 @@ module dtcore32 (
       .ex_is_pc_redirect_o(ex_is_pc_redirect),
       .ex_pc_target_o(ex_pc_target),
       .ex_pipeline_q(ex_pipeline_q),
-      .ex_pipeline_d(ex_pipeline_d)
+      .ex_pipeline_d(ex_pipeline_d),
+      .ex_rs1_addr_o(ex_rs1_addr),
+      .ex_rs2_addr_o(ex_rs2_addr),
+      .ex_trap_valid_o(ex_trap_valid)
   );
 
   pipeline_reg #(
@@ -189,8 +212,6 @@ module dtcore32 (
       .clk_i(clk_i),
       .rst_i(rst_i),
       .stall_i(ex_mem_stall),
-      .prev_stage_stall_i(id_ex_stall),
-      .flush_i(ex_mem_flush),
       .pipeline_d(ex_pipeline_d),
       .pipeline_q(mem_pipeline_q)
   );
@@ -198,6 +219,8 @@ module dtcore32 (
   mem_stage mem_stage_inst (
       .clk_i(clk_i),
       .rst_i(rst_i),
+      .mem_wb_stall_i(mem_wb_stall),
+      .mem_wb_flush_i(mem_wb_flush),
       .mem_pipeline_q(mem_pipeline_q),
       .mem_pipeline_d(mem_pipeline_d),
       .mem_rdata_i(mem_rdata_i),
@@ -206,7 +229,8 @@ module dtcore32 (
       .mem_wen_o(mem_wen),
       .mem_addr_o(mem_addr),
       .mem_wdata_o(mem_wdata),
-      .mem_strb_o(mem_strb)
+      .mem_strb_o(mem_strb),
+      .mem_trap_valid_o(mem_trap_valid)
   );
 
   pipeline_reg #(
@@ -216,18 +240,19 @@ module dtcore32 (
       .clk_i(clk_i),
       .rst_i(rst_i),
       .stall_i(mem_wb_stall),
-      .prev_stage_stall_i(ex_mem_stall),
-      .flush_i(mem_wb_flush),
       .pipeline_d(mem_pipeline_d),
       .pipeline_q(wb_pipeline_q)
   );
 
   wb_stage wb_stage_inst (
-      .wb_pipeline_q (wb_pipeline_q),
-      .wb_csr_addr_o (wb_csr_addr),
+      .wb_pipeline_q(wb_pipeline_q),
+      .wb_csr_addr_o(wb_csr_addr),
       .wb_csr_wdata_o(wb_csr_wdata),
-      .wb_rd_addr_o  (wb_rd_addr),
-      .wb_rd_wdata_o (wb_rd_wdata)
+      .wb_rd_addr_o(wb_rd_addr),
+      .wb_rd_wdata_o(wb_rd_wdata),
+      .wb_trap_valid_o(wb_trap_valid),
+      .wb_trap_mcause_o(wb_trap_mcause),
+      .wb_trap_pc_o(wb_trap_pc)
   );
 
   // regfile outputs read data to the instruction decode stage 
@@ -235,8 +260,8 @@ module dtcore32 (
   regfile regfile_inst (
       .clk_i(clk_i),
       .rst_i(rst_i),
-      .rs1_addr_i(id_pipeline_d.rs1_addr),
-      .rs2_addr_i(id_pipeline_d.rs2_addr),
+      .rs1_addr_i(regfile_rs1_addr),
+      .rs2_addr_i(regfile_rs2_addr),
       .rd_addr_i(wb_rd_addr),
       .reg_wr_data_i(wb_rd_wdata),
       .rs1_rdata_o(regfile_rs1_rdata),
@@ -254,20 +279,22 @@ module dtcore32 (
       .wb_rd_addr_i(wb_rd_addr),
       .wb_csr_waddr_i(wb_csr_addr),
       .wb_csr_wdata_i(wb_csr_wdata),
+`ifdef RISCV_FORMAL
       .wb_csr_rmask_o(wb_csr_rmask),
       .wb_csr_wmask_o(wb_csr_wmask),
+`endif
       .wb_valid_i(wb_pipeline_q.valid),
       .ex_valid_i(ex_pipeline_d.valid),
       .mem_valid_i(mem_pipeline_d.valid),
-      .wb_trap_valid_i(wb_pipeline_q.trap_valid),
-      .wb_trap_pc_i(wb_pipeline_q.trap_pc),
-      .wb_trap_mcause_i(wb_pipeline_q.trap_mcause),
+      .wb_trap_valid_i(wb_trap_valid),
+      .wb_trap_pc_i(wb_trap_pc),
+      .wb_trap_mcause_i(wb_trap_mcause),
       .trap_handler_addr_q(trap_handler_addr_q)
   );
 
   hazard_unit hazard_unit_inst (
-      .ex_rs1_addr_i(ex_pipeline_q.rs1_addr),
-      .ex_rs2_addr_i(ex_pipeline_q.rs2_addr),
+      .ex_rs1_addr_i(ex_rs1_addr),
+      .ex_rs2_addr_i(ex_rs2_addr),
       .mem_rd_addr_i(mem_pipeline_q.rd_addr),
       .wb_rd_addr_i(wb_pipeline_q.rd_addr),
       .ex_result_sel_i(ex_pipeline_q.result_sel),
@@ -288,11 +315,12 @@ module dtcore32 (
       .id_ex_stall_o(id_ex_stall),
       .ex_mem_stall_o(ex_mem_stall),
       .mem_wb_stall_o(mem_wb_stall),
-      .ex_trap_valid_i(ex_pipeline_d.trap_valid),
-      .mem_trap_valid_i(mem_pipeline_d.trap_valid),
-      .wb_trap_valid_i(wb_pipeline_q.trap_valid),
+      .ex_trap_valid_i(ex_trap_valid),
+      .mem_trap_valid_i(mem_trap_valid),
+      .wb_trap_valid_i(wb_trap_valid),
       .mem_req_i(mem_valid),
-      .mem_done_i(mem_done_i)
+      .mem_done_i(mem_done_i),
+      .ex_mem_op_i(ex_pipeline_q.mem_op)
   );
 
   assign imem_addr_o = imem_addr;

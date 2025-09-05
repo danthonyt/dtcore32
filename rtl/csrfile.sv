@@ -3,6 +3,11 @@ module csrfile
 (
     input logic clk_i,
     input logic rst_i,
+    // to write back
+`ifdef RISCV_FORMAL
+    output logic [31:0] wb_csr_rmask_o,
+    output logic [31:0] wb_csr_wmask_o,
+`endif
     // from instruction decode
     input logic [11:0] id_csr_raddr_i,
     output logic [31:0] id_csr_rdata_o,
@@ -10,9 +15,7 @@ module csrfile
     input logic [4:0] wb_rd_addr_i,
     input logic [11:0] wb_csr_waddr_i,
     input logic [31:0] wb_csr_wdata_i,
-    // to write back
-    output logic [31:0] wb_csr_rmask_o,
-    output logic [31:0] wb_csr_wmask_o,
+
     // for counting retired instructions for minstret
     input logic wb_valid_i,
     input logic ex_valid_i,
@@ -38,6 +41,7 @@ module csrfile
   logic [63:0] csr_mcycle_next;
   logic [63:0] csr_minstret_next;
   logic [31:0] csr_rdata;
+  logic [31:0] minstret_rdata;
   //////////////////////////////////////
   //
   //  CSRS FOR MACHINE MODE
@@ -48,6 +52,8 @@ module csrfile
   // asserted when writing to a read only register
   // rmask  bits are set if rd != 0 and addr = valid_csr_addr
   // wmask bits are set if csr_wtype != 0
+  assign minstret_rdata = csr_minstret_reg[31:0] + 
+      {31'd0, ex_valid_i} + {31'd0, mem_valid_i} + {31'd0, wb_valid_i};
 
   always_comb begin
     csr_rdata = 0;
@@ -60,8 +66,7 @@ module csrfile
       CSR_ADDR_MCYCLE: csr_rdata = csr_mcycle_reg[31:0];
       CSR_ADDR_MCYCLEH: csr_rdata = csr_mcycle_reg[63:32];
       // since we are reading in ID stage add stages that will retire before to the count
-      CSR_ADDR_MINSTRET: csr_rdata = csr_minstret_reg[31:0] + 
-      {31'd0, ex_valid_i} + {31'd0, mem_valid_i} + {31'd0, wb_valid_i};
+      CSR_ADDR_MINSTRET: csr_rdata = minstret_rdata;
       CSR_ADDR_MINSTRETH: csr_rdata = csr_minstret_reg[63:32];
       default: ;
     endcase
@@ -117,8 +122,11 @@ module csrfile
   end
 
   assign id_csr_rdata_o = csr_rdata;
+`ifdef RISCV_FORMAL
   // a csr isntruction is a read only if the destination register is not x0
   assign wb_csr_rmask_o = (wb_rd_addr_i != 0) ? 32'hffff_ffff : '0;
   // a csr instruction is a write if its a csrrw or if its (not a csrrw and rs1 != 0)
   assign wb_csr_wmask_o = (wb_csr_waddr_i != 0) ? 32'hffff_ffff : '0;
+`endif
+
 endmodule

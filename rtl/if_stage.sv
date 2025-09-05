@@ -22,27 +22,60 @@ module if_stage
     output if_id_t if_pipeline_d
 );
 
-  logic [31:0] next_pc;
+  //*****************************************************************
+  //
+  //
+  // SIGNALS
+  //
+  //
+  //*****************************************************************
+  logic [31:0] wb_trap_valid_q;
+  logic [31:0] pc_incr;
+  logic [31:0] pc_incr_q;
+  logic [31:0] ex_pc_target_q;
+  logic [31:0] trap_handler_addr_q;
+  logic ex_is_pc_redirect_q;
   logic [31:0] if_pc_qq;
   logic if_valid_qq;
   logic imem_buf_valid;
   logic [31:0] if_insn;
   logic [31:0] if_insn_buf;
-  logic [31:0] if_pc_q;
-
+  logic if_flush_q;
+  logic if_stall_q;
+  //*****************************************************************
+  //
+  //
+  // ASSIGNMENTS
+  //
+  //
+  //*****************************************************************
+  always_ff @(posedge clk_i) begin
+    if (rst_i) begin
+      if_stall_q <= 0;
+    end else begin
+      if_stall_q <= if_id_stall_i;
+    end
+  end
   // On a trap, the next pc is the trap handler address,
   // else if a jump or branch, next pc is the specified jump/branch address
   // else next pc is the previous pc incremented by 4
-  assign next_pc = wb_trap_valid_i ? trap_handler_addr_i : 
-  ex_is_pc_redirect_i ?  ex_pc_target_i : if_pc_q + 4;
-
-
+  assign imem_addr_o = wb_trap_valid_q ? trap_handler_addr_q : 
+  ex_is_pc_redirect_q ?  ex_pc_target_q : pc_incr_q;
+  assign pc_incr = imem_addr_o + 4;
   // send read address to the instruction memory
   always_ff @(posedge clk_i) begin
     if (rst_i) begin
-      if_pc_q <= RESET_PC;
+      pc_incr_q <= RESET_PC;
+      ex_is_pc_redirect_q <= 0;
+      trap_handler_addr_q <= 0;
+      wb_trap_valid_q <= 0;
+      ex_pc_target_q <= 0;
     end else if (!if_id_stall_i) begin
-      if_pc_q <= next_pc;
+      pc_incr_q <= pc_incr;
+      ex_is_pc_redirect_q <= ex_is_pc_redirect_i;
+      trap_handler_addr_q <= trap_handler_addr_i;
+      wb_trap_valid_q <= wb_trap_valid_i;
+      ex_pc_target_q <= ex_pc_target_i;
     end
   end
 
@@ -50,12 +83,14 @@ module if_stage
   // so it aligns with the instruction memory 
   // read data
   always_ff @(posedge clk_i) begin
-    if (rst_i || if_id_flush_i) begin
+    if (rst_i) begin
       if_valid_qq <= 0;
       if_pc_qq <= 'x;
+      if_flush_q <= 0;
     end else if (!if_id_stall_i) begin
       if_valid_qq <= 1;
-      if_pc_qq <= if_pc_q;
+      if_pc_qq <= imem_addr_o;
+      if_flush_q <= if_id_flush_i;
     end
   end
 
@@ -63,28 +98,36 @@ module if_stage
   // When first leaving a stall, use the buffered data instead. This 
   // is to avoid losing instruction data when entering a stall.
   always_ff @(posedge clk_i) begin
-    if (rst_i || if_id_flush_i) begin
+    if (rst_i) begin
       if_insn_buf <= 'x;
       imem_buf_valid <= 0;
-    end else if (if_id_stall_i && !imem_buf_valid) begin
-      if_insn_buf <= imem_rdata_i;
-      imem_buf_valid <= 1;
-    end else if (!if_id_stall_i) begin
-      if_insn_buf <= 'x;
-      imem_buf_valid <= 0;
+    end else begin
+      if (if_id_stall_i && !imem_buf_valid) begin
+        if_insn_buf <= imem_rdata_i;
+        imem_buf_valid <= 1;
+      end else if (!if_id_stall_i) begin
+        if_insn_buf <= 'x;
+        imem_buf_valid <= 0;
+      end
     end
   end
-
-  assign imem_addr_o = if_pc_q;
   assign if_insn = imem_buf_valid ? if_insn_buf : imem_rdata_i;
 
   always_comb begin
+    if_pipeline_d.stall = if_stall_q || if_id_stall_i;
+    if_pipeline_d.flush = if_flush_q || if_id_flush_i;
     if_pipeline_d.pc = if_pc_qq;
     if_pipeline_d.pc_plus_4 = if_pc_qq + 4;
     if_pipeline_d.insn = if_insn;
     if_pipeline_d.valid = if_valid_qq;
   end
-
+  //*****************************************************************
+  //
+  //
+  // RISCV_FORMAL
+  //
+  //
+  //*****************************************************************
 `ifdef RISCV_FORMAL
   logic if_intr_d;
   logic if_intr_q;
@@ -109,36 +152,5 @@ module if_stage
   end
 `endif
 
-  /******************************************/
-  //
-  //    FORMAL VERIFICATION
-  //
-  /******************************************/
-`ifdef FORMAL
-  default clocking @(posedge clk_i);
-  endclocking
-  initial assume (rst_i);
-  // reset conditions :
-  // invalid buffer
-  // invalid instruction
-  // pc is reset pc
-  assert property (rst_i || if_id_flush_i |-> ##1 !imem_buf_valid);
-  assert property (rst_i || if_id_flush_i |-> ##1 !if_valid_qq);
-  assert property (rst_i |-> ##1 if_pc_q == RESET_PC);
-  // buffer is valid during a stall
-  assert property (disable iff (rst_i || if_id_flush_i) if_id_stall_i |-> ##[1:$] imem_buf_valid);
-  // buffer is invalid after leaving stall
-  assert property (disable iff (rst_i || if_id_flush_i) $fell(
-      if_id_stall_i
-  ) |-> ##1 !imem_buf_valid);
-  //
-  assert property (wb_trap_valid_i |-> if_intr_d);
-  // next pc is the trap handler address on a trap
-  assert property (wb_trap_valid_i |-> next_pc == trap_handler_addr_i);
-  // next pc is the jump address on jump/branch
-  assert property (!wb_trap_valid_i && ex_is_pc_redirect_i |-> next_pc == ex_pc_target_i);
-  // next pc is the pc + 4 otherwise
-  assert property (!wb_trap_valid_i && !ex_is_pc_redirect_i |-> next_pc == (if_pc_q + 4));
-`endif
 
 endmodule

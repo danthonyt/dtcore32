@@ -27,18 +27,11 @@ package params_pkg;
   // Forwarding select
   typedef enum logic [1:0] {
     NO_FORWARD_SEL             = 2'h0,
-    FORWARD_SEL_MEM_ALU_RESULT = 2'h1,
-    FORWARD_SEL_WB_LOAD_RDATA  = 2'h2,
-    FORWARD_SEL_WB_ALU_RESULT  = 2'h3
+    FORWARD_SEL_MEM_RESULT = 2'h1,
+    FORWARD_SEL_WB_RESULT  = 2'h2
+    //FORWARD_SEL_WB_ALU_RESULT  = 2'h3
   } forward_sel_t;
 
-  // Result source selection
-  typedef enum logic [1:0] {
-    RESULT_SEL_ALU_RESULT      = 2'b00,
-    RESULT_SEL_MEM_DATA        = 2'b01,
-    RESULT_SEL_NEXT_INSTR_ADDR = 2'b10,
-    RESULT_SEL_CSR_READ_DATA   = 2'b11
-  } result_sel_t;
 
   typedef enum logic [4:0] {
     MEM_NONE = 5'b00000,
@@ -233,87 +226,6 @@ package params_pkg;
   } trap_info_t;
 
   typedef struct packed {
-    logic [31:0] pc;
-    logic [31:0] pc_plus_4;
-    logic [31:0] insn;
-    logic        valid;
-    logic        intr;
-  } if_id_t;
-
-  typedef struct packed {
-    logic [31:0] pc;
-    logic [31:0] pc_plus_4;
-    logic [31:0] insn;
-    logic valid;
-    logic intr;
-    logic [4:0] rs1_addr;
-    logic [4:0] rs2_addr;
-    logic [4:0] rd_addr;
-    logic [31:0] rs1_rdata;
-    logic [31:0] rs2_rdata;
-    logic [31:0] imm_ext;
-    logic [11:0] csr_addr;
-    logic [31:0] csr_rdata;
-    csr_op_t csr_op;
-    cf_op_t cf_op;
-    alu_control_t alu_control;
-    result_sel_t result_sel;
-    alu_a_sel_t alu_a_sel;
-    alu_b_sel_t alu_b_sel;
-    pc_alu_sel_t pc_alu_sel;
-    csr_bitmask_sel_t csr_bitmask_sel;
-    mem_op_t mem_op;
-    trap_info_t rvfi_trap_info;
-  } id_ex_t;
-
-  typedef struct packed {
-    logic [31:0] pc;
-    logic [31:0] pc_plus_4;
-    logic [31:0] next_pc;
-    logic [31:0] insn;
-    logic        valid;
-    logic        intr;
-    logic [4:0]  rs1_addr;
-    logic [4:0]  rs2_addr;
-    logic [4:0]  rd_addr;
-    logic [31:0] rs1_rdata;
-    logic [31:0] rs2_rdata;
-    logic [11:0] csr_addr;
-    logic [31:0] csr_wdata;
-    logic [31:0] csr_rdata;
-    result_sel_t result_sel;
-    mem_op_t     mem_op;
-    logic [31:0] store_wdata;
-    logic [31:0] alu_csr_result;
-    trap_info_t  rvfi_trap_info;
-  } ex_mem_t;
-
-  typedef struct packed {
-    logic [31:0] pc;
-    logic [31:0] pc_plus_4;
-    logic [31:0] next_pc;
-    logic [31:0] insn;
-    logic        valid;
-    logic        intr;
-    logic [4:0]  rs1_addr;
-    logic [4:0]  rs2_addr;
-    logic [4:0]  rd_addr;
-    logic [31:0] rs1_rdata;
-    logic [31:0] rs2_rdata;
-    logic [11:0] csr_addr;
-    logic [31:0] csr_wdata;
-    logic [31:0] csr_rdata;
-    result_sel_t result_sel;
-    logic [3:0]  load_rmask;
-    logic [31:0] load_rdata;
-    logic [3:0]  store_wmask;
-    logic [31:0] store_wdata;
-    logic [31:0] alu_csr_result;
-    trap_info_t  rvfi_trap_info;
-  } mem_wb_t;
-
-
-  typedef struct packed {
     logic [31:0] pc_rdata;
     logic [31:0] pc_wdata;
     logic [31:0] insn;
@@ -337,118 +249,115 @@ package params_pkg;
     logic [31:0] mem_wdata;
     trap_info_t  rvfi_trap_info;
   } rvfi_t;
-
-  function automatic id_ex_t reset_id_ex();
-    reset_id_ex = '{
-        default: '0,
-        insn: NOP_INSTRUCTION,
-        csr_op: csr_op_t'('0),
-        cf_op_t: cf_op_t'('0),
-        alu_control: alu_control_t'('0),
-        alu_a_sel: alu_a_sel_t'('0),
-        alu_b_sel: alu_b_sel_t'('0),
-        pc_alu_sel: pc_alu_sel_t'('0),
-        csr_bitmask_sel: csr_bitmask_sel_t'('0),
-        result_sel: result_sel_t'('0),
-        mem_op: mem_op_t'('0),
-        rvfi_trap_info: trap_info_t'('0)
-    };
-  endfunction
-
-  function automatic ex_mem_t reset_ex_mem();
-    reset_ex_mem = '{
-        default: '0,
-        insn: NOP_INSTRUCTION,
-        result_sel: result_sel_t'('0),
-        mem_op: mem_op_t'(0),
-        rvfi_trap_info: trap_info_t'('0)
-    };
-  endfunction
-
-  function automatic mem_wb_t reset_mem_wb();
-    reset_mem_wb = '{
-        default: '0,
-        insn: NOP_INSTRUCTION,
-        result_sel: result_sel_t'('0),
-        rvfi_trap_info: trap_info_t'('0)
-    };
-  endfunction
-
-`else  // SYNTHESIS WITHOUT RISCV FORMAL INTERFACE
-  //***************************************************
-  //
-  //  STRUCTS WITHOUT RVFI
-  //
-  //****************************************************
+`endif
 
   typedef struct packed {
     logic        valid;
+    logic        stall;
+    logic        flush;
     logic [31:0] pc;
     logic [31:0] pc_plus_4;
     logic [31:0] insn;
+`ifdef RISCV_FORMAL
+    logic        intr;
+`endif
+
   } if_id_t;
 
   typedef struct packed {
-    logic valid;
-    logic [31:0] pc;
-    logic [31:0] pc_plus_4;
-    logic [4:0] rs1_addr;
-    logic [4:0] rs2_addr;
-    logic [4:0] rd_addr;
-    logic [31:0] rs1_rdata;
-    logic [31:0] rs2_rdata;
-    logic [31:0] imm_ext;
-    logic [11:0] csr_addr;
-    logic [31:0] csr_rdata;
-    csr_op_t csr_op;
-    cf_op_t cf_op;
-    alu_control_t alu_control;
-    result_sel_t result_sel;
-    alu_a_sel_t alu_a_sel;
-    alu_b_sel_t alu_b_sel;
-    pc_alu_sel_t pc_alu_sel;
+    logic             valid;
+    logic             stall;
+    logic             flush;
+    logic [31:0]      pc;
+    logic [31:0]      pc_plus_4;
+    logic [4:0]       rs1_addr;
+    logic [4:0]       rs2_addr;
+    logic [4:0]       rd_addr;
+    logic [31:0]      rs1_rdata;
+    logic [31:0]      rs2_rdata;
+    logic [31:0]      imm_ext;
+    logic [11:0]      csr_addr;
+    logic [31:0]      csr_rdata;
+    csr_op_t          csr_op;
+    cf_op_t           cf_op;
+    alu_control_t     alu_control;
+    alu_a_sel_t       alu_a_sel;
+    alu_b_sel_t       alu_b_sel;
+    pc_alu_sel_t      pc_alu_sel;
     csr_bitmask_sel_t csr_bitmask_sel;
-    mem_op_t mem_op;
-    logic trap_valid;
-    logic [31:0] trap_mcause;
-    logic [31:0] trap_pc;
+    mem_op_t          mem_op;
+    logic             trap_valid;
+    logic [31:0]      trap_mcause;
+    logic [31:0]      trap_pc;
+`ifdef RISCV_FORMAL
+    logic [31:0]      insn;
+    logic             intr;
+    trap_info_t       rvfi_trap_info;
+`endif
   } id_ex_t;
 
   typedef struct packed {
     logic        valid;
+    logic        stall;
+    logic        flush;
     logic [31:0] pc;
     logic [31:0] pc_plus_4;
     logic [4:0]  rd_addr;
     logic [11:0] csr_addr;
     logic [31:0] csr_wdata;
-    logic [31:0] csr_rdata;
-    result_sel_t result_sel;
     mem_op_t     mem_op;
     logic [31:0] store_wdata;
     logic [31:0] alu_csr_result;
     logic        trap_valid;
     logic [31:0] trap_mcause;
     logic [31:0] trap_pc;
+`ifdef RISCV_FORMAL
+    logic [31:0] next_pc;
+    logic [31:0] insn;
+    logic        intr;
+    logic [31:0] csr_rdata;
+    logic [4:0]  rs1_addr;
+    logic [4:0]  rs2_addr;
+    logic [31:0] rs1_rdata;
+    logic [31:0] rs2_rdata;
+    trap_info_t  rvfi_trap_info;
+`endif
   } ex_mem_t;
 
   typedef struct packed {
     logic        valid;
-    logic [31:0] pc_plus_4;
+    logic        stall;
+    logic        flush;
     logic [4:0]  rd_addr;
     logic [11:0] csr_addr;
     logic [31:0] csr_wdata;
-    logic [31:0] csr_rdata;
-    result_sel_t result_sel;
-    logic [31:0] load_rdata;
-    logic [31:0] alu_csr_result;
+    logic [31:0] rd_wdata;
     logic        trap_valid;
     logic [31:0] trap_mcause;
     logic [31:0] trap_pc;
+`ifdef RISCV_FORMAL
+    logic [31:0] pc_plus_4;
+    logic [31:0] next_pc;
+    logic [31:0] insn;
+    logic        intr;
+    logic [31:0] csr_rdata;
+    logic [31:0] load_rdata;
+    logic [4:0]  rs1_addr;
+    logic [4:0]  rs2_addr;
+    logic [3:0]  load_rmask;
+    logic [3:0]  store_wmask;
+    logic [31:0] store_wdata;
+    trap_info_t  rvfi_trap_info;
+`endif
   } mem_wb_t;
-
-function automatic id_ex_t reset_id_ex();
+  
+  function automatic id_ex_t reset_id_ex();
     reset_id_ex = '{
         default: '0,
+        `ifdef RISCV_FORMAL
+        insn: NOP_INSTRUCTION,
+        rvfi_trap_info: trap_info_t'('0),
+        `endif
         csr_op: csr_op_t'('0),
         cf_op_t: cf_op_t'('0),
         alu_control: alu_control_t'('0),
@@ -456,7 +365,7 @@ function automatic id_ex_t reset_id_ex();
         alu_b_sel: alu_b_sel_t'('0),
         pc_alu_sel: pc_alu_sel_t'('0),
         csr_bitmask_sel: csr_bitmask_sel_t'('0),
-        result_sel: result_sel_t'('0),
+        //result_sel: result_sel_t'('0),
         mem_op: mem_op_t'('0)
     };
   endfunction
@@ -464,17 +373,25 @@ function automatic id_ex_t reset_id_ex();
   function automatic ex_mem_t reset_ex_mem();
     reset_ex_mem = '{
         default: '0,
-        result_sel: result_sel_t'('0),
+        `ifdef RISCV_FORMAL
+        insn: NOP_INSTRUCTION,
+        rvfi_trap_info: trap_info_t'('0),
+        `endif
+        //result_sel: result_sel_t'('0),
         mem_op: mem_op_t'(0)
     };
   endfunction
+
   function automatic mem_wb_t reset_mem_wb();
     reset_mem_wb = '{
-        default: '0,
-        result_sel: result_sel_t'('0)
+        default: '0
+        `ifdef RISCV_FORMAL
+        ,
+        insn: NOP_INSTRUCTION,
+        rvfi_trap_info: trap_info_t'('0)
+        `endif
+        //result_sel: result_sel_t'('0)
     };
   endfunction
-  
-`endif
 
 endpackage

@@ -3,6 +3,8 @@ module mem_stage
 (
     input logic clk_i,
     input logic rst_i,
+    input logic mem_wb_stall_i,
+    input logic mem_wb_flush_i,
     input ex_mem_t mem_pipeline_q,
     output mem_wb_t mem_pipeline_d,
     // memory request
@@ -12,41 +14,100 @@ module mem_stage
     output logic mem_wen_o,
     output logic [31:0] mem_addr_o,
     output logic [31:0] mem_wdata_o,
-    output logic [3:0] mem_strb_o
+    output logic [3:0] mem_strb_o,
+    // traps
+    output logic mem_trap_valid_o
 
 );
-  logic [3:0] mem_load_rmask_comb;
+
+//*****************************************************************
+//
+//
+// SIGNAL DECLARATIONS
+//
+//
+//*****************************************************************
+  logic    [4:0] mem_rd_addr_gated;
+  mem_op_t       mem_mem_op_gated;
+  logic          mem_trap_valid_gated;
+  logic [ 3:0] mem_load_rmask_comb;
   logic [31:0] mem_load_rdata_d;
   logic [31:0] mem_store_wdata_d;
   logic [30:0] mem_store_trap_mcause;
-  logic mem_store_trap_valid;
+  logic        mem_store_trap_valid;
   logic [30:0] mem_load_trap_mcause;
-  logic mem_load_trap_valid;
-  logic [3:0] mem_store_wmask_d;
-  logic [3:0] mem_load_rmask_d;
-  logic [3:0] mem_store_wmask_comb;
-  logic mem_req;
+  logic        mem_load_trap_valid;
+  logic [ 3:0] mem_store_wmask_d;
+  logic [ 3:0] mem_load_rmask_d;
+  logic [ 3:0] mem_store_wmask_comb;
+  logic        mem_req;
   logic [31:0] mem_store_wdata_formatted;
   logic [31:0] mem_load_rdata_raw;
   logic [31:0] mem_load_rdata_formatted;
+  logic [31:0] rd_wdata;
+  logic mem_trap_valid_raw;
+  
 
+//*****************************************************************
+//
+//
+// ASSIGNMENTS
+//
+//
+//*****************************************************************
+  // gate signals on flush, previous stall, or flush
+  always_comb begin
+    mem_rd_addr_gated = mem_pipeline_q.rd_addr;
+    mem_mem_op_gated = mem_pipeline_q.mem_op;
+    mem_trap_valid_gated = mem_trap_valid_raw;
+    if (!mem_pipeline_q.valid || mem_pipeline_q.stall || mem_pipeline_q.flush) begin
+      mem_rd_addr_gated = '0;
+      mem_mem_op_gated = mem_op_t'(0);
+      mem_trap_valid_gated = 0;
+    end
+  end
+
+  // select rd_wdata to be used in wb stage
+  always_comb begin
+    if (mem_pipeline_q.cf_op[0]) // is a jal or jalr
+    rd_wdata = mem_pipeline_q.pc_plus_4;
+    else if (mem_pipeline_q.mem_op[4] & ~mem_pipeline_q.mem_op[3]) // is a load instruction
+      rd_wdata = mem_load_rdata_formatted;
+    else // else
+      rd_wdata = mem_pipeline_q.alu_csr_result;
+  end
+  
   // start a wishbone req if a memory instruction and no trap
-  assign mem_req = !mem_pipeline_q.trap_valid && (mem_pipeline_q.mem_op != MEM_NONE);
-
-  assign mem_wen_o = mem_pipeline_q.mem_op[4] & mem_pipeline_q.mem_op[3];
+  assign mem_req = !mem_trap_valid_gated && (mem_mem_op_gated != MEM_NONE);
+  assign mem_wen_o = mem_mem_op_gated[4] & mem_mem_op_gated[3];
   assign mem_addr_o = mem_pipeline_q.alu_csr_result;
-
   assign mem_store_wdata_d = mem_store_wdata_formatted;
-  assign mem_store_wmask_d =  (mem_pipeline_q.mem_op[4] & mem_pipeline_q.mem_op[3]) ? mem_store_wmask_comb : 0;
-
+  assign mem_store_wmask_d = (mem_mem_op_gated[4] & mem_mem_op_gated[3]) ? mem_store_wmask_comb : 0;
   assign mem_load_rdata_d = mem_load_rdata_formatted;
-  assign mem_load_rmask_d = (mem_pipeline_q.mem_op[4] & !mem_pipeline_q.mem_op[3]) ? mem_load_rmask_comb : 0;
-
+  assign mem_load_rmask_d = (mem_mem_op_gated[4] & !mem_mem_op_gated[3]) ? mem_load_rmask_comb : 0;
   assign mem_load_rdata_raw = mem_rdata_i;
   assign mem_strb_o = mem_store_wmask_d;
   assign mem_wdata_o = mem_store_wdata_formatted;
+  assign mem_trap_valid_o = mem_trap_valid_gated;
 
-  // a memory request sends a start pulse
+  always_comb begin
+    mem_pipeline_d.stall          = mem_wb_stall_i;
+    mem_pipeline_d.flush          = mem_wb_flush_i;
+    mem_pipeline_d.valid          = mem_pipeline_q.valid;
+    mem_pipeline_d.rd_addr        = mem_rd_addr_gated;
+    mem_pipeline_d.rd_wdata        = rd_wdata;
+    mem_pipeline_d.csr_addr       = mem_pipeline_q.csr_addr;
+    mem_pipeline_d.csr_wdata      = mem_pipeline_q.csr_wdata;
+  end
+
+//*****************************************************************
+//
+//
+// INSTANTIATIONS
+//
+//
+//*****************************************************************
+
   pulse_generator pulse_generator_inst (
       .clk_i(clk_i),
       .rst_i(rst_i),
@@ -55,7 +116,7 @@ module mem_stage
   );
 
   store_unit store_unit_inst (
-      .MEM_OP(mem_pipeline_q.mem_op),
+      .MEM_OP(mem_mem_op_gated),
       .ADDR_LSB2(mem_pipeline_q.alu_csr_result[1:0]),
       .STORE_WDATA_RAW(mem_pipeline_q.store_wdata),
       .STORE_TRAP_VALID(mem_store_trap_valid),
@@ -65,7 +126,7 @@ module mem_stage
   );
 
   load_unit load_unit_inst (
-      .MEM_OP(mem_pipeline_q.mem_op),
+      .MEM_OP(mem_mem_op_gated),
       .ADDR_LSB2(mem_pipeline_q.alu_csr_result[1:0]),
       .RDATA_RAW(mem_load_rdata_raw),
       .LOAD_TRAP_VALID(mem_load_trap_valid),
@@ -73,52 +134,58 @@ module mem_stage
       .LOAD_RMASK(mem_load_rmask_comb),
       .LOAD_FORMATTED(mem_load_rdata_formatted)
   );
-
-  always_comb begin
-    mem_pipeline_d.valid          = mem_pipeline_q.valid;
-    mem_pipeline_d.pc_plus_4      = mem_pipeline_q.pc_plus_4;
-    mem_pipeline_d.rd_addr        = mem_pipeline_q.rd_addr;
-    mem_pipeline_d.csr_addr       = mem_pipeline_q.csr_addr;
-    mem_pipeline_d.csr_wdata      = mem_pipeline_q.csr_wdata;
-    mem_pipeline_d.csr_rdata      = mem_pipeline_q.csr_rdata;
-    mem_pipeline_d.result_sel     = mem_pipeline_q.result_sel;
-    mem_pipeline_d.load_rdata     = mem_load_rdata_d;
-    mem_pipeline_d.alu_csr_result = mem_pipeline_q.alu_csr_result;
-  end
-
+//*****************************************************************
+//
+//
+// PIPELINE
+//
+//
+//*****************************************************************
   // generate a trap on misaligned store or load
   always_comb begin
-    mem_pipeline_d.trap_valid  = 0;
+    mem_trap_valid_raw = 0;
     mem_pipeline_d.trap_mcause = 'x;
-    mem_pipeline_d.trap_pc = mem_pipeline_q.pc;
+    mem_pipeline_d.trap_pc = 'x;
     if (mem_pipeline_q.trap_valid) begin
-      mem_pipeline_d.trap_valid  = 1;
+      mem_trap_valid_raw  = 1;
       mem_pipeline_d.trap_mcause = mem_pipeline_q.trap_mcause;
+      mem_pipeline_d.trap_pc = mem_pipeline_q.trap_pc;
     end else if (mem_store_trap_valid) begin
-      mem_pipeline_d.trap_valid  = 1;
+      mem_trap_valid_raw  = 1;
       mem_pipeline_d.trap_mcause = {1'b0, mem_store_trap_mcause};
+      mem_pipeline_d.trap_pc = mem_pipeline_q.pc;
     end else if (mem_load_trap_valid) begin
-      mem_pipeline_d.trap_valid  = 1;
+      mem_trap_valid_raw  = 1;
       mem_pipeline_d.trap_mcause = {1'b0, mem_load_trap_mcause};
+      mem_pipeline_d.trap_pc = mem_pipeline_q.pc;
     end
   end
+  assign mem_pipeline_d.trap_valid = mem_trap_valid_gated;
 
-
+//*****************************************************************
+//
+//
+// RISCV FORMAL SIGNALS
+//
+//
+//*****************************************************************
 `ifdef RISCV_FORMAL
   trap_info_t mem_trap_d;
   always_comb begin
     mem_trap_d.insn = mem_pipeline_q.insn;
     mem_trap_d.pc = mem_pipeline_q.pc;
     mem_trap_d.next_pc = mem_pipeline_q.next_pc;
+    mem_pipeline_d.csr_rdata      = mem_pipeline_q.csr_rdata;
     mem_trap_d.rs1_addr = mem_pipeline_q.rs1_addr;
     mem_trap_d.rs2_addr = mem_pipeline_q.rs2_addr;
-    mem_trap_d.rd_addr = mem_pipeline_q.rd_addr;
+    mem_trap_d.rd_addr = mem_rd_addr_gated;
+    mem_pipeline_d.load_rdata     = mem_load_rdata_d;
     mem_trap_d.rs1_rdata = mem_rs1_rdata_d;
     mem_trap_d.rs2_rdata = mem_rs2_rdata_d;
     mem_trap_d.rd_wdata = 0;
     if (mem_pipeline_q.trap_valid) begin
       mem_trap_d = mem_pipeline_q.rvfi_trap_info;
-    end
+    end else 
   end
 
   always_comb begin
