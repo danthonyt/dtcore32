@@ -90,7 +90,6 @@ module dtcore32 (
   logic [31:0] imem_addr;
   logic ex_is_pc_redirect;
   logic [31:0] ex_pc_target;
-  logic wb_trap_valid;
 
   logic id_forward_a;
   logic id_forward_b;
@@ -113,7 +112,6 @@ module dtcore32 (
   logic [11:0] wb_csr_addr;
   logic [31:0] wb_csr_wdata;
   logic [4:0] wb_rd_addr;
-  rvfi_t rvfi;
   logic [11:0] id_csrfile_addr;
 
   logic [31:0] trap_handler_addr_q;
@@ -129,7 +127,7 @@ module dtcore32 (
       .imem_addr_o(imem_addr),
       .ex_is_pc_redirect_i(ex_is_pc_redirect),
       .ex_pc_target_i(ex_pc_target),
-      .wb_trap_valid_i(wb_trap_valid),
+      .wb_trap_valid_i(wb_pipeline_q.trap_valid),
       .trap_handler_addr_i(trap_handler_addr_q),
       .if_pipeline_d(if_pipeline_d)
   );
@@ -225,15 +223,11 @@ module dtcore32 (
   );
 
   wb_stage wb_stage_inst (
-      .wb_pipeline_q(wb_pipeline_q),
-      .wb_csr_rmask_i(wb_csr_rmask),
-      .wb_csr_wmask_i(wb_csr_wmask),
-      .wb_csr_addr_o(wb_csr_addr),
+      .wb_pipeline_q (wb_pipeline_q),
+      .wb_csr_addr_o (wb_csr_addr),
       .wb_csr_wdata_o(wb_csr_wdata),
-      .wb_rd_addr_o(wb_rd_addr),
-      .wb_rd_wdata_o(wb_rd_wdata),
-      .wb_trap_valid_o(wb_trap_valid),
-      .rvfi_o(rvfi)
+      .wb_rd_addr_o  (wb_rd_addr),
+      .wb_rd_wdata_o (wb_rd_wdata)
   );
 
   // regfile outputs read data to the instruction decode stage 
@@ -262,13 +256,12 @@ module dtcore32 (
       .wb_csr_wdata_i(wb_csr_wdata),
       .wb_csr_rmask_o(wb_csr_rmask),
       .wb_csr_wmask_o(wb_csr_wmask),
-      .wb_valid_i(rvfi.valid),
+      .wb_valid_i(wb_pipeline_q.valid),
       .ex_valid_i(ex_pipeline_d.valid),
       .mem_valid_i(mem_pipeline_d.valid),
-      .wb_trap_valid_i(rvfi.trap.valid),
-      .wb_trap_pc_i(rvfi.trap.pc),
-      .wb_trap_irq_i(rvfi.trap.is_interrupt),
-      .wb_trap_mcause_i(rvfi.trap.mcause),
+      .wb_trap_valid_i(wb_pipeline_q.trap_valid),
+      .wb_trap_pc_i(wb_pipeline_q.trap_pc),
+      .wb_trap_mcause_i(wb_pipeline_q.trap_mcause),
       .trap_handler_addr_q(trap_handler_addr_q)
   );
 
@@ -295,9 +288,9 @@ module dtcore32 (
       .id_ex_stall_o(id_ex_stall),
       .ex_mem_stall_o(ex_mem_stall),
       .mem_wb_stall_o(mem_wb_stall),
-      .ex_trap_valid_i(ex_pipeline_d.carried_trap.valid),
-      .mem_trap_valid_i(mem_pipeline_d.carried_trap.valid),
-      .wb_trap_valid_i(rvfi.trap.valid),
+      .ex_trap_valid_i(ex_pipeline_d.trap_valid),
+      .mem_trap_valid_i(mem_pipeline_d.trap_valid),
+      .wb_trap_valid_i(wb_pipeline_q.trap_valid),
       .mem_req_i(mem_valid),
       .mem_done_i(mem_done_i)
   );
@@ -317,26 +310,62 @@ module dtcore32 (
   ///////////////////////////////////////
 
 `ifdef RISCV_FORMAL
-  logic is_csr_mstatus;
-  logic is_csr_misa;
-  logic is_csr_mie;
-  logic is_csr_mtvec;
-  logic is_csr_mscratch;
-  logic is_csr_mepc;
-  logic is_csr_mcause;
-  logic is_csr_mtval;
-  logic is_csr_mip;
-  logic is_csr_mcycle;
-  logic is_csr_mcycleh;
-  logic is_csr_minstret;
-  logic is_csr_minstreth;
-  logic is_csr_mvendorid;
-  logic is_csr_marchid;
-  logic is_csr_mimpid;
-  logic is_csr_mhartid;
-  logic is_csr_mconfigptr;
-  logic rvfi_valid_next;
+  rvfi_t wb_rvfi;
+  logic  is_csr_mstatus;
+  logic  is_csr_misa;
+  logic  is_csr_mie;
+  logic  is_csr_mtvec;
+  logic  is_csr_mscratch;
+  logic  is_csr_mepc;
+  logic  is_csr_mcause;
+  logic  is_csr_mtval;
+  logic  is_csr_mip;
+  logic  is_csr_mcycle;
+  logic  is_csr_mcycleh;
+  logic  is_csr_minstret;
+  logic  is_csr_minstreth;
+  logic  is_csr_mvendorid;
+  logic  is_csr_marchid;
+  logic  is_csr_mimpid;
+  logic  is_csr_mhartid;
+  logic  is_csr_mconfigptr;
+  logic  rvfi_valid_next;
   assign rvfi_valid_next = mem_wb_stall ? 0 : rvfi.valid;
+
+  always_comb begin
+    // PC + instruction flow
+    wb_rvfi.pc_rdata  = wb_pipeline_q.pc;
+    wb_rvfi.pc_wdata  = wb_pipeline_q.next_pc;
+    wb_rvfi.insn      = wb_pipeline_q.insn;
+    wb_rvfi.valid     = wb_pipeline_q.valid;
+    wb_rvfi.intr      = wb_pipeline_q.intr;
+
+    // Register file signals
+    wb_rvfi.rs1_addr  = wb_pipeline_q.rs1_addr;
+    wb_rvfi.rs2_addr  = wb_pipeline_q.rs2_addr;
+    wb_rvfi.rd_addr   = wb_rd_addr;
+    wb_rvfi.rs1_rdata = wb_pipeline_q.rs1_rdata;
+    wb_rvfi.rs2_rdata = wb_pipeline_q.rs2_rdata;
+    wb_rvfi.rd_wdata  = wb_rd_wdata;
+
+    // CSR signals
+    wb_rvfi.csr_addr  = wb_csr_addr_masked;
+    wb_rvfi.csr_wdata = wb_pipeline_q.csr_wdata;
+    wb_rvfi.csr_wmask = wb_csr_wmask;
+    wb_rvfi.csr_rdata = wb_pipeline_q.csr_rdata;
+    wb_rvfi.csr_rmask = wb_csr_rmask;
+
+    // Memory interface
+    wb_rvfi.mem_addr  = wb_pipeline_q.alu_csr_result;
+    wb_rvfi.mem_rmask = wb_pipeline_q.load_rmask;
+    wb_rvfi.mem_rdata = wb_pipeline_q.load_rdata;
+    wb_rvfi.mem_wmask = wb_pipeline_q.store_wmask;
+    wb_rvfi.mem_wdata = wb_pipeline_q.store_wdata;
+
+    // Trap info
+    wb_rvfi.trap      = wb_pipeline_q.rvfi_trap_info;
+  end
+
 
   always_comb begin
     is_csr_mstatus = 0;

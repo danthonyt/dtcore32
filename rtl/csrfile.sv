@@ -20,8 +20,7 @@ module csrfile
     // for tracking traps
     input logic wb_trap_valid_i,
     input logic [31:0] wb_trap_pc_i,
-    input logic wb_trap_irq_i,
-    input logic [30:0] wb_trap_mcause_i,
+    input logic [31:0] wb_trap_mcause_i,
     output logic [31:0] trap_handler_addr_q
 );
   logic [31:0] csr_mtvec_reg;
@@ -72,7 +71,7 @@ module csrfile
     csr_mtvec_next = csr_mtvec_reg;
     csr_mscratch_next = csr_mscratch_reg;
     csr_mepc_next = (wb_valid_i && wb_trap_valid_i) ? wb_trap_pc_i : csr_mepc_reg;
-    csr_mcause_next = (wb_valid_i && wb_trap_valid_i) ? {wb_trap_irq_i, wb_trap_mcause_i} : csr_mcause_reg;
+    csr_mcause_next = (wb_valid_i && wb_trap_valid_i) ? wb_trap_mcause_i : csr_mcause_reg;
     csr_mtval_next = csr_mtval_reg;
     csr_mcycle_next = csr_mcycle_reg + 1;
     csr_minstret_next = wb_valid_i ? csr_minstret_reg + 1 : csr_minstret_reg;

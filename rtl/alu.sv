@@ -14,12 +14,12 @@ module alu
 // calculates the branch condition
 	always_comb begin
 		case (control_i)
-			SUB_ALU_CONTROL: branch_cond = (a_i == b_i) ? 1 : 0;  // beq
-			NE_ALU_CONTROL: branch_cond = (a_i != b_i) ? 1 : 0;
-			LT_ALU_CONTROL: branch_cond = ($signed(a_i) < $signed(b_i)) ? 1 : 0;
-			LTU_ALU_CONTROL: branch_cond = (a_i < b_i) ? 1 : 0;
-			GE_ALU_CONTROL: branch_cond = ($signed(a_i) >= $signed(b_i)) ? 1 : 0;
-			GEU_ALU_CONTROL: branch_cond = (a_i >= b_i) ? 1 : 0;
+			SUB_ALU_CONTROL: branch_cond = (a_i == b_i);  // beq
+			NE_ALU_CONTROL: branch_cond = (a_i != b_i);
+			LT_ALU_CONTROL: branch_cond = ($signed(a_i) < $signed(b_i));
+			LTU_ALU_CONTROL: branch_cond = (a_i < b_i);
+			GE_ALU_CONTROL: branch_cond = ($signed(a_i) >= $signed(b_i));
+			GEU_ALU_CONTROL: branch_cond = (a_i >= b_i);
 			default: branch_cond = 0;
 		endcase
 	end

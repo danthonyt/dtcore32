@@ -6,7 +6,6 @@
 ////////////////////////////////////////////
 package params_pkg;
 
-
   // ALU control signals
   typedef enum logic [3:0] {
     ADD_ALU_CONTROL       = 4'h0,
@@ -219,17 +218,15 @@ package params_pkg;
   localparam logic [11:0] CSR_ADDR_MHARTID = 12'hF14;
   localparam logic [11:0] CSR_ADDR_MCONFIGPTR = 12'hF15;
   localparam logic [11:0] CSR_ADDR_NO_ADDR = 12'h000;
+`ifdef RISCV_FORMAL
 
   typedef struct packed {
-    logic valid;
-    logic is_interrupt;
     logic [31:0] insn;
-    logic [30:0] mcause;
     logic [31:0] pc;
     logic [31:0] next_pc;
-    logic [4:0] rs1_addr;
-    logic [4:0] rs2_addr;
-    logic [4:0] rd_addr;
+    logic [4:0]  rs1_addr;
+    logic [4:0]  rs2_addr;
+    logic [4:0]  rd_addr;
     logic [31:0] rs1_rdata;
     logic [31:0] rs2_rdata;
     logic [31:0] rd_wdata;
@@ -266,7 +263,7 @@ package params_pkg;
     pc_alu_sel_t pc_alu_sel;
     csr_bitmask_sel_t csr_bitmask_sel;
     mem_op_t mem_op;
-    trap_info_t carried_trap;
+    trap_info_t rvfi_trap_info;
   } id_ex_t;
 
   typedef struct packed {
@@ -288,7 +285,7 @@ package params_pkg;
     mem_op_t     mem_op;
     logic [31:0] store_wdata;
     logic [31:0] alu_csr_result;
-    trap_info_t  carried_trap;
+    trap_info_t  rvfi_trap_info;
   } ex_mem_t;
 
   typedef struct packed {
@@ -312,7 +309,7 @@ package params_pkg;
     logic [3:0]  store_wmask;
     logic [31:0] store_wdata;
     logic [31:0] alu_csr_result;
-    trap_info_t  carried_trap;
+    trap_info_t  rvfi_trap_info;
   } mem_wb_t;
 
 
@@ -338,42 +335,146 @@ package params_pkg;
     logic [31:0] mem_rdata;
     logic [3:0]  mem_wmask;
     logic [31:0] mem_wdata;
-    trap_info_t  trap;
+    trap_info_t  rvfi_trap_info;
   } rvfi_t;
 
-function automatic id_ex_t reset_id_ex();
-  reset_id_ex = '{
-    default: '0,
-    insn: NOP_INSTRUCTION,
-    csr_op: csr_op_t'('0),
-    cf_op_t: cf_op_t'('0),
-    alu_control: alu_control_t'('0),
-    alu_a_sel: alu_a_sel_t'('0),
-    alu_b_sel: alu_b_sel_t'('0),
-    pc_alu_sel: pc_alu_sel_t'('0),
-    csr_bitmask_sel: csr_bitmask_sel_t'('0),
-    result_sel: result_sel_t'('0),
-    mem_op: mem_op_t'('0),
-    carried_trap: trap_info_t'('0)
-  };
-endfunction
+  function automatic id_ex_t reset_id_ex();
+    reset_id_ex = '{
+        default: '0,
+        insn: NOP_INSTRUCTION,
+        csr_op: csr_op_t'('0),
+        cf_op_t: cf_op_t'('0),
+        alu_control: alu_control_t'('0),
+        alu_a_sel: alu_a_sel_t'('0),
+        alu_b_sel: alu_b_sel_t'('0),
+        pc_alu_sel: pc_alu_sel_t'('0),
+        csr_bitmask_sel: csr_bitmask_sel_t'('0),
+        result_sel: result_sel_t'('0),
+        mem_op: mem_op_t'('0),
+        rvfi_trap_info: trap_info_t'('0)
+    };
+  endfunction
 
-function automatic ex_mem_t reset_ex_mem();
-  reset_ex_mem = '{
-    default: '0,
-    insn: NOP_INSTRUCTION,
-    result_sel: result_sel_t'('0),
-    mem_op: mem_op_t'(0),
-    carried_trap: trap_info_t'('0)
-  };
-endfunction
-function automatic mem_wb_t reset_mem_wb();
-  reset_mem_wb = '{
-    default: '0,
-    insn: NOP_INSTRUCTION,
-    result_sel: result_sel_t'('0),
-    carried_trap: trap_info_t'('0)
-  };
-endfunction
+  function automatic ex_mem_t reset_ex_mem();
+    reset_ex_mem = '{
+        default: '0,
+        insn: NOP_INSTRUCTION,
+        result_sel: result_sel_t'('0),
+        mem_op: mem_op_t'(0),
+        rvfi_trap_info: trap_info_t'('0)
+    };
+  endfunction
+
+  function automatic mem_wb_t reset_mem_wb();
+    reset_mem_wb = '{
+        default: '0,
+        insn: NOP_INSTRUCTION,
+        result_sel: result_sel_t'('0),
+        rvfi_trap_info: trap_info_t'('0)
+    };
+  endfunction
+
+`else  // SYNTHESIS WITHOUT RISCV FORMAL INTERFACE
+  //***************************************************
+  //
+  //  STRUCTS WITHOUT RVFI
+  //
+  //****************************************************
+
+  typedef struct packed {
+    logic        valid;
+    logic [31:0] pc;
+    logic [31:0] pc_plus_4;
+    logic [31:0] insn;
+  } if_id_t;
+
+  typedef struct packed {
+    logic valid;
+    logic [31:0] pc;
+    logic [31:0] pc_plus_4;
+    logic [4:0] rs1_addr;
+    logic [4:0] rs2_addr;
+    logic [4:0] rd_addr;
+    logic [31:0] rs1_rdata;
+    logic [31:0] rs2_rdata;
+    logic [31:0] imm_ext;
+    logic [11:0] csr_addr;
+    logic [31:0] csr_rdata;
+    csr_op_t csr_op;
+    cf_op_t cf_op;
+    alu_control_t alu_control;
+    result_sel_t result_sel;
+    alu_a_sel_t alu_a_sel;
+    alu_b_sel_t alu_b_sel;
+    pc_alu_sel_t pc_alu_sel;
+    csr_bitmask_sel_t csr_bitmask_sel;
+    mem_op_t mem_op;
+    logic trap_valid;
+    logic [31:0] trap_mcause;
+    logic [31:0] trap_pc;
+  } id_ex_t;
+
+  typedef struct packed {
+    logic        valid;
+    logic [31:0] pc;
+    logic [31:0] pc_plus_4;
+    logic [4:0]  rd_addr;
+    logic [11:0] csr_addr;
+    logic [31:0] csr_wdata;
+    logic [31:0] csr_rdata;
+    result_sel_t result_sel;
+    mem_op_t     mem_op;
+    logic [31:0] store_wdata;
+    logic [31:0] alu_csr_result;
+    logic        trap_valid;
+    logic [31:0] trap_mcause;
+    logic [31:0] trap_pc;
+  } ex_mem_t;
+
+  typedef struct packed {
+    logic        valid;
+    logic [31:0] pc_plus_4;
+    logic [4:0]  rd_addr;
+    logic [11:0] csr_addr;
+    logic [31:0] csr_wdata;
+    logic [31:0] csr_rdata;
+    result_sel_t result_sel;
+    logic [31:0] load_rdata;
+    logic [31:0] alu_csr_result;
+    logic        trap_valid;
+    logic [31:0] trap_mcause;
+    logic [31:0] trap_pc;
+  } mem_wb_t;
+
+function automatic id_ex_t reset_id_ex();
+    reset_id_ex = '{
+        default: '0,
+        csr_op: csr_op_t'('0),
+        cf_op_t: cf_op_t'('0),
+        alu_control: alu_control_t'('0),
+        alu_a_sel: alu_a_sel_t'('0),
+        alu_b_sel: alu_b_sel_t'('0),
+        pc_alu_sel: pc_alu_sel_t'('0),
+        csr_bitmask_sel: csr_bitmask_sel_t'('0),
+        result_sel: result_sel_t'('0),
+        mem_op: mem_op_t'('0)
+    };
+  endfunction
+
+  function automatic ex_mem_t reset_ex_mem();
+    reset_ex_mem = '{
+        default: '0,
+        result_sel: result_sel_t'('0),
+        mem_op: mem_op_t'(0)
+    };
+  endfunction
+  function automatic mem_wb_t reset_mem_wb();
+    reset_mem_wb = '{
+        default: '0,
+        result_sel: result_sel_t'('0)
+    };
+  endfunction
   
+`endif
+
 endpackage

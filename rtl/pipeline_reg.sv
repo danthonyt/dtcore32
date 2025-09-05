@@ -14,7 +14,9 @@ module pipeline_reg
 );
 
   always_ff @(posedge clk_i) begin
-    if (rst_i || flush_i) begin
+    if (rst_i) begin
+      pipeline_q <= RESET_PIPELINE;
+    end else if (flush_i) begin
       pipeline_q <= RESET_PIPELINE;
     end else if (!stall_i) begin
       if (!pipeline_d.valid || prev_stage_stall_i) begin

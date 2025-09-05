@@ -21,10 +21,8 @@ module if_stage
     // pipeline
     output if_id_t if_pipeline_d
 );
-  logic if_intr_d;
-  logic if_intr_q;
+
   logic [31:0] next_pc;
-  logic if_intr_qq;
   logic [31:0] if_pc_qq;
   logic if_valid_qq;
   logic imem_buf_valid;
@@ -37,17 +35,14 @@ module if_stage
   // else next pc is the previous pc incremented by 4
   assign next_pc = wb_trap_valid_i ? trap_handler_addr_i : 
   ex_is_pc_redirect_i ?  ex_pc_target_i : if_pc_q + 4;
-  // indicates the first instruction entering the trap handler
-  assign if_intr_d = wb_trap_valid_i;
+
 
   // send read address to the instruction memory
   always_ff @(posedge clk_i) begin
     if (rst_i) begin
-      if_pc_q   <= RESET_PC;
-      if_intr_q <= 0;
+      if_pc_q <= RESET_PC;
     end else if (!if_id_stall_i) begin
-      if_pc_q   <= next_pc;
-      if_intr_q <= if_intr_d;
+      if_pc_q <= next_pc;
     end
   end
 
@@ -58,11 +53,9 @@ module if_stage
     if (rst_i || if_id_flush_i) begin
       if_valid_qq <= 0;
       if_pc_qq <= 'x;
-      if_intr_qq <= 'x;
     end else if (!if_id_stall_i) begin
       if_valid_qq <= 1;
       if_pc_qq <= if_pc_q;
-      if_intr_qq <= if_intr_q;
     end
   end
 
@@ -90,12 +83,31 @@ module if_stage
     if_pipeline_d.pc_plus_4 = if_pc_qq + 4;
     if_pipeline_d.insn = if_insn;
     if_pipeline_d.valid = if_valid_qq;
-    if_pipeline_d.intr = if_intr_qq;
   end
-  /*
-  assign CPU_FETCH_WBM_CYC_O = !if_id_stall_i;
-  assign CPU_FETCH_WBM_STB_O = !if_id_stall_i;
-  */
+
+`ifdef RISCV_FORMAL
+  logic if_intr_d;
+  logic if_intr_q;
+  logic if_intr_qq;
+  always_ff @(posedge clk_i) begin
+    if (rst_i) begin
+      if_intr_q <= 0;
+    end else if (!if_id_stall_i) begin
+      if_intr_q <= if_intr_d;
+    end
+  end
+  always_ff @(posedge clk_i) begin
+    if (rst_i || if_id_flush_i) begin
+      if_intr_qq <= 0;
+    end else if (!if_id_stall_i) begin
+      if_intr_qq <= if_intr_q;
+    end
+  end
+  always_comb begin
+    if_pipeline_d.intr = if_intr_qq;
+    if_intr_d = wb_trap_valid_i;
+  end
+`endif
 
   /******************************************/
   //

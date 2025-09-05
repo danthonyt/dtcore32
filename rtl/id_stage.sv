@@ -17,7 +17,6 @@ module id_stage
     output id_ex_t id_pipeline_d
 );
 
-  trap_info_t id_trap_d;
   logic [31:0] id_rs1_rdata_d;
   logic [31:0] id_rs2_rdata_d;
   logic [11:0] id_csr_addr_d;
@@ -48,25 +47,7 @@ module id_stage
   logic [4:0] id_rs1_addr_d;
   logic [4:0] id_rs2_addr_d;
 
-  // trap on an unknown instruction
-  always_comb begin
-    if (id_maindec_trap_valid_comb)
-      id_trap_d = '{
-          valid: 1,
-          is_interrupt: 0,
-          insn: id_pipeline_q.insn,
-          mcause: id_maindec_mcause_comb,
-          pc: id_pipeline_q.pc,
-          next_pc: 0,
-          rs1_addr: 0,
-          rs2_addr: 0,
-          rd_addr: 0,
-          rs1_rdata: 0,
-          rs2_rdata: 0,
-          rd_wdata: 0
-      };
-    else id_trap_d = '{default: 0};
-  end
+
 
   assign id_op_comb = id_pipeline_q.insn[6:0];
   assign id_funct3_comb = id_pipeline_q.insn[14:12];
@@ -122,9 +103,7 @@ module id_stage
   always_comb begin
     id_pipeline_d.pc              = id_pipeline_q.pc;
     id_pipeline_d.pc_plus_4       = id_pipeline_q.pc_plus_4;
-    id_pipeline_d.insn            = id_pipeline_q.insn;
     id_pipeline_d.valid           = id_pipeline_q.valid;
-    id_pipeline_d.intr            = id_pipeline_q.intr;
     id_pipeline_d.rs1_addr        = id_rs1_addr_d;
     id_pipeline_d.rs2_addr        = id_rs2_addr_d;
     id_pipeline_d.rd_addr         = id_rd_addr_d;
@@ -142,7 +121,37 @@ module id_stage
     id_pipeline_d.pc_alu_sel      = id_pc_alu_sel_d;
     id_pipeline_d.csr_bitmask_sel = id_csr_bitmask_sel_d;
     id_pipeline_d.mem_op          = id_mem_op_d;
-    id_pipeline_d.carried_trap    = id_trap_d;
   end
 
+always_comb begin
+    id_pipeline_d.trap_valid  = 0;
+    id_pipeline_d.trap_mcause = 'x;
+    id_pipeline_d.trap_pc = 'x;
+    if (id_maindec_trap_valid_comb) begin
+      id_pipeline_d.trap_valid  = 1;
+      id_pipeline_d.trap_mcause = {1'd0, id_maindec_mcause_comb};
+      id_pipeline_d.trap_pc = id_pipeline_q.pc;
+    end
+  end
+
+
+`ifdef RISCV_FORMAL
+  trap_info_t id_trap_d;
+  always_comb begin
+    id_trap_d.insn = id_pipeline_q.insn;
+    id_trap_d.pc = id_pipeline_q.pc;
+    id_trap_d.next_pc = 0;
+    id_trap_d.rs1_addr = 0;
+    id_trap_d.rs2_addr = 0;
+    id_trap_d.rd_addr = 0;
+    id_trap_d.rs1_rdata = 0;
+    id_trap_d.rs2_rdata = 0;
+    id_trap_d.rd_wdata = 0;
+  end
+  always_comb begin
+    id_pipeline_d.insn = id_pipeline_q.insn;
+    id_pipeline_d.intr = id_pipeline_q.intr;
+    id_pipeline_d.rvfi_trap_info = id_trap_d;
+  end
+`endif
 endmodule

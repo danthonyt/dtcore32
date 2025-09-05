@@ -13,8 +13,6 @@ module ex_stage
     input id_ex_t ex_pipeline_q,
     output ex_mem_t ex_pipeline_d
 );
-
-  trap_info_t ex_trap_d;
   logic [31:0] ex_rs1_rdata_d;
   logic [31:0] ex_rs2_rdata_d;
   logic [4:0] ex_rs1_addr_d;
@@ -35,30 +33,6 @@ module ex_stage
   logic [31:0] ex_pc_target_non_jalr;
   logic [31:0] ex_alu_csr_result_d;
   logic [31:0] ex_store_wdata_d;
-
-
-  // generate a trap on misaligned jumps or branches
-  always_comb begin
-    ex_trap_d = '{default: 0};
-    if (ex_pipeline_q.carried_trap.valid) ex_trap_d = ex_pipeline_q.carried_trap;
-    else if (ex_misaligned_jump_or_branch_comb)
-      ex_trap_d = '{
-          valid: 1,
-          is_interrupt: 0,
-          insn: ex_pipeline_q.insn,
-          mcause: TRAP_CODE_INSTR_ADDR_MISALIGNED,
-          pc: ex_pipeline_q.pc,
-          next_pc: ex_next_pc_d,
-          rs1_addr: ex_pipeline_q.rs1_addr,
-          rs2_addr: ex_pipeline_q.rs2_addr,
-          rd_addr: ex_pipeline_q.rd_addr,
-          rs1_rdata: ex_rs1_rdata_d,
-          rs2_rdata: ex_rs2_rdata_d,
-          rd_wdata: 0
-      };
-    else ex_trap_d = '{default: 0};
-  end
-
 
   assign ex_rs1_rdata_d = ex_src_a_tick_comb;
   assign ex_rs2_rdata_d = ex_store_wdata_d;
@@ -154,25 +128,59 @@ module ex_stage
   );
 
   always_comb begin
-    ex_pipeline_d.pc              = ex_pipeline_q.pc;
-    ex_pipeline_d.pc_plus_4       = ex_pipeline_q.pc_plus_4;
-    ex_pipeline_d.next_pc         = ex_next_pc_d;
-    ex_pipeline_d.insn            = ex_pipeline_q.insn;
-    ex_pipeline_d.valid           = ex_pipeline_q.valid;
-    ex_pipeline_d.intr            = ex_pipeline_q.intr;
-    ex_pipeline_d.rs1_addr        = ex_rs1_addr_d;
-    ex_pipeline_d.rs2_addr        = ex_rs2_addr_d;
-    ex_pipeline_d.rd_addr         = ex_rd_addr_d;
-    ex_pipeline_d.rs1_rdata       = ex_src_a_tick_comb;
-    ex_pipeline_d.rs2_rdata       = ex_store_wdata_d;
-    ex_pipeline_d.csr_addr        = ex_csr_addr_d;
-    ex_pipeline_d.csr_wdata       = ex_csr_wdata_d;
-    ex_pipeline_d.csr_rdata       = ex_pipeline_q.csr_rdata;
-    ex_pipeline_d.result_sel      = ex_pipeline_q.result_sel;
-    ex_pipeline_d.mem_op          = ex_pipeline_q.mem_op;
-    ex_pipeline_d.store_wdata     = ex_store_wdata_d;
-    ex_pipeline_d.alu_csr_result  = ex_alu_csr_result_d;
-    ex_pipeline_d.carried_trap    = ex_trap_d;
+    ex_pipeline_d.pc             = ex_pipeline_q.pc;
+    ex_pipeline_d.pc_plus_4      = ex_pipeline_q.pc_plus_4;
+    ex_pipeline_d.valid          = ex_pipeline_q.valid;
+    ex_pipeline_d.rd_addr        = ex_rd_addr_d;
+    ex_pipeline_d.csr_addr       = ex_csr_addr_d;
+    ex_pipeline_d.csr_wdata      = ex_csr_wdata_d;
+    ex_pipeline_d.csr_rdata      = ex_pipeline_q.csr_rdata;
+    ex_pipeline_d.result_sel     = ex_pipeline_q.result_sel;
+    ex_pipeline_d.mem_op         = ex_pipeline_q.mem_op;
+    ex_pipeline_d.store_wdata    = ex_store_wdata_d;
+    ex_pipeline_d.alu_csr_result = ex_alu_csr_result_d;
   end
 
+  always_comb begin
+    ex_pipeline_d.trap_valid = 0;
+    ex_pipeline_d.trap_mcause = 'x;
+    ex_pipeline_d.trap_pc = ex_pipeline_q.pc;
+    if (ex_pipeline_q.trap_valid) begin
+      ex_pipeline_d.trap_valid  = 1;
+      ex_pipeline_d.trap_mcause = ex_pipeline_q.trap_mcause;
+    end else if (ex_misaligned_jump_or_branch_comb) begin
+      ex_pipeline_d.trap_valid  = 1;
+      ex_pipeline_d.trap_mcause = {1'b0, TRAP_CODE_INSTR_ADDR_MISALIGNED};
+    end
+  end
+
+
+`ifdef RISCV_FORMAL
+  trap_info_t ex_trap_d;
+  always_comb begin
+    ex_trap_d.insn = ex_pipeline_q.insn;
+    ex_trap_d.pc = ex_pipeline_q.pc;
+    ex_trap_d.next_pc = ex_next_pc_d;
+    ex_trap_d.rs1_addr = ex_pipeline_q.rs1_addr;
+    ex_trap_d.rs2_addr = ex_pipeline_q.rs2_addr;
+    ex_trap_d.rd_addr = ex_pipeline_q.rd_addr;
+    ex_trap_d.rs1_rdata = ex_rs1_rdata_d;
+    ex_trap_d.rs2_rdata = ex_rs2_rdata_d;
+    ex_trap_d.rd_wdata = 0;
+    if (ex_pipeline_q.trap_valid) begin
+      ex_trap_d = ex_pipeline_q.rvfi_trap_info;
+    end
+  end
+
+  always_comb begin
+    ex_pipeline_d.next_pc        = ex_next_pc_d;
+    ex_pipeline_d.insn           = ex_pipeline_q.insn;
+    ex_pipeline_d.intr           = ex_pipeline_q.intr;
+    ex_pipeline_d.rs1_addr       = ex_rs1_addr_d;
+    ex_pipeline_d.rs2_addr       = ex_rs2_addr_d;
+    ex_pipeline_d.rs1_rdata      = ex_src_a_tick_comb;
+    ex_pipeline_d.rs2_rdata      = ex_store_wdata_d;
+    ex_pipeline_d.rvfi_trap_info = ex_trap_d;
+  end
+`endif
 endmodule
