@@ -7,12 +7,13 @@ module csrfile
 `ifdef RISCV_FORMAL
     output logic [31:0] wb_csr_rmask_o,
     output logic [31:0] wb_csr_wmask_o,
+    input logic [4:0] wb_rd_addr_i,
 `endif
     // from instruction decode
     input logic [11:0] id_csr_raddr_i,
     output logic [31:0] id_csr_rdata_o,
     // from write back
-    input logic [4:0] wb_rd_addr_i,
+    
     input logic [11:0] wb_csr_waddr_i,
     input logic [31:0] wb_csr_wdata_i,
 

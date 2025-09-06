@@ -2,29 +2,30 @@ module decoder
   import params_pkg::*;
 (
 
-    input logic [6:0] OP,
-    input [2:0] FUNCT3,
-    input [6:0] FUNCT7,
-    input logic [11:0] FUNCT12,
-    input logic [4:0] RS1_ADDR,
-    input logic [4:0] RD_ADDR,
-    input logic RTYPE_ALT,
-    input logic ITYPE_ALT,
+    input logic [6:0] op_i,
+    input [2:0] funct3_i,
+    input [6:0] funct7_i,
+    input logic [11:0] funct12_i,
+    input logic [4:0] rs1_addr_i,
+    input logic [4:0] rd_addr_i,
+    input logic rtype_alt_i,
+    input logic itype_alt_i,
 
-    output logic RD_VALID,
-    output logic RS1_VALID,
-    output logic RS2_VALID,
-    output mem_op_t MEM_OP,
-    output cf_op_t CF_OP,
-    output csr_op_t CSR_OP,
-    output alu_control_t ALU_CONTROL,
-    output imm_ext_op_t IMM_EXT_OP,
-    output alu_a_sel_t ALU_A_SRC,
-    output alu_b_sel_t ALU_B_SRC,
-    output pc_alu_sel_t PC_ALU_SRC,
-    output csr_bitmask_sel_t CSR_BITMASK_SEL,
-    output logic [30:0] TRAP_MCAUSE,
-    output logic TRAP_VALID
+    output logic rd_valid_o,
+    output logic rs1_valid_o,
+    output logic rs2_valid_o,
+    output mem_op_t mem_op_o,
+    output cf_op_t cf_op_o,
+    output csr_op_t csr_op_o,
+    output alu_control_t alu_control_o,
+    output imm_ext_op_t imm_ext_op_o,
+    output alu_a_sel_t alu_a_sel_o,
+    output alu_b_sel_t alu_b_sel_o,
+    output pc_alu_sel_t pc_alu_sel_o,
+    output csr_bitmask_sel_t csr_bitmask_sel_o,
+    output logic illegal_instr_trap_o,
+    output logic ecall_m_trap_o,
+    output logic breakpoint_trap_o
 );
 
   logic rd_valid;
@@ -50,25 +51,26 @@ module decoder
   logic is_unknown_rtype;
   logic is_unknown_itype;
 
-  assign is_itype = (OP == OPCODE_I_TYPE) ? 1 : 0;
-  assign is_rtype = (OP == OPCODE_R_TYPE) ? 1 : 0;
-  assign is_SRAI_funct3 = (FUNCT3 == FUNCT3_SRAI) ? 1 : 0;
-  assign is_SRA_or_SUB_funct3 = ((FUNCT3 == FUNCT3_SRA) || (FUNCT3 == FUNCT3_SUB)) ? 1 : 0;
-  assign is_SLLI_or_SRLI_funct3 = ((FUNCT3 == FUNCT3_SLLI) || (FUNCT3 == FUNCT3_SRLI)) ? 1 : 0;
+  assign is_itype = (op_i == OPCODE_I_TYPE) ? 1 : 0;
+  assign is_rtype = (op_i == OPCODE_R_TYPE) ? 1 : 0;
+  assign is_SRAI_funct3 = (funct3_i == FUNCT3_SRAI) ? 1 : 0;
+  assign is_SRA_or_SUB_funct3 = ((funct3_i == FUNCT3_SRA) || (funct3_i == FUNCT3_SUB)) ? 1 : 0;
+  assign is_SLLI_or_SRLI_funct3 = ((funct3_i == FUNCT3_SLLI) || (funct3_i == FUNCT3_SRLI)) ? 1 : 0;
   assign is_shift_itype = is_SLLI_or_SRLI_funct3 | is_SRAI_funct3;
   assign is_unknown_rtype          = is_rtype
-    & (FUNCT7 != 7'h00)
-    & ~((FUNCT7 == 7'h20) & is_SRA_or_SUB_funct3);
+    & (funct7_i != 7'h00)
+    & ~((funct7_i == 7'h20) & is_SRA_or_SUB_funct3);
   assign is_unknown_itype = is_itype
     & is_shift_itype
-    & ~(is_SLLI_or_SRLI_funct3 & (FUNCT7 == 7'h00))
-    & ~(is_SRAI_funct3 & (FUNCT7 == 7'h20));
+    & ~(is_SLLI_or_SRLI_funct3 & (funct7_i == 7'h00))
+    & ~(is_SRAI_funct3 & (funct7_i == 7'h20));
 
 
   // Decode the control signals for the specific instruction
   always_comb begin
-    TRAP_VALID = 0;
-    TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
+    ecall_m_trap_o = 0;
+    illegal_instr_trap_o = 0;
+    breakpoint_trap_o = 0;
     // valid registers
     rd_valid = 0;
     rs1_valid = 0;
@@ -87,7 +89,7 @@ module decoder
     csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
 
 
-    case (OP)
+    case (op_i)
       OPCODE_LOAD: begin
         rd_valid = 1;
         rs1_valid = 1;
@@ -96,15 +98,14 @@ module decoder
         alu_b_src = ALU_B_SEL_IMM;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
         pc_alu_src = PC_ALU_SEL_PC;
-        case (FUNCT3)
+        case (funct3_i)
           FUNCT3_LB:  mem_op = MEM_LB;
           FUNCT3_LH:  mem_op = MEM_LH;
           FUNCT3_LW:  mem_op = MEM_LW;
           FUNCT3_LBU: mem_op = MEM_LBU;
           FUNCT3_LHU: mem_op = MEM_LHU;
           default: begin
-            TRAP_VALID  = 1;
-            TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
+            illegal_instr_trap_o = 1;
           end
         endcase
       end
@@ -112,25 +113,24 @@ module decoder
       OPCODE_SYSCALL_CSR: begin
         rs1_valid = 1;
         rd_valid  = 1;
-        case (FUNCT3)
+        case (funct3_i)
           FUNCT3_ECALL_EBREAK: begin
-            TRAP_VALID = 1;
-            if ((RS1_ADDR == 0) && (RD_ADDR == 0)) begin
-              if (FUNCT12 == 12'h001) TRAP_MCAUSE = TRAP_CODE_BREAKPOINT;
-              else if (FUNCT12 == 12'h000) TRAP_MCAUSE = TRAP_CODE_ECALL_M_MODE;
-              else TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
-            end else TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
+            if ((rs1_addr_i == 0) && (rd_addr_i == 0)) begin
+              if (funct12_i == 12'h001) breakpoint_trap_o = 1;
+              else if (funct12_i == 12'h000) ecall_m_trap_o = 1;
+              else illegal_instr_trap_o = 1;
+            end else illegal_instr_trap_o = 1;
           end
           FUNCT3_CSRRW: begin
             csr_op = CSR_WRITE;
             csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRS: begin
-            csr_op = (RS1_ADDR == 0) ? CSR_READ : CSR_SET;
+            csr_op = (rs1_addr_i == 0) ? CSR_READ : CSR_SET;
             csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRC: begin
-            csr_op = (RS1_ADDR == 0) ? CSR_READ : CSR_CLEAR;
+            csr_op = (rs1_addr_i == 0) ? CSR_READ : CSR_CLEAR;
             csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRWI: begin
@@ -140,17 +140,16 @@ module decoder
           end
           FUNCT3_CSRRSI: begin
             imm_ext_op = CSR_TYPE;
-            csr_op = (RS1_ADDR == 0) ? CSR_READ : CSR_SET;
+            csr_op = (rs1_addr_i == 0) ? CSR_READ : CSR_SET;
             csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
           end
           FUNCT3_CSRRCI: begin
             imm_ext_op = CSR_TYPE;
-            csr_op = (RS1_ADDR == 0) ? CSR_READ : CSR_CLEAR;
+            csr_op = (rs1_addr_i == 0) ? CSR_READ : CSR_CLEAR;
             csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
           end
           default: begin
-            TRAP_VALID  = 1;
-            TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
+            illegal_instr_trap_o = 1;
           end
         endcase
       end
@@ -162,20 +161,18 @@ module decoder
         alu_b_src = ALU_B_SEL_IMM;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
         pc_alu_src = PC_ALU_SEL_PC;
-        case (FUNCT3)
+        case (funct3_i)
           FUNCT3_SB: mem_op = MEM_SB;
           FUNCT3_SH: mem_op = MEM_SH;
           FUNCT3_SW: mem_op = MEM_SW;
           default: begin
-            TRAP_VALID  = 1;
-            TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
+            illegal_instr_trap_o = 1;
           end
         endcase
       end
       OPCODE_R_TYPE: begin
         if (is_unknown_rtype) begin
-          TRAP_VALID  = 1;
-          TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
+          illegal_instr_trap_o = 1;
         end else begin
           rs1_valid = 1;
           rs2_valid = 1;
@@ -199,8 +196,7 @@ module decoder
       //I-type ALU or shift
       OPCODE_I_TYPE: begin
         if (is_unknown_itype) begin
-          TRAP_VALID  = 1;
-          TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
+          illegal_instr_trap_o = 1;
         end else begin
           rs1_valid = 1;
           rd_valid = 1;
@@ -208,12 +204,11 @@ module decoder
           alu_b_src = ALU_B_SEL_IMM;
           alu_op = ALU_OP_IALU_ISHIFT_R_TYPE;
           pc_alu_src = PC_ALU_SEL_PC;
-          case (FUNCT3)
+          case (funct3_i)
             3'b000, 3'b010, 3'b011, 3'b100, 3'b110, 3'b111: imm_ext_op = I_ALU_TYPE;  //I-type ALU
             3'b001, 3'b101: imm_ext_op = I_SHIFT_TYPE;  //I-type Shift
             default: begin
-              TRAP_VALID  = 1;
-              TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
+              illegal_instr_trap_o = 1;
             end
           endcase  //I-type shift
         end
@@ -254,8 +249,7 @@ module decoder
         pc_alu_src = PC_ALU_SEL_REG_DATA;
       end
       default: begin
-        TRAP_VALID  = 1;
-        TRAP_MCAUSE = TRAP_CODE_ILLEGAL_INSTR;
+        illegal_instr_trap_o = 1;
       end
     endcase
   end
@@ -270,7 +264,7 @@ module decoder
       alu_control = ADD_ALU_CONTROL;  //add- lw,sw,lb,lh,lbu,lhu,sb,sh,auipc,lui
       //B-type
       ALU_OP_B_TYPE:
-      case (FUNCT3)
+      case (funct3_i)
         FUNCT3_BEQ: alu_control = SUB_ALU_CONTROL;  //sub - beq
         FUNCT3_BNE: alu_control = NE_ALU_CONTROL;  //sub - bne
         FUNCT3_BLT: alu_control = LT_ALU_CONTROL;  //blt
@@ -281,15 +275,15 @@ module decoder
       endcase
       //R-type, I-type ALU,I-type logical shift
       ALU_OP_IALU_ISHIFT_R_TYPE: begin
-        case (FUNCT3)
+        case (funct3_i)
           FUNCT3_ADD:
-          alu_control = (RTYPE_ALT) ? SUB_ALU_CONTROL  /*sub*/ : ADD_ALU_CONTROL  /*add*/;
+          alu_control = (rtype_alt_i) ? SUB_ALU_CONTROL  /*sub*/ : ADD_ALU_CONTROL  /*add*/;
           FUNCT3_SLL: alu_control = L_SHIFT_ALU_CONTROL;  //sll
           FUNCT3_SLT: alu_control = LT_ALU_CONTROL;  //slt
           FUNCT3_SLTU_SLTIU: alu_control = LTU_ALU_CONTROL;  //sltu, sltiu
           FUNCT3_XOR: alu_control = XOR_ALU_CONTROL;  //xor
           FUNCT3_SRA:
-          alu_control = (RTYPE_ALT || ITYPE_ALT) ? R_SHIFT_A_ALU_CONTROL /*sra*/ : R_SHIFT_L_ALU_CONTROL /*srl*/;
+          alu_control = (rtype_alt_i || itype_alt_i) ? R_SHIFT_A_ALU_CONTROL /*sra*/ : R_SHIFT_L_ALU_CONTROL /*srl*/;
           FUNCT3_OR: alu_control = OR_ALU_CONTROL;  //or
           FUNCT3_AND: alu_control = AND_ALU_CONTROL;  //and
           default: ;
@@ -299,17 +293,17 @@ module decoder
     endcase
   end
 
-  assign RD_VALID = rd_valid;
-  assign RS1_VALID = rs1_valid;
-  assign RS2_VALID = rs2_valid;
-  assign MEM_OP = mem_op;
-  assign CF_OP = cf_op;
-  assign CSR_OP = csr_op;
-  assign ALU_CONTROL = alu_control;
-  assign IMM_EXT_OP = imm_ext_op;
-  assign ALU_A_SRC = alu_a_src;
-  assign ALU_B_SRC = alu_b_src;
-  assign PC_ALU_SRC = pc_alu_src;
-  assign CSR_BITMASK_SEL = csr_bitmask_sel;
+  assign rd_valid_o = rd_valid;
+  assign rs1_valid_o = rs1_valid;
+  assign rs2_valid_o = rs2_valid;
+  assign mem_op_o = mem_op;
+  assign cf_op_o = cf_op;
+  assign csr_op_o = csr_op;
+  assign alu_control_o = alu_control;
+  assign imm_ext_op_o = imm_ext_op;
+  assign alu_a_sel_o = alu_a_src;
+  assign alu_b_sel_o = alu_b_src;
+  assign pc_alu_sel_o = pc_alu_src;
+  assign csr_bitmask_sel_o = csr_bitmask_sel;
 
 endmodule

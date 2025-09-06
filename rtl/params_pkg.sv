@@ -230,6 +230,7 @@ package params_pkg;
     logic [31:0] pc_wdata;
     logic [31:0] insn;
     logic        valid;
+    logic trap_valid;
     logic        intr;
     logic [4:0]  rs1_addr;
     logic [4:0]  rs2_addr;
@@ -253,8 +254,6 @@ package params_pkg;
 
   typedef struct packed {
     logic        valid;
-    logic        stall;
-    logic        flush;
     logic [31:0] pc;
     logic [31:0] pc_plus_4;
     logic [31:0] insn;
@@ -266,8 +265,6 @@ package params_pkg;
 
   typedef struct packed {
     logic             valid;
-    logic             stall;
-    logic             flush;
     logic [31:0]      pc;
     logic [31:0]      pc_plus_4;
     logic [4:0]       rs1_addr;
@@ -298,14 +295,13 @@ package params_pkg;
 
   typedef struct packed {
     logic        valid;
-    logic        stall;
-    logic        flush;
     logic [31:0] pc;
     logic [31:0] pc_plus_4;
     logic [4:0]  rd_addr;
     logic [11:0] csr_addr;
     logic [31:0] csr_wdata;
     mem_op_t     mem_op;
+    cf_op_t           cf_op;
     logic [31:0] store_wdata;
     logic [31:0] alu_csr_result;
     logic        trap_valid;
@@ -326,8 +322,6 @@ package params_pkg;
 
   typedef struct packed {
     logic        valid;
-    logic        stall;
-    logic        flush;
     logic [4:0]  rd_addr;
     logic [11:0] csr_addr;
     logic [31:0] csr_wdata;
@@ -336,14 +330,18 @@ package params_pkg;
     logic [31:0] trap_mcause;
     logic [31:0] trap_pc;
 `ifdef RISCV_FORMAL
+    logic [31:0] pc;
     logic [31:0] pc_plus_4;
     logic [31:0] next_pc;
     logic [31:0] insn;
     logic        intr;
     logic [31:0] csr_rdata;
+    logic [31:0] mem_addr;
     logic [31:0] load_rdata;
     logic [4:0]  rs1_addr;
     logic [4:0]  rs2_addr;
+    logic [31:0] rs1_rdata;
+    logic [31:0] rs2_rdata;
     logic [3:0]  load_rmask;
     logic [3:0]  store_wmask;
     logic [31:0] store_wdata;
@@ -378,6 +376,7 @@ package params_pkg;
         rvfi_trap_info: trap_info_t'('0),
         `endif
         //result_sel: result_sel_t'('0),
+        cf_op: cf_op_t'(0),
         mem_op: mem_op_t'(0)
     };
   endfunction

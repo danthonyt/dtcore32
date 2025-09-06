@@ -34,11 +34,11 @@ module hazard_unit
   logic mem_req_stall;
   logic [2:0] ex_forward_a;
   logic [2:0] ex_forward_b;
-  logic if_forward_a;
+  logic id_forward_a;
   logic id_forward_b;
   logic load_use_hazard;
-  logic nonzero_ID_rs1;
-  logic nonzero_ID_rs2;
+  logic nonzero_id_rs1;
+  logic nonzero_id_rs2;
   logic id_ex_rs1_match;
   logic id_ex_rs2_match;
   logic ex_mem_rs2_match;
@@ -47,8 +47,8 @@ module hazard_unit
   logic ex_wb_rs1_match;
   logic nonzero_ex_rs1;
   logic nonzero_ex_rs2;
-  assign nonzero_ID_rs1 = |id_rs1_addr_i;
-  assign nonzero_ID_rs2 = |id_rs2_addr_i;
+  assign nonzero_id_rs1 = |id_rs1_addr_i;
+  assign nonzero_id_rs2 = |id_rs2_addr_i;
   assign id_ex_rs1_match = (id_rs1_addr_i == ex_rd_addr_i);
   assign id_ex_rs2_match = (id_rs2_addr_i == ex_rd_addr_i);
   assign nonzero_ex_rs1 = ex_rs1_addr_i != 0;
@@ -67,8 +67,8 @@ module hazard_unit
 
   // We must stall if a load instruction is in the execute stage while another instruction 
   // has a matching source register to that write register in the decode stage
-  assign load_use_hazard = ((ex_mem_op_i[4] & ~ex_mem_op_i[3] ) && ((id_ex_rs1_match && nonzero_ID_rs1)
-   || (id_ex_rs2_match && nonzero_ID_rs2))) ? 1 : 0;
+  assign load_use_hazard = ((ex_mem_op_i[4] & ~ex_mem_op_i[3] ) && ((id_ex_rs1_match && nonzero_id_rs1)
+   || (id_ex_rs2_match && nonzero_id_rs2))) ? 1 : 0;
 
   assign mem_req_stall = mem_req_i && !mem_done_i;
 
@@ -93,8 +93,8 @@ module hazard_unit
 
   assign ex_forward_a_sel_o = ex_forward_a;
   assign ex_forward_b_sel_o = ex_forward_b;
-  assign if_forward_a = (id_rs1_addr_i == wb_rd_addr_i);
-  assign id_forward_b = (id_rs2_addr_i == wb_rd_addr_i);
+  assign id_forward_a = ((id_rs1_addr_i == wb_rd_addr_i));
+  assign id_forward_b = ((id_rs2_addr_i == wb_rd_addr_i));
 
 
   // LOAD USE FLUSHES ID/EX AND STALLS IF/ID
@@ -104,7 +104,7 @@ module hazard_unit
   //
   /*****************************************/
 
-  assign id_forward_a_o = if_forward_a;
+  assign id_forward_a_o = id_forward_a;
   assign id_forward_b_o = id_forward_b;
 
   assign if_id_flush_o = ex_is_pc_redirect_i | (ex_trap_valid_i | mem_trap_valid_i | wb_trap_valid_i);
