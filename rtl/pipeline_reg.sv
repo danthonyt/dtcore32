@@ -17,9 +17,11 @@ module pipeline_reg
       pipeline_q <= RESET_PIPELINE;
     end else if (flush_i) begin
       pipeline_q.valid <= 0;
+      pipeline_q.trap_valid <= 0;
     end else if (!stall_i) begin
       pipeline_q <= pipeline_d;
       pipeline_q.valid <= !prev_stage_stall_i & pipeline_d.valid;
+      pipeline_q.trap_valid <= !prev_stage_stall_i & pipeline_d.trap_valid;
       
     end
   end

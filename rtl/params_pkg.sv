@@ -307,6 +307,9 @@ package params_pkg;
     logic        trap_valid;
     logic [31:0] trap_mcause;
     logic [31:0] trap_pc;
+    logic branch_cond;
+    logic jump_taken;
+    logic jaddr;
 `ifdef RISCV_FORMAL
     logic [31:0] next_pc;
     logic [31:0] insn;

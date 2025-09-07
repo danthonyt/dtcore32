@@ -138,7 +138,7 @@ import params_pkg::*;
   logic [2:0] ex_forward_a_sel;
   logic [2:0] ex_forward_b_sel;
   logic [31:0] ex_jaddr, ex_jaddr_q;
-  logic ex_is_pc_redirect, ex_is_pc_redirect_q;
+  logic ex_jump_taken, ex_jump_taken_q;
   cf_op_t ex_cf_op;
   mem_op_t ex_mem_op;
   logic [4:0] ex_rs1_addr;
@@ -157,7 +157,6 @@ import params_pkg::*;
   //mem stage
   logic    [ 4:0] mem_rd_addr;
   mem_op_t        mem_mem_op;
-  logic           mem_trap_valid;
   logic           misaligned_load;
   logic           misaligned_store;
   logic    [ 3:0] mem_wstrb;
@@ -169,7 +168,6 @@ import params_pkg::*;
   logic [11:0] wb_csr_addr;
   logic [31:0] wb_rd_wdata;
   logic [31:0] wb_csr_wdata;
-  logic        wb_trap_valid;
   logic [31:0] wb_trap_mcause;
   logic [31:0] wb_trap_pc;
   //*****************************************************************
@@ -191,10 +189,10 @@ import params_pkg::*;
     begin
       // cycle 1
       pc_incr_q <= RESET_PC;
-      ex_is_pc_redirect_q <= 0;
-      trap_handler_addr_qq <= 0;
-      wb_trap_valid_q <= 0;
-      ex_jaddr_q <= 0;
+      //ex_jump_taken_q <= 0;
+      //trap_handler_addr_qq <= 0;
+      //wb_trap_valid_q <= 0;
+      //ex_jaddr_q <= 0;
       // cycle 2
       if_valid_qq <= 0;
       if_pc_qq <= 'x;
@@ -206,10 +204,10 @@ import params_pkg::*;
     begin
       // cycle 1
       pc_incr_q <= pc_incr;
-      ex_is_pc_redirect_q <= ex_is_pc_redirect;
-      trap_handler_addr_qq <= trap_handler_addr_q;
-      wb_trap_valid_q <= wb_trap_valid;
-      ex_jaddr_q <= ex_jaddr;
+      //ex_jump_taken_q <= ex_jump_taken;
+      //trap_handler_addr_qq <= trap_handler_addr_q;
+      //wb_trap_valid_q <= wb_pipeline_q.trap_valid;
+      //ex_jaddr_q <= ex_jaddr;
       // cycle 2
       if_valid_qq <= 0;
       if_pc_qq <= 'x;
@@ -221,10 +219,10 @@ import params_pkg::*;
     begin
       // cycle 1
       pc_incr_q <= pc_incr;
-      ex_is_pc_redirect_q <= ex_is_pc_redirect;
-      trap_handler_addr_qq <= trap_handler_addr_q;
-      wb_trap_valid_q <= wb_trap_valid;
-      ex_jaddr_q <= ex_jaddr;
+      //ex_jump_taken_q <= ex_jump_taken;
+      //trap_handler_addr_qq <= trap_handler_addr_q;
+      //wb_trap_valid_q <= wb_pipeline_q.trap_valid;
+      //ex_jaddr_q <= ex_jaddr;
       // cycle 2
       if_valid_qq <= 1;
       if_pc_qq <= imem_addr_o;
@@ -244,8 +242,8 @@ import params_pkg::*;
 
   always_comb
   begin
-    imem_addr_o = wb_trap_valid_q ? trap_handler_addr_qq :
-                ex_is_pc_redirect_q ?  ex_jaddr_q : pc_incr_q;
+    imem_addr_o = wb_pipeline_q.trap_valid ? trap_handler_addr_q :
+                mem_pipeline_q.jump_taken ?  mem_pipeline_q.jaddr : pc_incr_q;
     pc_incr = imem_addr_o + 4;
     if_pipeline_d.pc = if_pc_qq;
     if_pipeline_d.pc_plus_4 = if_pc_qq + 4;
@@ -277,7 +275,7 @@ import params_pkg::*;
   always_comb
   begin
     if_pipeline_d.intr = if_intr_qq;
-    if_intr_d = wb_trap_valid;
+    if_intr_d = wb_pipeline_q.trap_valid;
   end
 `endif
   //*****************************************************************
@@ -423,18 +421,6 @@ import params_pkg::*;
       default:
         ex_rs1_rdata = 'x;
     endcase
-    // select rs2 read data
-    case (ex_forward_b_sel)
-      NO_FORWARD_SEL:
-        ex_rs2_rdata = ex_pipeline_q.rs2_rdata;
-      FORWARD_SEL_MEM_RESULT:
-        ex_rs2_rdata = mem_pipeline_q.alu_csr_result;
-      FORWARD_SEL_WB_RESULT:
-        ex_rs2_rdata = wb_rd_wdata;
-      default:
-        ex_rs2_rdata = 'x;
-    endcase
-
     // select input data for the first alu input
     case (ex_pipeline_q.alu_a_sel)
       ALU_A_SEL_REG_DATA:
@@ -447,6 +433,18 @@ import params_pkg::*;
         ex_src_a = 'x;
     endcase
 
+    
+    // select rs2 read data
+    case (ex_forward_b_sel)
+      NO_FORWARD_SEL:
+        ex_rs2_rdata = ex_pipeline_q.rs2_rdata;
+      FORWARD_SEL_MEM_RESULT:
+        ex_rs2_rdata = mem_pipeline_q.alu_csr_result;
+      FORWARD_SEL_WB_RESULT:
+        ex_rs2_rdata = wb_rd_wdata;
+      default:
+        ex_rs2_rdata = 'x;
+    endcase
     // select input data for the second alu input
     case (ex_pipeline_q.alu_b_sel)
       ALU_B_SEL_REG_DATA:
@@ -455,7 +453,7 @@ import params_pkg::*;
         ex_src_b = ex_pipeline_q.imm_ext;
       default:
         ex_src_b = 'x;
-    endcase
+    endcase 
 
     // select base value for pc offset
     case (ex_pipeline_q.pc_alu_sel)
@@ -506,9 +504,11 @@ import params_pkg::*;
     end
 
     // trap if the jump address is not word aligned
+    // jump if instruction is a jump or a branch and condition is true
+    // jump is delayed to the mem stage to avoid long combinational path
     ex_jaddr     = (ex_cf_op == CF_JALR) ? ((ex_pc_base + ex_pipeline_q.imm_ext) & ~(1'b1)) : (ex_pc_base + ex_pipeline_q.imm_ext);
-    ex_is_pc_redirect = (ex_cf_op[0] | (ex_cf_op[1] & ex_branch_cond));
-    ex_misaligned_jump = ex_is_pc_redirect & (ex_jaddr[1] | ex_jaddr[0]);
+    ex_jump_taken = (ex_cf_op[0] | (ex_cf_op[1] & ex_branch_cond));
+    ex_misaligned_jump = ex_jump_taken & (ex_jaddr[1] | ex_jaddr[0]);
     
 
     // pipeline
@@ -522,6 +522,8 @@ import params_pkg::*;
     ex_pipeline_d.mem_op         = ex_pipeline_q.mem_op;
     ex_pipeline_d.store_wdata    = ex_rs2_rdata;
     ex_pipeline_d.alu_csr_result = (ex_pipeline_q.csr_op != CSR_NONE) ? ex_pipeline_q.csr_rdata : ex_alu_result;
+    ex_pipeline_d.jaddr = ex_jaddr;
+    ex_pipeline_d.jump_taken = ex_jump_taken;
     // traps
     if (ex_pipeline_q.trap_valid)
     begin
@@ -555,7 +557,7 @@ import params_pkg::*;
 
   trap_info_t rvfi_ex_trap_info;
   logic [31:0] ex_next_pc;
-  assign ex_next_pc = (ex_is_pc_redirect) ? ex_jaddr : ex_pipeline_q.pc_plus_4;
+  assign ex_next_pc = (ex_jump_taken) ? ex_jaddr : ex_pipeline_q.pc_plus_4;
   always_comb
   begin
     // additional stage info
@@ -619,9 +621,9 @@ import params_pkg::*;
 
   always_comb
   begin
-    mem_trap_valid = mem_pipeline_q.valid & mem_pipeline_q.trap_valid;
+    //mem_trap_valid = mem_pipeline_q.valid & mem_pipeline_q.trap_valid;
     // prevent side effects on trap or invalid instruction
-    if (!mem_pipeline_q.valid || mem_trap_valid)
+    if (!mem_pipeline_q.valid || mem_pipeline_q.trap_valid)
     begin
       mem_rd_addr = '0;
       mem_mem_op  = mem_op_t'(0);
@@ -632,7 +634,7 @@ import params_pkg::*;
       mem_mem_op  = mem_pipeline_q.mem_op;
     end
     // memory interface local signals
-    dmem_periph_req = !mem_trap_valid && (mem_mem_op != MEM_NONE);
+    dmem_periph_req = !mem_pipeline_q.trap_valid && (mem_mem_op != MEM_NONE);
     mem_wen_o = mem_mem_op[4] & mem_mem_op[3];
     mem_addr_o = mem_pipeline_q.alu_csr_result;
     mem_strb_o = mem_wen_o ? mem_wstrb : mem_rstrb;
@@ -648,7 +650,7 @@ import params_pkg::*;
     mem_pipeline_d.csr_addr    = mem_pipeline_q.csr_addr;
     mem_pipeline_d.csr_wdata   = mem_pipeline_q.csr_wdata;
     // traps
-    if (mem_trap_valid)
+    if (mem_pipeline_q.trap_valid)
     begin
       mem_pipeline_d.trap_valid = 1;
       mem_pipeline_d.trap_mcause = mem_pipeline_q.trap_mcause;
@@ -725,10 +727,10 @@ import params_pkg::*;
   begin
     // invalid instructions should have no side effects
     // trap propagates as long as the instruction is valid
-    wb_trap_valid = wb_pipeline_q.valid & wb_pipeline_q.trap_valid;
+    //wb_trap_valid = wb_pipeline_q.valid & wb_pipeline_q.trap_valid;
     wb_trap_mcause = wb_pipeline_q.trap_mcause;
     wb_trap_pc = wb_pipeline_q.trap_pc;
-    if (!wb_pipeline_q.valid || wb_trap_valid)
+    if (!wb_pipeline_q.valid || wb_pipeline_q.trap_valid)
     begin
       wb_rd_addr = '0;
       wb_csr_addr = '0;
@@ -738,9 +740,9 @@ import params_pkg::*;
     else
     begin
       wb_rd_addr = wb_pipeline_q.rd_addr;
-      wb_rd_wdata = wb_pipeline_q.rd_wdata;
+      wb_rd_wdata = (wb_rd_addr == 0) ? 0 : wb_pipeline_q.rd_wdata;
       wb_csr_addr = wb_pipeline_q.csr_addr;
-      wb_csr_wdata = wb_pipeline_q.csr_wdata;
+      wb_csr_wdata = (wb_csr_addr == 0) ? 0 : wb_pipeline_q.csr_wdata;
     end
   end
 
@@ -751,54 +753,56 @@ import params_pkg::*;
   //
   //
   //*****************************************************************
-  pipeline_reg #(
-                 .pipeline_t(if_id_t),
-                 .RESET_PIPELINE(IF_ID_RESET)
-               ) if_id_reg_inst (
-                 .clk_i(clk_i),
-                 .rst_i(rst_i),
-                 .stall_i(if_id_stall),
-                 .flush_i(if_id_flush),
-                 .prev_stage_stall_i(1'b0),
-                 .pipeline_d(if_pipeline_d),
-                 .pipeline_q(id_pipeline_q)
-               );
-  pipeline_reg #(
-                 .pipeline_t(id_ex_t),
-                 .RESET_PIPELINE(ID_EX_RESET)
-               ) id_ex_reg_inst (
-                 .clk_i(clk_i),
-                 .rst_i(rst_i),
-                 .stall_i(id_ex_stall),
-                 .flush_i(id_ex_flush),
-                 .prev_stage_stall_i(if_id_stall),
-                 .pipeline_d(id_pipeline_d),
-                 .pipeline_q(ex_pipeline_q)
-               );
-  pipeline_reg #(
-                 .pipeline_t(ex_mem_t),
-                 .RESET_PIPELINE(EX_MEM_RESET)
-               ) ex_mem_reg_inst (
-                 .clk_i(clk_i),
-                 .rst_i(rst_i),
-                 .stall_i(ex_mem_stall),
-                 .flush_i(ex_mem_flush),
-                 .prev_stage_stall_i(id_ex_stall),
-                 .pipeline_d(ex_pipeline_d),
-                 .pipeline_q(mem_pipeline_q)
-               );
-  pipeline_reg #(
-                 .pipeline_t(mem_wb_t),
-                 .RESET_PIPELINE(MEM_WB_RESET)
-               ) mem_wb_reg_inst (
-                 .clk_i(clk_i),
-                 .rst_i(rst_i),
-                 .stall_i(mem_wb_stall),
-                 .flush_i(mem_wb_flush),
-                 .prev_stage_stall_i(ex_mem_stall),
-                 .pipeline_d(mem_pipeline_d),
-                 .pipeline_q(wb_pipeline_q)
-               );
+  always_ff @(posedge clk_i) begin
+    if (rst_i) begin
+      id_pipeline_q <= IF_ID_RESET;
+    end else if (if_id_flush) begin
+      id_pipeline_q.valid <= 0;
+    end else if (!if_id_stall) begin
+      id_pipeline_q <= if_pipeline_d;
+      id_pipeline_q.valid <= if_pipeline_d.valid;
+    end
+  end
+  always_ff @(posedge clk_i) begin
+    if (rst_i) begin
+      ex_pipeline_q <= ID_EX_RESET;
+    end else if (id_ex_flush) begin
+      ex_pipeline_q.valid <= 0;
+      ex_pipeline_q.trap_valid <= 0;
+    end else if (!id_ex_stall) begin
+      ex_pipeline_q <= id_pipeline_d;
+      ex_pipeline_q.valid <= !if_id_stall & id_pipeline_d.valid;
+      ex_pipeline_q.trap_valid <= !if_id_stall & id_pipeline_d.trap_valid;
+      
+    end
+  end
+
+  always_ff @(posedge clk_i) begin
+    if (rst_i) begin
+      mem_pipeline_q <= EX_MEM_RESET;
+    end else if (ex_mem_flush) begin
+      mem_pipeline_q.valid <= 0;
+      mem_pipeline_q.trap_valid <= 0;
+    end else if (!ex_mem_stall) begin
+      mem_pipeline_q <= ex_pipeline_d;
+      mem_pipeline_q.valid <= !id_ex_stall & ex_pipeline_d.valid;
+      mem_pipeline_q.trap_valid <= !id_ex_stall & ex_pipeline_d.trap_valid;
+      
+    end
+  end
+
+  always_ff @(posedge clk_i) begin
+    if (rst_i) begin
+      wb_pipeline_q <= MEM_WB_RESET;
+    end else if (mem_wb_flush) begin
+      wb_pipeline_q.valid <= 0;
+      wb_pipeline_q.trap_valid <= 0;
+    end else if (!mem_wb_stall) begin
+      wb_pipeline_q <= mem_pipeline_d;
+      wb_pipeline_q.valid <= !ex_mem_stall & mem_pipeline_d.valid;
+      wb_pipeline_q.trap_valid <= !ex_mem_stall & mem_pipeline_d.trap_valid;
+    end
+  end
   //*****************************************************************
   //
   //
@@ -822,7 +826,7 @@ import params_pkg::*;
              .wb_valid_i(wb_pipeline_q.valid),
              .ex_valid_i(ex_pipeline_q.valid),
              .mem_valid_i(mem_pipeline_q.valid),
-             .wb_trap_valid_i(wb_trap_valid),
+             .wb_trap_valid_i(wb_pipeline_q.trap_valid),
              .wb_trap_pc_i(wb_trap_pc),
              .wb_trap_mcause_i(wb_trap_mcause),
              .trap_handler_addr_q(trap_handler_addr_q)
@@ -846,7 +850,7 @@ import params_pkg::*;
                  .id_rs1_addr_i(id_rs1_addr),
                  .id_rs2_addr_i(id_rs2_addr),
                  .ex_rd_addr_i(ex_pipeline_q.rd_addr),
-                 .ex_is_pc_redirect_i(ex_is_pc_redirect),
+                 .mem_jump_taken_i(mem_pipeline_q.jump_taken),
                  .ex_forward_a_sel_o(ex_forward_a_sel),
                  .ex_forward_b_sel_o(ex_forward_b_sel),
                  .id_forward_a_o(id_forward_a),
@@ -1074,7 +1078,7 @@ import params_pkg::*;
         rvfi_rs2_rdata <= wb_rvfi.rvfi_trap_info.rs2_rdata;
 
         rvfi_rd_addr <= wb_rvfi.rvfi_trap_info.rd_addr;
-        rvfi_rd_wdata <= !wb_rd_addr ? 0 : wb_rvfi.rvfi_trap_info.rd_wdata;
+        rvfi_rd_wdata <= wb_rvfi.rvfi_trap_info.rd_wdata;
 
         rvfi_pc_rdata <= wb_rvfi.rvfi_trap_info.pc;
         rvfi_pc_wdata <= wb_rvfi.rvfi_trap_info.next_pc;
@@ -1094,7 +1098,7 @@ import params_pkg::*;
         rvfi_rs2_rdata <= wb_rvfi.rs2_rdata;
 
         rvfi_rd_addr <= wb_rvfi.rd_addr;
-        rvfi_rd_wdata <= !wb_rd_addr ? 0 : wb_rvfi.rd_wdata;
+        rvfi_rd_wdata <= wb_rvfi.rd_wdata;
 
         rvfi_pc_rdata <= wb_rvfi.pc_rdata;
         rvfi_pc_wdata <= wb_rvfi.trap_valid ? trap_handler_addr_q : wb_rvfi.pc_wdata;

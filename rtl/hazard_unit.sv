@@ -9,7 +9,8 @@ module hazard_unit
     input logic [4:0] id_rs1_addr_i,
     input logic [4:0] id_rs2_addr_i,
     input logic [4:0] ex_rd_addr_i,
-    input logic ex_is_pc_redirect_i,
+    //input logic ex_is_pc_redirect_i,
+    input logic mem_jump_taken_i,
     output logic [2:0] ex_forward_a_sel_o,
     output logic [2:0] ex_forward_b_sel_o,
     output logic id_forward_a_o,
@@ -93,8 +94,8 @@ module hazard_unit
 
   assign ex_forward_a_sel_o = ex_forward_a;
   assign ex_forward_b_sel_o = ex_forward_b;
-  assign id_forward_a = ((id_rs1_addr_i == wb_rd_addr_i));
-  assign id_forward_b = ((id_rs2_addr_i == wb_rd_addr_i));
+  assign id_forward_a = ((id_rs1_addr_i == wb_rd_addr_i) && nonzero_id_rs1);
+  assign id_forward_b = ((id_rs2_addr_i == wb_rd_addr_i) && nonzero_id_rs2);
 
 
   // LOAD USE FLUSHES ID/EX AND STALLS IF/ID
@@ -103,13 +104,21 @@ module hazard_unit
   //  OUTPUT ASSIGNMENTS
   //
   /*****************************************/
+  // stall conditions :
+  // stall ifid on a load use hazard
+  // stall ex/mem and mem/wb on a read or write request
+  // flush conditions : 
+  // flush if/id on a jump or trap
+  // flush id/ex on a jump or trap
+  // flush ex/mem on a jump or trap
+  // flush mem_wb on a trap
 
   assign id_forward_a_o = id_forward_a;
   assign id_forward_b_o = id_forward_b;
 
-  assign if_id_flush_o = ex_is_pc_redirect_i | (ex_trap_valid_i | mem_trap_valid_i | wb_trap_valid_i);
-  assign id_ex_flush_o = (ex_is_pc_redirect_i & ~ex_mem_stall_o) | (mem_trap_valid_i | wb_trap_valid_i);
-  assign ex_mem_flush_o = mem_trap_valid_i | wb_trap_valid_i;
+  assign if_id_flush_o = mem_jump_taken_i | (ex_trap_valid_i | mem_trap_valid_i | wb_trap_valid_i);
+  assign id_ex_flush_o = mem_jump_taken_i | (mem_trap_valid_i | wb_trap_valid_i);
+  assign ex_mem_flush_o = mem_jump_taken_i | mem_trap_valid_i | wb_trap_valid_i;
   assign mem_wb_flush_o = wb_trap_valid_i;
 
   assign if_id_stall_o = load_use_hazard | id_ex_stall_o;
