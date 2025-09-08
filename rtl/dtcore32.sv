@@ -153,8 +153,6 @@ import params_pkg::*;
   logic [2:0] ex_forward_b_sel;
   logic [31:0] ex_jaddr;
   logic ex_jump_taken;
-  logic [4:0] ex_rs1_addr;
-  logic [4:0] ex_rs2_addr;
   logic [31:0] ex_rs1_rdata;
   logic [31:0] ex_rs2_rdata;
   logic [31:0] ex_csr_bitmask;
@@ -448,98 +446,108 @@ import params_pkg::*;
   //
   //*****************************************************************
   
-  always_comb
-  begin
-    // select rs1 read data
-    case (ex_forward_a_sel)
-      NO_FORWARD_SEL:
-        ex_rs1_rdata = ex_pipeline_q.rs1_rdata;
-      FORWARD_SEL_MEM_RESULT:
-        ex_rs1_rdata = mem_pipeline_q.alu_csr_result;
-      FORWARD_SEL_WB_RESULT:
-        ex_rs1_rdata = wb_rd_wdata;
-      default:
-        ex_rs1_rdata = 'x;
-    endcase
-    // select input data for the first alu input
-    case (ex_pipeline_q.alu_a_sel)
-      ALU_A_SEL_REG_DATA:
-        ex_src_a = ex_rs1_rdata;
-      ALU_A_SEL_PC:
-        ex_src_a = ex_pipeline_q.pc;
-      ALU_A_SEL_ZERO:
-        ex_src_a = 0;
-      default:
-        ex_src_a = 'x;
-    endcase
+  // select rs1 read data
+always_comb begin
+  case (ex_forward_a_sel)
+    NO_FORWARD_SEL:
+      ex_rs1_rdata = ex_pipeline_q.rs1_rdata;
+    FORWARD_SEL_MEM_RESULT:
+      ex_rs1_rdata = mem_pipeline_q.alu_csr_result;
+    FORWARD_SEL_WB_RESULT:
+      ex_rs1_rdata = wb_rd_wdata;
+    default:
+      ex_rs1_rdata = 'x;
+  endcase
+end
 
-    
-    // select rs2 read data
-    case (ex_forward_b_sel)
-      NO_FORWARD_SEL:
-        ex_rs2_rdata = ex_pipeline_q.rs2_rdata;
-      FORWARD_SEL_MEM_RESULT:
-        ex_rs2_rdata = mem_pipeline_q.alu_csr_result;
-      FORWARD_SEL_WB_RESULT:
-        ex_rs2_rdata = wb_rd_wdata;
-      default:
-        ex_rs2_rdata = 'x;
-    endcase
-    // select input data for the second alu input
-    case (ex_pipeline_q.alu_b_sel)
-      ALU_B_SEL_REG_DATA:
-        ex_src_b = ex_rs2_rdata;
-      ALU_B_SEL_IMM:
-        ex_src_b = ex_pipeline_q.imm_ext;
-      default:
-        ex_src_b = 'x;
-    endcase 
+// select input data for the first alu input
+always_comb begin
+  case (ex_pipeline_q.alu_a_sel)
+    ALU_A_SEL_REG_DATA:
+      ex_src_a = ex_rs1_rdata;
+    ALU_A_SEL_PC:
+      ex_src_a = ex_pipeline_q.pc;
+    ALU_A_SEL_ZERO:
+      ex_src_a = 0;
+    default:
+      ex_src_a = 'x;
+  endcase
+end
 
-    // select base value for pc offset
-    case (ex_pipeline_q.pc_alu_sel)
-      PC_ALU_SEL_REG_DATA:
-        ex_pc_base = ex_rs1_rdata;
-      PC_ALU_SEL_PC:
-        ex_pc_base = ex_pipeline_q.pc;
-      default:
-        ex_pc_base = 'x;
-    endcase
+// select rs2 read data
+always_comb begin
+  case (ex_forward_b_sel)
+    NO_FORWARD_SEL:
+      ex_rs2_rdata = ex_pipeline_q.rs2_rdata;
+    FORWARD_SEL_MEM_RESULT:
+      ex_rs2_rdata = mem_pipeline_q.alu_csr_result;
+    FORWARD_SEL_WB_RESULT:
+      ex_rs2_rdata = wb_rd_wdata;
+    default:
+      ex_rs2_rdata = 'x;
+  endcase
+end
 
-    // select bitmask source for csr op
-    case (ex_pipeline_q.csr_bitmask_sel)
-      CSR_BITMASK_SEL_REG_DATA:
-        ex_csr_bitmask = ex_rs1_rdata;
-      CSR_BITMASK_SEL_IMM:
-        ex_csr_bitmask = ex_pipeline_q.imm_ext;
-      default:
-        ex_csr_bitmask = 'x;
-    endcase
+// select input data for the second alu input
+always_comb begin
+  case (ex_pipeline_q.alu_b_sel)
+    ALU_B_SEL_REG_DATA:
+      ex_src_b = ex_rs2_rdata;
+    ALU_B_SEL_IMM:
+      ex_src_b = ex_pipeline_q.imm_ext;
+    default:
+      ex_src_b = 'x;
+  endcase
+end
 
-    // select csr result depending on op type
-    if (id_csr_op_rw) begin
-      ex_csr_wdata = ex_csr_bitmask;
-    end
-    else if (id_csr_op_clear) begin
-      ex_csr_wdata = (ex_pipeline_q.csr_rdata & ~ex_csr_bitmask);
-    end
-    else if (id_csr_op_set) begin
-      ex_csr_wdata = (ex_pipeline_q.csr_rdata | ex_csr_bitmask);
-    end else begin
-      ex_csr_wdata = 'x;
-    end
+// select base value for pc offset
+always_comb begin
+  case (ex_pipeline_q.pc_alu_sel)
+    PC_ALU_SEL_REG_DATA:
+      ex_pc_base = ex_rs1_rdata;
+    PC_ALU_SEL_PC:
+      ex_pc_base = ex_pipeline_q.pc;
+    default:
+      ex_pc_base = 'x;
+  endcase
+end
 
+// select bitmask source for csr op
+always_comb begin
+  case (ex_pipeline_q.csr_bitmask_sel)
+    CSR_BITMASK_SEL_REG_DATA:
+      ex_csr_bitmask = ex_rs1_rdata;
+    CSR_BITMASK_SEL_IMM:
+      ex_csr_bitmask = ex_pipeline_q.imm_ext;
+    default:
+      ex_csr_bitmask = 'x;
+  endcase
+end
+
+// select csr result depending on op type
+always_comb begin
+  if (ex_pipeline_q.csr_op_rw) begin
+    ex_csr_wdata = ex_csr_bitmask;
+  end
+  else if (ex_pipeline_q.csr_op_clear) begin
+    ex_csr_wdata = (ex_pipeline_q.csr_rdata & ~ex_csr_bitmask);
+  end
+  else if (ex_pipeline_q.csr_op_set) begin
+    ex_csr_wdata = (ex_pipeline_q.csr_rdata | ex_csr_bitmask);
+  end
+  else begin
+    ex_csr_wdata = 'x;
+  end
+end
     // trap if the jump address is not word aligned
     // jump if instruction is a jump or a branch and condition is true
     // jump is delayed to the mem stage to avoid long combinational path
-    ex_jaddr     = (ex_pipeline_q.is_jalr) ? ((ex_pc_base + ex_pipeline_q.imm_ext) & ~(1'b1)) : (ex_pc_base + ex_pipeline_q.imm_ext);
-    ex_jump_taken = (ex_pipeline_q.is_jump | (ex_pipeline_q.is_branch & ex_branch_cond));
-    ex_misaligned_jump = ex_jump_taken & (ex_jaddr[1] | ex_jaddr[0]);
+    assign ex_jaddr     = (ex_pipeline_q.is_jalr) ? ((ex_pc_base + ex_pipeline_q.imm_ext) & ~(1'b1)) : (ex_pc_base + ex_pipeline_q.imm_ext);
+    assign ex_jump_taken = (ex_pipeline_q.is_jump | (ex_pipeline_q.is_branch & ex_branch_cond));
+    assign ex_misaligned_jump = ex_jump_taken & (ex_jaddr[1] | ex_jaddr[0]);
 
-    // prevent a jal or jalr instruction from writing to the register 
-    // file if the address is misaligned. any erroneous jumps will be
-    // flushed anyway.
-    
-
+  always_comb
+  begin
     // Branch and jump
     ex_pipeline_d.is_branch     = ex_pipeline_q.is_branch;
     ex_pipeline_d.is_jump       = ex_pipeline_q.is_jump;
@@ -880,6 +888,7 @@ import params_pkg::*;
              .wb_rd_addr_i(wb_rd_addr),
 `endif
              .write_en_i(wb_pipeline_q.is_csr_write),
+             .read_en_i(wb_pipeline_q.is_csr_read),
              .id_csr_raddr_i(id_csr_addr),
              .id_csr_rdata_o(csrfile_rdata),
              

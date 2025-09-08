@@ -192,12 +192,12 @@ module decoder
           end
           // CSRRW/I always writes to the csr file, and conditionally reads when rd is not x0
           FUNCT3_CSRRW: begin
-            {is_rs1_read, is_rd_write, is_csr_write} = '1;
+            {is_rs1_read, is_rd_write, is_csr_write, csr_op_rw} = '1;
             is_csr_read = (rd_addr_i != 0);
             csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRWI: begin
-            {is_rs1_read, is_rd_write, is_csr_write} = '1;
+            {is_rs1_read, is_rd_write, is_csr_write, csr_op_rw} = '1;
             is_csr_read = (rd_addr_i != 0);
             imm_ext_op = CSR_TYPE;
             csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
@@ -205,23 +205,23 @@ module decoder
           // Others always read from the csr file, and conditionally writes when
           // rs1 is x0, or uimm is 0 for register and immediate operand types, respectively
           FUNCT3_CSRRS: begin
-            {is_rs1_read, is_rd_write, is_csr_read} = '1;
+            {is_rs1_read, is_rd_write, is_csr_read, csr_op_set} = '1;
             is_csr_write = (rs1_addr_i != 0);
             csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRSI: begin
-            {is_rs1_read, is_rd_write, is_csr_read} = '1;
+            {is_rs1_read, is_rd_write, is_csr_read, csr_op_set} = '1;
             is_csr_write = (rs1_addr_i != 0);
             imm_ext_op = CSR_TYPE;
             csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
           end
           FUNCT3_CSRRC: begin
-            {is_rs1_read, is_rd_write, is_csr_read} = '1;
+            {is_rs1_read, is_rd_write, is_csr_read, csr_op_clear} = '1;
             is_csr_write = (rs1_addr_i != 0);
             csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRCI: begin
-            {is_rs1_read, is_rd_write, is_csr_read} = '1;
+            {is_rs1_read, is_rd_write, is_csr_read, csr_op_clear} = '1;
             is_csr_write = (rs1_addr_i != 0);
             imm_ext_op = CSR_TYPE;
             csr_bitmask_sel = CSR_BITMASK_SEL_IMM;

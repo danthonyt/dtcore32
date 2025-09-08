@@ -10,6 +10,7 @@ module csrfile
     input logic [4:0] wb_rd_addr_i,
 `endif
     input logic write_en_i,
+    input logic read_en_i,
     // from instruction decode
     input logic [11:0] id_csr_raddr_i,
     output logic [31:0] id_csr_rdata_o,
@@ -129,9 +130,9 @@ module csrfile
   assign id_csr_rdata_o = csr_rdata;
 `ifdef RISCV_FORMAL
   // a csr isntruction is a read only if the destination register is not x0
-  assign wb_csr_rmask_o = (wb_rd_addr_i != 0) ? 32'hffff_ffff : '0;
+  assign wb_csr_rmask_o = read_en_i ? 32'hffff_ffff : '0;
   // a csr instruction is a write if its a csrrw or if its (not a csrrw and rs1 != 0)
-  assign wb_csr_wmask_o = (wb_csr_waddr_i != 0) ? 32'hffff_ffff : '0;
+  assign wb_csr_wmask_o = write_en_i ? 32'hffff_ffff : '0;
 `endif
 
 endmodule
