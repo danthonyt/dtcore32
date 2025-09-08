@@ -45,12 +45,16 @@ module hazard_unit
   logic id_forward_a;
   logic id_forward_b;
   logic load_use_hazard;
+  logic id_wb_rs1_match;
+  logic id_wb_rs2_match;
   logic id_ex_rs1_match;
   logic id_ex_rs2_match;
   logic ex_mem_rs2_match;
   logic ex_mem_rs1_match;
   logic ex_wb_rs2_match;
   logic ex_wb_rs1_match;
+  assign id_wb_rs1_match = (id_rs1_addr_i == wb_rd_addr_i) && |id_rs1_addr_i;
+  assign id_wb_rs2_match = (id_rs2_addr_i == wb_rd_addr_i) && |id_rs2_addr_i;
   assign id_ex_rs1_match = (id_rs1_addr_i == ex_rd_addr_i) && |id_rs1_addr_i;
   assign id_ex_rs2_match = (id_rs2_addr_i == ex_rd_addr_i) && |id_rs2_addr_i;
   assign ex_mem_rs1_match = ((ex_rs1_addr_i == mem_rd_addr_i) && |ex_rs1_addr_i);
@@ -90,8 +94,8 @@ module hazard_unit
     else ex_forward_b = NO_FORWARD_SEL;
   end
 
-  assign id_forward_a = id_ex_rs1_match && wb_is_rd_write_i;
-  assign id_forward_b = id_ex_rs2_match && wb_is_rd_write_i;
+  assign id_forward_a = id_wb_rs1_match && wb_is_rd_write_i;
+  assign id_forward_b = id_wb_rs2_match && wb_is_rd_write_i;
 
 
   // LOAD USE FLUSHES ID/EX AND STALLS IF/ID

@@ -338,8 +338,8 @@ import params_pkg::*;
     id_funct12 = id_insn[31:20];
     id_rtype_alt = id_op[5] & id_funct7b5;
     id_itype_alt = ~id_op[5] & id_funct7b5;
-    id_rs1_addr = id_insn[19:15];
-    id_rs2_addr = id_insn[24:20];
+    id_rs1_addr = id_is_rs1_read ? id_insn[19:15] : 0;
+    id_rs2_addr = id_is_rs2_read ? id_insn[24:20] : 0;
     id_rd_addr = id_insn[11:7];
     id_csr_addr = id_insn[31:20];
     // Branch and jump
