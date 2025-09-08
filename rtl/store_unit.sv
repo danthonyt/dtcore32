@@ -1,7 +1,7 @@
 module store_unit
   import params_pkg::*;
 (
-    input mem_op_t mem_op_i,
+    input logic [2:0] store_size_onehot_i,
     input logic [1:0] waddr_lower2_i,
     input logic [31:0] wdata_unformatted_i,
     output logic misaligned_store_o,
@@ -14,23 +14,21 @@ module store_unit
   logic [31:0] store_wdata_formatted;
   always_comb begin
     misaligned_store = 0;
-    store_wdata_formatted = 0;
-    wstrb = 0;
-    case (mem_op_i)
-      MEM_SW: begin
-        wstrb = 4'hf;
-        store_wdata_formatted = wdata_unformatted_i;
-      end
-      MEM_SH: begin
-        wstrb = 4'h3 << waddr_lower2_i[1] * 2;
-        store_wdata_formatted = wdata_unformatted_i << waddr_lower2_i[1] * 16;
-      end
-      MEM_SB: begin
-        wstrb = 4'b1 << waddr_lower2_i;
-        store_wdata_formatted = wdata_unformatted_i << waddr_lower2_i * 8;
-      end
-      default:;
-    endcase
+    store_wdata_formatted = 'x;
+    wstrb = 'x;
+    if (store_size_onehot_i[0]) begin // byte
+      wstrb = 4'b1 << waddr_lower2_i;
+      store_wdata_formatted = wdata_unformatted_i << waddr_lower2_i * 8;
+    end else if (store_size_onehot_i[1]) begin // half
+      wstrb = 4'h3 << waddr_lower2_i[1] * 2;
+      store_wdata_formatted = wdata_unformatted_i << waddr_lower2_i[1] * 16;
+    end else if (store_size_onehot_i[2]) begin // word
+      wstrb = 4'hf;
+      store_wdata_formatted = wdata_unformatted_i;
+    end else begin
+      wstrb = 0;
+      misaligned_store = 0;
+    end
   end
 
   assign wstrb_o = misaligned_store ? 0 : wstrb;

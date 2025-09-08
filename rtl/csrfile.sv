@@ -9,11 +9,12 @@ module csrfile
     output logic [31:0] wb_csr_wmask_o,
     input logic [4:0] wb_rd_addr_i,
 `endif
+    input logic write_en_i,
     // from instruction decode
     input logic [11:0] id_csr_raddr_i,
     output logic [31:0] id_csr_rdata_o,
     // from write back
-    
+
     input logic [11:0] wb_csr_waddr_i,
     input logic [31:0] wb_csr_wdata_i,
 
@@ -106,12 +107,15 @@ module csrfile
       csr_mcycle_reg <= 0;
       csr_minstret_reg <= 0;
     end else begin
-      csr_mtvec_reg <= csr_mtvec_next;
-      csr_mscratch_reg <= csr_mscratch_next;
-      csr_mepc_reg <= csr_mepc_next;
-      csr_mcause_reg <= csr_mcause_next;
-      csr_mtval_reg <= csr_mtval_next;
-      csr_mcycle_reg <= csr_mcycle_next;
+      // use a write enable for csr registers that can be written to
+      if (write_en_i) begin
+        csr_mtvec_reg <= csr_mtvec_next;
+        csr_mscratch_reg <= csr_mscratch_next;
+        csr_mepc_reg <= csr_mepc_next;
+        csr_mcause_reg <= csr_mcause_next;
+        csr_mtval_reg <= csr_mtval_next;
+      end
+      csr_mcycle_reg   <= csr_mcycle_next;
       csr_minstret_reg <= csr_minstret_next;
     end
   end

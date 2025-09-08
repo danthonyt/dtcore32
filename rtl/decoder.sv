@@ -11,29 +11,69 @@ module decoder
     input logic rtype_alt_i,
     input logic itype_alt_i,
 
-    output logic rd_valid_o,
-    output logic rs1_valid_o,
-    output logic rs2_valid_o,
-    output mem_op_t mem_op_o,
-    output cf_op_t cf_op_o,
-    output csr_op_t csr_op_o,
+    // select signals
     output alu_control_t alu_control_o,
     output imm_ext_op_t imm_ext_op_o,
     output alu_a_sel_t alu_a_sel_o,
     output alu_b_sel_t alu_b_sel_o,
     output pc_alu_sel_t pc_alu_sel_o,
     output csr_bitmask_sel_t csr_bitmask_sel_o,
+
+    // these signals cause side effects and 
+    // must be cleared throughout the pipeline
+    // on flushes
+    output logic is_branch_o,
+    output logic is_jump_o,
+    output logic is_csr_write_o,
+    output logic is_csr_read_o,
+    output logic is_rd_write_o,
+    output logic is_rs1_read_o,
+    output logic is_rs2_read_o,
+    output logic is_mem_write_o,
+    output logic is_mem_read_o,
+    
+    // can leave unmodified during flushes
+    output logic is_jal_o,
+    output logic is_jalr_o,
+    output logic is_memsize_b_o,
+    output logic is_memsize_bu_o,
+    output logic is_memsize_h_o,
+    output logic is_memsize_hu_o,
+    output logic is_memsize_w_o,
+    output logic csr_op_rw_o,
+    output logic csr_op_clear_o,
+    output logic csr_op_set_o,
     output logic illegal_instr_trap_o,
     output logic ecall_m_trap_o,
     output logic breakpoint_trap_o
+
 );
 
-  logic rd_valid;
-  logic rs1_valid;
-  logic rs2_valid;
-  mem_op_t mem_op;
-  cf_op_t cf_op;
-  csr_op_t csr_op;
+  logic illegal_instr_trap;
+  logic ecall_m_trap;
+  logic breakpoint_trap;
+
+  logic is_branch;
+  logic is_jump;
+  logic is_jal;
+  logic is_jalr;
+  logic is_csr_write;
+  logic is_csr_read;
+  logic csr_op_rw;
+  logic csr_op_clear;
+  logic csr_op_set;
+  logic is_rd_write;
+  logic is_rs1_read;
+  logic is_rs2_read;
+  logic is_mem_write;
+  logic is_mem_read;
+  logic is_memsize_b;
+  logic is_memsize_bu;
+  logic is_memsize_h;
+  logic is_memsize_hu;
+  logic is_memsize_w;
+
+
   alu_control_t alu_control;
   imm_ext_op_t imm_ext_op;
   alu_a_sel_t alu_a_src;
@@ -58,29 +98,46 @@ module decoder
   assign is_SLLI_or_SRLI_funct3 = ((funct3_i == FUNCT3_SLLI) || (funct3_i == FUNCT3_SRLI)) ? 1 : 0;
   assign is_shift_itype = is_SLLI_or_SRLI_funct3 | is_SRAI_funct3;
   assign is_unknown_rtype          = is_rtype
-    & (funct7_i != 7'h00)
-    & ~((funct7_i == 7'h20) & is_SRA_or_SUB_funct3);
+         & (funct7_i != 7'h00)
+         & ~((funct7_i == 7'h20) & is_SRA_or_SUB_funct3);
   assign is_unknown_itype = is_itype
-    & is_shift_itype
-    & ~(is_SLLI_or_SRLI_funct3 & (funct7_i == 7'h00))
-    & ~(is_SRAI_funct3 & (funct7_i == 7'h20));
+         & is_shift_itype
+         & ~(is_SLLI_or_SRLI_funct3 & (funct7_i == 7'h00))
+         & ~(is_SRAI_funct3 & (funct7_i == 7'h20));
 
 
   // Decode the control signals for the specific instruction
   always_comb begin
-    ecall_m_trap_o = 0;
-    illegal_instr_trap_o = 0;
-    breakpoint_trap_o = 0;
+    ecall_m_trap = 0;
+    illegal_instr_trap = 0;
+    breakpoint_trap = 0;
     // valid registers
-    rd_valid = 0;
-    rs1_valid = 0;
-    rs2_valid = 0;
-    // ops
+    is_rd_write = 0;
+    is_rs1_read = 0;
+    is_rs2_read = 0;
+    // mux select signals
     alu_op = ALU_OP_ILOAD_S_U_TYPE;
-    mem_op = MEM_NONE;
-    cf_op = CF_NONE;
-    csr_op = CSR_NONE;
     alu_op = ALU_OP_ILOAD_S_U_TYPE;
+    // control signals
+    is_branch = 0;
+    is_jump = 0;
+    is_jal = 0;
+    is_jalr = 0;
+    is_csr_write = 0;
+    is_csr_read = 0;
+    csr_op_rw = 0;
+    csr_op_clear = 0;
+    csr_op_set = 0;
+    is_rd_write = 0;
+    is_rs1_read = 0;
+    is_rs2_read = 0;
+    is_mem_write = 0;
+    is_mem_read = 0;
+    is_memsize_b = 0;
+    is_memsize_bu = 0;
+    is_memsize_h = 0;
+    is_memsize_hu = 0;
+    is_memsize_w = 0;
     // sources
     imm_ext_op = I_ALU_TYPE;
     alu_a_src = ALU_A_SEL_REG_DATA;
@@ -91,92 +148,115 @@ module decoder
 
     case (op_i)
       OPCODE_LOAD: begin
-        rd_valid = 1;
-        rs1_valid = 1;
         imm_ext_op = I_ALU_TYPE;
         alu_a_src = ALU_A_SEL_REG_DATA;
         alu_b_src = ALU_B_SEL_IMM;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
         pc_alu_src = PC_ALU_SEL_PC;
         case (funct3_i)
-          FUNCT3_LB:  mem_op = MEM_LB;
-          FUNCT3_LH:  mem_op = MEM_LH;
-          FUNCT3_LW:  mem_op = MEM_LW;
-          FUNCT3_LBU: mem_op = MEM_LBU;
-          FUNCT3_LHU: mem_op = MEM_LHU;
+          FUNCT3_LB: begin
+            {is_rd_write, is_rs1_read, is_mem_read, is_memsize_b} = '1;
+          end
+          FUNCT3_LH: begin
+            {is_rd_write, is_rs1_read, is_mem_read, is_memsize_h} = '1;
+          end
+          FUNCT3_LW: begin
+            {is_rd_write, is_rs1_read, is_mem_read, is_memsize_w} = '1;
+          end
+          FUNCT3_LBU: begin
+            {is_rd_write, is_rs1_read, is_mem_read, is_memsize_bu} = '1;
+          end
+          FUNCT3_LHU: begin
+            {is_rd_write, is_rs1_read, is_mem_read, is_memsize_hu} = '1;
+          end
           default: begin
-            illegal_instr_trap_o = 1;
+            illegal_instr_trap = 1;
           end
         endcase
       end
 
       OPCODE_SYSCALL_CSR: begin
-        rs1_valid = 1;
-        rd_valid  = 1;
         case (funct3_i)
           FUNCT3_ECALL_EBREAK: begin
             if ((rs1_addr_i == 0) && (rd_addr_i == 0)) begin
-              if (funct12_i == 12'h001) breakpoint_trap_o = 1;
-              else if (funct12_i == 12'h000) ecall_m_trap_o = 1;
-              else illegal_instr_trap_o = 1;
-            end else illegal_instr_trap_o = 1;
+              if (funct12_i == 12'h001) begin
+                breakpoint_trap = 1;
+              end else if (funct12_i == 12'h000) begin
+                ecall_m_trap = 1;
+              end else begin
+                illegal_instr_trap = 1;
+              end
+            end else begin
+              illegal_instr_trap = 1;
+            end
           end
+          // CSRRW/I always writes to the csr file, and conditionally reads when rd is not x0
           FUNCT3_CSRRW: begin
-            csr_op = CSR_WRITE;
-            csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
-          end
-          FUNCT3_CSRRS: begin
-            csr_op = (rs1_addr_i == 0) ? CSR_READ : CSR_SET;
-            csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
-          end
-          FUNCT3_CSRRC: begin
-            csr_op = (rs1_addr_i == 0) ? CSR_READ : CSR_CLEAR;
+            {is_rs1_read, is_rd_write, is_csr_write} = '1;
+            is_csr_read = (rd_addr_i != 0);
             csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRWI: begin
+            {is_rs1_read, is_rd_write, is_csr_write} = '1;
+            is_csr_read = (rd_addr_i != 0);
             imm_ext_op = CSR_TYPE;
-            csr_op = CSR_WRITE;
             csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
+          end
+          // Others always read from the csr file, and conditionally writes when
+          // rs1 is x0, or uimm is 0 for register and immediate operand types, respectively
+          FUNCT3_CSRRS: begin
+            {is_rs1_read, is_rd_write, is_csr_read} = '1;
+            is_csr_write = (rs1_addr_i != 0);
+            csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
           end
           FUNCT3_CSRRSI: begin
+            {is_rs1_read, is_rd_write, is_csr_read} = '1;
+            is_csr_write = (rs1_addr_i != 0);
             imm_ext_op = CSR_TYPE;
-            csr_op = (rs1_addr_i == 0) ? CSR_READ : CSR_SET;
             csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
           end
+          FUNCT3_CSRRC: begin
+            {is_rs1_read, is_rd_write, is_csr_read} = '1;
+            is_csr_write = (rs1_addr_i != 0);
+            csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
+          end
           FUNCT3_CSRRCI: begin
+            {is_rs1_read, is_rd_write, is_csr_read} = '1;
+            is_csr_write = (rs1_addr_i != 0);
             imm_ext_op = CSR_TYPE;
-            csr_op = (rs1_addr_i == 0) ? CSR_READ : CSR_CLEAR;
             csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
           end
           default: begin
-            illegal_instr_trap_o = 1;
+            illegal_instr_trap = 1;
           end
         endcase
       end
       OPCODE_STORE: begin
-        rs1_valid = 1;
-        rs2_valid = 1;
         imm_ext_op = S_TYPE;
         alu_a_src = ALU_A_SEL_REG_DATA;
         alu_b_src = ALU_B_SEL_IMM;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
         pc_alu_src = PC_ALU_SEL_PC;
         case (funct3_i)
-          FUNCT3_SB: mem_op = MEM_SB;
-          FUNCT3_SH: mem_op = MEM_SH;
-          FUNCT3_SW: mem_op = MEM_SW;
+          FUNCT3_SB: begin
+            {is_rs1_read, is_rs2_read, is_mem_write, is_memsize_b} = '1;
+          end
+          FUNCT3_SH: begin
+            {is_rs1_read, is_rs2_read, is_mem_write, is_memsize_h} = '1;
+          end
+          FUNCT3_SW: begin
+            {is_rs1_read, is_rs2_read, is_mem_write, is_memsize_w} = '1;
+          end
           default: begin
-            illegal_instr_trap_o = 1;
+            illegal_instr_trap = 1;
           end
         endcase
       end
       OPCODE_R_TYPE: begin
         if (is_unknown_rtype) begin
-          illegal_instr_trap_o = 1;
+          illegal_instr_trap = 1;
         end else begin
-          rs1_valid = 1;
-          rs2_valid = 1;
-          rd_valid = 1;
+          {is_rs1_read, is_rs2_read, is_rd_write} = '1;
           alu_a_src = ALU_A_SEL_REG_DATA;
           alu_b_src = ALU_B_SEL_REG_DATA;
           alu_op = ALU_OP_IALU_ISHIFT_R_TYPE;
@@ -184,46 +264,47 @@ module decoder
         end
       end
       OPCODE_B_TYPE: begin
-        rs1_valid = 1;
-        rs2_valid = 1;
+        {is_rs1_read, is_rs2_read, is_branch} = '1;
         imm_ext_op = B_TYPE;
         alu_a_src = ALU_A_SEL_REG_DATA;
         alu_b_src = ALU_B_SEL_REG_DATA;
-        cf_op = CF_BRANCH;
         alu_op = ALU_OP_B_TYPE;
         pc_alu_src = PC_ALU_SEL_PC;
       end
       //I-type ALU or shift
       OPCODE_I_TYPE: begin
         if (is_unknown_itype) begin
-          illegal_instr_trap_o = 1;
+          illegal_instr_trap = 1;
         end else begin
-          rs1_valid = 1;
-          rd_valid = 1;
           alu_a_src = ALU_A_SEL_REG_DATA;
           alu_b_src = ALU_B_SEL_IMM;
           alu_op = ALU_OP_IALU_ISHIFT_R_TYPE;
           pc_alu_src = PC_ALU_SEL_PC;
           case (funct3_i)
-            3'b000, 3'b010, 3'b011, 3'b100, 3'b110, 3'b111: imm_ext_op = I_ALU_TYPE;  //I-type ALU
-            3'b001, 3'b101: imm_ext_op = I_SHIFT_TYPE;  //I-type Shift
+            3'b000, 3'b010, 3'b011, 3'b100, 3'b110, 3'b111: begin
+              {is_rs1_read, is_rd_write} = '1;
+              imm_ext_op = I_ALU_TYPE;  //I-type ALU
+            end
+            3'b001, 3'b101: begin
+              {is_rs1_read, is_rd_write} = '1;
+              imm_ext_op = I_SHIFT_TYPE;  //I-type Shift
+            end
             default: begin
-              illegal_instr_trap_o = 1;
+              illegal_instr_trap = 1;
             end
           endcase  //I-type shift
         end
       end
       OPCODE_JAL: begin
-        rd_valid = 1;
+        {is_rd_write, is_jump, is_jal} = '1;
         imm_ext_op = J_TYPE;
         alu_a_src = ALU_A_SEL_REG_DATA;
         alu_b_src = ALU_B_SEL_REG_DATA;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
-        cf_op = CF_JUMP;
         pc_alu_src = PC_ALU_SEL_PC;
       end
       OPCODE_U_TYPE_LUI: begin
-        rd_valid = 1;
+        is_rd_write = 1;
         imm_ext_op = U_TYPE;
         alu_a_src = ALU_A_SEL_ZERO;
         alu_b_src = ALU_B_SEL_IMM;
@@ -231,7 +312,7 @@ module decoder
         pc_alu_src = PC_ALU_SEL_PC;
       end
       OPCODE_U_TYPE_AUIPC: begin
-        rd_valid = 1;
+        is_rd_write = 1;
         imm_ext_op = U_TYPE;
         alu_a_src = ALU_A_SEL_PC;
         alu_b_src = ALU_B_SEL_IMM;
@@ -239,17 +320,15 @@ module decoder
         pc_alu_src = PC_ALU_SEL_PC;
       end
       OPCODE_JALR: begin
-        rs1_valid = 1;
-        rd_valid = 1;
+        {is_rs1_read, is_rd_write, is_jump, is_jalr} = '1;
         imm_ext_op = I_ALU_TYPE;
         alu_a_src = ALU_A_SEL_REG_DATA;
         alu_b_src = ALU_B_SEL_IMM;
         alu_op = ALU_OP_ILOAD_S_U_TYPE;
-        cf_op = CF_JALR;
         pc_alu_src = PC_ALU_SEL_REG_DATA;
       end
       default: begin
-        illegal_instr_trap_o = 1;
+        illegal_instr_trap = 1;
       end
     endcase
   end
@@ -273,7 +352,7 @@ module decoder
         FUNCT3_BGEU: alu_control = GEU_ALU_CONTROL;  //bgeu
         default: ;
       endcase
-      //R-type, I-type ALU,I-type logical shift
+      //R-type, I-type ALU,I-type 1al shift
       ALU_OP_IALU_ISHIFT_R_TYPE: begin
         case (funct3_i)
           FUNCT3_ADD:
@@ -293,17 +372,35 @@ module decoder
     endcase
   end
 
-  assign rd_valid_o = rd_valid;
-  assign rs1_valid_o = rs1_valid;
-  assign rs2_valid_o = rs2_valid;
-  assign mem_op_o = mem_op;
-  assign cf_op_o = cf_op;
-  assign csr_op_o = csr_op;
   assign alu_control_o = alu_control;
   assign imm_ext_op_o = imm_ext_op;
   assign alu_a_sel_o = alu_a_src;
   assign alu_b_sel_o = alu_b_src;
   assign pc_alu_sel_o = pc_alu_src;
   assign csr_bitmask_sel_o = csr_bitmask_sel;
+  assign illegal_instr_trap_o = illegal_instr_trap;
+  assign ecall_m_trap_o = ecall_m_trap;
+  assign breakpoint_trap_o = breakpoint_trap;
+
+  assign is_branch_o = is_branch;
+  assign is_jump_o = is_jump;
+  assign is_jal_o = is_jal;
+  assign is_jalr_o = is_jalr;
+  assign is_csr_write_o = is_csr_write;
+  assign is_csr_read_o = is_csr_read;
+  assign csr_op_rw_o = csr_op_rw;
+  assign csr_op_clear_o = csr_op_clear;
+  assign csr_op_set_o = csr_op_set;
+  assign is_rd_write_o = (|rd_addr_i) ? is_rd_write : 0;
+  assign is_rs1_read_o = is_rs1_read;
+  assign is_rs2_read_o = is_rs2_read;
+  assign is_mem_write_o = is_mem_write;
+  assign is_mem_read_o = is_mem_read;
+  assign is_memsize_b_o = is_memsize_b;
+  assign is_memsize_bu_o = is_memsize_bu;
+  assign is_memsize_h_o = is_memsize_h;
+  assign is_memsize_hu_o = is_memsize_hu;
+  assign is_memsize_w_o = is_memsize_w;
+
 
 endmodule

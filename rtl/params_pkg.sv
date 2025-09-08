@@ -32,38 +32,6 @@ package params_pkg;
     //FORWARD_SEL_WB_ALU_RESULT  = 2'h3
   } forward_sel_t;
 
-
-  typedef enum logic [4:0] {
-    MEM_NONE = 5'b00000,
-
-    MEM_LB  = 5'b1_0_0_00,  // signed byte
-    MEM_LBU = 5'b1_0_1_00,  // unsigned byte
-    MEM_LH  = 5'b1_0_0_01,  // signed half
-    MEM_LHU = 5'b1_0_1_01,  // unsigned half
-    MEM_LW  = 5'b1_0_0_10,  // word (signed/unsigned same)
-
-    MEM_SB = 5'b1_1_0_00,  // store byte
-    MEM_SH = 5'b1_1_0_01,  // store half
-    MEM_SW = 5'b1_1_0_10   // store word
-  } mem_op_t;
-
-  // branch_jump op
-  typedef enum logic [1:0] {
-    CF_NONE   = 2'b00,
-    CF_JUMP   = 2'b01,
-    CF_BRANCH = 2'b10,
-    CF_JALR   = 2'b11
-  } cf_op_t;
-
-  // branch_jump op
-  typedef enum logic [2:0] {
-    CSR_NONE  = 3'b00,
-    CSR_READ  = 3'b01,
-    CSR_WRITE = 3'b10,
-    CSR_SET   = 3'b11,
-    CSR_CLEAR = 3'b100
-  } csr_op_t;
-
   typedef enum logic [2:0] {
     I_ALU_TYPE = 3'b000,
     S_TYPE = 3'b001,
@@ -275,17 +243,39 @@ package params_pkg;
     logic [31:0]      imm_ext;
     logic [11:0]      csr_addr;
     logic [31:0]      csr_rdata;
-    csr_op_t          csr_op;
-    cf_op_t           cf_op;
     alu_control_t     alu_control;
     alu_a_sel_t       alu_a_sel;
     alu_b_sel_t       alu_b_sel;
     pc_alu_sel_t      pc_alu_sel;
     csr_bitmask_sel_t csr_bitmask_sel;
-    mem_op_t          mem_op;
+
+    logic is_branch;
+     logic is_jump;
+     logic is_csr_write;
+     logic is_csr_read;
+     logic is_rd_write;
+     logic is_rs1_read;
+     logic is_rs2_read;
+     logic is_mem_write;
+     logic is_mem_read;
+    
+     logic is_jal;
+     logic is_jalr;
+     logic is_memsize_b;
+     logic is_memsize_bu;
+     logic is_memsize_h;
+     logic is_memsize_hu;
+     logic is_memsize_w;
+     logic csr_op_rw;
+     logic csr_op_clear;
+     logic csr_op_set;
+
+
     logic             trap_valid;
     logic [31:0]      trap_mcause;
     logic [31:0]      trap_pc;
+
+     
 `ifdef RISCV_FORMAL
     logic [31:0]      insn;
     logic             intr;
@@ -294,22 +284,41 @@ package params_pkg;
   } id_ex_t;
 
   typedef struct packed {
-    logic        valid;
+    logic             valid;
     logic [31:0] pc;
     logic [31:0] pc_plus_4;
     logic [4:0]  rd_addr;
     logic [11:0] csr_addr;
     logic [31:0] csr_wdata;
-    mem_op_t     mem_op;
-    cf_op_t           cf_op;
+
+
     logic [31:0] store_wdata;
     logic [31:0] alu_csr_result;
+
+    logic is_branch;
+     logic is_jump;
+     logic is_csr_write;
+     logic is_csr_read;
+     logic is_rd_write;
+     logic is_mem_write;
+     logic is_mem_read;
+    
+     logic is_jal;
+     logic is_jalr;
+     logic is_memsize_b;
+     logic is_memsize_bu;
+     logic is_memsize_h;
+     logic is_memsize_hu;
+     logic is_memsize_w;
+
+     //logic branch_cond;
+    logic jump_taken;
+    logic jaddr;
+
     logic        trap_valid;
     logic [31:0] trap_mcause;
     logic [31:0] trap_pc;
-    logic branch_cond;
-    logic jump_taken;
-    logic jaddr;
+    
 `ifdef RISCV_FORMAL
     logic [31:0] next_pc;
     logic [31:0] insn;
@@ -324,11 +333,16 @@ package params_pkg;
   } ex_mem_t;
 
   typedef struct packed {
-    logic        valid;
+    logic             valid;
     logic [4:0]  rd_addr;
     logic [11:0] csr_addr;
     logic [31:0] csr_wdata;
     logic [31:0] rd_wdata;
+
+     logic is_csr_write;
+     logic is_csr_read;
+     logic is_rd_write;
+
     logic        trap_valid;
     logic [31:0] trap_mcause;
     logic [31:0] trap_pc;
@@ -359,28 +373,21 @@ package params_pkg;
         insn: NOP_INSTRUCTION,
         rvfi_trap_info: trap_info_t'('0),
         `endif
-        csr_op: csr_op_t'('0),
-        cf_op_t: cf_op_t'('0),
         alu_control: alu_control_t'('0),
         alu_a_sel: alu_a_sel_t'('0),
         alu_b_sel: alu_b_sel_t'('0),
         pc_alu_sel: pc_alu_sel_t'('0),
-        csr_bitmask_sel: csr_bitmask_sel_t'('0),
-        //result_sel: result_sel_t'('0),
-        mem_op: mem_op_t'('0)
+        csr_bitmask_sel: csr_bitmask_sel_t'('0)
     };
   endfunction
 
   function automatic ex_mem_t reset_ex_mem();
     reset_ex_mem = '{
-        default: '0,
+        default: '0
         `ifdef RISCV_FORMAL
-        insn: NOP_INSTRUCTION,
-        rvfi_trap_info: trap_info_t'('0),
+        ,insn: NOP_INSTRUCTION,
+        rvfi_trap_info: trap_info_t'('0)
         `endif
-        //result_sel: result_sel_t'('0),
-        cf_op: cf_op_t'(0),
-        mem_op: mem_op_t'(0)
     };
   endfunction
 
@@ -392,7 +399,6 @@ package params_pkg;
         insn: NOP_INSTRUCTION,
         rvfi_trap_info: trap_info_t'('0)
         `endif
-        //result_sel: result_sel_t'('0)
     };
   endfunction
 

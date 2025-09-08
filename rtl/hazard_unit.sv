@@ -1,35 +1,42 @@
 module hazard_unit
   import params_pkg::*;
 (
-    //Forwarding
-    input logic [4:0] ex_rs1_addr_i,
-    input logic [4:0] ex_rs2_addr_i,
-    input logic [4:0] mem_rd_addr_i,
-    input logic [4:0] wb_rd_addr_i,
+    // forward condition signals
+    input logic mem_is_rd_write_i,
+    input logic wb_is_rd_write_i,
+    // register addresses
     input logic [4:0] id_rs1_addr_i,
     input logic [4:0] id_rs2_addr_i,
+    input logic [4:0] ex_rs1_addr_i,
+    input logic [4:0] ex_rs2_addr_i,
     input logic [4:0] ex_rd_addr_i,
-    //input logic ex_is_pc_redirect_i,
-    input logic mem_jump_taken_i,
-    output logic [2:0] ex_forward_a_sel_o,
-    output logic [2:0] ex_forward_b_sel_o,
+    input logic [4:0] mem_rd_addr_i,
+    input logic [4:0] wb_rd_addr_i,
+    // forward select signals
     output logic id_forward_a_o,
     output logic id_forward_b_o,
+    output logic [2:0] ex_forward_a_sel_o,
+    output logic [2:0] ex_forward_b_sel_o,
+    // flush and stall condition signals
+    input logic mem_jump_taken_i,
+    // mem signals
+    input logic mem_req_i,
+    input logic mem_done_i,
+    input logic ex_is_mem_read_i,
+    // flush signals
     output logic if_id_flush_o,
     output logic id_ex_flush_o,
     output logic ex_mem_flush_o,
     output logic mem_wb_flush_o,
+    // stall signals
     output logic if_id_stall_o,
     output logic id_ex_stall_o,
     output logic ex_mem_stall_o,
     output logic mem_wb_stall_o,
+    // valid trap signals
     input logic ex_trap_valid_i,
     input logic mem_trap_valid_i,
-    input logic wb_trap_valid_i,
-    input logic mem_req_i,
-    input logic mem_done_i,
-    input mem_op_t ex_mem_op_i
-
+    input logic wb_trap_valid_i
 );
 
   logic mem_req_stall;
@@ -38,26 +45,18 @@ module hazard_unit
   logic id_forward_a;
   logic id_forward_b;
   logic load_use_hazard;
-  logic nonzero_id_rs1;
-  logic nonzero_id_rs2;
   logic id_ex_rs1_match;
   logic id_ex_rs2_match;
   logic ex_mem_rs2_match;
   logic ex_mem_rs1_match;
   logic ex_wb_rs2_match;
   logic ex_wb_rs1_match;
-  logic nonzero_ex_rs1;
-  logic nonzero_ex_rs2;
-  assign nonzero_id_rs1 = |id_rs1_addr_i;
-  assign nonzero_id_rs2 = |id_rs2_addr_i;
-  assign id_ex_rs1_match = (id_rs1_addr_i == ex_rd_addr_i);
-  assign id_ex_rs2_match = (id_rs2_addr_i == ex_rd_addr_i);
-  assign nonzero_ex_rs1 = ex_rs1_addr_i != 0;
-  assign nonzero_ex_rs2 = ex_rs2_addr_i != 0;
-  assign ex_mem_rs1_match = ((ex_rs1_addr_i == mem_rd_addr_i) && nonzero_ex_rs1);
-  assign ex_mem_rs2_match = ((ex_rs2_addr_i == mem_rd_addr_i) && nonzero_ex_rs2);
-  assign ex_wb_rs1_match = ((ex_rs1_addr_i == wb_rd_addr_i) && nonzero_ex_rs1);
-  assign ex_wb_rs2_match = ((ex_rs2_addr_i == wb_rd_addr_i) && nonzero_ex_rs2);
+  assign id_ex_rs1_match = (id_rs1_addr_i == ex_rd_addr_i) && |id_rs1_addr_i;
+  assign id_ex_rs2_match = (id_rs2_addr_i == ex_rd_addr_i) && |id_rs2_addr_i;
+  assign ex_mem_rs1_match = ((ex_rs1_addr_i == mem_rd_addr_i) && |ex_rs1_addr_i);
+  assign ex_mem_rs2_match = ((ex_rs2_addr_i == mem_rd_addr_i) && |ex_rs2_addr_i);
+  assign ex_wb_rs1_match = ((ex_rs1_addr_i == wb_rd_addr_i) && |ex_rs1_addr_i);
+  assign ex_wb_rs2_match = ((ex_rs2_addr_i == wb_rd_addr_i) && |ex_rs2_addr_i);
 
   /*****************************************/
   //
@@ -68,8 +67,7 @@ module hazard_unit
 
   // We must stall if a load instruction is in the execute stage while another instruction 
   // has a matching source register to that write register in the decode stage
-  assign load_use_hazard = ((ex_mem_op_i[4] & ~ex_mem_op_i[3] ) && ((id_ex_rs1_match && nonzero_id_rs1)
-   || (id_ex_rs2_match && nonzero_id_rs2))) ? 1 : 0;
+  assign load_use_hazard = (ex_is_mem_read_i && (id_ex_rs1_match || id_ex_rs2_match));
 
   assign mem_req_stall = mem_req_i && !mem_done_i;
 
@@ -83,19 +81,17 @@ module hazard_unit
   //instruction we must forward that value from the previous instruction so the updated
   //value is used.
   always_comb begin
-    if (ex_mem_rs1_match) ex_forward_a = FORWARD_SEL_MEM_RESULT;
-    else if (ex_wb_rs1_match) ex_forward_a = FORWARD_SEL_WB_RESULT;
+    if (ex_mem_rs1_match && mem_is_rd_write_i) ex_forward_a = FORWARD_SEL_MEM_RESULT;
+    else if (ex_wb_rs1_match && wb_is_rd_write_i) ex_forward_a = FORWARD_SEL_WB_RESULT;
     else ex_forward_a = NO_FORWARD_SEL;
 
-    if (ex_mem_rs2_match) ex_forward_b = FORWARD_SEL_MEM_RESULT;
-    else if (ex_wb_rs2_match) ex_forward_b = FORWARD_SEL_WB_RESULT;
+    if (ex_mem_rs2_match && mem_is_rd_write_i) ex_forward_b = FORWARD_SEL_MEM_RESULT;
+    else if (ex_wb_rs2_match && wb_is_rd_write_i) ex_forward_b = FORWARD_SEL_WB_RESULT;
     else ex_forward_b = NO_FORWARD_SEL;
   end
 
-  assign ex_forward_a_sel_o = ex_forward_a;
-  assign ex_forward_b_sel_o = ex_forward_b;
-  assign id_forward_a = ((id_rs1_addr_i == wb_rd_addr_i) && nonzero_id_rs1);
-  assign id_forward_b = ((id_rs2_addr_i == wb_rd_addr_i) && nonzero_id_rs2);
+  assign id_forward_a = id_ex_rs1_match && wb_is_rd_write_i;
+  assign id_forward_b = id_ex_rs2_match && wb_is_rd_write_i;
 
 
   // LOAD USE FLUSHES ID/EX AND STALLS IF/ID
@@ -115,15 +111,17 @@ module hazard_unit
 
   assign id_forward_a_o = id_forward_a;
   assign id_forward_b_o = id_forward_b;
+  assign ex_forward_a_sel_o = ex_forward_a;
+  assign ex_forward_b_sel_o = ex_forward_b;
 
   assign if_id_flush_o = mem_jump_taken_i | (ex_trap_valid_i | mem_trap_valid_i | wb_trap_valid_i);
-  assign id_ex_flush_o = mem_jump_taken_i | (mem_trap_valid_i | wb_trap_valid_i);
-  assign ex_mem_flush_o = mem_jump_taken_i | mem_trap_valid_i | wb_trap_valid_i;
-  assign mem_wb_flush_o = wb_trap_valid_i;
+  assign id_ex_flush_o = mem_jump_taken_i | (mem_trap_valid_i | wb_trap_valid_i) | (if_id_stall_o && !id_ex_stall_o);
+  assign ex_mem_flush_o = (mem_jump_taken_i && !ex_mem_stall_o) | (mem_trap_valid_i | wb_trap_valid_i) | (id_ex_stall_o && !ex_mem_stall_o);
+  assign mem_wb_flush_o = wb_trap_valid_i | (ex_mem_stall_o && !mem_wb_stall_o);
 
   assign if_id_stall_o = load_use_hazard | id_ex_stall_o;
   assign id_ex_stall_o = ex_mem_stall_o;
-  assign ex_mem_stall_o = mem_req_stall;
+  assign ex_mem_stall_o = mem_req_stall | mem_wb_stall_o;
   assign mem_wb_stall_o = mem_req_stall;
 
 

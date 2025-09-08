@@ -2,6 +2,7 @@ module regfile (
     input logic clk_i,
     input logic rst_i,
 
+    input logic write_en_i,
     input  logic [ 4:0] rs1_addr_i,
     input  logic [ 4:0] rs2_addr_i,
     input  logic [ 4:0] rd_addr_i,
@@ -19,7 +20,7 @@ module regfile (
   always_ff @(posedge clk_i) begin
     if (rst_i) begin
       for (i = 0; i < 32; i = i + 1) reg_array[i] <= 32'd0;
-    end else begin
+    end else if (write_en_i)begin
       if (rd_addr_i != 0) reg_array[rd_addr_i] <= reg_wr_data_i;
     end
   end

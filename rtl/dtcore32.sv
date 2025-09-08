@@ -92,16 +92,17 @@ import params_pkg::*;
   logic [31:0] wb_csr_rmask;
   logic [31:0] wb_csr_wmask;
 `endif
-  // if stage signals
-  logic [31:0] wb_trap_valid_q;
+  // if stage signals;
   logic [31:0] pc_incr;
   logic [31:0] pc_incr_q;
-  logic [31:0] trap_handler_addr_q,trap_handler_addr_qq;
+  logic [31:0] trap_handler_addr_q;
   logic [31:0] if_pc_qq;
   logic if_valid_qq;
   logic imem_buf_valid;
   logic [31:0] if_insn_buf;
   // id stage signals
+  logic id_forward_a;
+  logic id_forward_b;
   logic [31:0] id_insn;
   logic [11:0] id_csr_addr;
   logic [31:0] id_imm_ext;
@@ -114,12 +115,6 @@ import params_pkg::*;
   logic [11:0] id_funct12;
   logic id_rtype_alt;
   logic id_itype_alt;
-  logic id_rs1_valid;
-  logic id_rs2_valid;
-  logic id_rd_valid;
-  mem_op_t id_mem_op;
-  cf_op_t id_cf_op;
-  csr_op_t id_csr_op;
   imm_ext_op_t id_imm_ext_op;
   alu_a_sel_t id_alu_a_sel;
   alu_b_sel_t id_alu_b_sel;
@@ -133,14 +128,31 @@ import params_pkg::*;
   logic id_illegal_instr_trap;
   logic id_ecall_m_trap;
   logic id_breakpoint_trap;
+  logic id_is_branch;
+     logic id_is_jump;
+     logic id_is_csr_write;
+     logic id_is_csr_read;
+     logic id_is_rd_write;
+     logic id_is_rs1_read;
+     logic id_is_rs2_read;
+     logic id_is_mem_write;
+     logic id_is_mem_read;
+    logic id_is_jal;
+     logic id_is_jalr;
+     logic id_is_memsize_b;
+     logic id_is_memsize_bu;
+     logic id_is_memsize_h;
+     logic id_is_memsize_hu;
+     logic id_is_memsize_w;
+     logic id_csr_op_rw;
+     logic id_csr_op_clear;
+     logic id_csr_op_set;
 
   // ex stage signal
   logic [2:0] ex_forward_a_sel;
   logic [2:0] ex_forward_b_sel;
-  logic [31:0] ex_jaddr, ex_jaddr_q;
-  logic ex_jump_taken, ex_jump_taken_q;
-  cf_op_t ex_cf_op;
-  mem_op_t ex_mem_op;
+  logic [31:0] ex_jaddr;
+  logic ex_jump_taken;
   logic [4:0] ex_rs1_addr;
   logic [4:0] ex_rs2_addr;
   logic [31:0] ex_rs1_rdata;
@@ -155,8 +167,6 @@ import params_pkg::*;
   logic [31:0] ex_alu_result;
 
   //mem stage
-  logic    [ 4:0] mem_rd_addr;
-  mem_op_t        mem_mem_op;
   logic           misaligned_load;
   logic           misaligned_store;
   logic    [ 3:0] mem_wstrb;
@@ -189,10 +199,6 @@ import params_pkg::*;
     begin
       // cycle 1
       pc_incr_q <= RESET_PC;
-      //ex_jump_taken_q <= 0;
-      //trap_handler_addr_qq <= 0;
-      //wb_trap_valid_q <= 0;
-      //ex_jaddr_q <= 0;
       // cycle 2
       if_valid_qq <= 0;
       if_pc_qq <= 'x;
@@ -204,10 +210,6 @@ import params_pkg::*;
     begin
       // cycle 1
       pc_incr_q <= pc_incr;
-      //ex_jump_taken_q <= ex_jump_taken;
-      //trap_handler_addr_qq <= trap_handler_addr_q;
-      //wb_trap_valid_q <= wb_pipeline_q.trap_valid;
-      //ex_jaddr_q <= ex_jaddr;
       // cycle 2
       if_valid_qq <= 0;
       if_pc_qq <= 'x;
@@ -219,10 +221,6 @@ import params_pkg::*;
     begin
       // cycle 1
       pc_incr_q <= pc_incr;
-      //ex_jump_taken_q <= ex_jump_taken;
-      //trap_handler_addr_qq <= trap_handler_addr_q;
-      //wb_trap_valid_q <= wb_pipeline_q.trap_valid;
-      //ex_jaddr_q <= ex_jaddr;
       // cycle 2
       if_valid_qq <= 1;
       if_pc_qq <= imem_addr_o;
@@ -285,31 +283,45 @@ import params_pkg::*;
   //
   //
   //*****************************************************************
-  decoder  decoder_inst (
-             .op_i(id_op),
-             .funct3_i(id_funct3),
-             .funct7_i(id_funct7),
-             .funct12_i(id_funct12),
-             .rs1_addr_i(id_rs1_addr),
-             .rd_addr_i(id_rd_addr),
-             .rtype_alt_i(id_rtype_alt),
-             .itype_alt_i(id_itype_alt),
-             .rd_valid_o(id_rd_valid),
-             .rs1_valid_o(id_rs1_valid),
-             .rs2_valid_o(id_rs2_valid),
-             .mem_op_o(id_mem_op),
-             .cf_op_o(id_cf_op),
-             .csr_op_o(id_csr_op),
-             .alu_control_o(id_alu_control),
-             .imm_ext_op_o(id_imm_ext_op),
-             .alu_a_sel_o(id_alu_a_sel),
-             .alu_b_sel_o(id_alu_b_sel),
-             .pc_alu_sel_o(id_pc_alu_sel),
-             .csr_bitmask_sel_o(id_csr_bitmask_sel),
-             .illegal_instr_trap_o(id_illegal_instr_trap),
-             .ecall_m_trap_o(id_ecall_m_trap),
-             .breakpoint_trap_o(id_breakpoint_trap)
-           );
+
+           decoder  decoder_inst (
+    .op_i(id_op),
+    .funct3_i(id_funct3),
+    .funct7_i(id_funct7),
+    .funct12_i(id_funct12),
+    .rs1_addr_i(id_rs1_addr),
+    .rd_addr_i(id_rd_addr),
+    .rtype_alt_i(id_rtype_alt),
+    .itype_alt_i(id_itype_alt),
+    .alu_control_o(id_alu_control),
+    .imm_ext_op_o(id_imm_ext_op),
+    .alu_a_sel_o(id_alu_a_sel),
+    .alu_b_sel_o(id_alu_b_sel),
+    .pc_alu_sel_o(id_pc_alu_sel),
+    .csr_bitmask_sel_o(id_csr_bitmask_sel),
+    .is_branch_o(id_is_branch),
+    .is_jump_o(id_is_jump),
+    .is_csr_write_o(id_is_csr_write),
+    .is_csr_read_o(id_is_csr_read),
+    .is_rd_write_o(id_is_rd_write),
+    .is_rs1_read_o(id_is_rs1_read),
+    .is_rs2_read_o(id_is_rs2_read),
+    .is_mem_write_o(id_is_mem_write),
+    .is_mem_read_o(id_is_mem_read),
+    .is_jal_o(id_is_jal),
+    .is_jalr_o(id_is_jalr),
+    .is_memsize_b_o(id_is_memsize_b),
+    .is_memsize_bu_o(id_is_memsize_bu),
+    .is_memsize_h_o(id_is_memsize_h),
+    .is_memsize_hu_o(id_is_memsize_hu),
+    .is_memsize_w_o(id_is_memsize_w),
+    .csr_op_rw_o(id_csr_op_rw),
+    .csr_op_clear_o(id_csr_op_clear),
+    .csr_op_set_o(id_csr_op_set),
+    .illegal_instr_trap_o(id_illegal_instr_trap),
+    .ecall_m_trap_o(id_ecall_m_trap),
+    .breakpoint_trap_o(id_breakpoint_trap)
+  );
 
   extend extend_inst (
            .insn_i(id_insn),
@@ -320,7 +332,7 @@ import params_pkg::*;
   // assign signals propagating to the next stage
   always_comb
   begin
-    id_insn = id_pipeline_q.valid ? id_pipeline_q.insn : NOP_INSTRUCTION;
+    id_insn = id_pipeline_q.insn;
     id_op = id_insn[6:0];
     id_funct3 = id_insn[14:12];
     id_funct7b5 = id_insn[30];
@@ -328,11 +340,40 @@ import params_pkg::*;
     id_funct12 = id_insn[31:20];
     id_rtype_alt = id_op[5] & id_funct7b5;
     id_itype_alt = ~id_op[5] & id_funct7b5;
-    id_rs1_addr = (id_rs1_valid) ? id_insn[19:15] : 0;
-    id_rs2_addr = (id_rs2_valid) ? id_insn[24:20] : 0;
-    id_rd_addr = (id_rd_valid) ? id_insn[11:7] : 0;
-    id_csr_addr = (id_csr_op != CSR_NONE) ? id_insn[31:20] : 0;
-    // pipeline
+    id_rs1_addr = id_insn[19:15];
+    id_rs2_addr = id_insn[24:20];
+    id_rd_addr = id_insn[11:7];
+    id_csr_addr = id_insn[31:20];
+    // Branch and jump
+    id_pipeline_d.is_branch     = id_is_branch;
+    id_pipeline_d.is_jump       = id_is_jump;
+    id_pipeline_d.is_jal        = id_is_jal;
+    id_pipeline_d.is_jalr       = id_is_jalr;
+
+    // CSR operations
+    id_pipeline_d.is_csr_write  = id_is_csr_write;
+    id_pipeline_d.is_csr_read   = id_is_csr_read;
+    id_pipeline_d.csr_op_rw     = id_csr_op_rw;
+    id_pipeline_d.csr_op_clear  = id_csr_op_clear;
+    id_pipeline_d.csr_op_set    = id_csr_op_set;
+
+    // Register reads/writes
+    id_pipeline_d.is_rd_write   = id_is_rd_write;
+    id_pipeline_d.is_rs1_read   = id_is_rs1_read;
+    id_pipeline_d.is_rs2_read   = id_is_rs2_read;
+
+    // Memory access
+    id_pipeline_d.is_mem_write  = id_is_mem_write;
+    id_pipeline_d.is_mem_read   = id_is_mem_read;
+
+    // Memory size indicators
+    id_pipeline_d.is_memsize_b  = id_is_memsize_b;
+    id_pipeline_d.is_memsize_bu = id_is_memsize_bu;
+    id_pipeline_d.is_memsize_h  = id_is_memsize_h;
+    id_pipeline_d.is_memsize_hu = id_is_memsize_hu;
+    id_pipeline_d.is_memsize_w  = id_is_memsize_w;
+
+    //
     id_pipeline_d.valid           = id_pipeline_q.valid;
     id_pipeline_d.pc              = id_pipeline_q.pc;
     id_pipeline_d.pc_plus_4       = id_pipeline_q.pc_plus_4;
@@ -344,18 +385,16 @@ import params_pkg::*;
     id_pipeline_d.imm_ext         = id_imm_ext;
     id_pipeline_d.csr_addr        = id_csr_addr;
     id_pipeline_d.csr_rdata       = csrfile_rdata;
-    id_pipeline_d.csr_op          = id_csr_op;
-    id_pipeline_d.cf_op           = id_cf_op;
     id_pipeline_d.alu_control     = id_alu_control;
     id_pipeline_d.alu_a_sel       = id_alu_a_sel;
     id_pipeline_d.alu_b_sel       = id_alu_b_sel;
     id_pipeline_d.pc_alu_sel      = id_pc_alu_sel;
     id_pipeline_d.csr_bitmask_sel = id_csr_bitmask_sel;
-    id_pipeline_d.mem_op          = id_mem_op;
     // trap info
     if (id_ecall_m_trap | id_breakpoint_trap | id_illegal_instr_trap)
     begin
       id_pipeline_d.trap_valid = 1;
+      id_pipeline_d.trap_pc = id_pipeline_q.pc;
       if (id_ecall_m_trap)
       begin
         id_pipeline_d.trap_mcause = {1'd0, TRAP_CODE_ECALL_M_MODE};
@@ -368,7 +407,7 @@ import params_pkg::*;
       begin // illegal instruction
         id_pipeline_d.trap_mcause = {1'd0, TRAP_CODE_ILLEGAL_INSTR};
       end
-      id_pipeline_d.trap_pc = id_pipeline_q.pc;
+      
     end
     else
     begin
@@ -408,6 +447,7 @@ import params_pkg::*;
   //
   //
   //*****************************************************************
+  
   always_comb
   begin
     // select rs1 read data
@@ -476,52 +516,66 @@ import params_pkg::*;
     endcase
 
     // select csr result depending on op type
-    case (ex_pipeline_q.csr_op)
-      CSR_WRITE:
-        ex_csr_wdata = ex_csr_bitmask;
-      CSR_CLEAR:
-        ex_csr_wdata = (ex_pipeline_q.csr_rdata & ~ex_csr_bitmask);
-      CSR_SET:
-        ex_csr_wdata = (ex_pipeline_q.csr_rdata | ex_csr_bitmask);
-      default:
-        ex_csr_wdata = 'x;
-    endcase
-
-    // gate signals that cause side effects if stage is invalid
-    if (!ex_pipeline_q.valid || ex_pipeline_q.trap_valid)
-    begin
-      ex_rs1_addr = 0;
-      ex_rs2_addr = 0;
-      ex_cf_op = cf_op_t'(0);
-      ex_mem_op = mem_op_t'(0);
+    if (id_csr_op_rw) begin
+      ex_csr_wdata = ex_csr_bitmask;
     end
-    else
-    begin
-      ex_rs1_addr = ex_pipeline_q.rs1_addr;
-      ex_rs2_addr = ex_pipeline_q.rs2_addr;
-      ex_cf_op = ex_pipeline_q.cf_op;
-      ex_mem_op = ex_pipeline_q.mem_op;
+    else if (id_csr_op_clear) begin
+      ex_csr_wdata = (ex_pipeline_q.csr_rdata & ~ex_csr_bitmask);
+    end
+    else if (id_csr_op_set) begin
+      ex_csr_wdata = (ex_pipeline_q.csr_rdata | ex_csr_bitmask);
+    end else begin
+      ex_csr_wdata = 'x;
     end
 
     // trap if the jump address is not word aligned
     // jump if instruction is a jump or a branch and condition is true
     // jump is delayed to the mem stage to avoid long combinational path
-    ex_jaddr     = (ex_cf_op == CF_JALR) ? ((ex_pc_base + ex_pipeline_q.imm_ext) & ~(1'b1)) : (ex_pc_base + ex_pipeline_q.imm_ext);
-    ex_jump_taken = (ex_cf_op[0] | (ex_cf_op[1] & ex_branch_cond));
+    ex_jaddr     = (ex_pipeline_q.is_jalr) ? ((ex_pc_base + ex_pipeline_q.imm_ext) & ~(1'b1)) : (ex_pc_base + ex_pipeline_q.imm_ext);
+    ex_jump_taken = (ex_pipeline_q.is_jump | (ex_pipeline_q.is_branch & ex_branch_cond));
     ex_misaligned_jump = ex_jump_taken & (ex_jaddr[1] | ex_jaddr[0]);
+
+    // prevent a jal or jalr instruction from writing to the register 
+    // file if the address is misaligned. any erroneous jumps will be
+    // flushed anyway.
     
 
+    // Branch and jump
+    ex_pipeline_d.is_branch     = ex_pipeline_q.is_branch;
+    ex_pipeline_d.is_jump       = ex_pipeline_q.is_jump;
+    ex_pipeline_d.is_jal = ex_pipeline_q.is_jal;
+    ex_pipeline_d.is_jalr       = ex_pipeline_q.is_jalr;
+
+    // CSR operations
+    ex_pipeline_d.is_csr_write  = ex_pipeline_q.is_csr_write;
+    ex_pipeline_d.is_csr_read   = ex_pipeline_q.is_csr_read;
+
+    // Register writes
+    if (ex_misaligned_jump)
+      ex_pipeline_d.is_rd_write = 0;
+    else
+      ex_pipeline_d.is_rd_write = ex_pipeline_q.is_rd_write;
+
+    // Memory access
+    ex_pipeline_d.is_mem_write  = ex_pipeline_q.is_mem_write;
+    ex_pipeline_d.is_mem_read   = ex_pipeline_q.is_mem_read;
+
+    // Memory size indicators
+    ex_pipeline_d.is_memsize_b  = ex_pipeline_q.is_memsize_b;
+    ex_pipeline_d.is_memsize_bu = ex_pipeline_q.is_memsize_bu;
+    ex_pipeline_d.is_memsize_h  = ex_pipeline_q.is_memsize_h;
+    ex_pipeline_d.is_memsize_hu = ex_pipeline_q.is_memsize_hu;
+    ex_pipeline_d.is_memsize_w  = ex_pipeline_q.is_memsize_w;
+
     // pipeline
+    ex_pipeline_d.valid          = ex_pipeline_q.valid;
     ex_pipeline_d.pc             = ex_pipeline_q.pc;
     ex_pipeline_d.pc_plus_4      = ex_pipeline_q.pc_plus_4;
-    ex_pipeline_d.valid          = ex_pipeline_q.valid;
     ex_pipeline_d.rd_addr        = ex_pipeline_q.rd_addr;
     ex_pipeline_d.csr_addr       = ex_pipeline_q.csr_addr;
     ex_pipeline_d.csr_wdata      = ex_csr_wdata;
-    ex_pipeline_d.cf_op = ex_cf_op;
-    ex_pipeline_d.mem_op         = ex_pipeline_q.mem_op;
     ex_pipeline_d.store_wdata    = ex_rs2_rdata;
-    ex_pipeline_d.alu_csr_result = (ex_pipeline_q.csr_op != CSR_NONE) ? ex_pipeline_q.csr_rdata : ex_alu_result;
+    ex_pipeline_d.alu_csr_result = (ex_pipeline_q.is_csr_read) ? ex_pipeline_q.csr_rdata : ex_alu_result;
     ex_pipeline_d.jaddr = ex_jaddr;
     ex_pipeline_d.jump_taken = ex_jump_taken;
     // traps
@@ -564,8 +618,8 @@ import params_pkg::*;
     ex_pipeline_d.next_pc        = ex_next_pc;
     ex_pipeline_d.insn           = ex_pipeline_q.insn;
     ex_pipeline_d.intr           = ex_pipeline_q.intr;
-    ex_pipeline_d.rs1_addr       = ex_rs1_addr;
-    ex_pipeline_d.rs2_addr       = ex_rs2_addr;
+    ex_pipeline_d.rs1_addr       = ex_pipeline_q.rs1_addr;
+    ex_pipeline_d.rs2_addr       = ex_pipeline_q.rs2_addr;
     ex_pipeline_d.rs1_rdata      = ex_rs1_rdata;
     ex_pipeline_d.rs2_rdata      = ex_rs2_rdata;
     ex_pipeline_d.csr_rdata = ex_pipeline_q.csr_rdata;
@@ -574,8 +628,8 @@ import params_pkg::*;
     rvfi_ex_trap_info.insn = ex_pipeline_q.insn;
     rvfi_ex_trap_info.pc = ex_pipeline_q.pc;
     rvfi_ex_trap_info.next_pc = ex_next_pc;
-    rvfi_ex_trap_info.rs1_addr = ex_rs1_addr;
-    rvfi_ex_trap_info.rs2_addr = ex_rs2_addr;
+    rvfi_ex_trap_info.rs1_addr = ex_pipeline_q.rs1_addr;
+    rvfi_ex_trap_info.rs2_addr = ex_pipeline_q.rs2_addr;
     rvfi_ex_trap_info.rd_addr = ex_pipeline_q.rd_addr;
     rvfi_ex_trap_info.rs1_rdata = ex_src_a;
     rvfi_ex_trap_info.rs2_rdata = ex_rs2_rdata;
@@ -593,7 +647,22 @@ import params_pkg::*;
   //
   //
   //*****************************************************************
-
+     logic [4:0] load_size_onehot;
+     logic [2:0] store_size_onehot;
+     assign load_size_onehot = !mem_pipeline_q.is_mem_read ? '0 : 
+     {
+      mem_pipeline_q.is_memsize_w, 
+      mem_pipeline_q.is_memsize_hu,
+      mem_pipeline_q.is_memsize_h, 
+      mem_pipeline_q.is_memsize_bu, 
+      mem_pipeline_q.is_memsize_b
+    };
+    assign store_size_onehot = !mem_pipeline_q.is_mem_write ? '0 : 
+    {
+      mem_pipeline_q.is_memsize_w, 
+      mem_pipeline_q.is_memsize_h, 
+      mem_pipeline_q.is_memsize_b
+    };
 
   pulse_generator pulse_generator_inst (
                     .clk_i(clk_i),
@@ -603,15 +672,16 @@ import params_pkg::*;
                   );
 
   load_unit  load_unit_inst (
-               .mem_op_i(mem_mem_op),
+               .mem_size_onehot(load_size_onehot),
                .raddr_lower2_i(mem_pipeline_q.alu_csr_result[1:0]),
                .rdata_unformatted_i(mem_rdata_i),
                .misaligned_load_o(misaligned_load),
                .rstrb_o(mem_rstrb),
                .rdata_o(mem_load_rdata)
              );
+
   store_unit  store_unit_inst (
-                .mem_op_i(mem_mem_op),
+                .store_size_onehot_i(store_size_onehot),
                 .waddr_lower2_i(mem_pipeline_q.alu_csr_result[1:0]),
                 .wdata_unformatted_i(mem_pipeline_q.store_wdata),
                 .misaligned_store_o(misaligned_store),
@@ -621,32 +691,26 @@ import params_pkg::*;
 
   always_comb
   begin
-    //mem_trap_valid = mem_pipeline_q.valid & mem_pipeline_q.trap_valid;
-    // prevent side effects on trap or invalid instruction
-    if (!mem_pipeline_q.valid || mem_pipeline_q.trap_valid)
-    begin
-      mem_rd_addr = '0;
-      mem_mem_op  = mem_op_t'(0);
-    end
-    else
-    begin
-      mem_rd_addr = mem_pipeline_q.rd_addr;
-      mem_mem_op  = mem_pipeline_q.mem_op;
-    end
     // memory interface local signals
-    dmem_periph_req = !mem_pipeline_q.trap_valid && (mem_mem_op != MEM_NONE);
-    mem_wen_o = mem_mem_op[4] & mem_mem_op[3];
+    dmem_periph_req = (mem_pipeline_q.is_mem_write || mem_pipeline_q.is_mem_read) && (!misaligned_load || !misaligned_store);
+    mem_wen_o = mem_pipeline_q.is_mem_write;
     mem_addr_o = mem_pipeline_q.alu_csr_result;
     mem_strb_o = mem_wen_o ? mem_wstrb : mem_rstrb;
+
     // pipeline
     mem_pipeline_d.valid       = mem_pipeline_q.valid;
-    mem_pipeline_d.rd_addr     = mem_rd_addr;
-    if (mem_pipeline_q.cf_op[0])  // is a jal or jalr
+    mem_pipeline_d.is_csr_write = mem_pipeline_q.is_csr_write;
+    mem_pipeline_d.is_csr_read  = mem_pipeline_q.is_csr_read;
+    mem_pipeline_d.is_rd_write  =  misaligned_load ? 0 : mem_pipeline_q.is_rd_write;
+    mem_pipeline_d.rd_addr     = mem_pipeline_q.rd_addr;
+
+    if (mem_pipeline_q.is_jalr | mem_pipeline_q.is_jal)  // is a jal or jalr
       mem_pipeline_d.rd_wdata  = mem_pipeline_q.pc_plus_4;
-    else if (mem_mem_op[4] & ~mem_mem_op[3])  // is a load instruction
+    else if (mem_pipeline_q.is_mem_read)  // is a load instruction
       mem_pipeline_d.rd_wdata  = mem_load_rdata;
     else  // else
       mem_pipeline_d.rd_wdata  = mem_pipeline_q.alu_csr_result;
+  
     mem_pipeline_d.csr_addr    = mem_pipeline_q.csr_addr;
     mem_pipeline_d.csr_wdata   = mem_pipeline_q.csr_wdata;
     // traps
@@ -661,6 +725,7 @@ import params_pkg::*;
       mem_pipeline_d.trap_valid = 1;
       mem_pipeline_d.trap_mcause = {1'b0, TRAP_CODE_STORE_ADDR_MISALIGNED};
       mem_pipeline_d.trap_pc = mem_pipeline_q.pc;
+      
     end
     else if (misaligned_load)
     begin
@@ -725,25 +790,12 @@ import params_pkg::*;
 
   always_comb
   begin
-    // invalid instructions should have no side effects
-    // trap propagates as long as the instruction is valid
-    //wb_trap_valid = wb_pipeline_q.valid & wb_pipeline_q.trap_valid;
     wb_trap_mcause = wb_pipeline_q.trap_mcause;
     wb_trap_pc = wb_pipeline_q.trap_pc;
-    if (!wb_pipeline_q.valid || wb_pipeline_q.trap_valid)
-    begin
-      wb_rd_addr = '0;
-      wb_csr_addr = '0;
-      wb_rd_wdata = '0;
-      wb_csr_wdata = '0;
-    end
-    else
-    begin
-      wb_rd_addr = wb_pipeline_q.rd_addr;
-      wb_rd_wdata = (wb_rd_addr == 0) ? 0 : wb_pipeline_q.rd_wdata;
-      wb_csr_addr = wb_pipeline_q.csr_addr;
-      wb_csr_wdata = (wb_csr_addr == 0) ? 0 : wb_pipeline_q.csr_wdata;
-    end
+    wb_rd_addr = wb_pipeline_q.rd_addr;
+    wb_rd_wdata = wb_pipeline_q.rd_wdata;
+    wb_csr_addr = wb_pipeline_q.csr_addr;
+    wb_csr_wdata = wb_pipeline_q.csr_wdata;
   end
 
   //*****************************************************************
@@ -758,22 +810,28 @@ import params_pkg::*;
       id_pipeline_q <= IF_ID_RESET;
     end else if (if_id_flush) begin
       id_pipeline_q.valid <= 0;
+      id_pipeline_q.insn <= NOP_INSTRUCTION;
     end else if (!if_id_stall) begin
       id_pipeline_q <= if_pipeline_d;
-      id_pipeline_q.valid <= if_pipeline_d.valid;
     end
   end
   always_ff @(posedge clk_i) begin
     if (rst_i) begin
       ex_pipeline_q <= ID_EX_RESET;
     end else if (id_ex_flush) begin
+      ex_pipeline_q.is_branch <= 0;
+      ex_pipeline_q.is_jump <= 0;
+      ex_pipeline_q.is_csr_write <= 0;
+      ex_pipeline_q.is_csr_read <= 0;
+      ex_pipeline_q.is_rd_write <= 0;
+      ex_pipeline_q.is_rs1_read <= 0;
+      ex_pipeline_q.is_rs2_read <= 0;
+      ex_pipeline_q.is_mem_write <= 0;
+      ex_pipeline_q.is_mem_read <= 0;
       ex_pipeline_q.valid <= 0;
       ex_pipeline_q.trap_valid <= 0;
     end else if (!id_ex_stall) begin
       ex_pipeline_q <= id_pipeline_d;
-      ex_pipeline_q.valid <= !if_id_stall & id_pipeline_d.valid;
-      ex_pipeline_q.trap_valid <= !if_id_stall & id_pipeline_d.trap_valid;
-      
     end
   end
 
@@ -781,13 +839,15 @@ import params_pkg::*;
     if (rst_i) begin
       mem_pipeline_q <= EX_MEM_RESET;
     end else if (ex_mem_flush) begin
+      mem_pipeline_q.is_csr_write <= 0;
+      mem_pipeline_q.is_csr_read <= 0;
+      mem_pipeline_q.is_rd_write <= 0;
+      mem_pipeline_q.is_mem_write <= 0;
+      mem_pipeline_q.is_mem_read <= 0;
       mem_pipeline_q.valid <= 0;
       mem_pipeline_q.trap_valid <= 0;
     end else if (!ex_mem_stall) begin
       mem_pipeline_q <= ex_pipeline_d;
-      mem_pipeline_q.valid <= !id_ex_stall & ex_pipeline_d.valid;
-      mem_pipeline_q.trap_valid <= !id_ex_stall & ex_pipeline_d.trap_valid;
-      
     end
   end
 
@@ -795,12 +855,13 @@ import params_pkg::*;
     if (rst_i) begin
       wb_pipeline_q <= MEM_WB_RESET;
     end else if (mem_wb_flush) begin
+      wb_pipeline_q.is_csr_write <= 0;
+      wb_pipeline_q.is_csr_read <= 0;
+      wb_pipeline_q.is_rd_write <= 0;
       wb_pipeline_q.valid <= 0;
       wb_pipeline_q.trap_valid <= 0;
     end else if (!mem_wb_stall) begin
       wb_pipeline_q <= mem_pipeline_d;
-      wb_pipeline_q.valid <= !ex_mem_stall & mem_pipeline_d.valid;
-      wb_pipeline_q.trap_valid <= !ex_mem_stall & mem_pipeline_d.trap_valid;
     end
   end
   //*****************************************************************
@@ -818,6 +879,7 @@ import params_pkg::*;
              .wb_csr_wmask_o(wb_csr_wmask),
              .wb_rd_addr_i(wb_rd_addr),
 `endif
+             .write_en_i(wb_pipeline_q.is_csr_write),
              .id_csr_raddr_i(id_csr_addr),
              .id_csr_rdata_o(csrfile_rdata),
              
@@ -834,6 +896,7 @@ import params_pkg::*;
   regfile  regfile_inst (
              .clk_i(clk_i),
              .rst_i(rst_i),
+             .write_en_i(wb_pipeline_q.is_rd_write),
              .rs1_addr_i(id_rs1_addr),
              .rs2_addr_i(id_rs2_addr),
              .rd_addr_i(wb_rd_addr),
@@ -842,34 +905,36 @@ import params_pkg::*;
              .rs2_rdata_o(regfile_rs2_rdata)
            );
 
-  hazard_unit  hazard_unit_inst (
-                 .ex_rs1_addr_i(ex_rs1_addr),
-                 .ex_rs2_addr_i(ex_rs2_addr),
-                 .mem_rd_addr_i(mem_rd_addr),
-                 .wb_rd_addr_i(wb_rd_addr),
-                 .id_rs1_addr_i(id_rs1_addr),
-                 .id_rs2_addr_i(id_rs2_addr),
-                 .ex_rd_addr_i(ex_pipeline_q.rd_addr),
-                 .mem_jump_taken_i(mem_pipeline_q.jump_taken),
-                 .ex_forward_a_sel_o(ex_forward_a_sel),
-                 .ex_forward_b_sel_o(ex_forward_b_sel),
-                 .id_forward_a_o(id_forward_a),
-                 .id_forward_b_o(id_forward_b),
-                 .if_id_flush_o(if_id_flush),
-                 .id_ex_flush_o(id_ex_flush),
-                 .ex_mem_flush_o(ex_mem_flush),
-                 .mem_wb_flush_o(mem_wb_flush),
-                 .if_id_stall_o(if_id_stall),
-                 .id_ex_stall_o(id_ex_stall),
-                 .ex_mem_stall_o(ex_mem_stall),
-                 .mem_wb_stall_o(mem_wb_stall),
-                 .ex_trap_valid_i(ex_pipeline_q.trap_valid),
-                 .mem_trap_valid_i(mem_pipeline_q.trap_valid),
-                 .wb_trap_valid_i(wb_pipeline_q.trap_valid),
-                 .mem_req_i(dmem_periph_req),
-                 .mem_done_i(mem_done_i),
-                 .ex_mem_op_i(ex_mem_op)
-               );
+           hazard_unit  hazard_unit_inst (
+    .mem_is_rd_write_i(mem_pipeline_q.is_rd_write),
+    .wb_is_rd_write_i(wb_pipeline_q.is_rd_write),
+    .id_rs1_addr_i(id_rs1_addr),
+    .id_rs2_addr_i(id_rs2_addr),
+    .ex_rs1_addr_i(ex_pipeline_q.rs1_addr),
+    .ex_rs2_addr_i(ex_pipeline_q.rs2_addr),
+    .ex_rd_addr_i(ex_pipeline_q.rd_addr),
+    .mem_rd_addr_i(mem_pipeline_q.rd_addr),
+    .wb_rd_addr_i(wb_pipeline_q.rd_addr),
+    .id_forward_a_o(id_forward_a),
+    .id_forward_b_o(id_forward_b),
+    .ex_forward_a_sel_o(ex_forward_a_sel),
+    .ex_forward_b_sel_o(ex_forward_b_sel),
+    .mem_jump_taken_i(mem_pipeline_q.jump_taken),
+    .mem_req_i(dmem_periph_req),
+    .mem_done_i(mem_done_i),
+    .ex_is_mem_read_i(ex_pipeline_q.is_mem_read),
+    .if_id_flush_o(if_id_flush),
+    .id_ex_flush_o(id_ex_flush),
+    .ex_mem_flush_o(ex_mem_flush),
+    .mem_wb_flush_o(mem_wb_flush),
+    .if_id_stall_o(if_id_stall),
+    .id_ex_stall_o(id_ex_stall),
+    .ex_mem_stall_o(ex_mem_stall),
+    .mem_wb_stall_o(mem_wb_stall),
+    .ex_trap_valid_i(ex_pipeline_q.trap_valid),
+    .mem_trap_valid_i(mem_pipeline_q.trap_valid),
+    .wb_trap_valid_i(wb_pipeline_q.trap_valid)
+  );
   // instruction memory interface
   // data memory interface
 
@@ -917,17 +982,17 @@ import params_pkg::*;
     // Register file signals
     wb_rvfi.rs1_addr  = wb_pipeline_q.rs1_addr;
     wb_rvfi.rs2_addr  = wb_pipeline_q.rs2_addr;
-    wb_rvfi.rd_addr   = wb_rd_addr;
+    wb_rvfi.rd_addr   = wb_pipeline_q.is_rd_write ? wb_rd_addr : 0;
     wb_rvfi.rs1_rdata = wb_pipeline_q.rs1_rdata;
     wb_rvfi.rs2_rdata = wb_pipeline_q.rs2_rdata;
-    wb_rvfi.rd_wdata  = wb_rd_wdata;
+    wb_rvfi.rd_wdata  = wb_pipeline_q.is_rd_write ? wb_rd_wdata : 0;
 
     // CSR signals
     wb_rvfi.csr_addr  = wb_csr_addr;
     wb_rvfi.csr_wdata = wb_pipeline_q.csr_wdata;
-    wb_rvfi.csr_wmask = wb_csr_wmask;
+    wb_rvfi.csr_wmask = wb_pipeline_q.is_csr_write ? wb_csr_wmask : 0;
     wb_rvfi.csr_rdata = wb_pipeline_q.csr_rdata;
-    wb_rvfi.csr_rmask = wb_csr_rmask;
+    wb_rvfi.csr_rmask = wb_pipeline_q.is_csr_read ? wb_csr_rmask : 0;
 
     // Memory interface
     wb_rvfi.mem_addr  = wb_pipeline_q.mem_addr;
