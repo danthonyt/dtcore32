@@ -4,6 +4,7 @@
 //
 //
 ////////////////////////////////////////////
+`define RISCV_FORMAL
 package params_pkg;
 
   // ALU control signals
@@ -313,7 +314,7 @@ package params_pkg;
 
      //logic branch_cond;
     logic jump_taken;
-    logic jaddr;
+    logic [31:0] jaddr;
 
     logic        trap_valid;
     logic [31:0] trap_mcause;

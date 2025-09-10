@@ -6,9 +6,6 @@ module soc_top (
 
 );
   localparam MEM_DEPTH = 2560;
-  localparam CLKS_PER_BIT = 860;
-  localparam WISHBONE_ADDR_WIDTH = 32;
-  localparam WISHBONE_BUS_WIDTH = 32;
 
   logic [31:0] imem_rdata;
   logic [31:0] imem_addr;
@@ -20,15 +17,26 @@ module soc_top (
   logic [31:0] mem_wdata;
   logic [3:0] mem_strb;
 
-  logic [31:0] cpu_wbm_dat_i;
-  logic cpu_wbm_err;
-  logic cpu_wbm_ack;
-  logic cpu_wbm_cyc;
-  logic cpu_wbm_stb;
-  logic [31:0] cpu_wbm_adr;
-  logic cpu_wbm_we;
-  logic [31:0] cpu_wbm_dat_o;
-  logic [3:0] cpu_wbm_sel;
+
+  logic [31:0] axi_araddr;
+  // logic [ 2:0] axi_arprot;
+  logic axi_arvalid;
+  logic axi_arready;
+  logic [31:0] axi_rdata;
+  logic [ 1:0] axi_rresp;
+  logic axi_rvalid;
+  logic axi_rready;
+  logic axi_awvalid;
+  logic axi_awready;
+  logic [31:0] axi_awaddr;
+  // logic [ 2:0] axi_awprot;
+  logic axi_wvalid;
+  logic axi_wready;
+  logic [31:0] axi_wdata;
+  logic [ 3:0] axi_wstrb;
+  logic axi_bvalid;
+  logic axi_bready;
+  logic [ 1:0] axi_bresp;
   logic [31:0] dmem_rdata;
   logic [31:0] dmem_addr;
   logic dmem_en;
@@ -36,15 +44,6 @@ module soc_top (
   logic [31:0] dmem_wdata;
   logic [3:0] dmem_wstrb;
 
-  logic [WISHBONE_ADDR_WIDTH-1:0] ic_wbs_adr;
-  logic ic_wbs_we;
-  logic [WISHBONE_BUS_WIDTH-1:0] ic_wbs_dat_i;
-  logic [WISHBONE_BUS_WIDTH/8-1:0] ic_wbs_sel;
-  logic uart_wbs_cyc;
-  logic uart_wbs_stb;
-  logic [WISHBONE_BUS_WIDTH-1:0] uart_wbs_dat_o;
-  logic uart_wbs_ack;
-  logic uart_wbs_err;
 
   dtcore32 dtcore32_inst (
       .clk_i(clk_i),
@@ -60,32 +59,67 @@ module soc_top (
       .mem_strb_o(mem_strb)
   );
 
-  cpu_bus_master cpu_bus_master_inst (
-      .clk_i(clk_i),
-      .rst_i(rst_i),
-      .mem_valid_i(mem_valid),
-      .mem_wen_i(mem_wen),
-      .mem_addr_i(mem_addr),
-      .mem_wdata_i(mem_wdata),
-      .mem_strb_i(mem_strb),
-      .mem_rdata_o(mem_rdata),
-      .mem_done_o(mem_done),
-      .cpu_wbm_dat_i(cpu_wbm_dat_i),
-      .cpu_wbm_err_i(cpu_wbm_err),
-      .cpu_wbm_ack_i(cpu_wbm_ack),
-      .cpu_wbm_cyc_o(cpu_wbm_cyc),
-      .cpu_wbm_stb_o(cpu_wbm_stb),
-      .cpu_wbm_adr_o(cpu_wbm_adr),
-      .cpu_wbm_we_o(cpu_wbm_we),
-      .cpu_wbm_dat_o(cpu_wbm_dat_o),
-      .cpu_wbm_sel_o(cpu_wbm_sel),
-      .dmem_rdata_i(dmem_rdata),
-      .dmem_addr_o(dmem_addr),
-      .dmem_en_o(dmem_en),
-      .dmem_wen_o(dmem_wen),
-      .dmem_wdata_o(dmem_wdata),
-      .dmem_wstrb_o(dmem_wstrb)
+  cpu_bus_master_axil  cpu_bus_master_axil_inst (
+    .clk_i(clk_i),
+    .rst_i(rst_i),
+    .mem_valid_i(mem_valid),
+    .mem_wen_i(mem_wen),
+    .mem_addr_i(mem_addr),
+    .mem_wdata_i(mem_wdata),
+    .mem_strb_i(mem_strb),
+    .mem_rdata_o(mem_rdata),
+    .mem_done_o(mem_done),
+    .m_axi_araddr_o(axi_araddr),
+    .m_axi_arprot_o(),
+    .m_axi_arvalid_o(axi_arvalid),
+    .m_axi_arready_i(axi_arready),
+    .m_axi_rdata_i(axi_rdata),
+    .m_axi_rresp_i(axi_rresp),
+    .m_axi_rvalid_i(axi_rvalid),
+    .m_axi_rready_o(axi_rready),
+    .m_axi_awvalid_o(axi_awvalid),
+    .m_axi_awready_i(axi_awready),
+    .m_axi_awaddr_o(axi_awaddr),
+    .m_axi_awprot_o(),
+    .m_axi_wvalid_o(axi_wvalid),
+    .m_axi_wready_i(axi_wready),
+    .m_axi_wdata_o(axi_wdata),
+    .m_axi_wstrb_o(axi_wstrb),
+    .m_axi_bvalid_i(axi_bvalid),
+    .m_axi_bready_o(axi_bready),
+    .m_axi_bresp_i(axi_bresp),
+    .dmem_rdata_i(dmem_rdata),
+    .dmem_addr_o(dmem_addr),
+    .dmem_en_o(dmem_en),
+    .dmem_wen_o(dmem_wen),
+    .dmem_wdata_o(dmem_wdata),
+    .dmem_wstrb_o(dmem_wstrb)
   );
+
+  axi_uartlite_0 uart_inst (
+  .s_axi_aclk(clk_i),        // input wire s_axi_aclk
+  .s_axi_aresetn(~rst_i),  // input wire s_axi_aresetn
+  .interrupt(),          // output wire interrupt
+  .s_axi_awaddr(axi_awaddr[3:0]),    // input wire [3 : 0] s_axi_awaddr
+  .s_axi_awvalid(axi_awvalid),  // input wire s_axi_awvalid
+  .s_axi_awready(axi_awready),  // output wire s_axi_awready
+  .s_axi_wdata(axi_wdata),      // input wire [31 : 0] s_axi_wdata
+  .s_axi_wstrb(axi_wstrb),      // input wire [3 : 0] s_axi_wstrb
+  .s_axi_wvalid(axi_wvalid),    // input wire s_axi_wvalid
+  .s_axi_wready(axi_wready),    // output wire s_axi_wready
+  .s_axi_bresp(axi_bresp),      // output wire [1 : 0] s_axi_bresp
+  .s_axi_bvalid(axi_bvalid),    // output wire s_axi_bvalid
+  .s_axi_bready(axi_bready),    // input wire s_axi_bready
+  .s_axi_araddr(axi_araddr[3:0]),    // input wire [3 : 0] s_axi_araddr
+  .s_axi_arvalid(axi_arvalid),  // input wire s_axi_arvalid
+  .s_axi_arready(axi_arready),  // output wire s_axi_arready
+  .s_axi_rdata(axi_rdata),      // output wire [31 : 0] s_axi_rdata
+  .s_axi_rresp(axi_rresp),      // output wire [1 : 0] s_axi_rresp
+  .s_axi_rvalid(axi_rvalid),    // output wire s_axi_rvalid
+  .s_axi_rready(axi_rready),    // input wire s_axi_rready
+  .rx(rx_i),                        // input wire rx
+  .tx(tx_o)                        // output wire tx
+);
 
   ram #(
       .MEM_DEPTH(MEM_DEPTH)
@@ -107,44 +141,11 @@ module soc_top (
       .rdata_o(imem_rdata)
   );
 
-  uart_wb_wrapper #(
-      .CLKS_PER_BIT(CLKS_PER_BIT)
-  ) uart_wb_wrapper_inst (
-      .clk_i(clk_i),
-      .rst_i(rst_i),
-      .wbs_adr_i(ic_wbs_adr[3:0]),
-      .wbs_we_i(ic_wbs_we),
-      .wbs_dat_i(ic_wbs_dat_i),
-      .wbs_cyc_i(uart_wbs_cyc),
-      .wbs_stb_i(uart_wbs_stb),
-      .wbs_dat_o(uart_wbs_dat_o),
-      .wbs_ack_o(uart_wbs_ack),
-      .wbs_err_o(uart_wbs_err),
-      .rx_i(rx_i),
-      .tx_o(tx_o)
-  );
+  ila_0 your_instance_name (
+	.clk(clk_i), // input wire clk
 
-  wb_interconnect #(
-      .WISHBONE_ADDR_WIDTH(WISHBONE_ADDR_WIDTH),
-      .WISHBONE_BUS_WIDTH (WISHBONE_BUS_WIDTH)
-  ) wb_interconnect_inst (
-      .wbm_cyc(cpu_wbm_cyc),
-      .wbm_stb(cpu_wbm_stb),
-      .wbm_adr(cpu_wbm_adr),
-      .wbm_we(cpu_wbm_we),
-      .wbm_dat_o(cpu_wbm_dat_o),
-      .wbm_sel(cpu_wbm_sel),
-      .wbm_dat_i(cpu_wbm_dat_i),
-      .wbm_err(cpu_wbm_err),
-      .wbm_ack(cpu_wbm_ack),
-      .ic_wbs_adr(ic_wbs_adr),
-      .ic_wbs_we(ic_wbs_we),
-      .ic_wbs_dat_i(ic_wbs_dat_i),
-      .ic_wbs_sel(ic_wbs_sel),
-      .uart_wbs_cyc(uart_wbs_cyc),
-      .uart_wbs_stb(uart_wbs_stb),
-      .uart_wbs_dat_o(uart_wbs_dat_o),
-      .uart_wbs_ack(uart_wbs_ack),
-      .uart_wbs_err(uart_wbs_err)
-  );
+
+	.probe0(rx_i) // input wire [0:0] probe0
+);
+
 endmodule

@@ -1,4 +1,4 @@
-module cpu_bus_master (
+module cpu_bus_master_wishbone (
     input logic clk_i,
     input logic rst_i,
 

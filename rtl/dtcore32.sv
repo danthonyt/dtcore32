@@ -1,4 +1,3 @@
-
 module dtcore32 (
     input  logic        clk_i,
     input  logic        rst_i,
@@ -93,13 +92,13 @@ import params_pkg::*;
   logic [31:0] wb_csr_wmask;
 `endif
   // if stage signals;
-  logic [31:0] pc_incr;
-  logic [31:0] pc_incr_q;
+  logic [31:0] next_pc;
   logic [31:0] trap_handler_addr_q;
-  logic [31:0] if_pc_qq;
-  logic if_valid_qq;
+  logic [31:0] imem_addr_q;
+  logic imem_rdata_valid;
   logic imem_buf_valid;
   logic [31:0] if_insn_buf;
+  logic [31:0] if_buf_pc;
   // id stage signals
   logic id_forward_a;
   logic id_forward_b;
@@ -195,35 +194,40 @@ import params_pkg::*;
   begin
     if (rst_i)
     begin
-      // cycle 1
-      pc_incr_q <= RESET_PC;
-      // cycle 2
-      if_valid_qq <= 0;
-      if_pc_qq <= 'x;
-      // buffer
-      if_insn_buf <= 'x;
+      imem_addr_o <= RESET_PC;
+      imem_rdata_valid <= 0;
+    end
+    else if (if_id_flush) begin
+      imem_addr_o <= next_pc;
+      imem_rdata_valid <= 0;
+    end
+    else if (!if_id_stall)
+    begin
+      imem_addr_o <= next_pc;
+      imem_rdata_valid <= 1;
+    end
+  end
+
+
+  // registers imem address to stay cycle aligned with imem rdata
+  // imem reads have 1 cycle latency
+  always_ff @(posedge clk_i)
+  begin
+    imem_addr_q <= imem_addr_o;
+  end
+
+  // buffer
+  always_ff @(posedge clk_i)
+  begin
+    if (rst_i)
+    begin
       imem_buf_valid <= 0;
     end
-    else if (if_id_flush)
-    begin
-      // cycle 1
-      pc_incr_q <= pc_incr;
-      // cycle 2
-      if_valid_qq <= 0;
-      if_pc_qq <= 'x;
-      //buffer
-      if_insn_buf <= 'x;
+    else if (if_id_flush) begin
       imem_buf_valid <= 0;
     end
     else if (!if_id_stall)
     begin
-      // cycle 1
-      pc_incr_q <= pc_incr;
-      // cycle 2
-      if_valid_qq <= 1;
-      if_pc_qq <= imem_addr_o;
-      // buffer
-      if_insn_buf <= 'x;
       imem_buf_valid <= 0;
     end
     // When entering a stall, buffer the instruction memory read data.
@@ -233,18 +237,18 @@ import params_pkg::*;
     begin
       if_insn_buf <= imem_rdata_i;
       imem_buf_valid <= 1;
+      if_buf_pc <= imem_addr_q;
     end
   end
 
   always_comb
   begin
-    imem_addr_o = wb_pipeline_q.trap_valid ? trap_handler_addr_q :
-                mem_pipeline_q.jump_taken ?  mem_pipeline_q.jaddr : pc_incr_q;
-    pc_incr = imem_addr_o + 4;
-    if_pipeline_d.pc = if_pc_qq;
-    if_pipeline_d.pc_plus_4 = if_pc_qq + 4;
+    next_pc = wb_pipeline_q.trap_valid ? trap_handler_addr_q :
+                mem_pipeline_q.jump_taken ?  mem_pipeline_q.jaddr : imem_addr_o + 4;
+    if_pipeline_d.pc = imem_buf_valid ? if_buf_pc : imem_addr_q;
+    if_pipeline_d.pc_plus_4 = if_pipeline_d.pc + 4;
     if_pipeline_d.insn = imem_buf_valid ? if_insn_buf : imem_rdata_i;;
-    if_pipeline_d.valid = if_valid_qq;
+    if_pipeline_d.valid = imem_rdata_valid;
   end
 `ifdef RISCV_FORMAL
   logic if_intr_d;
@@ -821,6 +825,7 @@ end
       id_pipeline_q.insn <= NOP_INSTRUCTION;
     end else if (!if_id_stall) begin
       id_pipeline_q <= if_pipeline_d;
+      id_pipeline_q.insn <= imem_rdata_valid ? if_pipeline_d.insn : NOP_INSTRUCTION;
     end
   end
   always_ff @(posedge clk_i) begin
@@ -854,6 +859,8 @@ end
       mem_pipeline_q.is_mem_read <= 0;
       mem_pipeline_q.valid <= 0;
       mem_pipeline_q.trap_valid <= 0;
+      mem_pipeline_q.jump_taken <= 0;
+
     end else if (!ex_mem_stall) begin
       mem_pipeline_q <= ex_pipeline_d;
     end

@@ -96,6 +96,10 @@ module hazard_unit
 
   assign id_forward_a = id_wb_rs1_match && wb_is_rd_write_i;
   assign id_forward_b = id_wb_rs2_match && wb_is_rd_write_i;
+  // irq request sequence:
+  // asynchronous irq signal is registered
+  // if high, flush if_id, id_ex, and ex_mem register on first cycle
+  // flush if_id, id_ex, ex_mem, and mem_wb register on second cycle
 
 
   // LOAD USE FLUSHES ID/EX AND STALLS IF/ID

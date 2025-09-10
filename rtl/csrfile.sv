@@ -27,7 +27,9 @@ module csrfile
     input logic wb_trap_valid_i,
     input logic [31:0] wb_trap_pc_i,
     input logic [31:0] wb_trap_mcause_i,
-    output logic [31:0] trap_handler_addr_q
+    output logic [31:0] trap_handler_addr_q,
+    input logic external_irq_pending_i
+    //input logic machine_timer_irq_pending_i
 );
   logic [31:0] csr_mtvec_reg;
   logic [31:0] csr_mscratch_reg;
@@ -43,8 +45,24 @@ module csrfile
   logic [31:0] csr_mtval_next;
   logic [63:0] csr_mcycle_next;
   logic [63:0] csr_minstret_next;
+  // only the MIE bit is used for mstatus
+  logic [31:0] csr_mstatus_reg;
+  logic [31:0] csr_mstatus_next;
+  // only the MEIP and MTIP bit are used for mip read only
+  // else read only 0
+  logic [31:0] csr_mip_reg;
+  logic [31:0] csr_mip_next;
+  // only the MEIE and MTIE bit are used for mie
+  // else read only zero 
+  logic [31:0] csr_mie_reg;
+  logic [31:0] csr_mie_next;
   logic [31:0] csr_rdata;
-  logic [31:0] minstret_rdata;
+
+assign csr_mip_reg = 32'b0
+                   | (external_irq_pending_i  << 11);  // MEIP
+                   //| (machine_timer_irq_pending_i << 7); // MTIP
+
+  
   //////////////////////////////////////
   //
   //  CSRS FOR MACHINE MODE
@@ -55,8 +73,6 @@ module csrfile
   // asserted when writing to a read only register
   // rmask  bits are set if rd != 0 and addr = valid_csr_addr
   // wmask bits are set if csr_wtype != 0
-  assign minstret_rdata = csr_minstret_reg[31:0] + 
-      {31'd0, ex_valid_i} + {31'd0, mem_valid_i} + {31'd0, wb_valid_i};
 
   always_comb begin
     csr_rdata = 0;
@@ -69,8 +85,12 @@ module csrfile
       CSR_ADDR_MCYCLE: csr_rdata = csr_mcycle_reg[31:0];
       CSR_ADDR_MCYCLEH: csr_rdata = csr_mcycle_reg[63:32];
       // since we are reading in ID stage add stages that will retire before to the count
-      CSR_ADDR_MINSTRET: csr_rdata = minstret_rdata;
+      CSR_ADDR_MINSTRET: csr_rdata = csr_minstret_reg + 
+      ex_valid_i + mem_valid_i + wb_valid_i;
       CSR_ADDR_MINSTRETH: csr_rdata = csr_minstret_reg[63:32];
+      CSR_ADDR_MSTATUS: csr_rdata = csr_mstatus_reg;
+      CSR_ADDR_MIP: csr_rdata = csr_mip_reg;
+      CSR_ADDR_MIE: csr_rdata = csr_mie_reg;
       default: ;
     endcase
   end
@@ -83,16 +103,27 @@ module csrfile
     csr_mtval_next = csr_mtval_reg;
     csr_mcycle_next = csr_mcycle_reg + 1;
     csr_minstret_next = wb_valid_i ? csr_minstret_reg + 1 : csr_minstret_reg;
+    csr_mstatus_next = csr_mstatus_reg;
+    // temporarily disable interrupt enable when entering a trap handler
+    // re enable when leaving the trap handler - mret
+    csr_mie_next = csr_mie_reg;
     case (wb_csr_waddr_i)
       CSR_ADDR_MTVEC:    csr_mtvec_next = wb_csr_wdata_i & 32'hffff_fffc;
       CSR_ADDR_MSCRATCH: csr_mscratch_next = wb_csr_wdata_i;
       CSR_ADDR_MEPC:     csr_mepc_next = wb_csr_wdata_i;
       CSR_ADDR_MCAUSE:   csr_mcause_next = wb_csr_wdata_i;
       CSR_ADDR_MTVAL:    csr_mtval_next = wb_csr_wdata_i;
-      // read only CSR_ADDR_MCYCLE:    csr_mcycle_next[31:0] = wb_csr_wdata_i;
-      // read only CSR_ADDR_MCYCLEH:   csr_mcycle_next[63:32] = wb_csr_wdata_i;
-      // read only CSR_ADDR_MINSTRET:  csr_minstret_next[31:0] = wb_csr_wdata_i;
-      // read only CSR_ADDR_MINSTRETH: csr_minstret_next[63:32] = wb_csr_wdata_i;
+      // only the MIE bit of mstatus can nonzero in this implementation
+      CSR_ADDR_MSTATUS: csr_mstatus_next = wb_csr_wdata_i & 32'h0000_0008;
+      CSR_ADDR_MIE: csr_mie_next  = wb_csr_wdata_i & 32'h0000_0800;
+      /*
+      READ ONLY CSRS:
+      CSR_ADDR_MIP
+      CSR_ADDR_MCYCLE
+      CSR_ADDR_MCYCLEH
+      CSR_ADDR_MINSTRET
+      CSR_ADDR_MINSTRETH
+      */
       default:           ;
     endcase
   end
@@ -107,6 +138,8 @@ module csrfile
       csr_mtval_reg <= 0;
       csr_mcycle_reg <= 0;
       csr_minstret_reg <= 0;
+      csr_mstatus_reg <= 0;
+      csr_mie_reg <= 0;
     end else begin
       // use a write enable for csr registers that can be written to
       if (write_en_i) begin
@@ -115,6 +148,7 @@ module csrfile
         csr_mepc_reg <= csr_mepc_next;
         csr_mcause_reg <= csr_mcause_next;
         csr_mtval_reg <= csr_mtval_next;
+        csr_mstatus_reg <= csr_mstatus_next;
       end
       csr_mcycle_reg   <= csr_mcycle_next;
       csr_minstret_reg <= csr_minstret_next;
