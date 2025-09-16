@@ -1,3 +1,34 @@
+//===========================================================
+// Project    : RISC-V CPU
+// File       : regfile.sv
+// Module     : regfile
+// Description: CPU register file for general-purpose registers.
+//              Supports two read ports and one write port, synchronous
+//              writes, and asynchronous reads.
+//
+// Inputs:
+//   clk_i           - System clock
+//   rst_i           - Synchronous reset
+//   write_en_i      - Write enable for destination register
+//   rs1_addr_i      - Source register 1 address
+//   rs2_addr_i      - Source register 2 address
+//   rd_addr_i       - Destination register address
+//   reg_wr_data_i   - Data to write into the destination register
+//
+// Outputs:
+//   rs1_rdata_o     - Data read from source register 1
+//   rs2_rdata_o     - Data read from source register 2
+//
+// Notes:
+//   - Implements 32 general-purpose registers (x0–x31) for RISC-V.
+//   - Register x0 is hardwired to zero and ignores writes.
+//   - Asynchronous read allows combinational access to rs1_rdata_o and rs2_rdata_o.
+//   - Fully synchronous write occurs on the rising edge of clk_i.
+//
+// Author     : David Torres
+// Date       : 2025-09-16
+//===========================================================
+
 module regfile (
     input logic clk_i,
     input logic rst_i,

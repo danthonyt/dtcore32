@@ -1,3 +1,63 @@
+//===========================================================
+// Project    : RISC-V CPU
+// File       : decoder.sv
+// Module     : decoder
+// Description: Instruction decoder for RISC-V CPU. Decodes opcode, 
+//              funct3/funct7/funct12 fields, and generates control 
+//              signals for the ALU, immediate extension, CSR operations,
+//              memory access, branching, and trap detection.
+//
+// Inputs:
+//   op_i                - 7-bit opcode from instruction
+//   funct3_i            - 3-bit funct3 field
+//   funct7_i            - 7-bit funct7 field
+//   funct12_i           - 12-bit funct12 field (for CSR/imm instructions)
+//   rs1_addr_i          - Source register 1 address
+//   rd_addr_i           - Destination register address
+//   rtype_alt_i         - R-type instruction variant flag
+//   itype_alt_i         - I-type instruction variant flag
+//
+// Outputs:
+//   alu_control_o       - ALU operation type
+//   imm_ext_op_o        - Immediate extension operation
+//   alu_a_sel_o         - ALU input A selection
+//   alu_b_sel_o         - ALU input B selection
+//   pc_alu_sel_o        - PC/ALU selection signal
+//   csr_bitmask_sel_o   - CSR bitmask selection
+//   is_branch_o         - High if instruction is a branch
+//   is_jump_o           - High if instruction is a jump
+//   is_csr_write_o      - High if instruction writes to CSR
+//   is_csr_read_o       - High if instruction reads from CSR
+//   is_rd_write_o       - High if destination register is written
+//   is_rs1_read_o       - High if source register 1 is read
+//   is_rs2_read_o       - High if source register 2 is read
+//   is_mem_write_o      - High if instruction writes to memory
+//   is_mem_read_o       - High if instruction reads from memory
+//   is_jal_o            - High if instruction is JAL
+//   is_jalr_o           - High if instruction is JALR
+//   is_memsize_b_o      - Memory byte size (signed)
+//   is_memsize_bu_o     - Memory byte size (unsigned)
+//   is_memsize_h_o      - Memory halfword size (signed)
+//   is_memsize_hu_o     - Memory halfword size (unsigned)
+//   is_memsize_w_o      - Memory word size
+//   csr_op_rw_o         - CSR read/write operation
+//   csr_op_clear_o      - CSR bit clear operation
+//   csr_op_set_o        - CSR bit set operation
+//   illegal_instr_trap_o- High if instruction is illegal
+//   ecall_m_trap_o      - Machine environment call trap
+//   breakpoint_trap_o   - Breakpoint trap
+//
+// Notes:
+//   - Generates all control and side-effect signals required for 
+//     instruction execution in the pipeline.
+//   - Signals that may cause side effects (CSR/memory/branch) should 
+//     be cleared on pipeline flushes.
+//   - Designed to interface with ALU, CSR file, and memory units.
+//
+// Author     : David Torres
+// Date       : 2025-09-16
+//===========================================================
+
 module decoder
   import params_pkg::*;
 (

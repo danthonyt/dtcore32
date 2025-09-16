@@ -226,6 +226,7 @@ package params_pkg;
     logic [31:0] pc;
     logic [31:0] pc_plus_4;
     logic [31:0] insn;
+    logic branch_predict;
 `ifdef RISCV_FORMAL
     logic        intr;
 `endif
@@ -271,6 +272,8 @@ package params_pkg;
      logic csr_op_clear;
      logic csr_op_set;
 
+     logic branch_predict;
+
 
     logic             trap_valid;
     logic [31:0]      trap_mcause;
@@ -312,6 +315,7 @@ package params_pkg;
      logic is_memsize_hu;
      logic is_memsize_w;
 
+     logic branch_predict;
      //logic branch_cond;
     logic jump_taken;
     logic [31:0] jaddr;

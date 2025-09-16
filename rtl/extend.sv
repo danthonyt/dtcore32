@@ -1,3 +1,27 @@
+//===========================================================
+// Project    : RISC-V CPU
+// File       : extend.sv
+// Module     : extend
+// Description: Immediate extension unit. Extracts and sign- or 
+//              zero-extends immediate values from the instruction 
+//              based on the `imm_ext_op_i` type.
+//
+// Inputs:
+//   insn_i        - 32-bit instruction input
+//   imm_ext_op_i  - Immediate extension operation type (from enum `imm_ext_op_t`)
+//
+// Outputs:
+//   imm_ext_o     - 32-bit extended immediate value
+//
+// Notes:
+//   - Supports all RISC-V immediate types (I-type, S-type, B-type, U-type, J-type).
+//   - Works combinationally; no internal state.
+//   - Designed to interface with the ALU input multiplexer in the CPU pipeline.
+//
+// Author     : David Torres
+// Date       : 2025-09-16
+//===========================================================
+
 module extend
   import params_pkg::*;
   (

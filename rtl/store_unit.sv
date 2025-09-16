@@ -1,3 +1,31 @@
+//===========================================================
+// Project    : RISC-V CPU
+// File       : store_unit.sv
+// Module     : store_unit
+// Description: Store data formatting unit. Handles byte/halfword/word
+//              store operations to memory, generates proper byte-enable 
+//              strobes, checks for misaligned accesses, and outputs
+//              correctly formatted write data.
+//
+// Inputs:
+//   store_size_onehot_i  - One-hot encoding for store size (byte/halfword/word)
+//   waddr_lower2_i       - Lower 2 bits of write address (for alignment)
+//   wdata_unformatted_i  - Raw write data from pipeline
+//
+// Outputs:
+//   misaligned_store_o   - High if store address is misaligned
+//   wstrb_o              - Byte-enable strobes for memory write
+//   wdata_o              - Formatted, aligned write data
+//
+// Notes:
+//   - Supports all RISC-V store types (SB, SH, SW).
+//   - Works combinationally to quickly format write data for the memory interface.
+//   - Misaligned stores can trigger exceptions or trap handling downstream.
+//
+// Author     : David Torres
+// Date       : 2025-09-16
+//===========================================================
+
 module store_unit
   import params_pkg::*;
 (

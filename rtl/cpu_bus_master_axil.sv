@@ -1,3 +1,58 @@
+//===========================================================
+// Project    : RISC-V CPU
+// File       : cpu_bus_master_axil.sv
+// Module     : cpu_bus_master_axil
+// Description: AXI-lite bus master interface for CPU memory operations.
+//              Translates CPU memory requests to AXI-lite transactions 
+//              for both instruction and data accesses.
+//
+// Inputs:
+//   clk_i          - System clock
+//   rst_i          - Synchronous reset
+//   mem_valid_i    - High when CPU requests a memory transaction
+//   mem_wen_i      - High for write, low for read
+//   mem_addr_i     - CPU memory address
+//   mem_wdata_i    - CPU write data
+//   mem_strb_i     - Byte-enable for write operations
+//   m_axi_arready_i - AXI read address ready
+//   m_axi_rdata_i  - AXI read data
+//   m_axi_rresp_i  - AXI read response
+//   m_axi_rvalid_i - AXI read valid
+//   m_axi_awready_i- AXI write address ready
+//   m_axi_wready_i - AXI write data ready
+//   m_axi_bvalid_i - AXI write response valid
+//   m_axi_bresp_i  - AXI write response
+//   dmem_rdata_i   - Data read from CPU data memory
+//
+// Outputs:
+//   mem_rdata_o    - Data read from memory back to CPU
+//   mem_done_o     - High when CPU memory transaction is complete
+//   m_axi_araddr_o - AXI read address
+//   m_axi_arprot_o - AXI read protection type
+//   m_axi_arvalid_o- AXI read address valid
+//   m_axi_rready_o - AXI read ready
+//   m_axi_awvalid_o- AXI write address valid
+//   m_axi_awaddr_o - AXI write address
+//   m_axi_awprot_o - AXI write protection type
+//   m_axi_wvalid_o - AXI write data valid
+//   m_axi_wdata_o  - AXI write data
+//   m_axi_wstrb_o  - AXI write byte strobe
+//   m_axi_bready_o - AXI write response ready
+//   dmem_addr_o    - CPU data memory address
+//   dmem_en_o      - Data memory enable
+//   dmem_wen_o     - Data memory write enable
+//   dmem_wdata_o   - Data memory write data
+//   dmem_wstrb_o   - Data memory write strobe
+//
+// Notes:
+//   - Supports AXI-lite single-beat read/write transactions.
+//   - Handles CPU memory requests and translates them to AXI signals.
+//   - Designed for integration with RISC-V CPU pipeline.
+//
+// Author     : David Torres
+// Date       : 2025-09-16
+//===========================================================
+
 module cpu_bus_master_axil (
     input logic clk_i,
     input logic rst_i,
@@ -172,19 +227,4 @@ module cpu_bus_master_axil (
   assign dmem_wstrb_o = req_sel_q;
   // modify fsm so mem rdata is asynchronous
   assign mem_rdata_o = axil_done_read ? axil_rdata : dmem_rdata_i;
-
-  /******************************************/
-  //
-  //    FORMAL VERIFICATION
-  //
-  /******************************************/
-`ifdef FORMAL
-  default clocking @(posedge CLK_I);
-  endclocking
-  initial assume (RST_I);
-  assume property (disable iff (RST_I) !CPU_MEM_WBM_CYC_O |-> ##1 !CPU_MEM_WBM_ACK_I && !CPU_MEM_WBM_ERR_I);
-  assert property (RST_I |-> ##1 !CPU_MEM_WBM_CYC_O && !CPU_MEM_WBM_STB_O);
-  assert property(disable iff (RST_I) CPU_MEM_CMD_START_I && !CPU_MEM_CMD_BUSY_O |-> ##1 CPU_MEM_WBM_CYC_O && CPU_MEM_WBM_STB_O);
-  assert property (disable iff (RST_I) CPU_MEM_WBM_STB_O |-> ##1 !CPU_MEM_WBM_STB_O);
-`endif
 endmodule

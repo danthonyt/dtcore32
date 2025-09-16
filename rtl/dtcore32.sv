@@ -1,3 +1,41 @@
+//===========================================================
+// Project    : RISC-V CPU
+// File       : dtcore32.v
+// Module     : dtcore32
+// Description: Top-level CPU core module implementing a 32-bit
+//              RISC-V pipeline. Interfaces with instruction memory,
+//              and a unified data interface for memory-mapped
+//              data memory or peripherals. Handles CSR, traps, and
+//              optional formal verification signals (`RISCV_FORMAL`).
+//
+// Inputs:
+//   clk_i                - System clock
+//   rst_i                - Synchronous reset
+//   imem_rdata_i         - Instruction memory read data
+//   mem_rdata_i          - Read data from data memory or peripheral
+//   mem_done_i           - Transaction completion from data memory or peripheral
+//   (RISCV_FORMAL) rvfi signals - Optional outputs for formal verification
+//
+// Outputs:
+//   imem_addr_o          - Instruction memory address
+//   mem_valid_o          - Valid signal for data memory or peripheral transaction
+//   mem_wen_o            - Write enable for data memory or peripheral
+//   mem_addr_o           - Address for data memory or peripheral
+//   mem_wdata_o          - Write data for data memory or peripheral
+//   mem_strb_o           - Byte-enable strobes for write operations
+//   (RISCV_FORMAL) rvfi signals - Optional formal verification outputs
+//
+// Notes:
+//   - Integrates instruction fetch, decode, execute, memory, and write-back stages.
+//   - Unified `mem_*` interface can access both data memory and memory-mapped peripherals.
+//   - Optional RISCV_FORMAL signals allow formal verification of CPU behavior.
+//   - Designed to interface with external CSR module and trap handling logic.
+//
+// Author     : David Torres
+// Date       : 2025-09-16
+//===========================================================
+
+
 module dtcore32 (
     input  logic        clk_i,
     input  logic        rst_i,
@@ -99,6 +137,10 @@ import params_pkg::*;
   logic imem_buf_valid;
   logic [31:0] if_insn_buf;
   logic [31:0] if_buf_pc;
+  // branch prediction logic
+  logic [31:0] if_branch_offset;
+  logic if_is_branch;
+  logic if_predict_btaken;
   // id stage signals
   logic id_forward_a;
   logic id_forward_b;
@@ -170,6 +212,9 @@ import params_pkg::*;
   logic    [ 3:0] mem_rstrb;
   logic           dmem_periph_req;
   logic [31:0] mem_load_rdata;
+  logic mem_btaken_mispredict;
+  logic mem_bntaken_mispredict;
+  logic mem_branch_mispredict;
   // writeback stage
   logic [ 4:0] wb_rd_addr;
   logic [11:0] wb_csr_addr;
@@ -243,13 +288,48 @@ import params_pkg::*;
 
   always_comb
   begin
+    // jump to trap handler if a trap instruction commits
+    // else if a branch taken and mispredicted jump to mem.pc + 4
+    // else if a branch not taken and mispredicted OR a jump instruction
+    // jump to mem.jaddr
+    // else if a branch taken is predicted jump to that address
+    // else increment pc by 4
     next_pc = wb_pipeline_q.trap_valid ? trap_handler_addr_q :
-                mem_pipeline_q.jump_taken ?  mem_pipeline_q.jaddr : imem_addr_o + 4;
+                mem_btaken_mispredict ? mem_pipeline_q.pc + 4 :
+                (mem_bntaken_mispredict
+                || (mem_pipeline_q.jump_taken && !mem_pipeline_q.is_branch)) ? mem_pipeline_q.jaddr:
+                if_predict_btaken ? if_pipeline_d.pc + if_branch_offset :
+                if_pipeline_d.pc + 4;
     if_pipeline_d.pc = imem_buf_valid ? if_buf_pc : imem_addr_q;
     if_pipeline_d.pc_plus_4 = if_pipeline_d.pc + 4;
     if_pipeline_d.insn = imem_buf_valid ? if_insn_buf : imem_rdata_i;;
     if_pipeline_d.valid = imem_rdata_valid;
+    if_pipeline_d.branch_predict = if_predict_btaken;
   end
+
+
+  //*****************************************************************
+  //
+  //
+  // BRANCH PREDICTION
+  //
+  //
+  //*****************************************************************
+  
+  // decode fetched instruction early for branch prediction
+  assign if_is_branch = (if_pipeline_d.insn[6:0] == 7'h33);
+  assign if_branch_offset = {{20{if_pipeline_d.insn[31]}}, if_pipeline_d.insn[7], if_pipeline_d.insn[30:25], if_pipeline_d.insn[11:8], 1'b0};
+
+  gshare  gshare_inst (
+    .clk_i(clk_i),
+    .rst_i(rst_i),
+    .pc_lsb10_i(if_pipeline_d.pc[11:2]),
+    .branch_taken_i(mem_pipeline_q.jump_taken),
+    .branch_result_valid_i(mem_pipeline_q.is_branch),
+    .branch_predict_valid_i(if_is_branch),
+    .branch_predict_o(if_predict_btaken)
+  );
+
 `ifdef RISCV_FORMAL
   logic if_intr_d;
   logic if_intr_q;
@@ -351,6 +431,7 @@ import params_pkg::*;
     id_pipeline_d.is_jump       = id_is_jump;
     id_pipeline_d.is_jal        = id_is_jal;
     id_pipeline_d.is_jalr       = id_is_jalr;
+    id_pipeline_d.branch_predict = id_pipeline_q.branch_predict;
 
     // CSR operations
     id_pipeline_d.is_csr_write  = id_is_csr_write;
@@ -557,6 +638,7 @@ end
     ex_pipeline_d.is_jump       = ex_pipeline_q.is_jump;
     ex_pipeline_d.is_jal = ex_pipeline_q.is_jal;
     ex_pipeline_d.is_jalr       = ex_pipeline_q.is_jalr;
+    ex_pipeline_d.branch_predict = ex_pipeline_q.branch_predict;
 
     // CSR operations
     ex_pipeline_d.is_csr_write  = ex_pipeline_q.is_csr_write;
@@ -661,6 +743,9 @@ end
   //*****************************************************************
      logic [4:0] load_size_onehot;
      logic [2:0] store_size_onehot;
+     assign mem_btaken_mispredict = (mem_pipeline_q.is_branch && !mem_pipeline_q.jump_taken && mem_pipeline_q.branch_predict);
+     assign mem_bntaken_mispredict = (mem_pipeline_q.is_branch && mem_pipeline_q.jump_taken && !mem_pipeline_q.branch_predict);
+     assign mem_branch_mispredict = mem_btaken_mispredict || mem_bntaken_mispredict;
      assign load_size_onehot = !mem_pipeline_q.is_mem_read ? '0 : 
      {
       mem_pipeline_q.is_memsize_w, 
@@ -907,7 +992,8 @@ end
              .wb_trap_valid_i(wb_pipeline_q.trap_valid),
              .wb_trap_pc_i(wb_trap_pc),
              .wb_trap_mcause_i(wb_trap_mcause),
-             .trap_handler_addr_q(trap_handler_addr_q)
+             .trap_handler_addr_q(trap_handler_addr_q),
+             .external_irq_pending_i()
            );
   regfile  regfile_inst (
              .clk_i(clk_i),
@@ -936,6 +1022,8 @@ end
     .ex_forward_a_sel_o(ex_forward_a_sel),
     .ex_forward_b_sel_o(ex_forward_b_sel),
     .mem_jump_taken_i(mem_pipeline_q.jump_taken),
+    .mem_branch_mispredict_i(mem_branch_mispredict),
+    .mem_is_branch_i(mem_pipeline_q.is_branch),
     .mem_req_i(dmem_periph_req),
     .mem_done_i(mem_done_i),
     .ex_is_mem_read_i(ex_pipeline_q.is_mem_read),

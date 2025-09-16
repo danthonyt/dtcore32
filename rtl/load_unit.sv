@@ -1,3 +1,30 @@
+//===========================================================
+// Project    : RISC-V CPU
+// File       : load_unit.sv
+// Module     : load_unit
+// Description: Load data formatting unit. Handles byte/halfword/word
+//              loads from memory, generates proper byte-enable strobes,
+//              checks for misaligned accesses, and outputs aligned data.
+//
+// Inputs:
+//   mem_size_onehot      - One-hot encoding for memory access size (byte/halfword/word)
+//   raddr_lower2_i       - Lower 2 bits of read address (for alignment)
+//   rdata_unformatted_i  - Raw data read from memory
+//
+// Outputs:
+//   misaligned_load_o    - High if load address is misaligned
+//   rstrb_o              - Byte-enable strobe for memory access
+//   rdata_o              - Formatted, aligned read data
+//
+// Notes:
+//   - Supports all RISC-V load types (LB, LBU, LH, LHU, LW).
+//   - Works combinationally to quickly format memory data for the pipeline.
+//   - Misaligned loads can trigger exceptions or trap handling downstream.
+//
+// Author     : David Torres
+// Date       : 2025-09-16
+//===========================================================
+
 module load_unit
   import params_pkg::*;
 (

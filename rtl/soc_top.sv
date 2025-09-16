@@ -1,9 +1,34 @@
+//===========================================================
+// Project    : RISC-V SoC
+// File       : soc_top.sv
+// Module     : soc_top
+// Description: Top-level system-on-chip (SoC) module. Integrates
+//              the RISC-V CPU core, memory modules, peripherals,
+//              and I/O interfaces (e.g., UART) into a single design.
+//
+// Inputs:
+//   clk_i   - System clock
+//   rst_i   - Synchronous reset
+//   rx_i    - UART receive line
+//
+// Outputs:
+//   tx_o    - UART transmit line
+//
+// Notes:
+//   - Instantiates CPU core (`dtcore32`), memories (`ram`, `rom`),
+//     pipeline control units, and peripherals.
+//   - Provides a single top-level interface for clock, reset, and UART I/O.
+//   - Designed to be the entry point for synthesis and simulation of the SoC.
+//
+// Author     : David Torres
+// Date       : 2025-09-16
+//===========================================================
+
 module soc_top (
     input  logic clk_i,
     input  logic rst_i,
     input  logic rx_i,
     output logic tx_o
-
 );
   localparam MEM_DEPTH = 2560;
 

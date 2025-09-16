@@ -1,3 +1,32 @@
+//===========================================================
+// Project    : RISC-V CPU
+// File       : alu.sv
+// Module     : alu
+// Description: alu for cpu instruction execution
+//
+// Inputs:
+//   a_i       	    - first 32-bit operand 
+//   b_i       		- second 32-bit operand
+//   control_i   	- selects the alu operation executed
+//
+//
+// Outputs:
+//   branch_cond_o  - result of branch condition; 1 if 
+//                    true and 0 if false
+//	 result_o		- 32-bit result of alu operation
+//
+// Notes:
+//   - supports ADD, SUB, AND, OR, XOR, left shift, and 
+//     right shift (arithmetic and logical) operations
+//   - supports equal, not equal, less than signed/unsigned,
+//     and greater than or equal to signed/unsigned relational
+//     operations
+//     
+//
+// Author     : David Torres
+// Date       : 2025-09-15
+//===========================================================
+
 module alu
 	import params_pkg::*;
 (

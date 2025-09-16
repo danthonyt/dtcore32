@@ -1,3 +1,46 @@
+//===========================================================
+// Project    : RISC-V CPU
+// File       : csrfile.v
+// Module     : csrfile
+// Description: Control and Status Register (CSR) file for RISC-V CPU.
+//              Handles CSR read/write, trap handling, and retired 
+//              instruction counting (e.g., for `minstret`). Supports 
+//              integration with instruction decode and write-back stages.
+//
+// Inputs:
+//   clk_i                     - System clock
+//   rst_i                     - Synchronous reset
+//   wb_rd_addr_i (`ifdef RISCV_FORMAL) - Write-back regfile address for formal verification
+//   write_en_i                - High to enable CSR write
+//   read_en_i                 - High to enable CSR read
+//   id_csr_raddr_i            - CSR read address from instruction decode
+//   wb_csr_waddr_i            - CSR write address from write-back stage
+//   wb_csr_wdata_i            - Data to write to CSR from write-back
+//   wb_valid_i                - Valid signal from write-back stage
+//   ex_valid_i                - Valid signal from execute stage
+//   mem_valid_i               - Valid signal from memory stage
+//   wb_trap_valid_i           - Indicates a trap occurred in write-back
+//   wb_trap_pc_i              - Program counter at trap occurrence
+//   wb_trap_mcause_i          - Trap cause code
+//   external_irq_pending_i    - High if an external interrupt is pending
+//   machine_timer_irq_pending_i (commented) - Optional timer interrupt input
+//
+// Outputs:
+//   id_csr_rdata_o            - CSR data read to instruction decode
+//   wb_csr_rmask_o (`ifdef RISCV_FORMAL) - Read mask for formal verification
+//   wb_csr_wmask_o (`ifdef RISCV_FORMAL) - Write mask for formal verification
+//   trap_handler_addr_q        - Address of trap handler to jump to
+//
+// Notes:
+//   - Implements standard RISC-V CSR functionality including mstatus, mepc, mcause, minstret.
+//   - Tracks retired instructions using wb_valid_i, ex_valid_i, and mem_valid_i.
+//   - Handles synchronous trap detection and outputs trap handler address.
+//   - Conditional outputs included for formal verification (`RISCV_FORMAL`).
+//
+// Author     : David Torres
+// Date       : 2025-09-16
+//===========================================================
+
 module csrfile
   import params_pkg::*;
 (

@@ -1,3 +1,29 @@
+//===========================================================
+// Project    : RISC-V CPU / Digital Memory Modules
+// File       : rom.sv
+// Module     : rom
+// Description: Parameterizable synchronous ROM module. Provides
+//              read-only memory with single-clock access. Can be
+//              used for instruction storage or constant data.
+//
+// Parameters:
+//   MEM_DEPTH - Depth of the memory in 32-bit words (default: 256)
+//
+// Inputs:
+//   clk_i     - System clock
+//   addr_i    - Memory address input (word-aligned)
+//
+// Outputs:
+//   rdata_o   - Data output
+//
+// Notes:
+//   - Synchronous read; data is available after rising clock edge.
+//   - Address bus is word-aligned; calculated with $clog2(MEM_DEPTH).
+//
+// Author     : David Torres
+// Date       : 2025-09-16
+//===========================================================
+
 module rom #(
     parameter MEM_DEPTH = 256
 ) (
@@ -10,8 +36,8 @@ module rom #(
   initial begin
     $readmemh("imem.mem", MEM);
   end
-  
+
   always @(posedge clk_i) begin
-          rdata_o <= MEM[addr_i];
+    rdata_o <= MEM[addr_i];
   end
 endmodule
