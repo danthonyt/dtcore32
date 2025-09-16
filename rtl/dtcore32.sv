@@ -258,7 +258,11 @@ import params_pkg::*;
   // imem reads have 1 cycle latency
   always_ff @(posedge clk_i)
   begin
-    imem_addr_q <= imem_addr_o;
+    if (rst_i) begin
+      imem_addr_q <= RESET_PC;
+    end else begin
+      imem_addr_q <= imem_addr_o;
+    end
   end
 
   // buffer
@@ -298,8 +302,8 @@ import params_pkg::*;
                 mem_btaken_mispredict ? mem_pipeline_q.pc + 4 :
                 (mem_bntaken_mispredict
                 || (mem_pipeline_q.jump_taken && !mem_pipeline_q.is_branch)) ? mem_pipeline_q.jaddr:
-                if_predict_btaken ? if_pipeline_d.pc + if_branch_offset :
-                if_pipeline_d.pc + 4;
+                if_predict_btaken ? imem_addr_o + if_branch_offset :
+                imem_addr_o + 4;
     if_pipeline_d.pc = imem_buf_valid ? if_buf_pc : imem_addr_q;
     if_pipeline_d.pc_plus_4 = if_pipeline_d.pc + 4;
     if_pipeline_d.insn = imem_buf_valid ? if_insn_buf : imem_rdata_i;;
@@ -844,7 +848,10 @@ end
   begin
     // rvfi
     mem_pipeline_d.pc             = mem_pipeline_q.pc;
-    mem_pipeline_d.next_pc        = mem_pipeline_q.next_pc;
+    // next pc changes on a branch mispredict
+    mem_pipeline_d.next_pc        = mem_btaken_mispredict  ? (mem_pipeline_q.pc + 4) :
+                                    mem_bntaken_mispredict ? (mem_pipeline_q.jaddr) :
+                                    mem_pipeline_q.next_pc;
     mem_pipeline_d.insn           = mem_pipeline_q.insn;
     mem_pipeline_d.intr           = mem_pipeline_q.intr;
     mem_pipeline_d.pc_plus_4 = mem_pipeline_q.pc_plus_4;
@@ -937,6 +944,7 @@ end
     if (rst_i) begin
       mem_pipeline_q <= EX_MEM_RESET;
     end else if (ex_mem_flush) begin
+      mem_pipeline_q.is_branch <= 0;
       mem_pipeline_q.is_csr_write <= 0;
       mem_pipeline_q.is_csr_read <= 0;
       mem_pipeline_q.is_rd_write <= 0;
