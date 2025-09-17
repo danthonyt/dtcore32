@@ -158,7 +158,7 @@ module cpu_bus_master_axil (
 
   typedef enum {
     IDLE,
-    WB_WAIT,
+    AXIL_WAIT,
     DMEM_WAIT
   } fsm_state;
   fsm_state state;
@@ -191,13 +191,13 @@ module cpu_bus_master_axil (
               state <= DMEM_WAIT;
               dmem_en_o <= 1;
             end else if (uart_sel) begin
-              state <= WB_WAIT;
+              state <= AXIL_WAIT;
               if (mem_wen_i) axil_start_write <= 1;
               else axil_start_read <= 1;
             end
           end
         end
-        WB_WAIT: begin        
+        AXIL_WAIT: begin        
           if (axil_done_read && !req_we_q) begin
             state <= IDLE;
             //mem_rdata_o <= axil_rdata;

@@ -1,3 +1,4 @@
+`define RISCV_FORMAL
 module soc_tb ();
   logic clk = 0;
   logic rst;

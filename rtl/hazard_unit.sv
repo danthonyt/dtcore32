@@ -88,6 +88,7 @@ module hazard_unit
     output logic id_ex_stall_o,
     output logic ex_mem_stall_o,
     output logic mem_wb_stall_o,
+    input logic imem_rdata_valid_i,
     // valid trap signals
     input logic ex_trap_valid_i,
     input logic mem_trap_valid_i,
@@ -168,23 +169,23 @@ module hazard_unit
   assign jump_flush = mem_jump_taken_i && !mem_is_branch_i;
 
   // flush if/id register on a mispredicted branch, a jump, or an instruction trap
-  assign if_id_flush_o = branch_mispredict_flush 
-  || jump_flush
-  || (ex_trap_valid_i || mem_trap_valid_i || wb_trap_valid_i);
+  assign if_id_flush_o =  branch_mispredict_flush 
+                          || jump_flush
+                          || (ex_trap_valid_i || mem_trap_valid_i || wb_trap_valid_i);
 
   // flush id/ex register on a mispredicted branch, a jump, an instruction trap,
   // or the previous stage is stalled and the register is not stalled
-  assign id_ex_flush_o = branch_mispredict_flush 
-  || jump_flush
-  || (mem_trap_valid_i || wb_trap_valid_i) 
-  || (if_id_stall_o && !id_ex_stall_o);
+  assign id_ex_flush_o =  branch_mispredict_flush 
+                          || jump_flush
+                          || (mem_trap_valid_i || wb_trap_valid_i) 
+                          || (if_id_stall_o && !id_ex_stall_o);
 
   // flush ex/mem flush on a mispredicted branch, a jump, an instruction trap,
   // or the previous stage is stalled and the register is not stalled
   assign ex_mem_flush_o = (branch_mispredict_flush && !ex_mem_stall_o)
-  || (jump_flush && !ex_mem_stall_o) 
-  || (mem_trap_valid_i || wb_trap_valid_i) 
-  || (id_ex_stall_o && !ex_mem_stall_o);
+                          || (jump_flush && !ex_mem_stall_o) 
+                          || (mem_trap_valid_i || wb_trap_valid_i) 
+                          || (id_ex_stall_o && !ex_mem_stall_o);
 
   // flush mem/wb register if a trap instruction is committed, or 
   // the previous stage is stalled and the register is not stalled
