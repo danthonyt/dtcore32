@@ -1,3 +1,4 @@
+
 #include <stdint.h>
 
 #define UART_TX_FIFO   (*(volatile uint32_t *)(0x01000004))
@@ -31,3 +32,5 @@ int main(void) {
         // do nothing, or optionally halt CPU
     }
 }
+
+
