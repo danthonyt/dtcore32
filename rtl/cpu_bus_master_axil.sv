@@ -159,7 +159,8 @@ module cpu_bus_master_axil (
   typedef enum {
     IDLE,
     AXIL_WAIT,
-    DMEM_WAIT
+    DMEM_WAIT1,
+    DMEM_WAIT2
   } fsm_state;
   fsm_state state;
 
@@ -188,7 +189,7 @@ module cpu_bus_master_axil (
             req_wdata_q <= mem_wdata_i;
             req_sel_q <= mem_strb_i;
             if (dmem_sel) begin
-              state <= DMEM_WAIT;
+              state <= DMEM_WAIT1;
               dmem_en_o <= 1;
             end else if (uart_sel) begin
               state <= AXIL_WAIT;
@@ -200,17 +201,19 @@ module cpu_bus_master_axil (
         AXIL_WAIT: begin        
           if (axil_done_read && !req_we_q) begin
             state <= IDLE;
-            //mem_rdata_o <= axil_rdata;
+            mem_rdata_o <= axil_rdata;
             mem_done_o <= 1;
           end else if (axil_done_write && req_we_q) begin
             state <= IDLE;
             mem_done_o <= 1;
           end
         end
-        DMEM_WAIT: begin
-          // dmem read is always single cycle
+        DMEM_WAIT1: begin
+          state <= DMEM_WAIT2;
+        end
+        DMEM_WAIT2: begin
           state <= IDLE;
-          //mem_rdata_o <= dmem_rdata_i;
+          mem_rdata_o <= dmem_rdata_i;
           mem_done_o <= 1;
           dmem_en_o <= 0;
         end
@@ -225,6 +228,4 @@ module cpu_bus_master_axil (
   assign dmem_wen_o = req_we_q;
   assign dmem_wdata_o = req_wdata_q;
   assign dmem_wstrb_o = req_sel_q;
-  // modify fsm so mem rdata is asynchronous
-  assign mem_rdata_o = axil_done_read ? axil_rdata : dmem_rdata_i;
 endmodule

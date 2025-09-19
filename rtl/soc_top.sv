@@ -69,6 +69,7 @@ module soc_top (
   logic [31:0] dmem_wdata;
   logic [3:0] dmem_wstrb;
   logic cpu_err;
+  logic [31:0] rvfi_pc;
   always_ff @(posedge clk_i) begin
     if (rst_i) begin
       led_trap <= 0;
@@ -89,7 +90,8 @@ module soc_top (
       .mem_addr_o(mem_addr),
       .mem_wdata_o(mem_wdata),
       .mem_strb_o(mem_strb),
-      .err_o(cpu_err)
+      .err_o(cpu_err),
+      .rvfi_pc(rvfi_pc)
   );
 
   cpu_bus_master_axil  cpu_bus_master_axil_inst (
@@ -175,5 +177,11 @@ module soc_top (
   );
 
 
+  ila_0 your_instance_name (
+	.clk(clk_i), // input wire clk
+
+
+	.probe0(rvfi_pc) // input wire [31:0] probe0
+);
 
 endmodule

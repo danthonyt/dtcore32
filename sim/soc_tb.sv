@@ -12,14 +12,16 @@ module soc_tb ();
       .clk_i(clk),
       .rst_i(rst),
       .led_trap(led_trap),
-      .tx_o (tx)
+      .tx_o(tx)
   );
+  // byte addressable memory; 
+  // 1 address, 1 byte
   localparam IMEM_BASE_ADDR = 0;
-  localparam IMEM_LENGTH = 16384;
+  localparam IMEM_LENGTH = 20'h10000;
   localparam DMEM_BASE_ADDR = 32'h0010_0000;
-  localparam DMEM_LENGTH = 16384;
+  localparam DMEM_LENGTH = 20'h10000;
   localparam UART_BASE_ADDR = 32'h0100_0000;
-  localparam UART_LENGTH = 16;
+  localparam UART_LENGTH = 8'h10;
   logic [31:0] mem_addr;
   logic [31:0] id_insn;
   logic [31:0] ex_insn;
@@ -29,6 +31,14 @@ module soc_tb ();
   logic [31:0] ex_pc;
   logic [31:0] mem_pc;
   logic [31:0] wb_pc;
+  logic uart_req;
+  logic dmem_req;
+  logic imem_req;
+  logic valid_req;
+  logic [3:0] mem_rmask;
+  logic [3:0] mem_wmask;
+  assign mem_rmask = soc_top_inst.dtcore32_inst.mem_rstrb;
+  assign mem_wmask = soc_top_inst.dtcore32_inst.mem_wstrb;
 
   assign id_insn = soc_top_inst.dtcore32_inst.id_pipeline_q.insn;
   assign ex_insn = soc_top_inst.dtcore32_inst.ex_pipeline_q.insn;
@@ -40,53 +50,43 @@ module soc_tb ();
   assign wb_pc = soc_top_inst.dtcore32_inst.wb_pipeline_q.pc;
   assign mem_addr = soc_top_inst.mem_addr;
 
+  assign valid_req = soc_top_inst.mem_done;
+  assign uart_req = (mem_addr >= UART_BASE_ADDR) && (mem_addr < (UART_BASE_ADDR + UART_LENGTH));
+  assign dmem_req = (mem_addr >= DMEM_BASE_ADDR) && (mem_addr < (DMEM_BASE_ADDR + DMEM_LENGTH));
+  assign imem_req = (mem_addr >= IMEM_BASE_ADDR) && (mem_addr < (IMEM_BASE_ADDR + IMEM_LENGTH));
   always @(posedge clk) begin
     if (1) begin
-      if (soc_top_inst.dtcore32_inst.dmem_periph_req && soc_top_inst.dtcore32_inst.mem_valid_o) begin
-        if ((mem_addr >= IMEM_BASE_ADDR) && (mem_addr < (IMEM_BASE_ADDR + IMEM_LENGTH * 4))) begin
+      if (valid_req) begin
+        if (imem_req) begin
           $error("MEM stage tried to access IMEM -- PC: %h ADDR: %h",
-                 soc_top_inst.dtcore32_inst.mem_pipeline_q.pc,
-                 soc_top_inst.dtcore32_inst.mem_pipeline_q.alu_csr_result);
+                 soc_top_inst.dtcore32_inst.mem_pipeline_d.pc,
+                 soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr);
           $finish();
-        end else if ((mem_addr >= DMEM_BASE_ADDR) && (mem_addr < (DMEM_BASE_ADDR + DMEM_LENGTH*4))) begin
-          if (soc_top_inst.dtcore32_inst.wb_pipeline_q.load_rmask)
-            $display(
-                " DMEM LOAD --- PC: %h, ADDR: %h, LOAD_RMASK: %h, LOAD_RDATA: %h",
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.pc,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.mem_addr,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.load_rmask,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.load_rdata,
-            );
-          else if (soc_top_inst.dtcore32_inst.wb_pipeline_q.store_wmask)
-            $display(
-                "DMEM STORE --- PC: %h, ADDR: %h, STORE_WMASK: %h, STORE_WDATA: %h",
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.pc,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.mem_addr,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.store_wmask,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.store_wdata,
-            );
-        end else if (mem_addr >= UART_BASE_ADDR && mem_addr < UART_BASE_ADDR + UART_LENGTH) begin
-          if (soc_top_inst.dtcore32_inst.wb_pipeline_q.load_rmask)
-            $display(
-                " UART LOAD --- PC: %h, ADDR: %h, LOAD_RMASK: %h, LOAD_RDATA: %h",
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.pc,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.mem_addr,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.load_rmask,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.load_rdata,
-            );
-          else if (soc_top_inst.dtcore32_inst.wb_pipeline_q.store_wmask)
-            $display(
-                "UART STORE --- PC: %h, ADDR: %h, STORE_WMASK: %h, STORE_WDATA: %h",
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.pc,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.mem_addr,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.store_wmask,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.store_wdata,
-            );
+        end else if (dmem_req) begin
+          $display(
+              "%s --- PC: %h, ADDR: %h, LOAD_RMASK: %h, LOAD_RDATA: %h, STORE_WMASK: %h, STORE_WDATA: %h",
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask ? "DMEM LOAD" : (soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask ? "DMEM STORE" : "UNKNOWN DMEM REQ"),
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.pc,
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr,
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask,
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rdata,
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask,
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wdata);
 
+        end else if (uart_req) begin
+          $display(
+              "%s --- PC: %h, ADDR: %h, LOAD_RMASK: %h, LOAD_RDATA: %h, STORE_WMASK: %h, STORE_WDATA: %h",
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask ? "UART LOAD" : (soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask ? "UART STORE" : "UNKNOWN UART REQ"),
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.pc,
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr,
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask,
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rdata,
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask,
+              soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wdata);
         end else begin
           $error("MEM stage tried to access UNKNOWN PERIPHERAL -- ADR: %h PC: %h",
-                 soc_top_inst.dtcore32_inst.mem_pipeline_q.alu_csr_result,
-                 soc_top_inst.dtcore32_inst.mem_pipeline_q.pc);
+                 soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr,
+                 soc_top_inst.dtcore32_inst.mem_pipeline_d.pc);
           $finish();
         end
       end
@@ -149,18 +149,15 @@ module soc_tb ();
   end
 
   // instructions retired
-always @(negedge clk) begin
-    if (1) begin
-        if (!soc_top_inst.dtcore32_inst.mem_wb_stall && soc_top_inst.dtcore32_inst.wb_pipeline_q.valid) begin
-            $display(
-                "Time %0t: Retired instruction: %h, PC: %h",
-                $time,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.insn,
-                soc_top_inst.dtcore32_inst.wb_pipeline_q.pc
-            );
-        end
+  always @(negedge clk) begin
+    if (0) begin
+      if (!soc_top_inst.dtcore32_inst.mem_wb_stall && soc_top_inst.dtcore32_inst.wb_pipeline_q.valid) begin
+        $display("Time %0t: Retired instruction: %h, PC: %h", $time,
+                 soc_top_inst.dtcore32_inst.wb_pipeline_q.insn,
+                 soc_top_inst.dtcore32_inst.wb_pipeline_q.pc);
+      end
     end
-end
+  end
 
 
   logic [31:0] pc_delay;
@@ -226,13 +223,12 @@ end
   // --- main test sequence ---
   initial begin
     @(negedge rst);  // wait for reset deassertion
-    #5s;
     // send "A" (0x41)
     //uart_send_byte(8'h41);
 
     // send "B" (0x42)
     //uart_send_byte(8'h42);
-    #1000us;
+    #3ms;
     //wait(soc_top_inst.dtcore32_inst.wb_pipeline_q.valid && soc_top_inst.dtcore32_inst.wb_pipeline_q.pc == 32'h2d54)
     // wait some time and finish simulation
     $finish;

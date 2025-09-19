@@ -44,6 +44,6 @@ SECTIONS
   /* Stack region at top of DMEM */
   .stack (NOLOAD) : {
     _stack_end = ORIGIN(DMEM) + LENGTH(DMEM);
-    _stack_start = _stack_end - 24K; /* reserve 2KB for stack */
+    _stack_start = _stack_end - 24K; /* reserve 24KB for stack */
   } > DMEM
 }

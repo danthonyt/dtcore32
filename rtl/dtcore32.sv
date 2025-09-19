@@ -94,9 +94,11 @@ module dtcore32 (
     output logic [31:0] mem_addr_o,
     output logic [31:0] mem_wdata_o,
     output logic [3:0] mem_strb_o,
+    output logic [31:0] rvfi_pc,
     output logic err_o
 
   );
+  assign rvfi_pc = rvfi_pc_rdata;
 import params_pkg::*;
   localparam RESET_PC = 32'd0;
 
@@ -792,7 +794,7 @@ end
   always_comb
   begin
     // memory interface local signals
-    dmem_periph_req             = (mem_pipeline_q.is_mem_write || mem_pipeline_q.is_mem_read) && (!misaligned_load || !misaligned_store);
+    dmem_periph_req             = (mem_pipeline_q.is_mem_write || mem_pipeline_q.is_mem_read) && !(misaligned_load || misaligned_store);
     mem_wen_o                   = mem_pipeline_q.is_mem_write;
     mem_addr_o                  = mem_pipeline_q.alu_csr_result;
     mem_strb_o                  = mem_wen_o ? mem_wstrb : mem_rstrb;

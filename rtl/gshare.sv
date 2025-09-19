@@ -47,7 +47,7 @@ module gshare (
   int i;
   assign pht_idx  = branch_predict_valid_i ? pc_lsb6_i ^ ght : 0;
   // make a branch prediction if the instruction is a branch
-  assign branch_predict_o = branch_predict_valid_i ? pht[pht_idx][1] : 0;
+  assign branch_predict_o = 0;//branch_predict_valid_i ? pht[pht_idx][1] : 0;
   assign if_pht_idx_o = pht_idx;
   always_ff @(posedge clk_i) begin
     if (rst_i) begin
