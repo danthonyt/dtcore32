@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
 
-SRC=hello.c
+SRC=hello_world.c
 STARTUP=startup.S
-ELF=hello.elf
+ELF=hello_world.elf
 IMEM_BIN=imem.bin
 DMEM_BIN=dmem.bin
 IMEM_MEM=imem.mem
 DMEM_MEM=dmem.mem
-DISASM=hello.dis
+DISASM=hello_world.dis
 LINKER_SCRIPT=link.ld
 
 # 1. Compile and link (with startup)
@@ -26,8 +26,8 @@ riscv32-unknown-elf-objcopy -O binary \
     $ELF $DMEM_BIN
 
 # 3. Pad binaries to match IMEM/DMEM sizes (1 KB = 256 words)
-truncate -s 10240 $IMEM_BIN
-truncate -s 10240 $DMEM_BIN
+truncate -s 65536 $IMEM_BIN
+truncate -s 65536 $DMEM_BIN
 
 # 4. Convert to 32-bit hex words, one per line
 # IMEM

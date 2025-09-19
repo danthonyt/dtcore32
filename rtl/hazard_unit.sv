@@ -71,6 +71,7 @@ module hazard_unit
     output logic [2:0] ex_forward_a_sel_o,
     output logic [2:0] ex_forward_b_sel_o,
     // flush and stall condition signals
+    input logic id_predict_btaken_i,
     input logic mem_jump_taken_i,
     input logic mem_is_branch_i,
     // mem signals
@@ -168,39 +169,43 @@ module hazard_unit
   assign branch_mispredict_flush = mem_branch_mispredict_i;
   assign jump_flush = mem_jump_taken_i && !mem_is_branch_i;
 
-  // flush if/id register on a mispredicted branch, a jump, or an instruction trap
-  assign if_id_flush_o =  branch_mispredict_flush 
+  // flush if/id register on a mispredicted branch, a predicted jump, an unconditional jump, or an instruction trap
+  // mispredicted branch, jumps, and trapped instruction flushes are unconditional
+  // a predicted branch taken flush is conditional so that the branch instruction is not flushed when the next stage is stalled
+  assign if_id_flush_o =     branch_mispredict_flush 
                           || jump_flush
+                          || (id_predict_btaken_i && !id_ex_stall_o && !if_id_stall_o)
                           || (ex_trap_valid_i || mem_trap_valid_i || wb_trap_valid_i);
 
   // flush id/ex register on a mispredicted branch, a jump, an instruction trap,
-  // or the previous stage is stalled and the register is not stalled
-  assign id_ex_flush_o =  branch_mispredict_flush 
-                          || jump_flush
-                          || (mem_trap_valid_i || wb_trap_valid_i) 
-                          || (if_id_stall_o && !id_ex_stall_o);
+  // all flushes are unconditional
+  assign id_ex_flush_o =     branch_mispredict_flush 
+                          || jump_flush 
+                          || (mem_trap_valid_i || wb_trap_valid_i);
 
   // flush ex/mem flush on a mispredicted branch, a jump, an instruction trap,
-  // or the previous stage is stalled and the register is not stalled
-  assign ex_mem_flush_o = (branch_mispredict_flush && !ex_mem_stall_o)
-                          || (jump_flush && !ex_mem_stall_o) 
-                          || (mem_trap_valid_i || wb_trap_valid_i) 
-                          || (id_ex_stall_o && !ex_mem_stall_o);
+  // branch mispredict and jumps are conditional flushes to prevent losing the instruction when the next stage is stalled
+  // trapped instruction flush is unconditional
+  assign ex_mem_flush_o =    (branch_mispredict_flush && !mem_wb_stall_o)
+                          || (jump_flush              && !mem_wb_stall_o)
+                          || (mem_trap_valid_i || wb_trap_valid_i);
 
   // flush mem/wb register if a trap instruction is committed, or 
   // the previous stage is stalled and the register is not stalled
-  assign mem_wb_flush_o = wb_trap_valid_i || (ex_mem_stall_o && !mem_wb_stall_o);
+  assign mem_wb_flush_o = wb_trap_valid_i;
 
   // stall the if/id register on a load use hazard, or the next
   // stage is stalled
-  assign if_id_stall_o = load_use_stall || id_ex_stall_o;
+  assign if_id_stall_o =    load_use_stall 
+                         || id_ex_stall_o;
 
   // stall the id/ex register if the next stage is stalled
   assign id_ex_stall_o = ex_mem_stall_o;
 
   // stall the ex/mem register during a memory transaction,
   // or the next stage is stalled
-  assign ex_mem_stall_o = mem_req_stall || mem_wb_stall_o;
+  assign ex_mem_stall_o =    mem_req_stall 
+                          || mem_wb_stall_o; 
 
   // stall the mem/wb register during a memory transaction
   assign mem_wb_stall_o = mem_req_stall;

@@ -27,10 +27,10 @@
 module soc_top (
     input  logic clk_i,
     input  logic rst_i,
-    input  logic rx_i,
+    output  logic led_trap,
     output logic tx_o
 );
-  localparam MEM_DEPTH = 2560;
+  localparam MEM_DEPTH = 16384;
 
   logic [31:0] imem_rdata;
   logic [31:0] imem_addr;
@@ -68,7 +68,14 @@ module soc_top (
   logic dmem_wen;
   logic [31:0] dmem_wdata;
   logic [3:0] dmem_wstrb;
-
+  logic cpu_err;
+  always_ff @(posedge clk_i) begin
+    if (rst_i) begin
+      led_trap <= 0;
+    end else if (cpu_err)begin
+      led_trap <= 1;
+    end
+  end
 
   dtcore32 dtcore32_inst (
       .clk_i(clk_i),
@@ -81,7 +88,8 @@ module soc_top (
       .mem_wen_o(mem_wen),
       .mem_addr_o(mem_addr),
       .mem_wdata_o(mem_wdata),
-      .mem_strb_o(mem_strb)
+      .mem_strb_o(mem_strb),
+      .err_o(cpu_err)
   );
 
   cpu_bus_master_axil  cpu_bus_master_axil_inst (
@@ -142,7 +150,7 @@ module soc_top (
   .s_axi_rresp(axi_rresp),      // output wire [1 : 0] s_axi_rresp
   .s_axi_rvalid(axi_rvalid),    // output wire s_axi_rvalid
   .s_axi_rready(axi_rready),    // input wire s_axi_rready
-  .rx(rx_i),                        // input wire rx
+  .rx(1'b1),                        // input wire rx
   .tx(tx_o)                        // output wire tx
 );
 
@@ -166,11 +174,6 @@ module soc_top (
       .rdata_o(imem_rdata)
   );
 
-  ila_0 your_instance_name (
-	.clk(clk_i), // input wire clk
 
-
-	.probe0(rx_i) // input wire [0:0] probe0
-);
 
 endmodule

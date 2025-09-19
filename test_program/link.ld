@@ -2,8 +2,8 @@ ENTRY(_start)
 
 MEMORY
 {
-  IMEM (rx)  : ORIGIN = 0x00000000, LENGTH = 10K   /* instruction memory */
-  DMEM (rwx) : ORIGIN = 0x00100000, LENGTH = 10K   /* data memory */
+  IMEM (rx)  : ORIGIN = 0x00000000, LENGTH = 64K   /* instruction memory */
+  DMEM (rwx) : ORIGIN = 0x00100000, LENGTH = 64K   /* data memory */
 }
 
 SECTIONS
@@ -44,6 +44,6 @@ SECTIONS
   /* Stack region at top of DMEM */
   .stack (NOLOAD) : {
     _stack_end = ORIGIN(DMEM) + LENGTH(DMEM);
-    _stack_start = _stack_end - 2K; /* reserve 2KB for stack */
+    _stack_start = _stack_end - 24K; /* reserve 2KB for stack */
   } > DMEM
 }

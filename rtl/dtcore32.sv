@@ -93,7 +93,8 @@ module dtcore32 (
     output logic mem_wen_o,
     output logic [31:0] mem_addr_o,
     output logic [31:0] mem_wdata_o,
-    output logic [3:0] mem_strb_o
+    output logic [3:0] mem_strb_o,
+    output logic err_o
 
   );
 import params_pkg::*;
@@ -126,6 +127,17 @@ import params_pkg::*;
 
   logic [31:0] mispredict_cnt;
   logic [31:0] branch_cnt;
+  always_ff @(posedge clk_i) begin
+    if (rst_i) begin
+      mispredict_cnt <= 0;
+      branch_cnt <= 0;
+    end else begin
+      if (mem_branch_mispredict)
+      mispredict_cnt <= mispredict_cnt + 1;
+      if(mem_pipeline_q.is_branch)
+      branch_cnt <= branch_cnt + 1;
+    end
+  end
 `ifdef RISCV_FORMAL
 
   logic [31:0] wb_csr_rmask;
@@ -140,14 +152,12 @@ import params_pkg::*;
   logic [31:0] if_insn_buf;
   logic [31:0] if_buf_pc;
   // branch prediction logic
-  logic [31:0] if_branch_offset;
-  logic if_is_branch;
-  logic if_predict_btaken;
-  logic [5:0] if_pht_idx;
+  logic [31:0] id_branch_addr;
+  logic id_predict_btaken;
+  logic [5:0] id_pht_idx;
   // id stage signals
   logic id_forward_a;
   logic id_forward_b;
-  logic [31:0] id_insn;
   logic [11:0] id_csr_addr;
   logic [31:0] id_imm_ext;
   logic [4:0] id_rd_addr;
@@ -298,56 +308,16 @@ import params_pkg::*;
     // else if a branch taken is predicted jump to that address
     // else increment pc by 4
     next_pc = wb_pipeline_q.trap_valid ? trap_handler_addr_q :
-                mem_btaken_mispredict ? mem_pipeline_q.pc + 4 :
-                (mem_bntaken_mispredict
-                || (mem_pipeline_q.jump_taken && !mem_pipeline_q.is_branch)) ? mem_pipeline_q.jaddr:
-                if_predict_btaken ? imem_addr_o + if_branch_offset :
+                mem_btaken_mispredict ? mem_pipeline_q.pc_plus_4 :
+                mem_bntaken_mispredict ? mem_pipeline_q.jaddr :
+                mem_pipeline_q.jump_taken && !mem_pipeline_q.is_branch ? mem_pipeline_q.jaddr :
+                id_predict_btaken ? id_branch_addr :
                 imem_addr_o + 4;
     if_pipeline_d.pc = imem_buf_valid ? if_buf_pc : imem_addr_q;
     if_pipeline_d.pc_plus_4 = if_pipeline_d.pc + 4;
-    if_pipeline_d.insn = imem_buf_valid ? if_insn_buf : imem_rdata_i;;
+    if_pipeline_d.insn = imem_buf_valid ? if_insn_buf : imem_rdata_i;
     if_pipeline_d.valid = imem_rdata_valid;
-    if_pipeline_d.branch_predict = if_predict_btaken;
-    if_pipeline_d.pht_idx = if_pht_idx;
   end
-
-
-  //*****************************************************************
-  //
-  //
-  // BRANCH PREDICTION
-  //
-  //
-  //*****************************************************************
-  always_ff @(posedge clk_i) begin
-    if (rst_i) begin
-      branch_cnt <= 0;
-      mispredict_cnt <= 0;
-    end else begin
-      if (mem_pipeline_q.is_branch && !mem_wb_stall) begin
-        branch_cnt <= branch_cnt + 1;
-      end 
-      if (mem_branch_mispredict && !mem_wb_stall) begin
-        mispredict_cnt <= mispredict_cnt + 1;
-      end
-    end
-  end
-  // decode fetched instruction early for branch prediction
-  assign if_is_branch = (if_pipeline_d.insn[6:0] == 7'h63);
-  assign if_branch_offset = {{20{if_pipeline_d.insn[31]}}, if_pipeline_d.insn[7], if_pipeline_d.insn[30:25], if_pipeline_d.insn[11:8], 1'b0};
-
-  
-  gshare  gshare_inst (
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .pc_lsb6_i(if_pipeline_d.pc[7:2]),
-    .branch_taken_i(mem_pipeline_q.jump_taken),
-    .branch_result_valid_i(mem_pipeline_q.is_branch),
-    .branch_predict_valid_i(if_is_branch),
-    .mem_pht_idx_i(mem_pipeline_q.pht_idx),
-    .branch_predict_o(if_predict_btaken),
-    .if_pht_idx_o(if_pht_idx)
-  );
 
 `ifdef RISCV_FORMAL
   logic if_intr_d;
@@ -384,6 +354,17 @@ import params_pkg::*;
   //
   //
   //*****************************************************************
+  gshare  gshare_inst (
+    .clk_i(clk_i),
+    .rst_i(rst_i),
+    .pc_lsb6_i(id_pipeline_q.pc[7:2]),
+    .branch_taken_i(mem_pipeline_q.jump_taken),
+    .branch_result_valid_i(mem_pipeline_q.is_branch),
+    .branch_predict_valid_i(id_is_branch),
+    .mem_pht_idx_i(mem_pipeline_q.pht_idx),
+    .branch_predict_o(id_predict_btaken),
+    .if_pht_idx_o(id_pht_idx)
+  );
 
            decoder  decoder_inst (
     .op_i(id_op),
@@ -425,33 +406,34 @@ import params_pkg::*;
   );
 
   extend extend_inst (
-           .insn_i(id_insn),
+           .insn_i(id_pipeline_q.insn),
            .imm_ext_op_i(id_imm_ext_op),
            .imm_ext_o(id_imm_ext)
          );
-
+  // compute branch address early to reduce combinational path of branch prediction
+  assign id_branch_addr = id_pipeline_q.pc + 
+  {{20{id_pipeline_q.insn[31]}}, id_pipeline_q.insn[7], id_pipeline_q.insn[30:25], id_pipeline_q.insn[11:8], 1'b0};
   // assign signals propagating to the next stage
   always_comb
   begin
-    id_insn = id_pipeline_q.insn;
-    id_op = id_insn[6:0];
-    id_funct3 = id_insn[14:12];
-    id_funct7b5 = id_insn[30];
-    id_funct7 = id_insn[31:25];
-    id_funct12 = id_insn[31:20];
+    id_op = id_pipeline_q.insn[6:0];
+    id_funct3 = id_pipeline_q.insn[14:12];
+    id_funct7b5 = id_pipeline_q.insn[30];
+    id_funct7 = id_pipeline_q.insn[31:25];
+    id_funct12 = id_pipeline_q.insn[31:20];
     id_rtype_alt = id_op[5] & id_funct7b5;
     id_itype_alt = ~id_op[5] & id_funct7b5;
-    id_rs1_addr = id_is_rs1_read ? id_insn[19:15] : 0;
-    id_rs2_addr = id_is_rs2_read ? id_insn[24:20] : 0;
-    id_rd_addr = id_insn[11:7];
-    id_csr_addr = id_insn[31:20];
+    id_rs1_addr = id_is_rs1_read ? id_pipeline_q.insn[19:15] : 0;
+    id_rs2_addr = id_is_rs2_read ? id_pipeline_q.insn[24:20] : 0;
+    id_rd_addr = id_pipeline_q.insn[11:7];
+    id_csr_addr = id_pipeline_q.insn[31:20];
     // Branch and jump
     id_pipeline_d.is_branch     = id_is_branch;
     id_pipeline_d.is_jump       = id_is_jump;
     id_pipeline_d.is_jal        = id_is_jal;
     id_pipeline_d.is_jalr       = id_is_jalr;
-    id_pipeline_d.branch_predict = id_pipeline_q.branch_predict;
-    id_pipeline_d.pht_idx = id_pipeline_q.pht_idx;
+    id_pipeline_d.branch_predict = id_predict_btaken;
+    id_pipeline_d.pht_idx = id_pht_idx;
 
     // CSR operations
     id_pipeline_d.is_csr_write  = id_is_csr_write;
@@ -525,11 +507,10 @@ import params_pkg::*;
   always_comb
   begin
     // rvfi metadata
-    id_pipeline_d.insn = id_insn;
+    id_pipeline_d.insn = id_pipeline_q.insn;
     id_pipeline_d.intr = id_pipeline_q.intr;
-    id_pipeline_d.rvfi_trap_info = rvfi_id_trap;
     // trap info for rvfi
-    rvfi_id_trap.insn = id_insn;
+    rvfi_id_trap.insn = id_pipeline_q.insn;
     rvfi_id_trap.pc = id_pipeline_q.pc;
     rvfi_id_trap.next_pc = 0;
     rvfi_id_trap.rs1_addr = 0;
@@ -538,6 +519,7 @@ import params_pkg::*;
     rvfi_id_trap.rs1_rdata = 0;
     rvfi_id_trap.rs2_rdata = 0;
     rvfi_id_trap.rd_wdata = 0;
+    id_pipeline_d.rvfi_trap_info = rvfi_id_trap;
   end
 `endif
   
@@ -647,19 +629,19 @@ end
     // trap if the jump address is not word aligned
     // jump if instruction is a jump or a branch and condition is true
     // jump is delayed to the mem stage to avoid long combinational path
-    assign ex_jaddr     = (ex_pipeline_q.is_jalr) ? ((ex_pc_base + ex_pipeline_q.imm_ext) & ~(1'b1)) : (ex_pc_base + ex_pipeline_q.imm_ext);
-    assign ex_jump_taken = (ex_pipeline_q.is_jump | (ex_pipeline_q.is_branch & ex_branch_cond));
+    assign ex_jaddr           = (ex_pipeline_q.is_jalr) ? ((ex_pc_base + ex_pipeline_q.imm_ext) & ~(1'b1)) : (ex_pc_base + ex_pipeline_q.imm_ext);
+    assign ex_jump_taken      = (ex_pipeline_q.is_jump | (ex_pipeline_q.is_branch & ex_branch_cond));
     assign ex_misaligned_jump = ex_jump_taken & (ex_jaddr[1] | ex_jaddr[0]);
 
   always_comb
   begin
     // Branch and jump
-    ex_pipeline_d.is_branch     = ex_pipeline_q.is_branch;
-    ex_pipeline_d.is_jump       = ex_pipeline_q.is_jump;
-    ex_pipeline_d.is_jal = ex_pipeline_q.is_jal;
-    ex_pipeline_d.is_jalr       = ex_pipeline_q.is_jalr;
+    ex_pipeline_d.is_branch      = ex_pipeline_q.is_branch;
+    ex_pipeline_d.is_jump        = ex_pipeline_q.is_jump;
+    ex_pipeline_d.is_jal         = ex_pipeline_q.is_jal;
+    ex_pipeline_d.is_jalr        = ex_pipeline_q.is_jalr;
     ex_pipeline_d.branch_predict = ex_pipeline_q.branch_predict;
-    ex_pipeline_d.pht_idx = ex_pipeline_q.pht_idx;
+    ex_pipeline_d.pht_idx        = ex_pipeline_q.pht_idx;
 
     // CSR operations
     ex_pipeline_d.is_csr_write  = ex_pipeline_q.is_csr_write;
@@ -691,8 +673,8 @@ end
     ex_pipeline_d.csr_wdata      = ex_csr_wdata;
     ex_pipeline_d.store_wdata    = ex_rs2_rdata;
     ex_pipeline_d.alu_csr_result = (ex_pipeline_q.is_csr_read) ? ex_pipeline_q.csr_rdata : ex_alu_result;
-    ex_pipeline_d.jaddr = ex_jaddr;
-    ex_pipeline_d.jump_taken = ex_jump_taken;
+    ex_pipeline_d.jaddr          = ex_jaddr;
+    ex_pipeline_d.jump_taken     = ex_jump_taken;
     // traps
     if (ex_pipeline_q.trap_valid)
     begin
@@ -737,18 +719,18 @@ end
     ex_pipeline_d.rs2_addr       = ex_pipeline_q.rs2_addr;
     ex_pipeline_d.rs1_rdata      = ex_rs1_rdata;
     ex_pipeline_d.rs2_rdata      = ex_rs2_rdata;
-    ex_pipeline_d.csr_rdata = ex_pipeline_q.csr_rdata;
+    ex_pipeline_d.csr_rdata      = ex_pipeline_q.csr_rdata;
     ex_pipeline_d.rvfi_trap_info = rvfi_ex_trap_info;
     // additional trap info
-    rvfi_ex_trap_info.insn = ex_pipeline_q.insn;
-    rvfi_ex_trap_info.pc = ex_pipeline_q.pc;
-    rvfi_ex_trap_info.next_pc = ex_next_pc;
-    rvfi_ex_trap_info.rs1_addr = ex_pipeline_q.rs1_addr;
-    rvfi_ex_trap_info.rs2_addr = ex_pipeline_q.rs2_addr;
-    rvfi_ex_trap_info.rd_addr = ex_pipeline_q.rd_addr;
-    rvfi_ex_trap_info.rs1_rdata = ex_src_a;
-    rvfi_ex_trap_info.rs2_rdata = ex_rs2_rdata;
-    rvfi_ex_trap_info.rd_wdata = 0;
+    rvfi_ex_trap_info.insn       = ex_pipeline_q.insn;
+    rvfi_ex_trap_info.pc         = ex_pipeline_q.pc;
+    rvfi_ex_trap_info.next_pc    = ex_next_pc;
+    rvfi_ex_trap_info.rs1_addr   = ex_pipeline_q.rs1_addr;
+    rvfi_ex_trap_info.rs2_addr   = ex_pipeline_q.rs2_addr;
+    rvfi_ex_trap_info.rd_addr    = ex_pipeline_q.rd_addr;
+    rvfi_ex_trap_info.rs1_rdata  = ex_src_a;
+    rvfi_ex_trap_info.rs2_rdata  = ex_rs2_rdata;
+    rvfi_ex_trap_info.rd_wdata   = 0;
     if (ex_pipeline_q.trap_valid) // if trap from previous stage save it instead
     begin
       rvfi_ex_trap_info = ex_pipeline_q.rvfi_trap_info;
@@ -810,27 +792,28 @@ end
   always_comb
   begin
     // memory interface local signals
-    dmem_periph_req = (mem_pipeline_q.is_mem_write || mem_pipeline_q.is_mem_read) && (!misaligned_load || !misaligned_store);
-    mem_wen_o = mem_pipeline_q.is_mem_write;
-    mem_addr_o = mem_pipeline_q.alu_csr_result;
-    mem_strb_o = mem_wen_o ? mem_wstrb : mem_rstrb;
+    dmem_periph_req             = (mem_pipeline_q.is_mem_write || mem_pipeline_q.is_mem_read) && (!misaligned_load || !misaligned_store);
+    mem_wen_o                   = mem_pipeline_q.is_mem_write;
+    mem_addr_o                  = mem_pipeline_q.alu_csr_result;
+    mem_strb_o                  = mem_wen_o ? mem_wstrb : mem_rstrb;
 
     // pipeline
-    mem_pipeline_d.valid       = mem_pipeline_q.valid;
+    mem_pipeline_d.valid        = mem_pipeline_q.valid;
     mem_pipeline_d.is_csr_write = mem_pipeline_q.is_csr_write;
     mem_pipeline_d.is_csr_read  = mem_pipeline_q.is_csr_read;
-    mem_pipeline_d.is_rd_write  =  misaligned_load ? 0 : mem_pipeline_q.is_rd_write;
-    mem_pipeline_d.rd_addr     = mem_pipeline_q.rd_addr;
+    mem_pipeline_d.is_rd_write  = misaligned_load ? 0 : mem_pipeline_q.is_rd_write;
+    mem_pipeline_d.rd_addr      = mem_pipeline_q.rd_addr;
+    mem_pipeline_d.pc_plus_4    = mem_pipeline_q.pc_plus_4;
 
     if (mem_pipeline_q.is_jalr | mem_pipeline_q.is_jal)  // is a jal or jalr
-      mem_pipeline_d.rd_wdata  = mem_pipeline_q.pc_plus_4;
+      mem_pipeline_d.rd_wdata   = mem_pipeline_q.pc_plus_4;
     else if (mem_pipeline_q.is_mem_read)  // is a load instruction
-      mem_pipeline_d.rd_wdata  = mem_load_rdata;
+      mem_pipeline_d.rd_wdata   = mem_load_rdata;
     else  // else
-      mem_pipeline_d.rd_wdata  = mem_pipeline_q.alu_csr_result;
+      mem_pipeline_d.rd_wdata   = mem_pipeline_q.alu_csr_result;
   
-    mem_pipeline_d.csr_addr    = mem_pipeline_q.csr_addr;
-    mem_pipeline_d.csr_wdata   = mem_pipeline_q.csr_wdata;
+    mem_pipeline_d.csr_addr     = mem_pipeline_q.csr_addr;
+    mem_pipeline_d.csr_wdata    = mem_pipeline_q.csr_wdata;
     // traps
     if (mem_pipeline_q.trap_valid)
     begin
@@ -866,17 +849,16 @@ end
     // rvfi
     mem_pipeline_d.pc             = mem_pipeline_q.pc;
     // next pc changes on a branch mispredict
-    mem_pipeline_d.next_pc        = mem_btaken_mispredict  ? (mem_pipeline_q.pc + 4) :
-                                    mem_bntaken_mispredict ? (mem_pipeline_q.jaddr) :
-                                    mem_pipeline_q.next_pc;
+    mem_pipeline_d.next_pc        = mem_pipeline_q.trap_valid ? trap_handler_addr_q :
+                                    mem_pipeline_q.jump_taken ? mem_pipeline_q.jaddr :
+                                    mem_pipeline_q.pc_plus_4;
     mem_pipeline_d.insn           = mem_pipeline_q.insn;
     mem_pipeline_d.intr           = mem_pipeline_q.intr;
-    mem_pipeline_d.pc_plus_4 = mem_pipeline_q.pc_plus_4;
     mem_pipeline_d.rs1_addr       = mem_pipeline_q.rs1_addr;
     mem_pipeline_d.rs2_addr       = mem_pipeline_q.rs2_addr;
     mem_pipeline_d.rs1_rdata      = mem_pipeline_q.rs1_rdata;
     mem_pipeline_d.rs2_rdata      = mem_pipeline_q.rs2_rdata;
-    mem_pipeline_d.mem_addr     = mem_addr_o;
+    mem_pipeline_d.mem_addr       = mem_addr_o;
     mem_pipeline_d.load_rmask     = mem_rstrb;
     mem_pipeline_d.store_wmask    = mem_wstrb;
     mem_pipeline_d.store_wdata    = mem_wdata_o;
@@ -947,7 +929,12 @@ end
     end else if (id_ex_flush) begin
       ex_pipeline_q <= ID_EX_RESET;
     end else if (!id_ex_stall) begin
-      ex_pipeline_q <= id_pipeline_d;
+      if(if_id_stall) begin // bubble
+        ex_pipeline_q <= ID_EX_RESET;
+      end else begin
+        ex_pipeline_q <= id_pipeline_d;
+      end
+      
     end
   end
 
@@ -957,7 +944,12 @@ end
     end else if (ex_mem_flush) begin
       mem_pipeline_q <= EX_MEM_RESET;
     end else if (!ex_mem_stall) begin
-      mem_pipeline_q <= ex_pipeline_d;
+      if (id_ex_stall) begin // bubble
+        mem_pipeline_q <= EX_MEM_RESET;
+      end else begin
+        mem_pipeline_q <= ex_pipeline_d;
+      end
+     
     end
   end
 
@@ -967,7 +959,12 @@ end
     end else if (mem_wb_flush) begin
       wb_pipeline_q <= MEM_WB_RESET;
     end else if (!mem_wb_stall) begin
-      wb_pipeline_q <= mem_pipeline_d;
+       if (ex_mem_stall) begin // bubble
+        wb_pipeline_q <= MEM_WB_RESET;
+       end else begin
+        wb_pipeline_q <= mem_pipeline_d;
+       end
+      
     end
   end
   //*****************************************************************
@@ -1027,6 +1024,7 @@ end
     .id_forward_b_o(id_forward_b),
     .ex_forward_a_sel_o(ex_forward_a_sel),
     .ex_forward_b_sel_o(ex_forward_b_sel),
+    .id_predict_btaken_i(id_predict_btaken),
     .mem_jump_taken_i(mem_pipeline_q.jump_taken),
     .mem_branch_mispredict_i(mem_branch_mispredict),
     .mem_is_branch_i(mem_pipeline_q.is_branch),
@@ -1116,7 +1114,7 @@ end
     wb_rvfi.rvfi_trap_info      = wb_pipeline_q.rvfi_trap_info;
   end
 
-
+assign err_o = (ex_pipeline_q.trap_valid) | mem_pipeline_q.trap_valid | wb_pipeline_q.trap_valid;
   always_comb
   begin
     is_csr_mstatus = 0;

@@ -1,12 +1,12 @@
 
-hello.elf:     file format elf32-littleriscv
+hello_world.elf:     file format elf32-littleriscv
 
 
 Disassembly of section .text:
 
 00000000 <_start>:
-   0:	00103117          	auipc	sp,0x103
-   4:	80010113          	addi	sp,sp,-2048 # 102800 <_stack_end>
+   0:	00110117          	auipc	sp,0x110
+   4:	00010113          	mv	sp,sp
    8:	00100297          	auipc	t0,0x100
    c:	00828293          	addi	t0,t0,8 # 100010 <__bss_end>
   10:	00100317          	auipc	t1,0x100
@@ -26,7 +26,7 @@ Disassembly of section .text:
   30:	0000006f          	j	30 <hang>
 
 00000034 <uart_putc>:
-  34:	fd010113          	addi	sp,sp,-48
+  34:	fd010113          	addi	sp,sp,-48 # 10ffd0 <_stack_start+0x5fd0>
   38:	02112623          	sw	ra,44(sp)
   3c:	02812423          	sw	s0,40(sp)
   40:	03010413          	addi	s0,sp,48
@@ -34,12 +34,12 @@ Disassembly of section .text:
   48:	fcf40fa3          	sb	a5,-33(s0)
   4c:	00000013          	nop
   50:	010007b7          	lui	a5,0x1000
-  54:	00878793          	addi	a5,a5,8 # 1000008 <_stack_end+0xefd808>
+  54:	00878793          	addi	a5,a5,8 # 1000008 <_stack_end+0xef0008>
   58:	0007a783          	lw	a5,0(a5)
   5c:	0087f793          	andi	a5,a5,8
   60:	fe0798e3          	bnez	a5,50 <uart_putc+0x1c>
   64:	010007b7          	lui	a5,0x1000
-  68:	00478793          	addi	a5,a5,4 # 1000004 <_stack_end+0xefd804>
+  68:	00478793          	addi	a5,a5,4 # 1000004 <_stack_end+0xef0004>
   6c:	fdf44703          	lbu	a4,-33(s0)
   70:	00e7a023          	sw	a4,0(a5)
   74:	fe042623          	sw	zero,-20(s0)
@@ -87,7 +87,7 @@ Disassembly of section .text:
  10c:	02010413          	addi	s0,sp,32
  110:	00000013          	nop
  114:	010007b7          	lui	a5,0x1000
- 118:	00878793          	addi	a5,a5,8 # 1000008 <_stack_end+0xefd808>
+ 118:	00878793          	addi	a5,a5,8 # 1000008 <_stack_end+0xef0008>
  11c:	0007a783          	lw	a5,0(a5)
  120:	0047f793          	andi	a5,a5,4
  124:	fe0788e3          	beqz	a5,114 <uart_flush+0x14>

@@ -4,7 +4,7 @@
 //
 //
 ////////////////////////////////////////////
-//`define RISCV_FORMAL
+`define RISCV_FORMAL
 package params_pkg;
 
   // ALU control signals
@@ -226,8 +226,6 @@ package params_pkg;
     logic [31:0] pc;
     logic [31:0] pc_plus_4;
     logic [31:0] insn;
-    logic branch_predict;
-    logic [5:0] pht_idx;
 `ifdef RISCV_FORMAL
     logic        intr;
 `endif
@@ -328,9 +326,9 @@ package params_pkg;
     logic [31:0] trap_pc;
     
 `ifdef RISCV_FORMAL
-    logic [31:0] next_pc;
     logic [31:0] insn;
     logic        intr;
+    logic [31:0] next_pc;
     logic [31:0] csr_rdata;
     logic [4:0]  rs1_addr;
     logic [4:0]  rs2_addr;
@@ -346,6 +344,7 @@ package params_pkg;
     logic [11:0] csr_addr;
     logic [31:0] csr_wdata;
     logic [31:0] rd_wdata;
+    logic [31:0] pc_plus_4;
 
      logic is_csr_write;
      logic is_csr_read;
@@ -356,7 +355,6 @@ package params_pkg;
     logic [31:0] trap_pc;
 `ifdef RISCV_FORMAL
     logic [31:0] pc;
-    logic [31:0] pc_plus_4;
     logic [31:0] next_pc;
     logic [31:0] insn;
     logic        intr;

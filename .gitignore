@@ -3,3 +3,4 @@ checks/
 *.s
 sby_config/**/
 !sby_config/*.sby
+coremark/
