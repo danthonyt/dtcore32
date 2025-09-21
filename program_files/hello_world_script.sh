@@ -6,8 +6,8 @@ STARTUP=startup.S
 ELF=hello_world.elf
 IMEM_BIN=imem.bin
 DMEM_BIN=dmem.bin
-IMEM_MEM=imem.mem
-DMEM_MEM=dmem.mem
+IMEM_MEM=hello_world_imem.mem
+DMEM_MEM=hello_world_dmem.mem
 DISASM=hello_world.dis
 LINKER_SCRIPT=link.ld
 

@@ -860,7 +860,8 @@ end
     mem_pipeline_d.rs2_addr       = mem_pipeline_q.rs2_addr;
     mem_pipeline_d.rs1_rdata      = mem_pipeline_q.rs1_rdata;
     mem_pipeline_d.rs2_rdata      = mem_pipeline_q.rs2_rdata;
-    mem_pipeline_d.mem_addr       = mem_addr_o;
+    // mem addresses are always word aligned
+    mem_pipeline_d.mem_addr       = mem_addr_o & ~32'h3;
     mem_pipeline_d.load_rmask     = mem_rstrb;
     mem_pipeline_d.store_wmask    = mem_wstrb;
     mem_pipeline_d.store_wdata    = mem_wdata_o;
@@ -873,7 +874,7 @@ end
     mem_trap.rs1_addr             = mem_pipeline_q.rs1_addr;
     mem_trap.rs2_addr             = mem_pipeline_q.rs2_addr;
     mem_trap.rd_addr              = mem_pipeline_q.rd_addr;
-    mem_pipeline_d.load_rdata     = mem_load_rdata;
+    mem_pipeline_d.load_rdata     = mem_rdata_i;
     mem_trap.rs1_rdata            = mem_pipeline_q.rs1_rdata;
     mem_trap.rs2_rdata            = mem_pipeline_q.rs2_rdata;
     mem_trap.rd_wdata             = 0;
@@ -1283,9 +1284,9 @@ assign err_o = (ex_pipeline_q.trap_valid) | mem_pipeline_q.trap_valid | wb_pipel
         rvfi_mem_rmask <= wb_rvfi.mem_rmask;
         // shift wmask and wdata if first nonzero bit is not at the lsb
         // riscv formal expects this format
-        rvfi_mem_wmask <= wb_rvfi.mem_wmask >> get_shift(wb_rvfi.mem_wmask);
+        rvfi_mem_wmask <= wb_rvfi.mem_wmask;
         rvfi_mem_rdata <= wb_rvfi.mem_rdata;
-        rvfi_mem_wdata <= wb_rvfi.mem_wdata >> 8 * get_shift(wb_rvfi.mem_wmask);
+        rvfi_mem_wdata <= wb_rvfi.mem_wdata;
       end
 
 

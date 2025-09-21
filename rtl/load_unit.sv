@@ -47,18 +47,26 @@ module load_unit
     strb = 'x;
     load_formatted = 'x;
     if (mem_size_onehot[0]) begin  // byte
-      strb = 4'h1;
+      // never misaligned
+      strb = 4'h1 << raddr_lower2_i;
       load_formatted = {{24{loaded[7]}}, loaded[7:0]};
     end else if (mem_size_onehot[1]) begin  // byte unsigned
-      strb = 4'h1;
+      // never misaligned
+      strb = 4'h1 << raddr_lower2_i;
       load_formatted = {{24{1'b0}}, loaded[7:0]};
     end else if (mem_size_onehot[2]) begin  // half
-      strb = 4'h3;
+      // misaligned when lsb = 1
+      misaligned_load = raddr_lower2_i[0];
+      strb = 4'h3 << (raddr_lower2_i[1] * 2);
       load_formatted = {{16{loaded[15]}}, loaded[15:0]};
     end else if (mem_size_onehot[3]) begin  // half unsigned
-      strb = 4'h3;
+      // misaligned when lsb = 1
+      misaligned_load = raddr_lower2_i[0];
+      strb = 4'h3 << (raddr_lower2_i[1] * 2);
       load_formatted = {{16{1'b0}}, loaded[15:0]};
     end else if (mem_size_onehot[4]) begin  // word
+       // misaligned when at least one of the lower 2 bits are nonzero
+      misaligned_load = |raddr_lower2_i;
       strb = 4'hf;
       load_formatted = loaded;
     end else begin
@@ -66,7 +74,7 @@ module load_unit
       misaligned_load = 0;
     end
   end
-  assign rstrb_o            = misaligned_load ? 0 : strb;
+  assign rstrb_o            = strb;
   assign misaligned_load_o  = misaligned_load;
   assign rdata_o            = load_formatted;
 endmodule

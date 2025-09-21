@@ -34,7 +34,7 @@ module rom #(
   logic [31:0] MEM[MEM_DEPTH-1:0];
 
   initial begin
-    $readmemh("imem.mem", MEM);
+    $readmemh("cm_imem.mem", MEM);
   end
 
   always @(posedge clk_i) begin

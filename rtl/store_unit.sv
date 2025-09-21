@@ -45,12 +45,17 @@ module store_unit
     store_wdata_formatted = 'x;
     wstrb = 'x;
     if (store_size_onehot_i[0]) begin // byte
+      // never misaligned
       wstrb = 4'b1 << waddr_lower2_i;
       store_wdata_formatted = wdata_unformatted_i << waddr_lower2_i * 8;
     end else if (store_size_onehot_i[1]) begin // half
+      // misaligned when lsb = 1
+      misaligned_store = waddr_lower2_i[0];
       wstrb = 4'h3 << waddr_lower2_i[1] * 2;
       store_wdata_formatted = wdata_unformatted_i << waddr_lower2_i[1] * 16;
     end else if (store_size_onehot_i[2]) begin // word
+      // misaligned when lsbs[1:0] != 2'b00
+      misaligned_store = |waddr_lower2_i;
       wstrb = 4'hf;
       store_wdata_formatted = wdata_unformatted_i;
     end else begin
@@ -59,8 +64,8 @@ module store_unit
     end
   end
 
-  assign wstrb_o = misaligned_store ? 0 : wstrb;
-  assign misaligned_store_o = 0;
-  assign wdata_o = misaligned_store ? 0 : store_wdata_formatted;
+  assign wstrb_o = wstrb;
+  assign misaligned_store_o = misaligned_store;
+  assign wdata_o = store_wdata_formatted;
 
 endmodule

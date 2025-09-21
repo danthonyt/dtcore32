@@ -42,7 +42,7 @@ module ram #(
   logic [31:0] MEM[MEM_DEPTH-1:0];
 
   initial begin
-    $readmemh("dmem.mem", MEM);
+    $readmemh("cm_dmem.mem", MEM);
   end
 
   integer i;

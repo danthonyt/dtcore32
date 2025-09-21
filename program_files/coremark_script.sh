@@ -18,8 +18,8 @@ STARTUP_FILE="startup.S"
 LINKER_SCRIPT="link.ld"
 
 # Output files
-IMEM_MEM="imem.mem"
-DMEM_MEM="dmem.mem"
+IMEM_MEM="cm_imem.mem"
+DMEM_MEM="cm_dmem.mem"
 DISASM="coremark.dis"
 
 # Memory sizes (in bytes)
