@@ -1,25 +1,30 @@
-.section .text
-.globl _start
-.globl main
-.globl __bss_start
-.globl __bss_end
-.globl _stack_end
-
+    .section .text
+    .globl _start
+    .globl trap_vector
 
 _start:
-    la sp, _stack_end          # initialize stack
+    la sp, _stack_start      # set stack pointer
+    call main                # jump to main program
 
-    la t0, __bss_start         # zero BSS
-    la t1, __bss_end
-    li t2, 0
-bss_clear:
-    bge t0, t1, bss_done
-    sw t2, 0(t0)
-    addi t0, t0, 4
-    j bss_clear
-bss_done:
+    # Infinite loop after main returns
+1:  j 1b
 
-    call main                  # jump to main
+# --- Trap vector ---
+    .align 4
+    .globl trap_vector
+trap_vector:
+    addi sp, sp, -16         # reserve space for x registers if needed
+    sw   ra, 12(sp)
+    sw   t0, 8(sp)
+    sw   t1, 4(sp)
+    sw   t2, 0(sp)
 
+    la a0, mcause_val        # pointer to store mcause temporarily
+    csrr t0, mcause
+    sw   t0, 0(a0)
+
+    call trap_handler        # call C handler
+
+    # hang forever
 hang:
     j hang

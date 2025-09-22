@@ -23,8 +23,8 @@ DMEM_MEM="cm_dmem.mem"
 DISASM="coremark.dis"
 
 # Memory sizes (in bytes)
-IMEM_SIZE=65536   # 10 KB IMEM
-DMEM_SIZE=65536   # 10 KB DMEM
+IMEM_SIZE=65536   # 64 KB IMEM
+DMEM_SIZE=65536   # 64 KB DMEM
 
 # Cross-compiler
 RISCV_GCC=riscv32-unknown-elf-gcc
@@ -36,43 +36,43 @@ OBJDUMP=riscv32-unknown-elf-objdump
 # --------------------------
 
 # Collect all .c files
-COREMARK_SRC=($(find "$COREMARK_DIR" -maxdepth 1 -name "*.c"))
-PORT_SRC=($(find "$BAREBONES_DIR" -maxdepth 1 -name "*.c"))
+LIBS_SRC=("uart.c" "trap.c" "dtcore_time.c")
+COREMARK_SRC=("../coremark/core_main.c" "../coremark/core_list_join.c"  "../coremark/core_matrix.c" "../coremark/core_state.c" "../coremark/core_util.c")
+PORT_SRC=("../coremark/barebones/core_portme.c" "../coremark/barebones/ee_printf.c")
+ALL_SRC=("$STARTUP_FILE" "${LIBS_SRC[@]}" "${PORT_SRC[@]}" "${COREMARK_SRC[@]}" )
+
 
 # Output ELF
 ELF="coremark.elf"
 
 # 1. Compile and link
-$RISCV_GCC -O2 -march=rv32i -mabi=ilp32 -nostartfiles -ffreestanding -static \
-    -I"$COREMARK_DIR" -I"$BAREBONES_DIR" \
-    "$STARTUP_FILE" \
-    "${COREMARK_SRC[@]}" "${PORT_SRC[@]}" \
-    -T "$LINKER_SCRIPT" -o $ELF
-
-
-
+riscv32-unknown-elf-gcc -O2 -march=rv32izicsr -mabi=ilp32 -ffreestanding -static -nostdlib -nostartfiles \
+    -I"../coremark" -I"../coremark/barebones" -I"." \
+    "${ALL_SRC[@]}" -T "$LINKER_SCRIPT" -o "$ELF" -lgcc
+    
 
 # 2. Generate raw binaries
-# IMEM: only .text
 IMEM_BIN="imem.bin"
-$OBJCOPY -O binary --only-section=.text $ELF $IMEM_BIN
-
-# DMEM: .data + .rodata + .bss
 DMEM_BIN="dmem.bin"
-$OBJCOPY -O binary --only-section=.data --only-section=.rodata --only-section=.bss $ELF $DMEM_BIN
+
+$OBJCOPY -O binary --only-section=.text --only-section=.rodata --only-section=.trap $ELF $IMEM_BIN
+$OBJCOPY -O binary --only-section=.data --only-section=.bss $ELF $DMEM_BIN
 
 # 3. Pad binaries to fixed sizes
 truncate -s $IMEM_SIZE $IMEM_BIN
 truncate -s $DMEM_SIZE $DMEM_BIN
 
-# 4. Convert to 32-bit hex words (one per line, uppercase)
+# 4. Delete old mem files if they exist
+rm -f $IMEM_MEM $DMEM_MEM
+
+# 5. Convert to 32-bit hex words (one per line, uppercase)
 od -An -t x4 -w4 -v $IMEM_BIN | awk '{$1=toupper($1); print $1}' > $IMEM_MEM
 od -An -t x4 -w4 -v $DMEM_BIN | awk '{$1=toupper($1); print $1}' > $DMEM_MEM
 
-# 5. Generate disassembly
+# 6. Generate disassembly
 $OBJDUMP -d $ELF > $DISASM
 
-# 6. Cleanup
+# 7. Cleanup
 rm -f $ELF $IMEM_BIN $DMEM_BIN
 
 echo "Build complete!"

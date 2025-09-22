@@ -2,7 +2,7 @@ ENTRY(_start)
 
 MEMORY
 {
-  IMEM (rx)  : ORIGIN = 0x00000000, LENGTH = 64K   /* instruction memory */
+  IMEM (rx)  : ORIGIN = 0x00000000, LENGTH = 64K   /* instruction + read-only memory */
   DMEM (rwx) : ORIGIN = 0x00100000, LENGTH = 64K   /* data memory */
 }
 
@@ -14,11 +14,11 @@ SECTIONS
     *(.text*)      
   } > IMEM
 
-  /* Read-only data in DMEM (since you can’t load from IMEM) */
+  /* Read-only data in IMEM (now moved from DMEM) */
   .rodata : {
     *(.rodata)
     *(.rodata*)
-  } > DMEM
+  } > IMEM
 
   /* Initialized data in DMEM */
   .data : {
@@ -35,7 +35,6 @@ SECTIONS
     __bss_end = .;
   } > DMEM
 
-
   /* Heap region */
   .heap (NOLOAD) : {
     _heap_start = .;
@@ -44,6 +43,6 @@ SECTIONS
   /* Stack region at top of DMEM */
   .stack (NOLOAD) : {
     _stack_end = ORIGIN(DMEM) + LENGTH(DMEM);
-    _stack_start = _stack_end - 24K; /* reserve 24KB for stack */
+    _stack_start = _stack_end - 8K; /* reserve 8KB for stack */
   } > DMEM
 }

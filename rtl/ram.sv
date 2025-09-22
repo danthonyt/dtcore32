@@ -43,6 +43,7 @@ module ram #(
 
   initial begin
     $readmemh("cm_dmem.mem", MEM);
+    //$readmemh("hello_world_dmem.mem", MEM);
   end
 
   integer i;

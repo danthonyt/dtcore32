@@ -70,6 +70,10 @@ module soc_top (
   logic [3:0] dmem_wstrb;
   logic cpu_err;
   logic [31:0] rvfi_pc;
+
+  logic [31:0] rom_addr;
+  logic [31:0] rom_rdata;
+  logic rom_en;
   always_ff @(posedge clk_i) begin
     if (rst_i) begin
       led_trap <= 0;
@@ -128,7 +132,10 @@ module soc_top (
     .dmem_en_o(dmem_en),
     .dmem_wen_o(dmem_wen),
     .dmem_wdata_o(dmem_wdata),
-    .dmem_wstrb_o(dmem_wstrb)
+    .dmem_wstrb_o(dmem_wstrb),
+    .rom_rdata_i(rom_rdata),
+    .rom_addr_o(rom_addr),
+    .rom_en_o(rom_en)
   );
 
   axi_uartlite_0 uart_inst (
@@ -168,20 +175,17 @@ module soc_top (
       .rdata_o(dmem_rdata)
   );
 
-  rom #(
-      .MEM_DEPTH(MEM_DEPTH)
-  ) imem_inst (
-      .clk_i  (clk_i),
-      .addr_i (imem_addr[$clog2(MEM_DEPTH)-1+2:2]),
-      .rdata_o(imem_rdata)
+  rom # (
+    .MEM_DEPTH(MEM_DEPTH)
+  )
+  rom_inst (
+    .clk_i(clk_i),
+    .insn_addr_i(imem_addr[$clog2(MEM_DEPTH)-1+2:2]),
+    .mem_addr_i(rom_addr[$clog2(MEM_DEPTH)-1+2:2]),
+    .mem_en_i(rom_en),
+    .insn_rdata_o(imem_rdata),
+    .mem_rdata_o(rom_rdata)
   );
 
-
-  ila_0 your_instance_name (
-	.clk(clk_i), // input wire clk
-
-
-	.probe0(rvfi_pc) // input wire [31:0] probe0
-);
 
 endmodule

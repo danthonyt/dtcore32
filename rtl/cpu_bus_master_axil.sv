@@ -98,7 +98,11 @@ module cpu_bus_master_axil (
     output logic dmem_en_o,
     output logic dmem_wen_o,
     output logic [31:0] dmem_wdata_o,
-    output logic [3:0] dmem_wstrb_o
+    output logic [3:0] dmem_wstrb_o,
+    // read only memory signals
+    input logic [31:0] rom_rdata_i,
+    output logic [31:0] rom_addr_o,
+    output logic rom_en_o
 );
   logic [31:0] req_addr_q;
   logic [31:0] req_wdata_q;
@@ -106,6 +110,7 @@ module cpu_bus_master_axil (
   logic req_we_q;
   logic dmem_sel;
   logic uart_sel;
+  logic rom_sel;
 
   logic axil_start_read;
   logic axil_start_write;
@@ -155,12 +160,15 @@ module cpu_bus_master_axil (
 
   assign dmem_sel = mem_addr_i[31:16] == 16'h0010;
   assign uart_sel = mem_addr_i[31:16] == 16'h0100;
+  assign rom_sel = mem_addr_i[31:16] == 16'h0000;
 
   typedef enum {
     IDLE,
     AXIL_WAIT,
     DMEM_WAIT1,
-    DMEM_WAIT2
+    DMEM_WAIT2,
+    ROM_WAIT1,
+    ROM_WAIT2
   } fsm_state;
   fsm_state state;
 
@@ -195,6 +203,9 @@ module cpu_bus_master_axil (
               state <= AXIL_WAIT;
               if (mem_wen_i) axil_start_write <= 1;
               else axil_start_read <= 1;
+            end else if (rom_sel) begin
+              state <= ROM_WAIT1;
+              rom_en_o <= 1;
             end
           end
         end
@@ -217,6 +228,16 @@ module cpu_bus_master_axil (
           mem_done_o <= 1;
           dmem_en_o <= 0;
         end
+        ROM_WAIT1: begin
+          state <= ROM_WAIT2;
+        end
+        ROM_WAIT2: begin
+          state <= IDLE;
+          mem_rdata_o <= rom_rdata_i;
+          mem_done_o <= 1;
+          rom_en_o <= 0;
+        end
+
         default: ;
       endcase
     end
@@ -228,4 +249,5 @@ module cpu_bus_master_axil (
   assign dmem_wen_o = req_we_q;
   assign dmem_wdata_o = req_wdata_q;
   assign dmem_wstrb_o = req_sel_q;
+  assign rom_addr_o = req_addr_q;
 endmodule

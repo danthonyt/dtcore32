@@ -55,13 +55,26 @@ module soc_tb ();
   assign dmem_req = (mem_addr >= DMEM_BASE_ADDR) && (mem_addr < (DMEM_BASE_ADDR + DMEM_LENGTH));
   assign imem_req = (mem_addr >= IMEM_BASE_ADDR) && (mem_addr < (IMEM_BASE_ADDR + IMEM_LENGTH));
   always @(posedge clk) begin
-    if (1) begin
+    if (0) begin
       if (valid_req) begin
         if (imem_req) begin
-          $error("MEM stage tried to access IMEM -- PC: %h ADDR: %h",
-                 soc_top_inst.dtcore32_inst.mem_pipeline_d.pc,
-                 soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr);
-          $finish();
+          if (soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask) begin
+            $error("MEM stage tried to write to IMEM -- PC: %h ADDR: %h",
+                   soc_top_inst.dtcore32_inst.mem_pipeline_d.pc,
+                   soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr);
+            $finish();
+          end else begin
+            $display(
+                "%s --- PC: %h, ADDR: %h, LOAD_RMASK: %h, LOAD_RDATA: %h, STORE_WMASK: %h, STORE_WDATA: %h",
+                soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask ? "IMEM LOAD" : "UNKNOWN IMEM REQ",
+                soc_top_inst.dtcore32_inst.mem_pipeline_d.pc,
+                soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr,
+                soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask,
+                soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rdata,
+                soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask,
+                soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wdata);
+          end
+
         end else if (dmem_req) begin
           $display(
               "%s --- PC: %h, ADDR: %h, LOAD_RMASK: %h, LOAD_RDATA: %h, STORE_WMASK: %h, STORE_WDATA: %h",
@@ -150,7 +163,7 @@ module soc_tb ();
 
   // instructions retired
   always @(negedge clk) begin
-    if (0) begin
+    if (1) begin
       if (!soc_top_inst.dtcore32_inst.mem_wb_stall && soc_top_inst.dtcore32_inst.wb_pipeline_q.valid) begin
         $display("Time %0t: Retired instruction: %h, PC: %h", $time,
                  soc_top_inst.dtcore32_inst.wb_pipeline_q.insn,
