@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "stdint.h": "c",
-        "core_portme.h": "c"
+        "core_portme.h": "c",
+        "stddef.h": "c"
     }
 }

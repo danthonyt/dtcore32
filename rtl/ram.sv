@@ -41,11 +41,6 @@ module ram #(
 );
   logic [31:0] MEM[MEM_DEPTH-1:0];
 
-  initial begin
-    $readmemh("cm_dmem.mem", MEM);
-    //$readmemh("hello_world_dmem.mem", MEM);
-  end
-
   integer i;
   always @(posedge clk_i) begin
     if (en_i) begin

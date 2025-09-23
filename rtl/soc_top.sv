@@ -70,6 +70,7 @@ module soc_top (
   logic [3:0] dmem_wstrb;
   logic cpu_err;
   logic [31:0] rvfi_pc;
+  logic rvfi_valid;
 
   logic [31:0] rom_addr;
   logic [31:0] rom_rdata;
@@ -95,7 +96,8 @@ module soc_top (
       .mem_wdata_o(mem_wdata),
       .mem_strb_o(mem_strb),
       .err_o(cpu_err),
-      .rvfi_pc(rvfi_pc)
+      .rvfi_pc(rvfi_pc),
+      .rvfi_valid(rvfi_valid)
   );
 
   cpu_bus_master_axil  cpu_bus_master_axil_inst (
@@ -186,6 +188,12 @@ module soc_top (
     .insn_rdata_o(imem_rdata),
     .mem_rdata_o(rom_rdata)
   );
+ila_0 your_instance_name (
+	.clk(clk_i), // input wire clk
 
+
+	.probe0(rvfi_pc), // input wire [31:0] probe0
+  .probe1(rvfi_valid)
+);
 
 endmodule

@@ -25,12 +25,7 @@ void uart_tx_init(void) {
 
 void uart_puts(const char *s) {
     while (*s) {
-        if (*s == '\n') {
-            uart_putc('\r'); // carriage return
-            uart_putc('\n'); // newline
-        } else {
             uart_putc(*s);
-        }
         s++;
     }
 }

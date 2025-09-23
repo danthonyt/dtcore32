@@ -1,30 +1,46 @@
     .section .text
     .globl _start
-    .globl trap_vector
 
 _start:
-    la sp, _stack_start      # set stack pointer
-    call main                # jump to main program
+    # --- Set up stack ---
+    la sp, _stack_start        # _stack_start defined in linker script
 
-    # Infinite loop after main returns
-1:  j 1b
+    # --- Copy .data from ROM to RAM ---
+    la t0, _sdata              # start of .data in RAM
+    la t1, _edata              # end of .data
+    la t2, _sidata             # start of initial values in ROM
+1:  bge t0, t1, 2f
+    lw t3, 0(t2)
+    sw t3, 0(t0)
+    addi t0, t0, 4
+    addi t2, t2, 4
+    j 1b
+2:
 
-# --- Trap vector ---
-    .align 4
-    .globl trap_vector
-trap_vector:
-    addi sp, sp, -16         # reserve space for x registers if needed
-    sw   ra, 12(sp)
-    sw   t0, 8(sp)
-    sw   t1, 4(sp)
-    sw   t2, 0(sp)
+    # --- Copy .sdata (small initialized data) from ROM to RAM ---
+    la t0, _ssdata             # start of .sdata in RAM
+    la t1, _esdata             # end of .sdata
+    la t2, _sisddata           # start of initial values in ROM
+5:  bge t0, t1, 6f
+    lw t3, 0(t2)
+    sw t3, 0(t0)
+    addi t0, t0, 4
+    addi t2, t2, 4
+    j 5b
+6:
 
-    la a0, mcause_val        # pointer to store mcause temporarily
-    csrr t0, mcause
-    sw   t0, 0(a0)
+    # --- Clear .bss ---
+    la t0, _sbss
+    la t1, _ebss
+    li t2, 0
+3:  bge t0, t1, 4f
+    sw t2, 0(t0)
+    addi t0, t0, 4
+    j 3b
+4:
 
-    call trap_handler        # call C handler
+    # --- Call main ---
+    call main
 
-    # hang forever
 hang:
     j hang

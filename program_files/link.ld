@@ -1,48 +1,70 @@
-ENTRY(_start)
 
+/* Specify the memory areas */
 MEMORY
 {
-  IMEM (rx)  : ORIGIN = 0x00000000, LENGTH = 64K   /* instruction + read-only memory */
-  DMEM (rwx) : ORIGIN = 0x00100000, LENGTH = 64K   /* data memory */
+ROM (rx)      : ORIGIN =  0x00000000, LENGTH = 64K
+RAM (xrw)      : ORIGIN = 0x00100000, LENGTH = 64K
 }
-
+/* Define output sections */
 SECTIONS
 {
-  /* Code (instructions only) in IMEM */
-  .text : {
-    *(.text)       /* program code */
-    *(.text*)      
-  } > IMEM
+  /* The program code and other data goes into ROM */
+  .text :
+  {
+    *(.text)           /* .text sections (code) */
+    *(.text*)          /* .text* sections (code) */
+    . = ALIGN(4);
+    _etext = .;        /* define a global symbols at end of code */
+  } >ROM
 
-  /* Read-only data in IMEM (now moved from DMEM) */
-  .rodata : {
-    *(.rodata)
-    *(.rodata*)
-  } > IMEM
+/* Constant data goes into ROM */
+  .rodata :
+  {
+    *(.rodata)         /* .rodata sections (constants, strings, etc.) */
+    *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
+    . = ALIGN(4);
+  } >ROM
+  
 
-  /* Initialized data in DMEM */
-  .data : {
+.data : {
+    _sdata = .;
     *(.data)
     *(.data*)
-  } > DMEM
+    . = ALIGN(4);
+    _edata = .;
+} >RAM AT>ROM
 
-  /* Uninitialized data in DMEM */
-  .bss : {
-    __bss_start = .;
+.sdata : {
+    _ssdata = .;
+    *(.sdata)
+    *(.sdata*)
+    . = ALIGN(4);
+    _esdata = .;
+} >RAM AT>ROM
+
+/* Let the linker give us the actual ROM addresses */
+_sidata   = LOADADDR(.data);    /* points to ROM copy of .data */
+_sisddata = LOADADDR(.sdata);   /* points to ROM copy of .sdata */
+
+
+  
+  /* Uninitialized data section */
+  . = ALIGN(4);
+  .bss :
+  {
+    /* This is used by the startup in order to initialize the .bss section */
+    _sbss = .;         /* define a global symbol at bss start */
     *(.bss)
     *(.bss*)
     *(COMMON)
-    __bss_end = .;
-  } > DMEM
+    . = ALIGN(32);
+    _ebss = .;         /* define a global symbol at bss end */
+  } >RAM
 
-  /* Heap region */
-  .heap (NOLOAD) : {
-    _heap_start = .;
-  } > DMEM
-
-  /* Stack region at top of DMEM */
-  .stack (NOLOAD) : {
-    _stack_end = ORIGIN(DMEM) + LENGTH(DMEM);
-    _stack_start = _stack_end - 8K; /* reserve 8KB for stack */
-  } > DMEM
+  /* Stack at top of RAM */
+    .stack (NOLOAD) : ALIGN(8)
+    {
+        _stack_end   = ORIGIN(RAM) + LENGTH(RAM);
+        _stack_start = _stack_end - 0x2000; /* 8KB stack */
+    } >RAM
 }

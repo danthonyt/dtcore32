@@ -95,6 +95,9 @@ module dtcore32 (
     output logic [31:0] mem_wdata_o,
     output logic [3:0] mem_strb_o,
     output logic [31:0] rvfi_pc,
+    `ifndef RISCV_FORMAL
+    output logic rvfi_valid,
+    `endif
     output logic err_o
 
   );

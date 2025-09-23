@@ -11,7 +11,7 @@ Disassembly of section .text:
    c:	ff828293          	addi	t0,t0,-8 # 100000 <my_global>
   10:	00100317          	auipc	t1,0x100
   14:	ff030313          	addi	t1,t1,-16 # 100000 <my_global>
-  18:	37800393          	li	t2,888
+  18:	35c00393          	li	t2,860
   1c:	0062dc63          	bge	t0,t1,34 <_start+0x34>
   20:	0003ae03          	lw	t3,0(t2)
   24:	01c2a023          	sw	t3,0(t0)
@@ -22,7 +22,7 @@ Disassembly of section .text:
   38:	fcc28293          	addi	t0,t0,-52 # 100000 <my_global>
   3c:	00100317          	auipc	t1,0x100
   40:	fc830313          	addi	t1,t1,-56 # 100004 <_esdata>
-  44:	37800393          	li	t2,888
+  44:	35c00393          	li	t2,860
   48:	0062dc63          	bge	t0,t1,60 <_start+0x60>
   4c:	0003ae03          	lw	t3,0(t2)
   50:	01c2a023          	sw	t3,0(t0)
@@ -242,7 +242,7 @@ Disassembly of section .text:
 
 Disassembly of section .rodata:
 
-00000358 <.rodata>:
+00000358 <_sdata_lma-0x4>:
  358:	000a                	.insn	2, 0x000a
 	...
 
