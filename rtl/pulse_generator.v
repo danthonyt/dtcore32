@@ -25,14 +25,14 @@
 //===========================================================
 
 module pulse_generator(
-    input logic clk_i,
-    input logic rst_i,
-    input logic en_i,
-    output logic pulse_o
+    input  clk_i,
+    input  rst_i,
+    input  en_i,
+    output reg pulse_o
 );
-    logic en_q;
+    reg en_q;
 
-    always_ff @(posedge clk_i) begin
+    always @(posedge clk_i) begin
         if (rst_i) begin
             en_q <= 0;
         end else begin
@@ -40,7 +40,7 @@ module pulse_generator(
         end
     end
 
-    always_ff @(posedge clk_i) begin
+    always @(posedge clk_i) begin
         if (rst_i) begin
             pulse_o <= 0; 
         // generate pulse on rising edge of en_i
@@ -50,4 +50,6 @@ module pulse_generator(
             pulse_o <= 0;
         end
     end
+
+
 endmodule

@@ -31,15 +31,15 @@
 module ram #(
     parameter MEM_DEPTH = 256
 ) (
-    input logic clk_i,
-    input logic [$clog2(MEM_DEPTH)-1+2:2] addr_i,
-    input logic en_i,
-    input logic wen_i,
-    input logic [31:0] wdata_i,
-    input logic [3:0] wstrb_i,
-    output logic [31:0] rdata_o
+    input  clk_i,
+    input  [$clog2(MEM_DEPTH)-1+2:2] addr_i,
+    input  en_i,
+    input  wen_i,
+    input  [31:0] wdata_i,
+    input  [3:0] wstrb_i,
+    output reg [31:0] rdata_o
 );
-  logic [31:0] MEM[MEM_DEPTH-1:0];
+  reg [31:0] MEM[MEM_DEPTH-1:0];
 
   integer i;
   always @(posedge clk_i) begin

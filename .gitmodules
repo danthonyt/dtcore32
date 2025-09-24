@@ -7,9 +7,6 @@
 [submodule "peripherals/wishbone"]
 	path = peripherals/wishbone
 	url = git@github.com:danthonyt/wishbone.git
-[submodule "peripherals/uart"]
-	path = peripherals/uart
-	url = git@github.com:danthonyt/UART.git
 [submodule "peripherals/axil"]
 	path = peripherals/axil
 	url = git@github.com:danthonyt/axi_lite_interface.git

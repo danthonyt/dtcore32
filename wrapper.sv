@@ -15,7 +15,14 @@ module rvfi_wrapper (
   (* keep *) `rvformal_rand_reg mem_done;
   
   // mem done will eventually rise after start pulse
-  assume property (@(posedge clock) mem_valid |-> ##[1:$] mem_done);
+  reg f_past_valid;
+  initial f_past_valid = 0;
+  always @(posedge clock) begin
+    f_past_valid <= 1;
+    if (f_past_valid && $past(mem_valid)) begin
+      assume(mem_done);
+    end
+  end
 
   dtcore32  dtcore32_inst (
     .clk_i(clock),

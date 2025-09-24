@@ -27,16 +27,17 @@ OBJDUMP=riscv32-unknown-elf-objdump
 # SOURCE FILES
 # --------------------------
 
-LIBS_SRC=("uart.c" "trap.c" "dtcore_time.c")
+LIBS_SRC=("uart.c" "dtcore_time.c")
 COREMARK_SRC=("../coremark/core_main.c" "../coremark/core_list_join.c"  "../coremark/core_matrix.c" "../coremark/core_state.c" "../coremark/core_util.c")
 PORT_SRC=("../coremark/barebones/core_portme.c" "../coremark/barebones/ee_printf.c")
-#ALL_SRC=("$STARTUP_FILE" "${LIBS_SRC[@]}" "${PORT_SRC[@]}" "${COREMARK_SRC[@]}")
-ALL_SRC=("startup.S" "uart.c" "main.c" "globals.c")
+ALL_SRC=("$STARTUP_FILE" "${LIBS_SRC[@]}" "${PORT_SRC[@]}" "${COREMARK_SRC[@]}")
 
-#ELF="coremark.elf"
-ELF="test.elf"
+ELF="coremark.elf"
 
-riscv32-unknown-elf-gcc -nostdlib  startup.S main.c uart.c globals.c -o test.elf  -T link.ld -lgcc -Wl,-Map=main.map 
+
+riscv32-unknown-elf-gcc -O2 -march=rv32izicsr -mabi=ilp32 -ffreestanding -static -nostdlib -nostartfiles \
+    -I"../coremark" -I"../coremark/barebones" -I"." \
+    "${ALL_SRC[@]}" -T "$LINKER_SCRIPT" -o "$ELF" -lgcc
 
 
 # 2. Generate IMEM memory file (Verilog HEX) preserving LMA addresses

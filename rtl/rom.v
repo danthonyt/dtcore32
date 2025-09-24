@@ -1,6 +1,6 @@
 //===========================================================
 // Project    : RISC-V CPU / Digital Memory Modules
-// File       : rom.sv
+// File       : rom.v
 // Module     : rom
 // Description: Parameterizable synchronous ROM module. Provides
 //              read-only memory with single-clock access. Can be
@@ -27,15 +27,15 @@
 module rom #(
     parameter MEM_DEPTH = 256
 ) (
-    input logic clk_i,
-    input logic [$clog2(MEM_DEPTH)-1+2:2] insn_addr_i,
-    input logic [$clog2(MEM_DEPTH)-1+2:2] mem_addr_i,
-    input logic mem_en_i,
-    output logic [31:0] insn_rdata_o,
-    output logic [31:0] mem_rdata_o
+    input  clk_i,
+    input  [$clog2(MEM_DEPTH)-1+2:2] insn_addr_i,
+    input  [$clog2(MEM_DEPTH)-1+2:2] mem_addr_i,
+    input  mem_en_i,
+    output reg [31:0] insn_rdata_o,
+    output reg [31:0] mem_rdata_o
 
 );
-  logic [31:0] MEM[MEM_DEPTH-1:0];
+  reg [31:0] MEM[MEM_DEPTH-1:0];
 
   initial begin
     $readmemh("cm_imem.mem", MEM);
