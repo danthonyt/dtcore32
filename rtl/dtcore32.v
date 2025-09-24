@@ -496,9 +496,9 @@ module dtcore32 (
   reg [31:0] commit_rd_wdata  ;
   reg [11:0] commit_csr_addr  ;
   reg [31:0] commit_csr_wdata ;
-  reg [ 3:0] commit_csr_wmask ;
+  reg [31:0] commit_csr_wmask ;
   reg [31:0] commit_csr_rdata ;
-  reg [ 3:0] commit_csr_rmask ;
+  reg [31:0] commit_csr_rmask ;
   reg [31:0] commit_mem_addr  ;
   reg [ 3:0] commit_mem_rmask ;
   reg [31:0] commit_mem_rdata ;
@@ -865,8 +865,7 @@ module dtcore32 (
     is_rs1_read        = 0;
     is_rs2_read        = 0;
     // mux select signals
-    alu_op             = ALU_OP_ILOAD_S_U_TYPE;
-    alu_op             = ALU_OP_ILOAD_S_U_TYPE;
+    alu_op             = 0;
     // control signals
     is_branch          = 0;
     is_jump            = 0;
@@ -877,9 +876,6 @@ module dtcore32 (
     csr_op_rw          = 0;
     csr_op_clear       = 0;
     csr_op_set         = 0;
-    is_rd_write        = 0;
-    is_rs1_read        = 0;
-    is_rs2_read        = 0;
     is_mem_write       = 0;
     is_mem_read        = 0;
     is_memsize_b       = 0;
@@ -888,11 +884,11 @@ module dtcore32 (
     is_memsize_hu      = 0;
     is_memsize_w       = 0;
     // sources
-    imm_ext_op         = I_ALU_TYPE;
-    alu_a_src          = ALU_A_SEL_REG_DATA;
-    alu_b_src          = ALU_B_SEL_REG_DATA;
-    pc_alu_src         = PC_ALU_SEL_PC;
-    csr_bitmask_sel    = CSR_BITMASK_SEL_REG_DATA;
+    imm_ext_op         = 0;
+    alu_a_src          = 0;
+    alu_b_src          = 0;
+    pc_alu_src         = 0;
+    csr_bitmask_sel    = 0;
 
 
     case (id_op)
@@ -1045,7 +1041,7 @@ module dtcore32 (
         end
       end
       OPCODE_JAL : begin
-        {is_rd_write, is_jump, is_jal} = 3'b11;
+        {is_rd_write, is_jump, is_jal} = 3'b111;
         imm_ext_op = J_TYPE;
         alu_a_src  = ALU_A_SEL_REG_DATA;
         alu_b_src  = ALU_B_SEL_REG_DATA;
@@ -2195,7 +2191,7 @@ end
       CSR_ADDR_MCYCLE   : csrfile_rdata = csr_mcycle_reg[31:0];
       CSR_ADDR_MCYCLEH  : csrfile_rdata = csr_mcycle_reg[63:32];
       // since we are reading in ID stage add stages that will retire before to the count
-      CSR_ADDR_MINSTRET : csrfile_rdata = csr_minstret_reg +
+      CSR_ADDR_MINSTRET : csrfile_rdata = csr_minstret_reg[31:0] + ex_q_valid
         + mem_q_valid + wb_q_valid;
       CSR_ADDR_MINSTRETH : csrfile_rdata = csr_minstret_reg[63:32];
       default            : ;
