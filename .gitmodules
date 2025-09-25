@@ -1,3 +1,6 @@
 [submodule "peripherals/axil"]
 	path = peripherals/axil
 	url = git@github.com:danthonyt/axi_lite_interface.git
+[submodule "peripherals/uart"]
+	path = peripherals/uart
+	url = git@github.com:danthonyt/UART.git

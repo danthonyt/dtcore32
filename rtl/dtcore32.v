@@ -88,7 +88,7 @@ module dtcore32 (
   // to data memory and peripheral interface
   input      [31:0] mem_rdata_i            ,
   input             mem_done_i             ,
-  output reg        mem_valid_o            ,
+  output         mem_valid_o            ,
   output reg        mem_wen_o              ,
   output reg [31:0] mem_addr_o             ,
   output reg [31:0] mem_wdata_o            ,
@@ -97,7 +97,7 @@ module dtcore32 (
 
 
 // Optional: conditional compilation flag
-  `define RISCV_FORMAL
+  //`define RISCV_FORMAL
 
 //-------------------------------
 // Widths for pseudo-types
@@ -1527,6 +1527,7 @@ module dtcore32 (
   //*****************************************************************
   wire [4:0] load_size_onehot ;
   wire [2:0] store_size_onehot;
+  wire mem_valid;
   assign mem_btaken_mispredict  = (mem_q_is_branch && !mem_q_jump_taken && mem_q_branch_predict);
   assign mem_bntaken_mispredict = (mem_q_is_branch && mem_q_jump_taken && !mem_q_branch_predict);
   assign mem_branch_mispredict  = mem_btaken_mispredict || mem_bntaken_mispredict;
@@ -1549,9 +1550,9 @@ module dtcore32 (
     .clk_i  (clk_i                         ),
     .rst_i  (rst_i                         ),
     .en_i   (dmem_periph_req && !mem_done_i),
-    .pulse_o(mem_valid_o                   )
+    .pulse_o(mem_valid                   )
   );
-
+  assign mem_valid_o = mem_valid;
   //*****************************************************************
   //
   //

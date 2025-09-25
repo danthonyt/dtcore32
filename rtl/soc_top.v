@@ -1,6 +1,6 @@
 //===========================================================
 // Project    : RISC-V SoC
-// File       : soc_top.sv
+// File       : soc_top.v
 // Module     : soc_top
 // Description: Top-level system-on-chip (SoC) module. Integrates
 //              the RISC-V CPU core, memory modules, peripherals,
@@ -25,63 +25,52 @@
 //===========================================================
 
 module soc_top (
-    input  logic clk_i,
-    input  logic rst_i,
-    output  logic led_trap,
-    output logic tx_o
+    input   clk_i,
+    input   rst_i,
+    output  tx_o
 );
   localparam MEM_DEPTH = 16384;
 
-  logic [31:0] imem_rdata;
-  logic [31:0] imem_addr;
-  logic [31:0] mem_rdata;
-  logic mem_done;
-  logic mem_valid;
-  logic mem_wen;
-  logic [31:0] mem_addr;
-  logic [31:0] mem_wdata;
-  logic [3:0] mem_strb;
+  wire [31:0] imem_rdata;
+  wire [31:0] imem_addr;
+  wire [31:0] mem_rdata;
+  wire mem_done;
+  wire mem_valid;
+  wire mem_wen;
+  wire [31:0] mem_addr;
+  wire [31:0] mem_wdata;
+  wire [3:0] mem_strb;
 
 
-  logic [31:0] axi_araddr;
-  // logic [ 2:0] axi_arprot;
-  logic axi_arvalid;
-  logic axi_arready;
-  logic [31:0] axi_rdata;
-  logic [ 1:0] axi_rresp;
-  logic axi_rvalid;
-  logic axi_rready;
-  logic axi_awvalid;
-  logic axi_awready;
-  logic [31:0] axi_awaddr;
-  // logic [ 2:0] axi_awprot;
-  logic axi_wvalid;
-  logic axi_wready;
-  logic [31:0] axi_wdata;
-  logic [ 3:0] axi_wstrb;
-  logic axi_bvalid;
-  logic axi_bready;
-  logic [ 1:0] axi_bresp;
-  logic [31:0] dmem_rdata;
-  logic [31:0] dmem_addr;
-  logic dmem_en;
-  logic dmem_wen;
-  logic [31:0] dmem_wdata;
-  logic [3:0] dmem_wstrb;
-  logic cpu_err;
-  logic [31:0] rvfi_pc;
-  logic rvfi_valid;
+  wire [31:0] axi_araddr;
+  // wire [ 2:0] axi_arprot;
+  wire axi_arvalid;
+  wire axi_arready;
+  wire [31:0] axi_rdata;
+  wire [ 1:0] axi_rresp;
+  wire axi_rvalid;
+  wire axi_rready;
+  wire axi_awvalid;
+  wire axi_awready;
+  wire [31:0] axi_awaddr;
+  // wire [ 2:0] axi_awprot;
+  wire axi_wvalid;
+  wire axi_wready;
+  wire [31:0] axi_wdata;
+  wire [ 3:0] axi_wstrb;
+  wire axi_bvalid;
+  wire axi_bready;
+  wire [ 1:0] axi_bresp;
+  wire [31:0] dmem_rdata;
+  wire [31:0] dmem_addr;
+  wire dmem_en;
+  wire dmem_wen;
+  wire [31:0] dmem_wdata;
+  wire [3:0] dmem_wstrb;
 
-  logic [31:0] rom_addr;
-  logic [31:0] rom_rdata;
-  logic rom_en;
-  always_ff @(posedge clk_i) begin
-    if (rst_i) begin
-      led_trap <= 0;
-    end else if (cpu_err)begin
-      led_trap <= 1;
-    end
-  end
+  wire [31:0] rom_addr;
+  wire [31:0] rom_rdata;
+  wire rom_en;
 
   dtcore32 dtcore32_inst (
       .clk_i(clk_i),
@@ -94,10 +83,7 @@ module soc_top (
       .mem_wen_o(mem_wen),
       .mem_addr_o(mem_addr),
       .mem_wdata_o(mem_wdata),
-      .mem_strb_o(mem_strb),
-      .err_o(cpu_err),
-      .rvfi_pc(rvfi_pc),
-      .rvfi_valid(rvfi_valid)
+      .mem_strb_o(mem_strb)
   );
 
   cpu_bus_master_axil  cpu_bus_master_axil_inst (
@@ -111,7 +97,6 @@ module soc_top (
     .mem_rdata_o(mem_rdata),
     .mem_done_o(mem_done),
     .m_axi_araddr_o(axi_araddr),
-    .m_axi_arprot_o(),
     .m_axi_arvalid_o(axi_arvalid),
     .m_axi_arready_i(axi_arready),
     .m_axi_rdata_i(axi_rdata),
@@ -121,7 +106,6 @@ module soc_top (
     .m_axi_awvalid_o(axi_awvalid),
     .m_axi_awready_i(axi_awready),
     .m_axi_awaddr_o(axi_awaddr),
-    .m_axi_awprot_o(),
     .m_axi_wvalid_o(axi_wvalid),
     .m_axi_wready_i(axi_wready),
     .m_axi_wdata_o(axi_wdata),
@@ -188,12 +172,5 @@ module soc_top (
     .insn_rdata_o(imem_rdata),
     .mem_rdata_o(rom_rdata)
   );
-ila_0 your_instance_name (
-	.clk(clk_i), // input wire clk
-
-
-	.probe0(rvfi_pc), // input wire [31:0] probe0
-  .probe1(rvfi_valid)
-);
 
 endmodule
