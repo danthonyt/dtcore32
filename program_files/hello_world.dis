@@ -11,7 +11,7 @@ Disassembly of section .text:
    c:	ff828293          	addi	t0,t0,-8 # 100000 <_ebss>
   10:	00100317          	auipc	t1,0x100
   14:	ff030313          	addi	t1,t1,-16 # 100000 <_ebss>
-  18:	26800393          	li	t2,616
+  18:	2a400393          	li	t2,676
   1c:	0062dc63          	bge	t0,t1,34 <_start+0x34>
   20:	0003ae03          	lw	t3,0(t2)
   24:	01c2a023          	sw	t3,0(t0)
@@ -22,7 +22,7 @@ Disassembly of section .text:
   38:	fcc28293          	addi	t0,t0,-52 # 100000 <_ebss>
   3c:	00100317          	auipc	t1,0x100
   40:	fc430313          	addi	t1,t1,-60 # 100000 <_ebss>
-  44:	26800393          	li	t2,616
+  44:	2a400393          	li	t2,676
   48:	0062dc63          	bge	t0,t1,60 <_start+0x60>
   4c:	0003ae03          	lw	t3,0(t2)
   50:	01c2a023          	sw	t3,0(t0)
@@ -179,8 +179,32 @@ Disassembly of section .rodata:
 00000258 <.rodata>:
  258:	6548                	.insn	2, 0x6548
  25a:	6c6c                	.insn	2, 0x6c6c
- 25c:	6f77206f          	j	73152 <_sidata+0x72eea>
+ 25c:	6f77206f          	j	73152 <_sidata+0x72eae>
  260:	6c72                	.insn	2, 0x6c72
  262:	2164                	.insn	2, 0x2164
- 264:	000a                	.insn	2, 0x000a
-	...
+ 264:	5420                	.insn	2, 0x5420
+ 266:	6968                	.insn	2, 0x6968
+ 268:	73692073          	.insn	4, 0x73692073
+ 26c:	6120                	.insn	2, 0x6120
+ 26e:	7620                	.insn	2, 0x7620
+ 270:	7265                	.insn	2, 0x7265
+ 272:	2c79                	.insn	2, 0x2c79
+ 274:	7620                	.insn	2, 0x7620
+ 276:	7265                	.insn	2, 0x7265
+ 278:	2079                	.insn	2, 0x2079
+ 27a:	6f6c                	.insn	2, 0x6f6c
+ 27c:	676e                	.insn	2, 0x676e
+ 27e:	6d20                	.insn	2, 0x6d20
+ 280:	7365                	.insn	2, 0x7365
+ 282:	65676173          	.insn	4, 0x65676173
+ 286:	7420                	.insn	2, 0x7420
+ 288:	6168                	.insn	2, 0x6168
+ 28a:	2074                	.insn	2, 0x2074
+ 28c:	756f6873          	.insn	4, 0x756f6873
+ 290:	646c                	.insn	2, 0x646c
+ 292:	6e20                	.insn	2, 0x6e20
+ 294:	6220746f          	jal	s0,78b6 <_sidata+0x7612>
+ 298:	2065                	.insn	2, 0x2065
+ 29a:	20747563          	bgeu	s0,t2,4a4 <_sidata+0x200>
+ 29e:	2166666f          	jal	a2,664b4 <_sidata+0x66210>
+ 2a2:	000a                	.insn	2, 0x000a

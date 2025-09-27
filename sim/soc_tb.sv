@@ -146,7 +146,7 @@ module soc_tb ();
   integer i;
 
   always @(posedge clk) begin
-    if (1) begin
+    if (0) begin
       for (i = 0; i < 32; i = i + 1) begin
         if (soc_top_inst.dtcore32_inst.regfile_arr[i] !== regfile_shadow[i]) begin
           $display("Time %0t: PC=0x%08h | %s changed from 0x%08h to 0x%08h", $time, pc_delay,
@@ -183,7 +183,7 @@ module soc_tb ();
   integer j;
 
   always @(posedge clk) begin
-    if (1) begin
+    if (0) begin
       for (j = 0; j < DMEM_LENGTH; j = j + 1) begin
         if (soc_top_inst.dmem_inst.MEM[j] !== dmem_shadow[j]) begin
           $display("Time %0t: PC=0x%08h | DMEM[%d] changed from 0x%08h to 0x%08h", $time,
