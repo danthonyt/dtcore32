@@ -1,47 +1,59 @@
 #!/bin/bash
 set -e
 
-IMEM_BIN=imem.bin
-DMEM_BIN=dmem.bin
-IMEM_MEM=hello_world_imem.mem
-DMEM_MEM=hello_world_dmem.mem
+# --------------------------
+# EDIT THESE DIRECTORIES
+# --------------------------
+STARTUP_FILE="startup.S"
+LINKER_SCRIPT="link.ld"
 
-# 1. Compile and link (with startup)
-riscv32-unknown-elf-gcc -march=rv32izicsr -mabi=ilp32 -nostdlib -nostartfiles \
-    -Wl,-T,link.ld -o hello_world.elf startup.S uart.c hello_world.c trap.c -lgcc
+IMEM_MEM="hello_world.mem"
+DISASM="hello_world.dis"
 
-# 2. Generate raw binaries
-# IMEM: just .text
-riscv32-unknown-elf-objcopy -O binary --only-section=.text \
- --only-section=.rodata --only-section=.trap hello_world.elf $IMEM_BIN
+IMEM_SIZE=65536   # 64 KB IMEM
+DMEM_SIZE=65536   # 64 KB DMEM
 
-# DMEM: data, rodata, bss (allocate .bss as zeros)
-riscv32-unknown-elf-objcopy -O binary \
-    --only-section=.data --only-section=.bss \
-    hello_world.elf $DMEM_BIN
+RISCV_GCC=riscv32-unknown-elf-gcc
+OBJCOPY=riscv32-unknown-elf-objcopy
+OBJDUMP=riscv32-unknown-elf-objdump
 
-# 3. Pad binaries to match IMEM/DMEM sizes (64 KB)
-truncate -s 65536 $IMEM_BIN
-truncate -s 65536 $DMEM_BIN
+# --------------------------
+# SOURCE FILES
+# --------------------------
 
-# 4. Convert to 32-bit hex words, one per line
-# IMEM
-od -An -t x4 -w4 -v $IMEM_BIN | awk '{$1=toupper($1); print $1}' > $IMEM_MEM
+ALL_SRC=("startup.S" "uart.c" "hello_world.c")
 
-# DMEM
-od -An -t x4 -w4 -v $DMEM_BIN | awk '{$1=toupper($1); print $1}' > $DMEM_MEM
+ELF="hello_world.elf"
 
-# 5. Generate disassembly including .text and .rodata
-{
-    echo "Disassembly of .text and .rodata:"
-    riscv32-unknown-elf-objdump -D --section=.text hello_world.elf
-    riscv32-unknown-elf-objdump -s --section=.rodata hello_world.elf
-} > hello_world.dis
 
-# 6. Cleanup: keep only .mem and .dis
-rm -f hello_world.elf $IMEM_BIN $DMEM_BIN
+riscv32-unknown-elf-gcc -O1 -march=rv32izicsr -mabi=ilp32 -ffreestanding -static -nostdlib -nostartfiles \
+    "${ALL_SRC[@]}" -T "$LINKER_SCRIPT" -o "$ELF" -lgcc
+
+
+# 2. Generate IMEM memory file (Verilog HEX) preserving LMA addresses
+
+IMEM_BIN="imem.bin"
+$OBJCOPY -O binary \
+    -j .text \
+    -j .rodata \
+    -j .data \
+    -j .sdata \
+    $ELF $IMEM_BIN
+
+od -An -t x4 -w4 -v $IMEM_BIN | awk '{print toupper($1)}' > $IMEM_MEM
+
+
+# 6. Generate disassembly
+riscv32-unknown-elf-objdump -D \
+    -j .text \
+    -j .rodata \
+    -j .data \
+    -j .sdata \
+    $ELF > $DISASM
+
+
+# 7. Cleanup
 
 echo "Build complete!"
-echo "  IMEM: $IMEM_MEM (16384 × 32-bit words)"
-echo "  DMEM: $DMEM_MEM (16384 × 32-bit words)"
-echo "  Disassembly: hello_world.dis"
+echo "  IMEM: $IMEM_MEM ($((IMEM_SIZE/4)) × 32-bit words)"
+echo "  Disassembly: $DISASM"

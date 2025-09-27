@@ -113,20 +113,15 @@ module cpu_bus_master_axil (
   wire        axil_done_write ;
   wire [31:0] axil_rdata      ;
 
-
-
-
   // wishbone master signals
   // read address channel
   wire [31:0] m_axi_araddr ;
-  wire [ 2:0] m_axi_arprot ;
   wire        m_axi_arvalid;
   // read data channel
   wire m_axi_rready;
   // write address channel
   wire        m_axi_awvalid;
   wire [31:0] m_axi_awaddr ;
-  wire [ 2:0] m_axi_awprot ;
   // write data channel
   wire        m_axi_wvalid;
   wire [31:0] m_axi_wdata ;
@@ -162,7 +157,6 @@ module cpu_bus_master_axil (
     .m_axi_aclk_i   (clk_i           ),
     .m_axi_aresetn_i(~rst_i          ),
     .m_axi_araddr_o (m_axi_araddr    ),
-    .m_axi_arprot_o (m_axi_arprot    ),
     .m_axi_arvalid_o(m_axi_arvalid   ),
     .m_axi_arready_i(m_axi_arready_i ),
     .m_axi_rdata_i  (m_axi_rdata_i   ),
@@ -172,7 +166,6 @@ module cpu_bus_master_axil (
     .m_axi_awvalid_o(m_axi_awvalid   ),
     .m_axi_awready_i(m_axi_awready_i ),
     .m_axi_awaddr_o (m_axi_awaddr    ),
-    .m_axi_awprot_o (m_axi_awprot    ),
     .m_axi_wvalid_o (m_axi_wvalid    ),
     .m_axi_wready_i (m_axi_wready_i  ),
     .m_axi_wdata_o  (m_axi_wdata     ),
@@ -190,8 +183,7 @@ module cpu_bus_master_axil (
     .x_wrdata_i     (req_wdata_q     ),
     .x_raddr_i      (req_addr_q      ),
     .x_wstrb_i      (req_sel_q       ),
-    .x_rdata_o      (axil_rdata      ),
-    .err_o          (                )
+    .x_rdata_o      (axil_rdata      )
   );
 
 

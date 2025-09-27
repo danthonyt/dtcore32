@@ -43,7 +43,6 @@ module soc_top (
 
 
   wire [31:0] axi_araddr;
-  // wire [ 2:0] axi_arprot;
   wire axi_arvalid;
   wire axi_arready;
   wire [31:0] axi_rdata;
@@ -53,7 +52,6 @@ module soc_top (
   wire axi_awvalid;
   wire axi_awready;
   wire [31:0] axi_awaddr;
-  // wire [ 2:0] axi_awprot;
   wire axi_wvalid;
   wire axi_wready;
   wire [31:0] axi_wdata;
@@ -124,30 +122,36 @@ module soc_top (
     .rom_en_o(rom_en)
   );
 
-  axi_uartlite_0 uart_inst (
-  .s_axi_aclk(clk_i),        // input wire s_axi_aclk
-  .s_axi_aresetn(~rst_i),  // input wire s_axi_aresetn
-  .interrupt(),          // output wire interrupt
-  .s_axi_awaddr(axi_awaddr[3:0]),    // input wire [3 : 0] s_axi_awaddr
-  .s_axi_awvalid(axi_awvalid),  // input wire s_axi_awvalid
-  .s_axi_awready(axi_awready),  // output wire s_axi_awready
-  .s_axi_wdata(axi_wdata),      // input wire [31 : 0] s_axi_wdata
-  .s_axi_wstrb(axi_wstrb),      // input wire [3 : 0] s_axi_wstrb
-  .s_axi_wvalid(axi_wvalid),    // input wire s_axi_wvalid
-  .s_axi_wready(axi_wready),    // output wire s_axi_wready
-  .s_axi_bresp(axi_bresp),      // output wire [1 : 0] s_axi_bresp
-  .s_axi_bvalid(axi_bvalid),    // output wire s_axi_bvalid
-  .s_axi_bready(axi_bready),    // input wire s_axi_bready
-  .s_axi_araddr(axi_araddr[3:0]),    // input wire [3 : 0] s_axi_araddr
-  .s_axi_arvalid(axi_arvalid),  // input wire s_axi_arvalid
-  .s_axi_arready(axi_arready),  // output wire s_axi_arready
-  .s_axi_rdata(axi_rdata),      // output wire [31 : 0] s_axi_rdata
-  .s_axi_rresp(axi_rresp),      // output wire [1 : 0] s_axi_rresp
-  .s_axi_rvalid(axi_rvalid),    // output wire s_axi_rvalid
-  .s_axi_rready(axi_rready),    // input wire s_axi_rready
-  .rx(1'b1),                        // input wire rx
-  .tx(tx_o)                        // output wire tx
-);
+  localparam DATA_WIDTH = 8;
+  localparam FIFO_DEPTH = 16;
+  localparam CLKS_PER_BIT = 868;
+  uart_core # (
+    .DATA_WIDTH(DATA_WIDTH),
+    .FIFO_DEPTH(FIFO_DEPTH),
+    .CLKS_PER_BIT(CLKS_PER_BIT)
+  )
+  uart_core_inst (
+    .axi_aclk_i(clk_i),
+    .axi_aresetn_i(~rst_i),
+    .axi_araddr_i(axi_araddr),
+    .axi_arvalid_i(axi_arvalid),
+    .axi_arready_o(axi_arready),
+    .axi_rdata_o(axi_rdata),
+    .axi_rresp_o(axi_rresp),
+    .axi_rvalid_o(axi_rvalid),
+    .axi_rready_i(axi_rready),
+    .axi_awvalid_i(axi_awvalid),
+    .axi_awready_o(axi_awready),
+    .axi_awaddr_i(axi_awaddr),
+    .axi_wvalid_i(axi_wvalid),
+    .axi_wready_o(axi_wready),
+    .axi_wdata_i(axi_wdata),
+    .axi_bvalid_o(axi_bvalid),
+    .axi_bready_i(axi_bready),
+    .axi_bresp_o(axi_bresp),
+    .rx_i(1'b1),
+    .tx_o(tx_o)
+  );
 
   ram #(
       .MEM_DEPTH(MEM_DEPTH)

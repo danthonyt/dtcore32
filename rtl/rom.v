@@ -39,7 +39,7 @@ module rom #(
 
   initial begin
     $readmemh("cm_imem.mem", MEM);
-    //$readmemh("hello_world_imem.mem", MEM);
+    //$readmemh("hello_world.mem", MEM);
   end
 
   always @(posedge clk_i) begin

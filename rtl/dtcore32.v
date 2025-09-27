@@ -35,7 +35,8 @@
 // Date       : 2025-09-16
 //===========================================================
 
-
+// Optional: conditional compilation flag
+  `define RISCV_FORMAL
 module dtcore32 (
   input             clk_i                  ,
   input             rst_i                  ,
@@ -96,8 +97,7 @@ module dtcore32 (
 );
 
 
-// Optional: conditional compilation flag
-  //`define RISCV_FORMAL
+
 
 //-------------------------------
 // Widths for pseudo-types

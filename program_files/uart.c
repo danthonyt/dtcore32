@@ -2,26 +2,32 @@
 #include "uart.h"
 
 // Memory-mapped UART registers
-static volatile uint32_t * const UART_TX_FIFO  = (uint32_t *)0x01000004;
-static volatile uint32_t * const UART_STAT_REG = (uint32_t *)0x01000008;
-static volatile uint32_t * const UART_CTRL_REG = (uint32_t *)0x0100000C;
+static volatile uint32_t * const UART_STATUS_REG  = (uint32_t *)0x01000000;
+static volatile uint32_t * const UART_CTRL_REG  = (uint32_t *)0x01000004;
+static volatile uint32_t * const UART_RX_FIFO = (uint32_t *)0x01000008;
+static volatile uint32_t * const UART_TX_FIFO = (uint32_t *)0x0100000C;
 
 // UART flags
-static const uint32_t TX_FIFO_FULL  = 0x8;
-static const uint32_t TX_FIFO_EMPTY = 0x4;
-static const uint32_t RST_TX_FIFO   = 0x1;
-static const uint32_t IRQ_EN        = 0x10;
+static const uint32_t RX_FIFO_FULL  = 0x1;
+static const uint32_t RX_FIFO_EMPTY = 0x2;
+static const uint32_t TX_FIFO_FULL  = 0x4;
+static const uint32_t TX_FIFO_EMPTY = 0x8;
+static const uint32_t RST_RX_FIFO   = 0x1;
+static const uint32_t RST_TX_FIFO   = 0x2;
 
 // --- UART functions ---
 void uart_putc(char c) {
-    while (*UART_STAT_REG & TX_FIFO_FULL);  // wait if FIFO full
+    while (*UART_STATUS_REG & TX_FIFO_FULL);  // wait if FIFO full
     *UART_TX_FIFO = (uint32_t)c;
 }
 
+/*
 void uart_tx_init(void) {
-    // reset tx fifo and disable interrupts
-    *UART_CTRL_REG = (*UART_CTRL_REG | RST_TX_FIFO) & ~IRQ_EN;
+    // reset tx fifo 
+    //*UART_CTRL_REG = (*UART_CTRL_REG | RST_TX_FIFO);
+    //*UART_CTRL_REG = (*UART_CTRL_REG & ~RST_TX_FIFO);
 }
+    */
 
 void uart_puts(const char *s) {
     while (*s) {

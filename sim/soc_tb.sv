@@ -1,8 +1,7 @@
-`define RISCV_FORMAL
+
 module soc_tb ();
   logic clk = 0;
   logic rst;
-  logic led_trap;
   logic tx;
 
 
@@ -11,7 +10,6 @@ module soc_tb ();
   soc_top soc_top_inst (
       .clk_i(clk),
       .rst_i(rst),
-      .led_trap(led_trap),
       .tx_o(tx)
   );
   // byte addressable memory; 
@@ -40,14 +38,14 @@ module soc_tb ();
   assign mem_rmask = soc_top_inst.dtcore32_inst.mem_rstrb;
   assign mem_wmask = soc_top_inst.dtcore32_inst.mem_wstrb;
 
-  assign id_insn = soc_top_inst.dtcore32_inst.id_pipeline_q.insn;
-  assign ex_insn = soc_top_inst.dtcore32_inst.ex_pipeline_q.insn;
-  assign mem_insn = soc_top_inst.dtcore32_inst.mem_pipeline_q.insn;
-  assign wb_insn = soc_top_inst.dtcore32_inst.wb_pipeline_q.insn;
-  assign id_pc = soc_top_inst.dtcore32_inst.id_pipeline_q.pc;
-  assign ex_pc = soc_top_inst.dtcore32_inst.ex_pipeline_q.pc;
-  assign mem_pc = soc_top_inst.dtcore32_inst.mem_pipeline_q.pc;
-  assign wb_pc = soc_top_inst.dtcore32_inst.wb_pipeline_q.pc;
+  assign id_insn = soc_top_inst.dtcore32_inst.id_q_insn;
+  assign ex_insn = soc_top_inst.dtcore32_inst.ex_q_insn;
+  assign mem_insn = soc_top_inst.dtcore32_inst.mem_q_insn;
+  assign wb_insn = soc_top_inst.dtcore32_inst.wb_q_insn;
+  assign id_pc = soc_top_inst.dtcore32_inst.id_q_pc;
+  assign ex_pc = soc_top_inst.dtcore32_inst.ex_q_pc;
+  assign mem_pc = soc_top_inst.dtcore32_inst.mem_q_pc;
+  assign wb_pc = soc_top_inst.dtcore32_inst.wb_q_pc;
   assign mem_addr = soc_top_inst.mem_addr;
 
   assign valid_req = soc_top_inst.mem_done;
@@ -55,51 +53,51 @@ module soc_tb ();
   assign dmem_req = (mem_addr >= DMEM_BASE_ADDR) && (mem_addr < (DMEM_BASE_ADDR + DMEM_LENGTH));
   assign imem_req = (mem_addr >= IMEM_BASE_ADDR) && (mem_addr < (IMEM_BASE_ADDR + IMEM_LENGTH));
   always @(posedge clk) begin
-    if (0) begin
+    if (1) begin
       if (valid_req) begin
         if (imem_req) begin
-          if (soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask) begin
+          if (soc_top_inst.dtcore32_inst.mem_d_store_wmask) begin
             $error("MEM stage tried to write to IMEM -- PC: %h ADDR: %h",
-                   soc_top_inst.dtcore32_inst.mem_pipeline_d.pc,
-                   soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr);
+                   soc_top_inst.dtcore32_inst.mem_d_pc,
+                   soc_top_inst.dtcore32_inst.mem_d_mem_addr);
             $finish();
           end else begin
             $display(
                 "%s --- PC: %h, ADDR: %h, LOAD_RMASK: %h, LOAD_RDATA: %h, STORE_WMASK: %h, STORE_WDATA: %h",
-                soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask ? "IMEM LOAD" : "UNKNOWN IMEM REQ",
-                soc_top_inst.dtcore32_inst.mem_pipeline_d.pc,
-                soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr,
-                soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask,
-                soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rdata,
-                soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask,
-                soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wdata);
+                soc_top_inst.dtcore32_inst.mem_d_load_rmask ? "IMEM LOAD" : "UNKNOWN IMEM REQ",
+                soc_top_inst.dtcore32_inst.mem_d_pc,
+                soc_top_inst.dtcore32_inst.mem_d_mem_addr,
+                soc_top_inst.dtcore32_inst.mem_d_load_rmask,
+                soc_top_inst.dtcore32_inst.mem_d_load_rdata,
+                soc_top_inst.dtcore32_inst.mem_d_store_wmask,
+                soc_top_inst.dtcore32_inst.mem_d_store_wdata);
           end
 
         end else if (dmem_req) begin
           $display(
               "%s --- PC: %h, ADDR: %h, LOAD_RMASK: %h, LOAD_RDATA: %h, STORE_WMASK: %h, STORE_WDATA: %h",
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask ? "DMEM LOAD" : (soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask ? "DMEM STORE" : "UNKNOWN DMEM REQ"),
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.pc,
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr,
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask,
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rdata,
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask,
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wdata);
+              soc_top_inst.dtcore32_inst.mem_d_load_rmask ? "DMEM LOAD" : (soc_top_inst.dtcore32_inst.mem_d_store_wmask ? "DMEM STORE" : "UNKNOWN DMEM REQ"),
+              soc_top_inst.dtcore32_inst.mem_d_pc,
+              soc_top_inst.dtcore32_inst.mem_d_mem_addr,
+              soc_top_inst.dtcore32_inst.mem_d_load_rmask,
+              soc_top_inst.dtcore32_inst.mem_d_load_rdata,
+              soc_top_inst.dtcore32_inst.mem_d_store_wmask,
+              soc_top_inst.dtcore32_inst.mem_d_store_wdata);
 
         end else if (uart_req) begin
           $display(
               "%s --- PC: %h, ADDR: %h, LOAD_RMASK: %h, LOAD_RDATA: %h, STORE_WMASK: %h, STORE_WDATA: %h",
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask ? "UART LOAD" : (soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask ? "UART STORE" : "UNKNOWN UART REQ"),
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.pc,
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr,
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rmask,
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.load_rdata,
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wmask,
-              soc_top_inst.dtcore32_inst.mem_pipeline_d.store_wdata);
+              soc_top_inst.dtcore32_inst.mem_d_load_rmask ? "UART LOAD" : (soc_top_inst.dtcore32_inst.mem_d_store_wmask ? "UART STORE" : "UNKNOWN UART REQ"),
+              soc_top_inst.dtcore32_inst.mem_d_pc,
+              soc_top_inst.dtcore32_inst.mem_d_mem_addr,
+              soc_top_inst.dtcore32_inst.mem_d_load_rmask,
+              soc_top_inst.dtcore32_inst.mem_d_load_rdata,
+              soc_top_inst.dtcore32_inst.mem_d_store_wmask,
+              soc_top_inst.dtcore32_inst.mem_d_store_wdata);
         end else begin
           $error("MEM stage tried to access UNKNOWN PERIPHERAL -- ADR: %h PC: %h",
-                 soc_top_inst.dtcore32_inst.mem_pipeline_d.mem_addr,
-                 soc_top_inst.dtcore32_inst.mem_pipeline_d.pc);
+                 soc_top_inst.dtcore32_inst.mem_d_mem_addr,
+                 soc_top_inst.dtcore32_inst.mem_d_pc);
           $finish();
         end
       end
@@ -148,14 +146,14 @@ module soc_tb ();
   integer i;
 
   always @(posedge clk) begin
-    if (0) begin
+    if (1) begin
       for (i = 0; i < 32; i = i + 1) begin
-        if (soc_top_inst.dtcore32_inst.regfile_inst.reg_array[i] !== regfile_shadow[i]) begin
+        if (soc_top_inst.dtcore32_inst.regfile_arr[i] !== regfile_shadow[i]) begin
           $display("Time %0t: PC=0x%08h | %s changed from 0x%08h to 0x%08h", $time, pc_delay,
                    reg_names[i], regfile_shadow[i],
-                   soc_top_inst.dtcore32_inst.regfile_inst.reg_array[i]);
+                   soc_top_inst.dtcore32_inst.regfile_arr[i]);
           // update shadow
-          regfile_shadow[i] <= soc_top_inst.dtcore32_inst.regfile_inst.reg_array[i];
+          regfile_shadow[i] <= soc_top_inst.dtcore32_inst.regfile_arr[i];
         end
       end
     end
@@ -163,11 +161,11 @@ module soc_tb ();
 
   // instructions retired
   always @(negedge clk) begin
-    if (1) begin
-      if (!soc_top_inst.dtcore32_inst.mem_wb_stall && soc_top_inst.dtcore32_inst.wb_pipeline_q.valid) begin
+    if (0) begin
+      if (!soc_top_inst.dtcore32_inst.mem_wb_stall && soc_top_inst.dtcore32_inst.wb_q_valid) begin
         $display("Time %0t: Retired instruction: %h, PC: %h", $time,
-                 soc_top_inst.dtcore32_inst.wb_pipeline_q.insn,
-                 soc_top_inst.dtcore32_inst.wb_pipeline_q.pc);
+                 soc_top_inst.dtcore32_inst.wb_q_insn,
+                 soc_top_inst.dtcore32_inst.wb_q_pc);
       end
     end
   end
@@ -177,19 +175,19 @@ module soc_tb ();
   logic [31:0] instr_delay;
 
   always @(posedge clk) begin
-    pc_delay <= soc_top_inst.dtcore32_inst.wb_pipeline_q.pc;
-    instr_delay <= soc_top_inst.dtcore32_inst.wb_pipeline_q.insn;
+    pc_delay <= soc_top_inst.dtcore32_inst.wb_q_pc;
+    instr_delay <= soc_top_inst.dtcore32_inst.wb_q_insn;
   end
 
   reg [31:0] dmem_shadow[0:DMEM_LENGTH-1];
   integer j;
 
   always @(posedge clk) begin
-    if (0) begin
+    if (1) begin
       for (j = 0; j < DMEM_LENGTH; j = j + 1) begin
         if (soc_top_inst.dmem_inst.MEM[j] !== dmem_shadow[j]) begin
           $display("Time %0t: PC=0x%08h | DMEM[%d] changed from 0x%08h to 0x%08h", $time,
-                   soc_top_inst.dtcore32_inst.mem_pipeline_q.pc, j, dmem_shadow[j],
+                   soc_top_inst.dtcore32_inst.mem_q_pc, j, dmem_shadow[j],
                    soc_top_inst.dmem_inst.MEM[j]);
           // update shadow
           dmem_shadow[j] <= soc_top_inst.dmem_inst.MEM[j];
@@ -242,7 +240,7 @@ module soc_tb ();
     // send "B" (0x42)
     //uart_send_byte(8'h42);
     #3ms;
-    //wait(soc_top_inst.dtcore32_inst.wb_pipeline_q.valid && soc_top_inst.dtcore32_inst.wb_pipeline_q.pc == 32'h2d54)
+    //wait(soc_top_inst.dtcore32_inst.wb_q_valid && soc_top_inst.dtcore32_inst.wb_q_pc == 32'h2d54)
     // wait some time and finish simulation
     $finish;
   end
