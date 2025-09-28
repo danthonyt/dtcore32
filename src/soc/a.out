@@ -1,0 +1,74 @@
+#! /opt/oss-cad-suite/bin/vvp
+:ivl_version "13.0 (devel)" "(s20250103-66-gd67d3323a)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "/opt/oss-cad-suite/lib/ivl/system.vpi";
+:vpi_module "/opt/oss-cad-suite/lib/ivl/vhdl_sys.vpi";
+:vpi_module "/opt/oss-cad-suite/lib/ivl/vhdl_textio.vpi";
+:vpi_module "/opt/oss-cad-suite/lib/ivl/v2005_math.vpi";
+:vpi_module "/opt/oss-cad-suite/lib/ivl/va_math.vpi";
+S_0x555588addde0 .scope module, "pulse_generator" "pulse_generator" 2 27;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "clk_i";
+    .port_info 1 /INPUT 1 "rst_i";
+    .port_info 2 /INPUT 1 "en_i";
+    .port_info 3 /OUTPUT 1 "pulse_o";
+o0x7ec37b551018 .functor BUFZ 1, c4<z>; HiZ drive
+v0x555588af1a60_0 .net "clk_i", 0 0, o0x7ec37b551018;  0 drivers
+o0x7ec37b551048 .functor BUFZ 1, c4<z>; HiZ drive
+v0x555588adfc60_0 .net "en_i", 0 0, o0x7ec37b551048;  0 drivers
+v0x555588b27450_0 .var "en_q", 0 0;
+v0x555588b27520_0 .var "pulse_o", 0 0;
+o0x7ec37b5510d8 .functor BUFZ 1, c4<z>; HiZ drive
+v0x555588b275e0_0 .net "rst_i", 0 0, o0x7ec37b5510d8;  0 drivers
+E_0x555588b16d90 .event posedge, v0x555588af1a60_0;
+    .scope S_0x555588addde0;
+T_0 ;
+    %wait E_0x555588b16d90;
+    %load/vec4 v0x555588b275e0_0;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_0.0, 8;
+    %pushi/vec4 0, 0, 1;
+    %assign/vec4 v0x555588b27450_0, 0;
+    %jmp T_0.1;
+T_0.0 ;
+    %load/vec4 v0x555588adfc60_0;
+    %assign/vec4 v0x555588b27450_0, 0;
+T_0.1 ;
+    %jmp T_0;
+    .thread T_0;
+    .scope S_0x555588addde0;
+T_1 ;
+    %wait E_0x555588b16d90;
+    %load/vec4 v0x555588b275e0_0;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_1.0, 8;
+    %pushi/vec4 0, 0, 1;
+    %assign/vec4 v0x555588b27520_0, 0;
+    %jmp T_1.1;
+T_1.0 ;
+    %load/vec4 v0x555588b27450_0;
+    %nor/r;
+    %flag_set/vec4 9;
+    %flag_get/vec4 9;
+    %jmp/0 T_1.4, 9;
+    %load/vec4 v0x555588adfc60_0;
+    %and;
+T_1.4;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_1.2, 8;
+    %pushi/vec4 1, 0, 1;
+    %assign/vec4 v0x555588b27520_0, 0;
+    %jmp T_1.3;
+T_1.2 ;
+    %pushi/vec4 0, 0, 1;
+    %assign/vec4 v0x555588b27520_0, 0;
+T_1.3 ;
+T_1.1 ;
+    %jmp T_1;
+    .thread T_1;
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "/home/dtorres/Documents/work/riscv-formal/cores/dtcore32/src/soc/pulse_generator.v";

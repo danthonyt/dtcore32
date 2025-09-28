@@ -29,7 +29,15 @@ module soc_top (
     input   rst_i,
     output  tx_o
 );
+  // 64 KB ROM and RAM
+  // word addressable memory 
+  // (16384 words) * (4 bytes/word) * (1 KB/ 1024 bytes) = 64 KB  
   localparam MEM_DEPTH = 16384;
+  // UART parameters
+  // for a 100 MHz clock, 868 clocks per bit is approximately 115,200 bps
+  localparam DATA_WIDTH = 8;
+  localparam FIFO_DEPTH = 16;
+  localparam CLKS_PER_BIT = 868;
 
   wire [31:0] imem_rdata;
   wire [31:0] imem_addr;
@@ -122,9 +130,7 @@ module soc_top (
     .rom_en_o(rom_en)
   );
 
-  localparam DATA_WIDTH = 8;
-  localparam FIFO_DEPTH = 16;
-  localparam CLKS_PER_BIT = 868;
+  
   uart_core # (
     .DATA_WIDTH(DATA_WIDTH),
     .FIFO_DEPTH(FIFO_DEPTH),
