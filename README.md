@@ -30,7 +30,7 @@ The core has been successfully deployed on **FPGA** and benchmarked using **Core
 ## Current Status
 
 - ✔️ Passes **riscv-formal** verification  
-- ✔️ Meets timing at **100 MHz** on FPGA  
+- ✔️ Meets timing at **100 MHz** on the Arty A7-35t FPGA 
 - ✔️ Achieves **210 CoreMark/MHz**  
 - ✔️ Displays benchmark results via **UART**  
 
@@ -97,29 +97,21 @@ This project includes **RISC-V formal verification** support using the [riscv-fo
 
 ---
 
-### Running the Coremark benchmark test
+### Running CoreMark on the RISC-V Core
 
-1. Install the OSS CAD suite from [OSS CAD Suite Build](https://github.com/YosysHQ/oss-cad-suite-build)
+1. **Install the RISC-V GNU Toolchain**
+   - Make sure you have a RISC-V compiler installed. The provided `coremark.sh` script assumes the **riscv32-unknown-elf** toolchain.
+   - You can install it from https://github.com/riscv-collab/riscv-gnu-toolchain.
 
-2. Clone the riscv-formal GitHub repository:
+2. **Prepare the project**
+   - Run the `coremark.sh` script to generate a memory initialization file (e.g., `.mem`) for your target memory.
+   - Provide a pin constraints file for your board.
 
-    ```bash
-    git clone https://github.com/YosysHQ/riscv-formal.git
-    cd riscv-formal
-    ```
+3. **Generate the bitstream**
+   - Use your preferred synthesis tool to build the project and program your board.
 
-3. Clone this repository into the `cores` directory of riscv-formal:
 
-    ```bash
-    cd cores
-    git clone https://github.com/danthonyt/dtcore32.git
-    ```
 
-4. Run the tests:
-
-    ```bash
-    make
-    ```
 
 
 

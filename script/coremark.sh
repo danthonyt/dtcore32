@@ -8,7 +8,6 @@ set -e
 # --------------------------
 
 COREMARK_DIR="../coremark"
-BAREBONES_DIR="../coremark/barebones"
 SRC_SOFTWARE_DIR="../src/software"
 SRC_STARTUP_DIR="../src/startup"
 BUILD_DIR="../build"
@@ -36,7 +35,7 @@ LIBS_SRC=("$SRC_SOFTWARE_DIR/uart.c" "$SRC_SOFTWARE_DIR/dtcore_time.c")
 COREMARK_SRC=("$COREMARK_DIR/core_main.c" "$COREMARK_DIR/core_list_join.c" \
   "$COREMARK_DIR/core_matrix.c" "$COREMARK_DIR/core_state.c" "$COREMARK_DIR/core_util.c")
 
-PORT_SRC=("$BAREBONES_DIR/core_portme.c" "$BAREBONES_DIR/ee_printf.c")
+PORT_SRC=("$COREMARK_DIR/core_portme.c" "$COREMARK_DIR/ee_printf.c")
 
 ALL_SRC=("$STARTUP_FILE" "${LIBS_SRC[@]}" "${PORT_SRC[@]}" "${COREMARK_SRC[@]}")
 
@@ -53,7 +52,7 @@ mkdir -p "$BUILD_DIR"
 # --------------------------
 
 $RISCV_GCC -O2 -march=rv32izicsr -mabi=ilp32 -ffreestanding -static -nostdlib -nostartfiles \
-    -I"$COREMARK_DIR" -I"$BAREBONES_DIR" -I"$SRC_SOFTWARE_DIR" \
+    -I"$COREMARK_DIR" -I"$COREMARK_DIR" -I"$SRC_SOFTWARE_DIR" \
     "${ALL_SRC[@]}" -T "$LINKER_SCRIPT" -o "$ELF" -lgcc
 
 # --------------------------
