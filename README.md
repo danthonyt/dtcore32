@@ -44,3 +44,18 @@ The core has been successfully deployed on **FPGA** and benchmarked using **Core
 ---
 
 
+## Files in this repository
+/sim
+  systemverilog testbench for the core
+/rtl
+  rtl code for the riscv core, as well as rtl for the bram and bus, for communication to peripherals. Utilizes an Axi Lite 
+  master to communicate with peripherals, in this case the UART.
+/peripherals
+  rtl code for peripherals to be used with the core. as of now, only contains a UART axi lite slave.
+/program_files
+  files related to generating a a .mem file for generating the ROM used by the core, as well as startup code and a linker 
+  script for setting up the program
+
+---
+
+
