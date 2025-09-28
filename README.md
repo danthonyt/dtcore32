@@ -75,19 +75,27 @@ This project includes **RISC-V formal verification** support using the [riscv-fo
 
 ### Full Steps to Run the Tests
 
-1. Install the OSS CAD suite from https://github.com/YosysHQ/oss-cad-suite-build
+1. Install the OSS CAD suite from [OSS CAD Suite Build](https://github.com/YosysHQ/oss-cad-suite-build)
 
-2. Clone riscv-formal github repo
+2. Clone the riscv-formal GitHub repository:
 
-   ```bash
-   git clone https://github.com/SymbioticEDA/riscv-formal.git
-   cd riscv-formal
-3. clone this repo in the cores directory of riscv-formal
-  ```bash
-  cd riscv-formal/cores
-  git clone [this repo](https://github.com/danthonyt/dtcore32.git)
-4. run the tests
-  ```bash
-  make
+    ```bash
+    git clone https://github.com/SymbioticEDA/riscv-formal.git
+    cd riscv-formal
+    ```
+
+3. Clone this repository into the `cores` directory of riscv-formal:
+
+    ```bash
+    cd cores
+    git clone https://github.com/danthonyt/dtcore32.git
+    ```
+
+4. Run the tests:
+
+    ```bash
+    make
+    ```
+
 
 
