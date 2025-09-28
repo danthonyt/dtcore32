@@ -73,14 +73,38 @@ The core has been successfully deployed on **FPGA** and benchmarked using **Core
 
 This project includes **RISC-V formal verification** support using the [riscv-formal](https://github.com/SymbioticEDA/riscv-formal) framework.  
 
-### Full Steps to Run the Tests
-
 1. Install the OSS CAD suite from [OSS CAD Suite Build](https://github.com/YosysHQ/oss-cad-suite-build)
 
 2. Clone the riscv-formal GitHub repository:
 
     ```bash
     git clone https://github.com/SymbioticEDA/riscv-formal.git
+    cd riscv-formal
+    ```
+
+3. Clone this repository into the `cores` directory of riscv-formal:
+
+    ```bash
+    cd cores
+    git clone https://github.com/danthonyt/dtcore32.git
+    ```
+
+4. Run the tests:
+
+    ```bash
+    make
+    ```
+
+---
+
+### Running the Coremark benchmark test
+
+1. Install the OSS CAD suite from [OSS CAD Suite Build](https://github.com/YosysHQ/oss-cad-suite-build)
+
+2. Clone the riscv-formal GitHub repository:
+
+    ```bash
+    git clone https://github.com/YosysHQ/riscv-formal.git
     cd riscv-formal
     ```
 
