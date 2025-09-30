@@ -36,7 +36,7 @@
 //===========================================================
 
 // Optional: conditional compilation flag
-  define RISCV_FORMAL
+  `define RISCV_FORMAL
 module dtcore32 (
   input             clk_i                  ,
   input             rst_i                  ,

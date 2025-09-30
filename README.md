@@ -71,14 +71,14 @@ The core has been successfully deployed on **FPGA** and benchmarked using **Core
 ---
 ## Running RISC-V Formal Tests
 
-This project includes **RISC-V formal verification** support using the [riscv-formal](https://github.com/SymbioticEDA/riscv-formal) framework.  
+This project includes **RISC-V formal verification** support using the [riscv-formal](https://github.com/YosysHQ/riscv-formal.git) framework.  
 
 1. Install the OSS CAD suite from [OSS CAD Suite Build](https://github.com/YosysHQ/oss-cad-suite-build)
 
 2. Clone the riscv-formal GitHub repository:
 
     ```bash
-    git clone https://github.com/SymbioticEDA/riscv-formal.git
+    git clone https://github.com/YosysHQ/riscv-formal.git
     cd riscv-formal
     ```
 
@@ -106,6 +106,8 @@ This project includes **RISC-V formal verification** support using the [riscv-fo
 2. **Prepare the project**
    - Run the `coremark.sh` script to generate a memory initialization file (e.g., `.mem`) for your target memory.
    - Provide a pin constraints file for your board.
+   - initialize submodules with git submodule update --init --recursive
+
 
 3. **Generate the bitstream**
    - Use your preferred synthesis tool to build the project and program your board.
