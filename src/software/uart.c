@@ -19,16 +19,18 @@ static const uint32_t RST_TX_FIFO   = 0x2;
 void uart_putc(char c) {
     while (*UART_STATUS_REG & TX_FIFO_FULL);  // wait if FIFO full
     *UART_TX_FIFO = (uint32_t)c;
-   //while (!(*UART_STATUS_REG & TX_FIFO_EMPTY));  // wait until fifo is empty
 }
 
-/*
+char uart_getc(void) {
+    while(*UART_STATUS_REG & RX_FIFO_EMPTY); // wait if RX FIFO is empty
+    return (uint8_t)(*UART_RX_FIFO & 0xFF); // get char
+}
+
 void uart_tx_init(void) {
     // reset tx fifo 
-    //*UART_CTRL_REG = (*UART_CTRL_REG | RST_TX_FIFO);
-    //*UART_CTRL_REG = (*UART_CTRL_REG & ~RST_TX_FIFO);
+    *UART_CTRL_REG = (*UART_CTRL_REG | RST_TX_FIFO);
+    *UART_CTRL_REG = (*UART_CTRL_REG & ~RST_TX_FIFO);
 }
-    */
 
 void uart_puts(const char *s) {
     while (*s) {

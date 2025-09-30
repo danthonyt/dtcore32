@@ -27,7 +27,8 @@
 module soc_top (
     input   clk_i,
     input   rst_i,
-    output  tx_o
+    output  tx_o,
+    input rx_i
 );
   // 64 KB ROM and RAM
   // word addressable memory 
@@ -155,7 +156,7 @@ module soc_top (
     .axi_bvalid_o(axi_bvalid),
     .axi_bready_i(axi_bready),
     .axi_bresp_o(axi_bresp),
-    .rx_i(1'b1),
+    .rx_i(rx_i),
     .tx_o(tx_o)
   );
 

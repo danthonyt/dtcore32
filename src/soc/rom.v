@@ -38,8 +38,8 @@ module rom #(
   reg [31:0] MEM[MEM_DEPTH-1:0];
 
   initial begin
-    //$readmemh("coremark_program.mem", MEM);
-    $readmemh("hello_world.mem", MEM);
+    $readmemh("coremark_program.mem", MEM);
+    //$readmemh("calculator.mem", MEM);
   end
 
   always @(posedge clk_i) begin

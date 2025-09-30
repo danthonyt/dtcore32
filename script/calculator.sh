@@ -12,8 +12,8 @@ BUILD_DIR="../build"
 STARTUP_FILE="$SRC_STARTUP_DIR/startup.S"
 LINKER_SCRIPT="$SRC_STARTUP_DIR/link.ld"
 
-IMEM_MEM="$BUILD_DIR/hello_world.mem"
-DISASM="$BUILD_DIR/hello_world.dis"
+IMEM_MEM="$BUILD_DIR/calculator.mem"
+DISASM="$BUILD_DIR/calculator.dis"
 
 IMEM_SIZE=65536   # 64 KB IMEM
 DMEM_SIZE=65536   # 64 KB DMEM
@@ -26,9 +26,9 @@ OBJDUMP=riscv32-unknown-elf-objdump
 # SOURCE FILES
 # --------------------------
 
-ALL_SRC=("$STARTUP_FILE" "$SRC_SOFTWARE_DIR/uart.c" "$SRC_SOFTWARE_DIR/hello_world.c")
+ALL_SRC=("$STARTUP_FILE" "$SRC_SOFTWARE_DIR/uart.c" "$SRC_SOFTWARE_DIR/calculator.c")
 
-ELF="$BUILD_DIR/hello_world.elf"
+ELF="$BUILD_DIR/calculator.elf"
 
 # --------------------------
 # Ensure build directory exists
