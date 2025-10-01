@@ -13,11 +13,6 @@ Pipeline Stages
 
 The core pipeline consists of the following stages:
 
-1. :ref:`if_stage`
-2. :ref:`id_stage`
-3. :ref:`ex_stage`
-4. :ref:`mem_stage`
-5. :ref:`wb_stage`
 
 .. toctree::
    :maxdepth: 1
@@ -29,7 +24,6 @@ The core pipeline consists of the following stages:
    mem_stage
    wb_stage
 
-.. _if_stage:
 
 Instruction Fetch (IF)
 ----------------------
