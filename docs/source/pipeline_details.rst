@@ -34,36 +34,22 @@ The core pipeline consists of the following stages:
 Instruction Fetch (IF)
 ----------------------
 
-.. include:: if_stage.rst
-
-
-.. _id_stage:
 
 Instruction Decode (ID)
 -----------------------
 
-.. include:: id_stage.rst
 
-
-.. _ex_stage:
 
 Instruction Execute (EX)
 ------------------------
 
-.. include:: ex_stage.rst
 
-
-.. _mem_stage:
 
 Memory Access (MEM)
 -------------------
 
-.. include:: mem_stage.rst
 
-
-.. _wb_stage:
 
 Write Back (WB)
 ---------------
 
-.. include:: wb_stage.rst
