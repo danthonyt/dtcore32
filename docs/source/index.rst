@@ -23,3 +23,5 @@ Contents
    ex_stage
    mem_stage
    wb_stage
+   csr
+   hazard_control
