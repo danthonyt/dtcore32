@@ -5,8 +5,8 @@ Welcome to DTCore's documentation!
 It currently supports the RV32I base ISA version 2.2. It also partially supports
 The machine mode priveledged ISA, excluding external interrupts.
 
-Check out the :doc:`usage` section for further information, including
-how to :ref:`installation` the project.
+Check out the  section for further information, including
+how to  the project.
 
 .. note::
 
