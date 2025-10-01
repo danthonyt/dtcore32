@@ -24,12 +24,12 @@ For branch instructions, the ID stage uses a branch predictor to predict the bra
 - If the prediction is incorrect, the pipeline will be corrected in later stages.  
 
 Immediate Generation
--------------------
+--------------------
 
 The ID stage extracts the 32-bit immediate value from instructions when required, depending on the instruction type.  
 
 Register File Access
--------------------
+--------------------
 
 - Reads source register values required by the instruction.  
 - If the Writeback (WB) stage is writing to a register that is being read in the ID stage, the value is **forwarded** to avoid stalls.  
