@@ -17,5 +17,9 @@ Contents
 
 .. toctree::
 
-   usage
-   instruction_fetch
+   pipeline_details
+   if_stage
+   id_stage
+   ex_stage
+   mem_stage
+   wb_stage
