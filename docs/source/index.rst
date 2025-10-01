@@ -17,5 +17,5 @@ Contents
 
 .. toctree::
 
-   usage
    instruction_fetch
+   instruction_execute
