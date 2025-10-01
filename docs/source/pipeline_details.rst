@@ -14,15 +14,6 @@ Pipeline Stages
 The core pipeline consists of the following stages:
 
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Pipeline Stages
-
-   if_stage
-   id_stage
-   ex_stage
-   mem_stage
-   wb_stage
 
 
 Instruction Fetch (IF)
