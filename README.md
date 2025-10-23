@@ -44,27 +44,8 @@ The core has been successfully deployed on **FPGA** and benchmarked using **Core
 
 ## Files in this Repository
 
-- **/coremark**  
-  Port files for running the CoreMark benchmark on the core.
-
-- **/peripherals**  
-  RTL code for peripherals to be used with the CPU.
-
-- **/scripts**  
-  Script files to generate memory files (ROM/IMEM) for FPGA simulations.
-
-- **/sim**  
-  SystemVerilog testbench for simulating the CPU core.
-
 - **/src**  
-  - **/constr**  
-    Constraint file for the Arty A7 FPGA. For other boards, a new constraint file will need to be created.  
-  - **/soc**  
     RTL files for the CPU system.  
-  - **/software**  
-    C source files for generating programs, including UART and timer support.  
-  - **/startup**  
-    Linker script and startup assembly file used for memory file generation.
 
 ---
 ## Running RISC-V Formal Tests
@@ -92,23 +73,6 @@ This project includes **RISC-V formal verification** support using the [riscv-fo
     ```bash
     make
     ```
-
----
-
-### Running CoreMark on the RISC-V Core
-
-1. **Install the RISC-V GNU Toolchain**
-   - Make sure you have a RISC-V compiler installed. The provided `coremark.sh` script assumes the **riscv32-unknown-elf** toolchain.
-   - You can install it from https://github.com/riscv-collab/riscv-gnu-toolchain.
-
-2. **Prepare the project**
-   - Run the `coremark.sh` script to generate a memory initialization file (e.g., `.mem`) for your target memory.
-   - Provide a pin constraints file for your board.
-   - initialize submodules with git submodule update --init --recursive
-
-
-3. **Generate the bitstream**
-   - Use your preferred synthesis tool to build the project and program your board.
 
 
 
