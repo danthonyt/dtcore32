@@ -74,6 +74,10 @@ This project includes **RISC-V formal verification** support using the [riscv-fo
     make
     ```
 
+## Running Coremark
+
+The instructions related to running coremark using dtcore32 is located here https://github.com/danthonyt/dtcore32_soc.git
+
 
 
 
