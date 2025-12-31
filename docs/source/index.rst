@@ -13,7 +13,6 @@ Contents
 
 .. toctree::
 
-   pipeline_details
    if_stage
    id_stage
    ex_stage
