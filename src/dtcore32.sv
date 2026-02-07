@@ -1236,167 +1236,98 @@ riscv_imm_ext  riscv_imm_ext_inst (
   //
   //
   //*****************************************************************
-  wire [4:0] load_size_onehot ;
-  wire [2:0] store_size_onehot;
-  wire       mem_valid        ;
-  assign mem_btaken_mispredict  = (mem_q_is_branch && !mem_q_jump_taken && mem_q_branch_predict);
-  assign mem_bntaken_mispredict = (mem_q_is_branch && mem_q_jump_taken && !mem_q_branch_predict);
-  assign mem_branch_mispredict  = mem_btaken_mispredict || mem_bntaken_mispredict;
-  assign load_size_onehot       = !mem_q_is_mem_read ? 0 :
-    {
-      mem_q_is_memsize_w,
-      mem_q_is_memsize_hu,
-      mem_q_is_memsize_h,
-      mem_q_is_memsize_bu,
-      mem_q_is_memsize_b
-    };
-  assign store_size_onehot = !mem_q_is_mem_write ? 0 :
-    {
-      mem_q_is_memsize_w,
-      mem_q_is_memsize_h,
-      mem_q_is_memsize_b
-    };
-
-  pulse_generator pulse_generator_inst (
-    .clk_i  (clk_i                         ),
-    .rst_i  (rst_i                         ),
-    .en_i   (dmem_periph_req && !mem_done_i),
-    .pulse_o(mem_valid                     )
-  );
-  assign mem_valid_o = mem_valid;
-  //*****************************************************************
-  //
-  //
-  // LOAD UNIT
-  //
-  //
-  //*****************************************************************
-
-load_unit  load_unit_inst (
-    .mem_rdata_i(mem_rdata_i),
-    .mem_q_alu_csr_result(mem_q_alu_csr_result),
-    .load_size_onehot(load_size_onehot),
-    .mem_rstrb(mem_rstrb),
-    .mem_load_rdata(mem_load_rdata),
-    .misaligned_load(misaligned_load)
-  );
-
-  //*****************************************************************
-  //
-  //
-  // STORE UNIT
-  //
-  //
-  //*****************************************************************
-  store_unit  store_unit_inst (
-    .mem_q_alu_csr_result(mem_q_alu_csr_result),
+mem_stage  mem_stage_inst (
+    .clk_i(clk_i),
+    .rst_i(rst_i),
+    .mem_q_pc(mem_q_pc),
+    .mem_q_next_pc(mem_q_next_pc),
+    .mem_q_insn(mem_q_insn),
+    .mem_q_intr(mem_q_intr),
+    .mem_q_valid(mem_q_valid),
     .mem_q_store_wdata(mem_q_store_wdata),
-    .store_size_onehot(store_size_onehot),
+    .mem_q_is_rd_write(mem_q_is_rd_write),
+    .mem_q_rd_addr(mem_q_rd_addr),
+    .mem_q_is_csr_write(mem_q_is_csr_write),
+    .mem_q_is_csr_read(mem_q_is_csr_read),
+    .mem_q_csr_addr(mem_q_csr_addr),
+    .mem_q_csr_wdata(mem_q_csr_wdata),
+    .mem_q_csr_rdata(mem_q_csr_rdata),
+    .mem_q_alu_csr_result(mem_q_alu_csr_result),
+    .mem_q_is_mem_read(mem_q_is_mem_read),
+    .mem_q_is_mem_write(mem_q_is_mem_write),
+    .mem_q_is_memsize_w(mem_q_is_memsize_w),
+    .mem_q_is_memsize_h(mem_q_is_memsize_h),
+    .mem_q_is_memsize_hu(mem_q_is_memsize_hu),
+    .mem_q_is_memsize_b(mem_q_is_memsize_b),
+    .mem_q_is_memsize_bu(mem_q_is_memsize_bu),
+    .mem_q_is_jal(mem_q_is_jal),
+    .mem_q_is_jalr(mem_q_is_jalr),
+    .mem_q_is_branch(mem_q_is_branch),
+    .mem_q_branch_predict(mem_q_branch_predict),
+    .mem_q_jump_taken(mem_q_jump_taken),
+    .mem_q_jaddr(mem_q_jaddr),
+    .mem_q_pc_plus_4(mem_q_pc_plus_4),
+    .mem_q_rs1_rdata(mem_q_rs1_rdata),
+    .mem_q_rs2_rdata(mem_q_rs2_rdata),
+    .mem_q_rs1_addr(mem_q_rs1_addr),
+    .mem_q_rs2_addr(mem_q_rs2_addr),
+    .mem_q_trap_valid(mem_q_trap_valid),
+    .mem_q_trap_insn(mem_q_trap_insn),
+    .mem_q_trap_pc(mem_q_trap_pc),
+    .mem_q_trap_next_pc(mem_q_trap_next_pc),
+    .mem_q_trap_rs1_addr(mem_q_trap_rs1_addr),
+    .mem_q_trap_rs2_addr(mem_q_trap_rs2_addr),
+    .mem_q_trap_rd_addr(mem_q_trap_rd_addr),
+    .mem_q_trap_rs1_rdata(mem_q_trap_rs1_rdata),
+    .mem_q_trap_rs2_rdata(mem_q_trap_rs2_rdata),
+    .trap_handler_addr(trap_handler_addr),
+    .mem_q_trap_mcause(mem_q_trap_mcause),
+    .mem_rdata_i(mem_rdata_i),
+    .mem_strb_o(mem_strb_o),
+    .mem_addr_o(mem_addr_o),
     .mem_wdata_o(mem_wdata_o),
-    .mem_wstrb(mem_wstrb),
-    .misaligned_store(misaligned_store)
+    .mem_wen_o(mem_wen_o),
+    .mem_valid_o(mem_valid_o),
+    .dmem_periph_req(dmem_periph_req),
+    .mem_done_i(mem_done_i),
+    .mem_d_valid(mem_d_valid),
+    .mem_d_is_rd_write(mem_d_is_rd_write),
+    .mem_d_rd_addr(mem_d_rd_addr),
+    .mem_d_rd_wdata(mem_d_rd_wdata),
+    .mem_d_is_csr_write(mem_d_is_csr_write),
+    .mem_d_is_csr_read(mem_d_is_csr_read),
+    .mem_d_csr_addr(mem_d_csr_addr),
+    .mem_d_csr_wdata(mem_d_csr_wdata),
+    .mem_d_pc_plus_4(mem_d_pc_plus_4),
+    .mem_d_trap_valid(mem_d_trap_valid),
+    .mem_d_trap_pc(mem_d_trap_pc),
+    .mem_d_trap_mcause(mem_d_trap_mcause),
+    .mem_btaken_mispredict(mem_btaken_mispredict),
+    .mem_bntaken_mispredict(mem_bntaken_mispredict),
+    .mem_branch_mispredict(mem_branch_mispredict),
+    .mem_d_pc(mem_d_pc),
+    .mem_d_next_pc(mem_d_next_pc),
+    .mem_d_insn(mem_d_insn),
+    .mem_d_intr(mem_d_intr),
+    .mem_d_rs1_addr(mem_d_rs1_addr),
+    .mem_d_rs2_addr(mem_d_rs2_addr),
+    .mem_d_rs1_rdata(mem_d_rs1_rdata),
+    .mem_d_rs2_rdata(mem_d_rs2_rdata),
+    .mem_d_mem_addr(mem_d_mem_addr),
+    .mem_d_load_rmask(mem_d_load_rmask),
+    .mem_d_store_wmask(mem_d_store_wmask),
+    .mem_d_store_wdata(mem_d_store_wdata),
+    .mem_d_csr_rdata(mem_d_csr_rdata),
+    .mem_d_load_rdata(mem_d_load_rdata),
+    .mem_d_trap_insn(mem_d_trap_insn),
+    .mem_d_trap_next_pc(mem_d_trap_next_pc),
+    .mem_d_trap_rs1_addr(mem_d_trap_rs1_addr),
+    .mem_d_trap_rs2_addr(mem_d_trap_rs2_addr),
+    .mem_d_trap_rd_addr(mem_d_trap_rd_addr),
+    .mem_d_trap_rs1_rdata(mem_d_trap_rs1_rdata),
+    .mem_d_trap_rs2_rdata(mem_d_trap_rs2_rdata),
+    .mem_d_trap_rd_wdata(mem_d_trap_rd_wdata)
   );
-
-  always @(*)
-    begin
-      // memory interface local signals
-      dmem_periph_req = (mem_q_is_mem_write || mem_q_is_mem_read) && !(misaligned_load || misaligned_store);
-      mem_wen_o       = mem_q_is_mem_write;
-      mem_addr_o      = mem_q_alu_csr_result;
-      mem_strb_o      = mem_wen_o ? mem_wstrb : mem_rstrb;
-
-      // pipeline
-      mem_d_valid        = mem_q_valid;
-      mem_d_is_csr_write = mem_q_is_csr_write;
-      mem_d_is_csr_read  = mem_q_is_csr_read;
-      mem_d_is_rd_write  = misaligned_load ? 0 : mem_q_is_rd_write;
-      mem_d_rd_addr      = mem_q_rd_addr;
-      mem_d_pc_plus_4    = mem_q_pc_plus_4;
-
-      if (mem_q_is_jalr | mem_q_is_jal)  // is a jal or jalr
-        mem_d_rd_wdata = mem_q_pc_plus_4;
-      else if (mem_q_is_mem_read)  // is a load instruction
-        mem_d_rd_wdata = mem_load_rdata;
-      else  // else
-        mem_d_rd_wdata = mem_q_alu_csr_result;
-
-      mem_d_csr_addr  = mem_q_csr_addr;
-      mem_d_csr_wdata = mem_q_csr_wdata;
-      // traps
-      if (mem_q_trap_valid)
-        begin
-          mem_d_trap_valid  = 1;
-          mem_d_trap_mcause = mem_q_trap_mcause;
-          mem_d_trap_pc     = mem_q_trap_pc;
-        end
-      else if (misaligned_store)
-        begin
-          mem_d_trap_valid  = 1;
-          mem_d_trap_mcause = {1'b0, TRAP_CODE_STORE_ADDR_MISALIGNED};
-          mem_d_trap_pc     = mem_q_pc;
-
-        end
-      else if (misaligned_load)
-        begin
-          mem_d_trap_valid  = 1;
-          mem_d_trap_mcause = {1'b0, TRAP_CODE_LOAD_ADDR_MISALIGNED};
-          mem_d_trap_pc     = mem_q_pc;
-        end
-      else
-        begin
-          mem_d_trap_valid  = 0;
-          mem_d_trap_mcause = 0;
-          mem_d_trap_pc     = 0;
-        end
-    end
-
-`ifdef RISCV_FORMAL
-  always @(*)
-  begin
-    // rvfi
-    mem_d_pc      = mem_q_pc;
-    // next pc changes on a branch mispredict
-    mem_d_next_pc = mem_q_trap_valid ? trap_handler_addr :
-      mem_q_jump_taken ? mem_q_jaddr :
-      mem_q_pc_plus_4;
-    mem_d_insn        = mem_q_insn;
-    mem_d_intr        = mem_q_intr;
-    mem_d_rs1_addr    = mem_q_rs1_addr;
-    mem_d_rs2_addr    = mem_q_rs2_addr;
-    mem_d_rs1_rdata   = mem_q_rs1_rdata;
-    mem_d_rs2_rdata   = mem_q_rs2_rdata;
-    // mem addresses are always word aligned
-    mem_d_mem_addr    = mem_addr_o & ~32'h3;
-    mem_d_load_rmask  = mem_rstrb;
-    mem_d_store_wmask = mem_wstrb;
-    mem_d_store_wdata = mem_wdata_o;
-    mem_d_csr_rdata   = mem_q_csr_rdata;
-    mem_d_load_rdata  = mem_rdata_i;
-    // trap
-    // if trap comes from previous stage save it instead
-    if (mem_q_trap_valid) begin
-      mem_d_trap_insn      = mem_q_trap_insn;
-      mem_d_trap_next_pc   = mem_q_trap_next_pc;
-      mem_d_trap_rs1_addr  = mem_q_trap_rs1_addr;
-      mem_d_trap_rs2_addr  = mem_q_trap_rs2_addr;
-      mem_d_trap_rd_addr   = mem_q_trap_rd_addr;
-      mem_d_trap_rs1_rdata = mem_q_trap_rs1_rdata;
-      mem_d_trap_rs2_rdata = mem_q_trap_rs2_rdata;
-      mem_d_trap_rd_wdata  = 0;
-    end else begin
-      mem_d_trap_insn      = mem_q_insn;
-      mem_d_trap_next_pc   = mem_q_next_pc;
-      mem_d_trap_rs1_addr  = mem_q_rs1_addr;
-      mem_d_trap_rs2_addr  = mem_q_rs2_addr;
-      mem_d_trap_rd_addr   = mem_q_rd_addr;
-      mem_d_trap_rs1_rdata = mem_q_rs1_rdata;
-      mem_d_trap_rs2_rdata = mem_q_rs2_rdata;
-      mem_d_trap_rd_wdata  = 0;
-    end
-
-  end
-`endif
-
   //*****************************************************************
   //
   //
