@@ -38,237 +38,237 @@ import riscv_pkg::*;
 // Optional: conditional compilation flag
 `define RISCV_FORMAL
 module dtcore32 (
-  input             clk_i                  ,
-  input             rst_i                  ,
+  input               clk_i                  ,
+  input               rst_i                  ,
 `ifdef RISCV_FORMAL
-  output reg        rvfi_valid             ,
-  output reg [63:0] rvfi_order             ,
-  output reg [31:0] rvfi_insn              ,
-  output reg        rvfi_trap              ,
-  output reg        rvfi_halt              ,
-  output reg        rvfi_intr              ,
-  output reg [ 1:0] rvfi_mode              ,
-  output reg [ 1:0] rvfi_ixl               ,
-  output reg [ 4:0] rvfi_rs1_addr          ,
-  output reg [ 4:0] rvfi_rs2_addr          ,
-  output reg [31:0] rvfi_rs1_rdata         ,
-  output reg [31:0] rvfi_rs2_rdata         ,
-  output reg [ 4:0] rvfi_rd_addr           ,
-  output reg [31:0] rvfi_rd_wdata          ,
-  output reg [31:0] rvfi_pc_rdata          ,
-  output reg [31:0] rvfi_pc_wdata          ,
-  output reg [31:0] rvfi_mem_addr          ,
-  output reg [ 3:0] rvfi_mem_rmask         ,
-  output reg [ 3:0] rvfi_mem_wmask         ,
-  output reg [31:0] rvfi_mem_rdata         ,
-  output reg [31:0] rvfi_mem_wdata         ,
-  output reg [63:0] rvfi_csr_mcycle_rmask  ,
-  output reg [63:0] rvfi_csr_mcycle_wmask  ,
-  output reg [63:0] rvfi_csr_mcycle_rdata  ,
-  output reg [63:0] rvfi_csr_mcycle_wdata  ,
-  output reg [63:0] rvfi_csr_minstret_rmask,
-  output reg [63:0] rvfi_csr_minstret_wmask,
-  output reg [63:0] rvfi_csr_minstret_rdata,
-  output reg [63:0] rvfi_csr_minstret_wdata,
-  output reg [31:0] rvfi_csr_mcause_rmask  ,
-  output reg [31:0] rvfi_csr_mcause_wmask  ,
-  output reg [31:0] rvfi_csr_mcause_rdata  ,
-  output reg [31:0] rvfi_csr_mcause_wdata  ,
-  output reg [31:0] rvfi_csr_mepc_rmask    ,
-  output reg [31:0] rvfi_csr_mepc_wmask    ,
-  output reg [31:0] rvfi_csr_mepc_rdata    ,
-  output reg [31:0] rvfi_csr_mepc_wdata    ,
-  output reg [31:0] rvfi_csr_mtvec_rmask   ,
-  output reg [31:0] rvfi_csr_mtvec_wmask   ,
-  output reg [31:0] rvfi_csr_mtvec_rdata   ,
-  output reg [31:0] rvfi_csr_mtvec_wdata   ,
+  output logic        rvfi_valid             ,
+  output logic [63:0] rvfi_order             ,
+  output logic [31:0] rvfi_insn              ,
+  output logic        rvfi_trap              ,
+  output logic        rvfi_halt              ,
+  output logic        rvfi_intr              ,
+  output logic [ 1:0] rvfi_mode              ,
+  output logic [ 1:0] rvfi_ixl               ,
+  output logic [ 4:0] rvfi_rs1_addr          ,
+  output logic [ 4:0] rvfi_rs2_addr          ,
+  output logic [31:0] rvfi_rs1_rdata         ,
+  output logic [31:0] rvfi_rs2_rdata         ,
+  output logic [ 4:0] rvfi_rd_addr           ,
+  output logic [31:0] rvfi_rd_wdata          ,
+  output logic [31:0] rvfi_pc_rdata          ,
+  output logic [31:0] rvfi_pc_wdata          ,
+  output logic [31:0] rvfi_mem_addr          ,
+  output logic [ 3:0] rvfi_mem_rmask         ,
+  output logic [ 3:0] rvfi_mem_wmask         ,
+  output logic [31:0] rvfi_mem_rdata         ,
+  output logic [31:0] rvfi_mem_wdata         ,
+  output logic [63:0] rvfi_csr_mcycle_rmask  ,
+  output logic [63:0] rvfi_csr_mcycle_wmask  ,
+  output logic [63:0] rvfi_csr_mcycle_rdata  ,
+  output logic [63:0] rvfi_csr_mcycle_wdata  ,
+  output logic [63:0] rvfi_csr_minstret_rmask,
+  output logic [63:0] rvfi_csr_minstret_wmask,
+  output logic [63:0] rvfi_csr_minstret_rdata,
+  output logic [63:0] rvfi_csr_minstret_wdata,
+  output logic [31:0] rvfi_csr_mcause_rmask  ,
+  output logic [31:0] rvfi_csr_mcause_wmask  ,
+  output logic [31:0] rvfi_csr_mcause_rdata  ,
+  output logic [31:0] rvfi_csr_mcause_wdata  ,
+  output logic [31:0] rvfi_csr_mepc_rmask    ,
+  output logic [31:0] rvfi_csr_mepc_wmask    ,
+  output logic [31:0] rvfi_csr_mepc_rdata    ,
+  output logic [31:0] rvfi_csr_mepc_wdata    ,
+  output logic [31:0] rvfi_csr_mtvec_rmask   ,
+  output logic [31:0] rvfi_csr_mtvec_wmask   ,
+  output logic [31:0] rvfi_csr_mtvec_rdata   ,
+  output logic [31:0] rvfi_csr_mtvec_wdata   ,
 `endif
   // to instruction memory interface
-  input      [31:0] imem_rdata_i           ,
-  output reg [31:0] imem_addr_o            ,
+  input        [31:0] imem_rdata_i           ,
+  output logic [31:0] imem_addr_o            ,
   // to data memory and peripheral interface
-  input      [31:0] mem_rdata_i            ,
-  input             mem_done_i             ,
-  output            mem_valid_o            ,
-  output reg        mem_wen_o              ,
-  output reg [31:0] mem_addr_o             ,
-  output reg [31:0] mem_wdata_o            ,
-  output reg [ 3:0] mem_strb_o
+  input        [31:0] mem_rdata_i            ,
+  input               mem_done_i             ,
+  output              mem_valid_o            ,
+  output logic        mem_wen_o              ,
+  output logic [31:0] mem_addr_o             ,
+  output logic [31:0] mem_wdata_o            ,
+  output logic [ 3:0] mem_strb_o
 );
 
 
 // ---------------- IF/ID PIPELINE REGISTERS ----------------
 // Going in / Coming out
-  reg        if_d_valid, id_q_valid;
-  reg [31:0] if_d_pc, id_q_pc;
-  reg [31:0] if_d_pc_plus_4, id_q_pc_plus_4;
-  reg [31:0] if_d_insn, id_q_insn;
+  logic        if_d_valid, id_q_valid;
+  logic [31:0] if_d_pc, id_q_pc;
+  logic [31:0] if_d_pc_plus_4, id_q_pc_plus_4;
+  logic [31:0] if_d_insn, id_q_insn;
 `ifdef RISCV_FORMAL
-  reg if_d_intr, id_q_intr;
+  logic if_d_intr, id_q_intr;
 `endif
 
 // ---------------- ID/EX PIPELINE REGISTERS ----------------
 // Going in / Coming out
-  reg        id_d_valid, ex_q_valid;
-  reg [31:0] id_d_pc, ex_q_pc;
-  reg [31:0] id_d_pc_plus_4, ex_q_pc_plus_4;
-  reg [ 4:0] id_d_rs1_addr, ex_q_rs1_addr;
-  reg [ 4:0] id_d_rs2_addr, ex_q_rs2_addr;
-  reg [ 4:0] id_d_rd_addr, ex_q_rd_addr;
-  reg [31:0] id_d_rs1_rdata, ex_q_rs1_rdata;
-  reg [31:0] id_d_rs2_rdata, ex_q_rs2_rdata;
-  reg [31:0] id_d_imm_ext, ex_q_imm_ext;
-  reg [11:0] id_d_csr_addr, ex_q_csr_addr;
-  reg [31:0] id_d_csr_rdata, ex_q_csr_rdata;
+  logic        id_d_valid, ex_q_valid;
+  logic [31:0] id_d_pc, ex_q_pc;
+  logic [31:0] id_d_pc_plus_4, ex_q_pc_plus_4;
+  logic [ 4:0] id_d_rs1_addr, ex_q_rs1_addr;
+  logic [ 4:0] id_d_rs2_addr, ex_q_rs2_addr;
+  logic [ 4:0] id_d_rd_addr, ex_q_rd_addr;
+  logic [31:0] id_d_rs1_rdata, ex_q_rs1_rdata;
+  logic [31:0] id_d_rs2_rdata, ex_q_rs2_rdata;
+  logic [31:0] id_d_imm_ext, ex_q_imm_ext;
+  logic [11:0] id_d_csr_addr, ex_q_csr_addr;
+  logic [31:0] id_d_csr_rdata, ex_q_csr_rdata;
 
-  reg [       ALU_CTRL_T_WIDTH-1:0] id_d_alu_control, ex_q_alu_control;
-  reg [      ALU_A_SEL_T_WIDTH-1:0] id_d_alu_a_sel, ex_q_alu_a_sel;
-  reg [      ALU_B_SEL_T_WIDTH-1:0] id_d_alu_b_sel, ex_q_alu_b_sel;
-  reg [     PC_ALU_SEL_T_WIDTH-1:0] id_d_pc_alu_sel, ex_q_pc_alu_sel;
-  reg [CSR_BITMASK_SEL_T_WIDTH-1:0] id_d_csr_bitmask_sel, ex_q_csr_bitmask_sel;
+  logic [       ALU_CTRL_T_WIDTH-1:0] id_d_alu_control, ex_q_alu_control;
+  logic [      ALU_A_SEL_T_WIDTH-1:0] id_d_alu_a_sel, ex_q_alu_a_sel;
+  logic [      ALU_B_SEL_T_WIDTH-1:0] id_d_alu_b_sel, ex_q_alu_b_sel;
+  logic [     PC_ALU_SEL_T_WIDTH-1:0] id_d_pc_alu_sel, ex_q_pc_alu_sel;
+  logic [CSR_BITMASK_SEL_T_WIDTH-1:0] id_d_csr_bitmask_sel, ex_q_csr_bitmask_sel;
 
-  reg id_d_is_branch, ex_q_is_branch;
-  reg id_d_is_jump, ex_q_is_jump;
-  reg id_d_is_csr_write, ex_q_is_csr_write;
-  reg id_d_is_csr_read, ex_q_is_csr_read;
-  reg id_d_is_rd_write, ex_q_is_rd_write;
-  reg id_d_is_rs1_read, ex_q_is_rs1_read;
-  reg id_d_is_rs2_read, ex_q_is_rs2_read;
-  reg id_d_is_mem_write, ex_q_is_mem_write;
-  reg id_d_is_mem_read, ex_q_is_mem_read;
+  logic id_d_is_branch, ex_q_is_branch;
+  logic id_d_is_jump, ex_q_is_jump;
+  logic id_d_is_csr_write, ex_q_is_csr_write;
+  logic id_d_is_csr_read, ex_q_is_csr_read;
+  logic id_d_is_rd_write, ex_q_is_rd_write;
+  logic id_d_is_rs1_read, ex_q_is_rs1_read;
+  logic id_d_is_rs2_read, ex_q_is_rs2_read;
+  logic id_d_is_mem_write, ex_q_is_mem_write;
+  logic id_d_is_mem_read, ex_q_is_mem_read;
 
-  reg id_d_is_jal, ex_q_is_jal;
-  reg id_d_is_jalr, ex_q_is_jalr;
-  reg id_d_is_memsize_b, ex_q_is_memsize_b;
-  reg id_d_is_memsize_bu, ex_q_is_memsize_bu;
-  reg id_d_is_memsize_h, ex_q_is_memsize_h;
-  reg id_d_is_memsize_hu, ex_q_is_memsize_hu;
-  reg id_d_is_memsize_w, ex_q_is_memsize_w;
+  logic id_d_is_jal, ex_q_is_jal;
+  logic id_d_is_jalr, ex_q_is_jalr;
+  logic id_d_is_memsize_b, ex_q_is_memsize_b;
+  logic id_d_is_memsize_bu, ex_q_is_memsize_bu;
+  logic id_d_is_memsize_h, ex_q_is_memsize_h;
+  logic id_d_is_memsize_hu, ex_q_is_memsize_hu;
+  logic id_d_is_memsize_w, ex_q_is_memsize_w;
 
-  reg id_d_csr_op_rw, ex_q_csr_op_rw;
-  reg id_d_csr_op_clear, ex_q_csr_op_clear;
-  reg id_d_csr_op_set, ex_q_csr_op_set;
+  logic id_d_csr_op_rw, ex_q_csr_op_rw;
+  logic id_d_csr_op_clear, ex_q_csr_op_clear;
+  logic id_d_csr_op_set, ex_q_csr_op_set;
 
-  reg       id_d_branch_predict, ex_q_branch_predict;
-  reg [5:0] id_d_pht_idx, ex_q_pht_idx;
+  logic       id_d_branch_predict, ex_q_branch_predict;
+  logic [5:0] id_d_pht_idx, ex_q_pht_idx;
 
-  reg        id_d_trap_valid, ex_q_trap_valid;
-  reg [31:0] id_d_trap_mcause, ex_q_trap_mcause;
-  reg [31:0] id_d_trap_pc, ex_q_trap_pc;
+  logic        id_d_trap_valid, ex_q_trap_valid;
+  logic [31:0] id_d_trap_mcause, ex_q_trap_mcause;
+  logic [31:0] id_d_trap_pc, ex_q_trap_pc;
 
 `ifdef RISCV_FORMAL
-  reg [31:0] id_d_insn, ex_q_insn;
-  reg        id_d_intr, ex_q_intr;
+  logic [31:0] id_d_insn, ex_q_insn;
+  logic        id_d_intr, ex_q_intr;
 // For rvfi_trap_info, you can either flatten all fields or leave as separate regs
-  reg [31:0] id_d_trap_insn,     ex_q_trap_insn;
-  reg [31:0] id_d_trap_next_pc,  ex_q_trap_next_pc;
-  reg [ 4:0] id_d_trap_rs1_addr, ex_q_trap_rs1_addr;
-  reg [ 4:0] id_d_trap_rs2_addr, ex_q_trap_rs2_addr;
-  reg [ 4:0] id_d_trap_rd_addr,  ex_q_trap_rd_addr;
-  reg [31:0] id_d_trap_rs1_rdata, ex_q_trap_rs1_rdata;
-  reg [31:0] id_d_trap_rs2_rdata, ex_q_trap_rs2_rdata;
-  reg [31:0] id_d_trap_rd_wdata, ex_q_trap_rd_wdata;
+  logic [31:0] id_d_trap_insn,     ex_q_trap_insn;
+  logic [31:0] id_d_trap_next_pc,  ex_q_trap_next_pc;
+  logic [ 4:0] id_d_trap_rs1_addr, ex_q_trap_rs1_addr;
+  logic [ 4:0] id_d_trap_rs2_addr, ex_q_trap_rs2_addr;
+  logic [ 4:0] id_d_trap_rd_addr,  ex_q_trap_rd_addr;
+  logic [31:0] id_d_trap_rs1_rdata, ex_q_trap_rs1_rdata;
+  logic [31:0] id_d_trap_rs2_rdata, ex_q_trap_rs2_rdata;
+  logic [31:0] id_d_trap_rd_wdata, ex_q_trap_rd_wdata;
 
 `endif
 // ---------------- EX/MEM PIPELINE REGISTERS ----------------
 // Going in / Coming out
-  reg        ex_d_valid,          mem_q_valid;
-  reg [31:0] ex_d_pc,             mem_q_pc;
-  reg [31:0] ex_d_pc_plus_4,      mem_q_pc_plus_4;
-  reg [ 4:0] ex_d_rd_addr,        mem_q_rd_addr;
-  reg [11:0] ex_d_csr_addr,       mem_q_csr_addr;
-  reg [31:0] ex_d_csr_wdata,      mem_q_csr_wdata;
+  logic        ex_d_valid,          mem_q_valid;
+  logic [31:0] ex_d_pc,             mem_q_pc;
+  logic [31:0] ex_d_pc_plus_4,      mem_q_pc_plus_4;
+  logic [ 4:0] ex_d_rd_addr,        mem_q_rd_addr;
+  logic [11:0] ex_d_csr_addr,       mem_q_csr_addr;
+  logic [31:0] ex_d_csr_wdata,      mem_q_csr_wdata;
 
-  reg [31:0] ex_d_store_wdata,    mem_q_store_wdata;
-  reg [31:0] ex_d_alu_csr_result, mem_q_alu_csr_result;
+  logic [31:0] ex_d_store_wdata,    mem_q_store_wdata;
+  logic [31:0] ex_d_alu_csr_result, mem_q_alu_csr_result;
 
-  reg ex_d_is_branch,      mem_q_is_branch;
-  reg ex_d_is_jump,        mem_q_is_jump;
-  reg ex_d_is_csr_write,   mem_q_is_csr_write;
-  reg ex_d_is_csr_read,    mem_q_is_csr_read;
-  reg ex_d_is_rd_write,    mem_q_is_rd_write;
-  reg ex_d_is_mem_write,   mem_q_is_mem_write;
-  reg ex_d_is_mem_read,    mem_q_is_mem_read;
+  logic ex_d_is_branch,      mem_q_is_branch;
+  logic ex_d_is_jump,        mem_q_is_jump;
+  logic ex_d_is_csr_write,   mem_q_is_csr_write;
+  logic ex_d_is_csr_read,    mem_q_is_csr_read;
+  logic ex_d_is_rd_write,    mem_q_is_rd_write;
+  logic ex_d_is_mem_write,   mem_q_is_mem_write;
+  logic ex_d_is_mem_read,    mem_q_is_mem_read;
 
-  reg ex_d_is_jal,         mem_q_is_jal;
-  reg ex_d_is_jalr,        mem_q_is_jalr;
-  reg ex_d_is_memsize_b,   mem_q_is_memsize_b;
-  reg ex_d_is_memsize_bu,  mem_q_is_memsize_bu;
-  reg ex_d_is_memsize_h,   mem_q_is_memsize_h;
-  reg ex_d_is_memsize_hu,  mem_q_is_memsize_hu;
-  reg ex_d_is_memsize_w,   mem_q_is_memsize_w;
+  logic ex_d_is_jal,         mem_q_is_jal;
+  logic ex_d_is_jalr,        mem_q_is_jalr;
+  logic ex_d_is_memsize_b,   mem_q_is_memsize_b;
+  logic ex_d_is_memsize_bu,  mem_q_is_memsize_bu;
+  logic ex_d_is_memsize_h,   mem_q_is_memsize_h;
+  logic ex_d_is_memsize_hu,  mem_q_is_memsize_hu;
+  logic ex_d_is_memsize_w,   mem_q_is_memsize_w;
 
-  reg       ex_d_branch_predict, mem_q_branch_predict;
-  reg [5:0] ex_d_pht_idx,        mem_q_pht_idx;
+  logic       ex_d_branch_predict, mem_q_branch_predict;
+  logic [5:0] ex_d_pht_idx,        mem_q_pht_idx;
 
-  reg        ex_d_jump_taken,     mem_q_jump_taken;
-  reg [31:0] ex_d_jaddr,          mem_q_jaddr;
+  logic        ex_d_jump_taken,     mem_q_jump_taken;
+  logic [31:0] ex_d_jaddr,          mem_q_jaddr;
 
-  reg        ex_d_trap_valid,     mem_q_trap_valid;
-  reg [31:0] ex_d_trap_mcause,    mem_q_trap_mcause;
-  reg [31:0] ex_d_trap_pc,        mem_q_trap_pc;
+  logic        ex_d_trap_valid,     mem_q_trap_valid;
+  logic [31:0] ex_d_trap_mcause,    mem_q_trap_mcause;
+  logic [31:0] ex_d_trap_pc,        mem_q_trap_pc;
 
 `ifdef RISCV_FORMAL
-  reg [31:0] ex_d_insn,           mem_q_insn;
-  reg        ex_d_intr,           mem_q_intr;
-  reg [31:0] ex_d_next_pc,        mem_q_next_pc;
-  reg [31:0] ex_d_csr_rdata,      mem_q_csr_rdata;
-  reg [ 4:0] ex_d_rs1_addr,       mem_q_rs1_addr;
-  reg [ 4:0] ex_d_rs2_addr,       mem_q_rs2_addr;
-  reg [31:0] ex_d_rs1_rdata,      mem_q_rs1_rdata;
-  reg [31:0] ex_d_rs2_rdata,      mem_q_rs2_rdata;
+  logic [31:0] ex_d_insn,           mem_q_insn;
+  logic        ex_d_intr,           mem_q_intr;
+  logic [31:0] ex_d_next_pc,        mem_q_next_pc;
+  logic [31:0] ex_d_csr_rdata,      mem_q_csr_rdata;
+  logic [ 4:0] ex_d_rs1_addr,       mem_q_rs1_addr;
+  logic [ 4:0] ex_d_rs2_addr,       mem_q_rs2_addr;
+  logic [31:0] ex_d_rs1_rdata,      mem_q_rs1_rdata;
+  logic [31:0] ex_d_rs2_rdata,      mem_q_rs2_rdata;
 // Flattened trap_info_t inside ex_mem_t
-  reg [31:0] ex_d_trap_insn,      mem_q_trap_insn;
-  reg [31:0] ex_d_trap_next_pc,   mem_q_trap_next_pc;
-  reg [ 4:0] ex_d_trap_rs1_addr,  mem_q_trap_rs1_addr;
-  reg [ 4:0] ex_d_trap_rs2_addr,  mem_q_trap_rs2_addr;
-  reg [ 4:0] ex_d_trap_rd_addr,   mem_q_trap_rd_addr;
-  reg [31:0] ex_d_trap_rs1_rdata, mem_q_trap_rs1_rdata;
-  reg [31:0] ex_d_trap_rs2_rdata, mem_q_trap_rs2_rdata;
-  reg [31:0] ex_d_trap_rd_wdata,  mem_q_trap_rd_wdata;
+  logic [31:0] ex_d_trap_insn,      mem_q_trap_insn;
+  logic [31:0] ex_d_trap_next_pc,   mem_q_trap_next_pc;
+  logic [ 4:0] ex_d_trap_rs1_addr,  mem_q_trap_rs1_addr;
+  logic [ 4:0] ex_d_trap_rs2_addr,  mem_q_trap_rs2_addr;
+  logic [ 4:0] ex_d_trap_rd_addr,   mem_q_trap_rd_addr;
+  logic [31:0] ex_d_trap_rs1_rdata, mem_q_trap_rs1_rdata;
+  logic [31:0] ex_d_trap_rs2_rdata, mem_q_trap_rs2_rdata;
+  logic [31:0] ex_d_trap_rd_wdata,  mem_q_trap_rd_wdata;
 `endif
 
 // ---------------- MEM/WB PIPELINE REGISTERS ----------------
 // Going in / Coming out
-  reg        mem_d_valid,        wb_q_valid;
-  reg [ 4:0] mem_d_rd_addr,      wb_q_rd_addr;
-  reg [11:0] mem_d_csr_addr,     wb_q_csr_addr;
-  reg [31:0] mem_d_csr_wdata,    wb_q_csr_wdata;
-  reg [31:0] mem_d_rd_wdata,     wb_q_rd_wdata;
-  reg [31:0] mem_d_pc_plus_4,    wb_q_pc_plus_4;
+  logic        mem_d_valid,        wb_q_valid;
+  logic [ 4:0] mem_d_rd_addr,      wb_q_rd_addr;
+  logic [11:0] mem_d_csr_addr,     wb_q_csr_addr;
+  logic [31:0] mem_d_csr_wdata,    wb_q_csr_wdata;
+  logic [31:0] mem_d_rd_wdata,     wb_q_rd_wdata;
+  logic [31:0] mem_d_pc_plus_4,    wb_q_pc_plus_4;
 
-  reg mem_d_is_csr_write, wb_q_is_csr_write;
-  reg mem_d_is_csr_read,  wb_q_is_csr_read;
-  reg mem_d_is_rd_write,  wb_q_is_rd_write;
+  logic mem_d_is_csr_write, wb_q_is_csr_write;
+  logic mem_d_is_csr_read,  wb_q_is_csr_read;
+  logic mem_d_is_rd_write,  wb_q_is_rd_write;
 
-  reg        mem_d_trap_valid,   wb_q_trap_valid;
-  reg [31:0] mem_d_trap_mcause,  wb_q_trap_mcause;
-  reg [31:0] mem_d_trap_pc,      wb_q_trap_pc;
+  logic        mem_d_trap_valid,   wb_q_trap_valid;
+  logic [31:0] mem_d_trap_mcause,  wb_q_trap_mcause;
+  logic [31:0] mem_d_trap_pc,      wb_q_trap_pc;
 
 `ifdef RISCV_FORMAL
-  reg [31:0] mem_d_pc,           wb_q_pc;
-  reg [31:0] mem_d_next_pc,      wb_q_next_pc;
-  reg [31:0] mem_d_insn,         wb_q_insn;
-  reg        mem_d_intr,         wb_q_intr;
-  reg [31:0] mem_d_csr_rdata,    wb_q_csr_rdata;
-  reg [31:0] mem_d_mem_addr,     wb_q_mem_addr;
-  reg [31:0] mem_d_load_rdata,   wb_q_load_rdata;
-  reg [ 4:0] mem_d_rs1_addr,     wb_q_rs1_addr;
-  reg [ 4:0] mem_d_rs2_addr,     wb_q_rs2_addr;
-  reg [31:0] mem_d_rs1_rdata,    wb_q_rs1_rdata;
-  reg [31:0] mem_d_rs2_rdata,    wb_q_rs2_rdata;
-  reg [ 3:0] mem_d_load_rmask,   wb_q_load_rmask;
-  reg [ 3:0] mem_d_store_wmask,  wb_q_store_wmask;
-  reg [31:0] mem_d_store_wdata,  wb_q_store_wdata;
+  logic [31:0] mem_d_pc,           wb_q_pc;
+  logic [31:0] mem_d_next_pc,      wb_q_next_pc;
+  logic [31:0] mem_d_insn,         wb_q_insn;
+  logic        mem_d_intr,         wb_q_intr;
+  logic [31:0] mem_d_csr_rdata,    wb_q_csr_rdata;
+  logic [31:0] mem_d_mem_addr,     wb_q_mem_addr;
+  logic [31:0] mem_d_load_rdata,   wb_q_load_rdata;
+  logic [ 4:0] mem_d_rs1_addr,     wb_q_rs1_addr;
+  logic [ 4:0] mem_d_rs2_addr,     wb_q_rs2_addr;
+  logic [31:0] mem_d_rs1_rdata,    wb_q_rs1_rdata;
+  logic [31:0] mem_d_rs2_rdata,    wb_q_rs2_rdata;
+  logic [ 3:0] mem_d_load_rmask,   wb_q_load_rmask;
+  logic [ 3:0] mem_d_store_wmask,  wb_q_store_wmask;
+  logic [31:0] mem_d_store_wdata,  wb_q_store_wdata;
 // Flattened trap_info_t inside mem_wb_t
-  reg [31:0] mem_d_trap_insn,    wb_q_trap_insn;
-  reg [31:0] mem_d_trap_next_pc, wb_q_trap_next_pc;
-  reg [ 4:0] mem_d_trap_rs1_addr,wb_q_trap_rs1_addr;
-  reg [ 4:0] mem_d_trap_rs2_addr,wb_q_trap_rs2_addr;
-  reg [ 4:0] mem_d_trap_rd_addr, wb_q_trap_rd_addr;
-  reg [31:0] mem_d_trap_rs1_rdata, wb_q_trap_rs1_rdata;
-  reg [31:0] mem_d_trap_rs2_rdata, wb_q_trap_rs2_rdata;
-  reg [31:0] mem_d_trap_rd_wdata, wb_q_trap_rd_wdata;
+  logic [31:0] mem_d_trap_insn,    wb_q_trap_insn;
+  logic [31:0] mem_d_trap_next_pc, wb_q_trap_next_pc;
+  logic [ 4:0] mem_d_trap_rs1_addr,wb_q_trap_rs1_addr;
+  logic [ 4:0] mem_d_trap_rs2_addr,wb_q_trap_rs2_addr;
+  logic [ 4:0] mem_d_trap_rd_addr, wb_q_trap_rd_addr;
+  logic [31:0] mem_d_trap_rs1_rdata, wb_q_trap_rs1_rdata;
+  logic [31:0] mem_d_trap_rs2_rdata, wb_q_trap_rs2_rdata;
+  logic [31:0] mem_d_trap_rd_wdata, wb_q_trap_rd_wdata;
 `endif
 
 
@@ -277,114 +277,114 @@ module dtcore32 (
 
 
 
-  wire if_id_stall;
-  wire if_id_flush;
+  logic if_id_stall;
+  logic if_id_flush;
 
-  wire id_ex_stall;
-  wire id_ex_flush;
+  logic id_ex_stall;
+  logic id_ex_flush;
 
-  wire ex_mem_stall;
-  wire ex_mem_flush;
+  logic ex_mem_stall;
+  logic ex_mem_flush;
 
-  wire mem_wb_stall;
-  wire mem_wb_flush;
+  logic mem_wb_stall;
+  logic mem_wb_flush;
 `ifdef RISCV_FORMAL
 
-  wire [31:0] wb_csr_rmask;
-  wire [31:0] wb_csr_wmask;
+  logic [31:0] wb_csr_rmask;
+  logic [31:0] wb_csr_wmask;
 `endif
   // if stage signals;
-  reg [31:0] next_pc          ;
-  reg [31:0] trap_handler_addr;
-  reg [31:0] imem_addr_q      ;
-  reg        imem_rdata_valid ;
-  reg        imem_buf_valid   ;
-  reg [31:0] if_insn_buf      ;
-  reg [31:0] if_buf_pc        ;
+  logic [31:0] next_pc          ;
+  logic [31:0] trap_handler_addr;
+  logic [31:0] imem_addr_q      ;
+  logic        imem_rdata_valid ;
+  logic        imem_buf_valid   ;
+  logic [31:0] if_insn_buf      ;
+  logic [31:0] if_buf_pc        ;
   // branch prediction logic
-  wire [31:0] id_branch_addr   ;
-  wire        id_predict_btaken;
-  wire [ 5:0] id_pht_idx       ;
+  logic [31:0] id_branch_addr   ;
+  logic        id_predict_btaken;
+  logic [ 5:0] id_pht_idx       ;
   // id stage signals
-  wire                               id_forward_rs1       ;
-  wire                               id_forward_rs2       ;
-  reg  [                       11:0] id_csr_addr          ;
-  reg  [                       31:0] id_imm_ext           ;
-  reg  [                        4:0] id_rd_addr           ;
-  wire [       ALU_CTRL_T_WIDTH-1:0] id_alu_control       ;
-  reg  [                        6:0] id_op                ;
-  reg  [                        2:0] id_funct3            ;
-  reg                                id_funct7b5          ;
-  reg  [                        6:0] id_funct7            ;
-  reg  [                       11:0] id_funct12           ;
-  reg                                id_rtype_alt         ;
-  reg                                id_itype_alt         ;
-  wire [     IMM_EXT_OP_T_WIDTH-1:0] id_imm_ext_op        ;
-  wire [      ALU_A_SEL_T_WIDTH-1:0] id_alu_a_sel         ;
-  wire [      ALU_B_SEL_T_WIDTH-1:0] id_alu_b_sel         ;
-  wire [     PC_ALU_SEL_T_WIDTH-1:0] id_pc_alu_sel        ;
-  wire [CSR_BITMASK_SEL_T_WIDTH-1:0] id_csr_bitmask_sel   ;
-  reg  [                        4:0] id_rs1_addr          ;
-  reg  [                        4:0] id_rs2_addr          ;
-  wire [                       31:0] regfile_rs1_rdata    ;
-  wire [                       31:0] regfile_rs2_rdata    ;
-  reg  [                       31:0] csrfile_rdata        ;
-  wire                               id_illegal_instr_trap;
-  wire                               id_ecall_m_trap      ;
-  wire                               id_breakpoint_trap   ;
-  wire                               id_is_branch         ;
-  wire                               id_is_jump           ;
-  wire                               id_is_csr_write      ;
-  wire                               id_is_csr_read       ;
-  wire                               id_is_rd_write       ;
-  wire                               id_is_rs1_read       ;
-  wire                               id_is_rs2_read       ;
-  wire                               id_is_mem_write      ;
-  wire                               id_is_mem_read       ;
-  wire                               id_is_jal            ;
-  wire                               id_is_jalr           ;
-  wire                               id_is_memsize_b      ;
-  wire                               id_is_memsize_bu     ;
-  wire                               id_is_memsize_h      ;
-  wire                               id_is_memsize_hu     ;
-  wire                               id_is_memsize_w      ;
-  wire                               id_csr_op_rw         ;
-  wire                               id_csr_op_clear      ;
-  wire                               id_csr_op_set        ;
+  logic                               id_forward_rs1       ;
+  logic                               id_forward_rs2       ;
+  logic [                       11:0] id_csr_addr          ;
+  logic [                       31:0] id_imm_ext           ;
+  logic [                        4:0] id_rd_addr           ;
+  logic [       ALU_CTRL_T_WIDTH-1:0] id_alu_control       ;
+  logic [                        6:0] id_op                ;
+  logic [                        2:0] id_funct3            ;
+  logic                               id_funct7b5          ;
+  logic [                        6:0] id_funct7            ;
+  logic [                       11:0] id_funct12           ;
+  logic                               id_rtype_alt         ;
+  logic                               id_itype_alt         ;
+  logic [     IMM_EXT_OP_T_WIDTH-1:0] id_imm_ext_op        ;
+  logic [      ALU_A_SEL_T_WIDTH-1:0] id_alu_a_sel         ;
+  logic [      ALU_B_SEL_T_WIDTH-1:0] id_alu_b_sel         ;
+  logic [     PC_ALU_SEL_T_WIDTH-1:0] id_pc_alu_sel        ;
+  logic [CSR_BITMASK_SEL_T_WIDTH-1:0] id_csr_bitmask_sel   ;
+  logic [                        4:0] id_rs1_addr          ;
+  logic [                        4:0] id_rs2_addr          ;
+  logic [                       31:0] regfile_rs1_rdata    ;
+  logic [                       31:0] regfile_rs2_rdata    ;
+  logic [                       31:0] csrfile_rdata        ;
+  logic                               id_illegal_instr_trap;
+  logic                               id_ecall_m_trap      ;
+  logic                               id_breakpoint_trap   ;
+  logic                               id_is_branch         ;
+  logic                               id_is_jump           ;
+  logic                               id_is_csr_write      ;
+  logic                               id_is_csr_read       ;
+  logic                               id_is_rd_write       ;
+  logic                               id_is_rs1_read       ;
+  logic                               id_is_rs2_read       ;
+  logic                               id_is_mem_write      ;
+  logic                               id_is_mem_read       ;
+  logic                               id_is_jal            ;
+  logic                               id_is_jalr           ;
+  logic                               id_is_memsize_b      ;
+  logic                               id_is_memsize_bu     ;
+  logic                               id_is_memsize_h      ;
+  logic                               id_is_memsize_hu     ;
+  logic                               id_is_memsize_w      ;
+  logic                               id_csr_op_rw         ;
+  logic                               id_csr_op_clear      ;
+  logic                               id_csr_op_set        ;
 
   // ex stage signal
-  reg  [ 1:0] ex_forward_rs1_sel;
-  reg  [ 1:0] ex_forward_rs2_sel;
-  wire [31:0] ex_jaddr          ;
-  wire        ex_jump_taken     ;
-  reg  [31:0] ex_rs1_rdata      ;
-  reg  [31:0] ex_rs2_rdata      ;
-  reg  [31:0] ex_csr_bitmask    ;
-  reg  [31:0] ex_csr_wdata      ;
-  reg  [31:0] ex_src_a          ;
-  reg  [31:0] ex_src_b          ;
-  reg  [31:0] ex_pc_base        ;
-  reg         ex_branch_cond    ;
-  wire        ex_misaligned_jump;
-  reg  [31:0] ex_alu_result     ;
+  logic [ 1:0] ex_forward_rs1_sel;
+  logic [ 1:0] ex_forward_rs2_sel;
+  logic [31:0] ex_jaddr          ;
+  logic        ex_jump_taken     ;
+  logic [31:0] ex_rs1_rdata      ;
+  logic [31:0] ex_rs2_rdata      ;
+  logic [31:0] ex_csr_bitmask    ;
+  logic [31:0] ex_csr_wdata      ;
+  logic [31:0] ex_src_a          ;
+  logic [31:0] ex_src_b          ;
+  logic [31:0] ex_pc_base        ;
+  logic        ex_branch_cond    ;
+  logic        ex_misaligned_jump;
+  logic [31:0] ex_alu_result     ;
 
   //mem stage
-  reg         misaligned_load       ;
-  reg         misaligned_store      ;
-  reg  [ 3:0] mem_wstrb             ;
-  reg  [ 3:0] mem_rstrb             ;
-  reg         dmem_periph_req       ;
-  reg  [31:0] mem_load_rdata        ;
-  wire        mem_btaken_mispredict ;
-  wire        mem_bntaken_mispredict;
-  wire        mem_branch_mispredict ;
+  logic        misaligned_load       ;
+  logic        misaligned_store      ;
+  logic [ 3:0] mem_wstrb             ;
+  logic [ 3:0] mem_rstrb             ;
+  logic        dmem_periph_req       ;
+  logic [31:0] mem_load_rdata        ;
+  logic        mem_btaken_mispredict ;
+  logic        mem_bntaken_mispredict;
+  logic        mem_branch_mispredict ;
   // writeback stage
-  reg [ 4:0] wb_rd_addr    ;
-  reg [11:0] wb_csr_addr   ;
-  reg [31:0] wb_rd_wdata   ;
-  reg [31:0] wb_csr_wdata  ;
-  reg [31:0] wb_trap_mcause;
-  reg [31:0] wb_trap_pc    ;
+  logic [ 4:0] wb_rd_addr    ;
+  logic [11:0] wb_csr_addr   ;
+  logic [31:0] wb_rd_wdata   ;
+  logic [31:0] wb_csr_wdata  ;
+  logic [31:0] wb_trap_mcause;
+  logic [31:0] wb_trap_pc    ;
   //*****************************************************************
   //
   //
@@ -429,7 +429,7 @@ module dtcore32 (
   branch_predictor branch_predictor_inst (
     .clk_i            (clk_i            ),
     .rst_i            (rst_i            ),
-    .id_is_branch     (id_is_branch     ),
+    .id_is_branch     (id_d_is_branch   ),
     .id_q_pc          (id_q_pc          ),
     .mem_q_is_branch  (mem_q_is_branch  ),
     .mem_q_jump_taken (mem_q_jump_taken ),
@@ -438,324 +438,95 @@ module dtcore32 (
     .id_pht_idx       (id_pht_idx       )
   );
 
-  reg illegal_instr_trap;
-  reg ecall_m_trap      ;
-  reg breakpoint_trap   ;
+  logic illegal_instr_trap;
+  logic ecall_m_trap      ;
+  logic breakpoint_trap   ;
 
-  reg is_branch    ;
-  reg is_jump      ;
-  reg is_jal       ;
-  reg is_jalr      ;
-  reg is_csr_write ;
-  reg is_csr_read  ;
-  reg csr_op_rw    ;
-  reg csr_op_clear ;
-  reg csr_op_set   ;
-  reg is_rd_write  ;
-  reg is_rs1_read  ;
-  reg is_rs2_read  ;
-  reg is_mem_write ;
-  reg is_mem_read  ;
-  reg is_memsize_b ;
-  reg is_memsize_bu;
-  reg is_memsize_h ;
-  reg is_memsize_hu;
-  reg is_memsize_w ;
-
-
-  reg [       ALU_CTRL_T_WIDTH-1:0] alu_control    ;
-  reg [     IMM_EXT_OP_T_WIDTH-1:0] imm_ext_op     ;
-  reg [      ALU_A_SEL_T_WIDTH-1:0] alu_a_src      ;
-  reg [      ALU_B_SEL_T_WIDTH-1:0] alu_b_src      ;
-  reg [     PC_ALU_SEL_T_WIDTH-1:0] pc_alu_src     ;
-  reg [CSR_BITMASK_SEL_T_WIDTH-1:0] csr_bitmask_sel;
-
-  reg  [ALU_OP_T_WIDTH-1:0] alu_op                ;
-  wire                      is_itype              ;
-  wire                      is_rtype              ;
-  wire                      is_SRAI_funct3        ;
-  wire                      is_SRA_or_SUB_funct3  ;
-  wire                      is_SLLI_or_SRLI_funct3;
-  wire                      is_shift_itype        ;
-  wire                      is_unknown_rtype      ;
-  wire                      is_unknown_itype      ;
-
-  assign is_itype               = (id_op == OPCODE_I_TYPE);
-  assign is_rtype               = (id_op == OPCODE_R_TYPE);
-  assign is_SRAI_funct3         = (id_funct3 == FUNCT3_SRAI);
-  assign is_SRA_or_SUB_funct3   = ((id_funct3 == FUNCT3_SRA) || (id_funct3 == FUNCT3_SUB));
-  assign is_SLLI_or_SRLI_funct3 = ((id_funct3 == FUNCT3_SLLI) || (id_funct3 == FUNCT3_SRLI));
-  assign is_shift_itype         = is_SLLI_or_SRLI_funct3 | is_SRAI_funct3;
-  assign is_unknown_rtype       = is_rtype
-    & (id_funct7 != 7'h00)
-    & ~((id_funct7 == 7'h20) & is_SRA_or_SUB_funct3);
-  assign is_unknown_itype = is_itype
-    & is_shift_itype
-    & ~(is_SLLI_or_SRLI_funct3 & (id_funct7 == 7'h00))
-    & ~(is_SRAI_funct3 & (id_funct7 == 7'h20));
+  logic is_branch    ;
+  logic is_jump      ;
+  logic is_jal       ;
+  logic is_jalr      ;
+  logic is_csr_write ;
+  logic is_csr_read  ;
+  logic csr_op_rw    ;
+  logic csr_op_clear ;
+  logic csr_op_set   ;
+  logic is_rd_write  ;
+  logic is_rs1_read  ;
+  logic is_rs2_read  ;
+  logic is_mem_write ;
+  logic is_mem_read  ;
+  logic is_memsize_b ;
+  logic is_memsize_bu;
+  logic is_memsize_h ;
+  logic is_memsize_hu;
+  logic is_memsize_w ;
 
 
-  // Decode the control signals for the specific instruction
-  always @(*) begin
-    ecall_m_trap       = 0;
-    illegal_instr_trap = 0;
-    breakpoint_trap    = 0;
-    // valid registers
-    is_rd_write        = 0;
-    is_rs1_read        = 0;
-    is_rs2_read        = 0;
-    // mux select signals
-    alu_op             = 0;
-    // control signals
-    is_branch          = 0;
-    is_jump            = 0;
-    is_jal             = 0;
-    is_jalr            = 0;
-    is_csr_write       = 0;
-    is_csr_read        = 0;
-    csr_op_rw          = 0;
-    csr_op_clear       = 0;
-    csr_op_set         = 0;
-    is_mem_write       = 0;
-    is_mem_read        = 0;
-    is_memsize_b       = 0;
-    is_memsize_bu      = 0;
-    is_memsize_h       = 0;
-    is_memsize_hu      = 0;
-    is_memsize_w       = 0;
-    // sources
-    imm_ext_op         = 0;
-    alu_a_src          = 0;
-    alu_b_src          = 0;
-    pc_alu_src         = 0;
-    csr_bitmask_sel    = 0;
+  logic [       ALU_CTRL_T_WIDTH-1:0] alu_control    ;
+  logic [     IMM_EXT_OP_T_WIDTH-1:0] imm_ext_op     ;
+  logic [      ALU_A_SEL_T_WIDTH-1:0] alu_a_src      ;
+  logic [      ALU_B_SEL_T_WIDTH-1:0] alu_b_src      ;
+  logic [     PC_ALU_SEL_T_WIDTH-1:0] pc_alu_src     ;
+  logic [CSR_BITMASK_SEL_T_WIDTH-1:0] csr_bitmask_sel;
+
+  logic [ALU_OP_T_WIDTH-1:0] alu_op                ;
+  logic                      is_itype              ;
+  logic                      is_rtype              ;
+  logic                      is_SRAI_funct3        ;
+  logic                      is_SRA_or_SUB_funct3  ;
+  logic                      is_SLLI_or_SRLI_funct3;
+  logic                      is_shift_itype        ;
+  logic                      is_unknown_rtype      ;
+  logic                      is_unknown_itype      ;
+
+  maindec  maindec_inst (
+    .id_op(id_op),
+    .id_funct3(id_funct3),
+    .id_funct7(id_funct7),
+    .id_funct12(id_funct12),
+    .id_rs1_addr(id_rs1_addr),
+    .id_rd_addr(id_rd_addr),
+    .ecall_m_trap(ecall_m_trap),
+    .illegal_instr_trap(illegal_instr_trap),
+    .breakpoint_trap(breakpoint_trap),
+    .is_rd_write(is_rd_write),
+    .is_rs1_read(is_rs1_read),
+    .is_rs2_read(is_rs2_read),
+    .alu_op(alu_op),
+    .is_branch(is_branch),
+    .is_jump(is_jump),
+    .is_jal(is_jal),
+    .is_jalr(is_jalr),
+    .is_csr_write(is_csr_write),
+    .is_csr_read(is_csr_read),
+    .csr_op_rw(csr_op_rw),
+    .csr_op_clear(csr_op_clear),
+    .csr_op_set(csr_op_set),
+    .is_mem_write(is_mem_write),
+    .is_mem_read(is_mem_read),
+    .is_memsize_b(is_memsize_b),
+    .is_memsize_bu(is_memsize_bu),
+    .is_memsize_h(is_memsize_h),
+    .is_memsize_hu(is_memsize_hu),
+    .is_memsize_w(is_memsize_w),
+    .imm_ext_op(imm_ext_op),
+    .alu_a_src(alu_a_src),
+    .alu_b_src(alu_b_src),
+    .pc_alu_src(pc_alu_src),
+    .csr_bitmask_sel(csr_bitmask_sel)
+  );
 
 
-    case (id_op)
-      OPCODE_LOAD : begin
-        imm_ext_op = I_ALU_TYPE;
-        alu_a_src  = ALU_A_SEL_REG_DATA;
-        alu_b_src  = ALU_B_SEL_IMM;
-        alu_op     = ALU_OP_ILOAD_S_U_TYPE;
-        pc_alu_src = PC_ALU_SEL_PC;
-        case (id_funct3)
-          FUNCT3_LB : begin
-            {is_rd_write, is_rs1_read, is_mem_read, is_memsize_b} = 4'b1111;
-          end
-          FUNCT3_LH : begin
-            {is_rd_write, is_rs1_read, is_mem_read, is_memsize_h} = 4'b1111;
-          end
-          FUNCT3_LW : begin
-            {is_rd_write, is_rs1_read, is_mem_read, is_memsize_w} = 4'b1111;
-          end
-          FUNCT3_LBU : begin
-            {is_rd_write, is_rs1_read, is_mem_read, is_memsize_bu} = 4'b1111;
-          end
-          FUNCT3_LHU : begin
-            {is_rd_write, is_rs1_read, is_mem_read, is_memsize_hu} = 4'b1111;
-          end
-          default : begin
-            illegal_instr_trap = 1;
-          end
-        endcase
-      end
-
-      OPCODE_SYSCALL_CSR : begin
-        case (id_funct3)
-          FUNCT3_ECALL_EBREAK : begin
-            if ((id_rs1_addr == 0) && (id_rd_addr == 0)) begin
-              if (id_funct12 == 12'h001) begin
-                breakpoint_trap = 1;
-              end else if (id_funct12 == 12'h000) begin
-                ecall_m_trap = 1;
-              end else begin
-                illegal_instr_trap = 1;
-              end
-            end else begin
-              illegal_instr_trap = 1;
-            end
-          end
-          // CSRRW/I always writes to the csr file, and conditionally reads when rd is not x0
-          FUNCT3_CSRRW : begin
-            {is_rs1_read, is_rd_write, is_csr_write, csr_op_rw} = 4'b1111;
-            is_csr_read     = (id_rd_addr != 0);
-            csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
-          end
-          FUNCT3_CSRRWI : begin
-            {is_rs1_read, is_rd_write, is_csr_write, csr_op_rw} = 4'b1111;
-            is_csr_read     = (id_rd_addr != 0);
-            imm_ext_op      = CSR_TYPE;
-            csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
-          end
-          // Others always read from the csr file, and conditionally writes when
-          // rs1 is x0, or uimm is 0 for register and immediate operand types, respectively
-          FUNCT3_CSRRS : begin
-            {is_rs1_read, is_rd_write, is_csr_read, csr_op_set} = 4'b1111;
-            is_csr_write    = (id_rs1_addr != 0);
-            csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
-          end
-          FUNCT3_CSRRSI : begin
-            {is_rs1_read, is_rd_write, is_csr_read, csr_op_set} = 4'b1111;
-            is_csr_write    = (id_rs1_addr != 0);
-            imm_ext_op      = CSR_TYPE;
-            csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
-          end
-          FUNCT3_CSRRC : begin
-            {is_rs1_read, is_rd_write, is_csr_read, csr_op_clear} = 4'b1111;
-            is_csr_write    = (id_rs1_addr != 0);
-            csr_bitmask_sel = CSR_BITMASK_SEL_REG_DATA;
-          end
-          FUNCT3_CSRRCI : begin
-            {is_rs1_read, is_rd_write, is_csr_read, csr_op_clear} = 4'b1111;
-            is_csr_write    = (id_rs1_addr != 0);
-            imm_ext_op      = CSR_TYPE;
-            csr_bitmask_sel = CSR_BITMASK_SEL_IMM;
-          end
-          default : begin
-            illegal_instr_trap = 1;
-          end
-        endcase
-      end
-      OPCODE_STORE : begin
-        imm_ext_op = S_TYPE;
-        alu_a_src  = ALU_A_SEL_REG_DATA;
-        alu_b_src  = ALU_B_SEL_IMM;
-        alu_op     = ALU_OP_ILOAD_S_U_TYPE;
-        pc_alu_src = PC_ALU_SEL_PC;
-        case (id_funct3)
-          FUNCT3_SB : begin
-            {is_rs1_read, is_rs2_read, is_mem_write, is_memsize_b} = 4'b1111;
-          end
-          FUNCT3_SH : begin
-            {is_rs1_read, is_rs2_read, is_mem_write, is_memsize_h} = 4'b1111;
-          end
-          FUNCT3_SW : begin
-            {is_rs1_read, is_rs2_read, is_mem_write, is_memsize_w} = 4'b1111;
-          end
-          default : begin
-            illegal_instr_trap = 1;
-          end
-        endcase
-      end
-      OPCODE_R_TYPE : begin
-        if (is_unknown_rtype) begin
-          illegal_instr_trap = 1;
-        end else begin
-          {is_rs1_read, is_rs2_read, is_rd_write} = 3'b111;
-          alu_a_src  = ALU_A_SEL_REG_DATA;
-          alu_b_src  = ALU_B_SEL_REG_DATA;
-          alu_op     = ALU_OP_IALU_ISHIFT_R_TYPE;
-          pc_alu_src = PC_ALU_SEL_PC;
-        end
-      end
-      OPCODE_B_TYPE : begin
-        {is_rs1_read, is_rs2_read, is_branch} = 3'b111;
-        imm_ext_op = B_TYPE;
-        alu_a_src  = ALU_A_SEL_REG_DATA;
-        alu_b_src  = ALU_B_SEL_REG_DATA;
-        alu_op     = ALU_OP_B_TYPE;
-        pc_alu_src = PC_ALU_SEL_PC;
-      end
-      //I-type ALU or shift
-      OPCODE_I_TYPE : begin
-        if (is_unknown_itype) begin
-          illegal_instr_trap = 1;
-        end else begin
-          alu_a_src  = ALU_A_SEL_REG_DATA;
-          alu_b_src  = ALU_B_SEL_IMM;
-          alu_op     = ALU_OP_IALU_ISHIFT_R_TYPE;
-          pc_alu_src = PC_ALU_SEL_PC;
-          case (id_funct3)
-            3'b000, 3'b010, 3'b011, 3'b100, 3'b110, 3'b111: begin
-              {is_rs1_read, is_rd_write} = 2'b11;
-              imm_ext_op = I_ALU_TYPE;  //I-type ALU
-            end
-            3'b001, 3'b101: begin
-              {is_rs1_read, is_rd_write} = 2'b11;
-              imm_ext_op = I_SHIFT_TYPE;  //I-type Shift
-            end
-            default : begin
-              illegal_instr_trap = 1;
-            end
-          endcase  //I-type shift
-        end
-      end
-      OPCODE_JAL : begin
-        {is_rd_write, is_jump, is_jal} = 3'b111;
-        imm_ext_op = J_TYPE;
-        alu_a_src  = ALU_A_SEL_REG_DATA;
-        alu_b_src  = ALU_B_SEL_REG_DATA;
-        alu_op     = ALU_OP_ILOAD_S_U_TYPE;
-        pc_alu_src = PC_ALU_SEL_PC;
-      end
-      OPCODE_U_TYPE_LUI : begin
-        is_rd_write = 1;
-        imm_ext_op  = U_TYPE;
-        alu_a_src   = ALU_A_SEL_ZERO;
-        alu_b_src   = ALU_B_SEL_IMM;
-        alu_op      = ALU_OP_ILOAD_S_U_TYPE;
-        pc_alu_src  = PC_ALU_SEL_PC;
-      end
-      OPCODE_U_TYPE_AUIPC : begin
-        is_rd_write = 1;
-        imm_ext_op  = U_TYPE;
-        alu_a_src   = ALU_A_SEL_PC;
-        alu_b_src   = ALU_B_SEL_IMM;
-        alu_op      = ALU_OP_ILOAD_S_U_TYPE;
-        pc_alu_src  = PC_ALU_SEL_PC;
-      end
-      OPCODE_JALR : begin
-        {is_rs1_read, is_rd_write, is_jump, is_jalr} = 4'b1111;
-        imm_ext_op = I_ALU_TYPE;
-        alu_a_src  = ALU_A_SEL_REG_DATA;
-        alu_b_src  = ALU_B_SEL_IMM;
-        alu_op     = ALU_OP_ILOAD_S_U_TYPE;
-        pc_alu_src = PC_ALU_SEL_REG_DATA;
-      end
-      default : begin
-        illegal_instr_trap = 1;
-      end
-    endcase
-  end
-
-
-
-  always @(*) begin
-    alu_control = ADD_ALU_CONTROL;
-    case (alu_op)
-      //I-type Load, S-type, U-type
-      ALU_OP_ILOAD_S_U_TYPE :
-        alu_control = ADD_ALU_CONTROL;  //add- lw,sw,lb,lh,lbu,lhu,sb,sh,auipc,lui
-      //B-type
-      ALU_OP_B_TYPE :
-        case (id_funct3)
-          FUNCT3_BEQ  : alu_control = SUB_ALU_CONTROL;  //sub - beq
-          FUNCT3_BNE  : alu_control = NE_ALU_CONTROL;  //sub - bne
-          FUNCT3_BLT  : alu_control = LT_ALU_CONTROL;  //blt
-          FUNCT3_BGE  : alu_control = GE_ALU_CONTROL;  //bge
-          FUNCT3_BLTU : alu_control = LTU_ALU_CONTROL;  //bltu
-          FUNCT3_BGEU : alu_control = GEU_ALU_CONTROL;  //bgeu
-          default     : ;
-        endcase
-      //R-type, I-type ALU,I-type 1al shift
-      ALU_OP_IALU_ISHIFT_R_TYPE : begin
-        case (id_funct3)
-          FUNCT3_ADD :
-            alu_control = (id_rtype_alt) ? SUB_ALU_CONTROL  /*sub*/ : ADD_ALU_CONTROL  /*add*/;
-          FUNCT3_SLL        : alu_control = L_SHIFT_ALU_CONTROL;  //sll
-          FUNCT3_SLT        : alu_control = LT_ALU_CONTROL;  //slt
-          FUNCT3_SLTU_SLTIU : alu_control = LTU_ALU_CONTROL;  //sltu, sltiu
-          FUNCT3_XOR        : alu_control = XOR_ALU_CONTROL;  //xor
-          FUNCT3_SRA        :
-            alu_control = (id_rtype_alt || id_itype_alt) ? R_SHIFT_A_ALU_CONTROL /*sra*/ : R_SHIFT_L_ALU_CONTROL /*srl*/;
-          FUNCT3_OR  : alu_control = OR_ALU_CONTROL;  //or
-          FUNCT3_AND : alu_control = AND_ALU_CONTROL;  //and
-          default    : ;
-        endcase
-      end
-      default : ;
-    endcase
-  end
+  aludec aludec_inst (
+    .clk_i       (clk_i       ),
+    .rst_i       (rst_i       ),
+    .id_funct3   (id_funct3   ),
+    .id_rtype_alt(id_rtype_alt),
+    .id_itype_alt(id_itype_alt),
+    .alu_op      (alu_op      ),
+    .alu_control (alu_control )
+  );
 
   assign id_alu_control        = alu_control;
   assign id_imm_ext_op         = imm_ext_op;
@@ -913,106 +684,106 @@ module dtcore32 (
   //
   //*****************************************************************
 
-ex_stage  ex_stage_inst (
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .ex_q_valid(ex_q_valid),
-    .ex_q_pc(ex_q_pc),
-    .ex_q_pc_plus_4(ex_q_pc_plus_4),
-    .ex_q_rs1_rdata(ex_q_rs1_rdata),
-    .ex_q_rs2_rdata(ex_q_rs2_rdata),
-    .ex_q_rs1_addr(ex_q_rs1_addr),
-    .ex_q_rs2_addr(ex_q_rs2_addr),
-    .ex_q_rd_addr(ex_q_rd_addr),
-    .ex_q_is_rd_write(ex_q_is_rd_write),
-    .ex_q_pht_idx(ex_q_pht_idx),
-    .ex_q_is_csr_write(ex_q_is_csr_write),
-    .ex_q_is_csr_read(ex_q_is_csr_read),
-    .ex_q_csr_addr(ex_q_csr_addr),
-    .ex_q_csr_rdata(ex_q_csr_rdata),
-    .ex_q_imm_ext(ex_q_imm_ext),
-    .ex_q_insn(ex_q_insn),
-    .ex_q_intr(ex_q_intr),
-    .ex_q_is_jump(ex_q_is_jump),
-    .ex_q_is_jal(ex_q_is_jal),
-    .ex_q_is_jalr(ex_q_is_jalr),
-    .ex_q_is_branch(ex_q_is_branch),
-    .ex_q_branch_predict(ex_q_branch_predict),
-    .ex_q_alu_control(ex_q_alu_control),
-    .ex_q_alu_a_sel(ex_q_alu_a_sel),
-    .ex_q_alu_b_sel(ex_q_alu_b_sel),
-    .ex_q_pc_alu_sel(ex_q_pc_alu_sel),
+  ex_stage ex_stage_inst (
+    .clk_i               (clk_i               ),
+    .rst_i               (rst_i               ),
+    .ex_q_valid          (ex_q_valid          ),
+    .ex_q_pc             (ex_q_pc             ),
+    .ex_q_pc_plus_4      (ex_q_pc_plus_4      ),
+    .ex_q_rs1_rdata      (ex_q_rs1_rdata      ),
+    .ex_q_rs2_rdata      (ex_q_rs2_rdata      ),
+    .ex_q_rs1_addr       (ex_q_rs1_addr       ),
+    .ex_q_rs2_addr       (ex_q_rs2_addr       ),
+    .ex_q_rd_addr        (ex_q_rd_addr        ),
+    .ex_q_is_rd_write    (ex_q_is_rd_write    ),
+    .ex_q_pht_idx        (ex_q_pht_idx        ),
+    .ex_q_is_csr_write   (ex_q_is_csr_write   ),
+    .ex_q_is_csr_read    (ex_q_is_csr_read    ),
+    .ex_q_csr_addr       (ex_q_csr_addr       ),
+    .ex_q_csr_rdata      (ex_q_csr_rdata      ),
+    .ex_q_imm_ext        (ex_q_imm_ext        ),
+    .ex_q_insn           (ex_q_insn           ),
+    .ex_q_intr           (ex_q_intr           ),
+    .ex_q_is_jump        (ex_q_is_jump        ),
+    .ex_q_is_jal         (ex_q_is_jal         ),
+    .ex_q_is_jalr        (ex_q_is_jalr        ),
+    .ex_q_is_branch      (ex_q_is_branch      ),
+    .ex_q_branch_predict (ex_q_branch_predict ),
+    .ex_q_alu_control    (ex_q_alu_control    ),
+    .ex_q_alu_a_sel      (ex_q_alu_a_sel      ),
+    .ex_q_alu_b_sel      (ex_q_alu_b_sel      ),
+    .ex_q_pc_alu_sel     (ex_q_pc_alu_sel     ),
     .ex_q_csr_bitmask_sel(ex_q_csr_bitmask_sel),
-    .ex_q_csr_op_rw(ex_q_csr_op_rw),
-    .ex_q_csr_op_set(ex_q_csr_op_set),
-    .ex_q_csr_op_clear(ex_q_csr_op_clear),
-    .ex_q_is_mem_read(ex_q_is_mem_read),
-    .ex_q_is_mem_write(ex_q_is_mem_write),
-    .ex_q_is_memsize_b(ex_q_is_memsize_b),
-    .ex_q_is_memsize_bu(ex_q_is_memsize_bu),
-    .ex_q_is_memsize_h(ex_q_is_memsize_h),
-    .ex_q_is_memsize_hu(ex_q_is_memsize_hu),
-    .ex_q_is_memsize_w(ex_q_is_memsize_w),
-    .ex_q_trap_valid(ex_q_trap_valid),
-    .ex_q_trap_pc(ex_q_trap_pc),
-    .ex_q_trap_mcause(ex_q_trap_mcause),
-    .ex_q_trap_insn(ex_q_trap_insn),
-    .ex_q_trap_next_pc(ex_q_trap_next_pc),
-    .ex_q_trap_rs1_addr(ex_q_trap_rs1_addr),
-    .ex_q_trap_rs2_addr(ex_q_trap_rs2_addr),
-    .ex_q_trap_rd_addr(ex_q_trap_rd_addr),
-    .ex_q_trap_rs1_rdata(ex_q_trap_rs1_rdata),
-    .ex_q_trap_rs2_rdata(ex_q_trap_rs2_rdata),
-    .ex_q_trap_rd_wdata(ex_q_trap_rd_wdata),
+    .ex_q_csr_op_rw      (ex_q_csr_op_rw      ),
+    .ex_q_csr_op_set     (ex_q_csr_op_set     ),
+    .ex_q_csr_op_clear   (ex_q_csr_op_clear   ),
+    .ex_q_is_mem_read    (ex_q_is_mem_read    ),
+    .ex_q_is_mem_write   (ex_q_is_mem_write   ),
+    .ex_q_is_memsize_b   (ex_q_is_memsize_b   ),
+    .ex_q_is_memsize_bu  (ex_q_is_memsize_bu  ),
+    .ex_q_is_memsize_h   (ex_q_is_memsize_h   ),
+    .ex_q_is_memsize_hu  (ex_q_is_memsize_hu  ),
+    .ex_q_is_memsize_w   (ex_q_is_memsize_w   ),
+    .ex_q_trap_valid     (ex_q_trap_valid     ),
+    .ex_q_trap_pc        (ex_q_trap_pc        ),
+    .ex_q_trap_mcause    (ex_q_trap_mcause    ),
+    .ex_q_trap_insn      (ex_q_trap_insn      ),
+    .ex_q_trap_next_pc   (ex_q_trap_next_pc   ),
+    .ex_q_trap_rs1_addr  (ex_q_trap_rs1_addr  ),
+    .ex_q_trap_rs2_addr  (ex_q_trap_rs2_addr  ),
+    .ex_q_trap_rd_addr   (ex_q_trap_rd_addr   ),
+    .ex_q_trap_rs1_rdata (ex_q_trap_rs1_rdata ),
+    .ex_q_trap_rs2_rdata (ex_q_trap_rs2_rdata ),
+    .ex_q_trap_rd_wdata  (ex_q_trap_rd_wdata  ),
     .mem_q_alu_csr_result(mem_q_alu_csr_result),
-    .wb_rd_wdata(wb_rd_wdata),
-    .ex_forward_rs1_sel(ex_forward_rs1_sel),
-    .ex_forward_rs2_sel(ex_forward_rs2_sel),
-    .ex_d_valid(ex_d_valid),
-    .ex_d_is_rd_write(ex_d_is_rd_write),
-    .ex_d_rd_addr(ex_d_rd_addr),
-    .ex_d_is_csr_write(ex_d_is_csr_write),
-    .ex_d_is_csr_read(ex_d_is_csr_read),
-    .ex_d_csr_addr(ex_d_csr_addr),
-    .ex_d_csr_wdata(ex_d_csr_wdata),
-    .ex_d_store_wdata(ex_d_store_wdata),
-    .ex_d_alu_csr_result(ex_d_alu_csr_result),
-    .ex_d_is_mem_read(ex_d_is_mem_read),
-    .ex_d_is_mem_write(ex_d_is_mem_write),
-    .ex_d_is_memsize_h(ex_d_is_memsize_h),
-    .ex_d_is_memsize_hu(ex_d_is_memsize_hu),
-    .ex_d_is_memsize_b(ex_d_is_memsize_b),
-    .ex_d_is_memsize_bu(ex_d_is_memsize_bu),
-    .ex_d_is_memsize_w(ex_d_is_memsize_w),
-    .ex_d_is_branch(ex_d_is_branch),
-    .ex_d_is_jump(ex_d_is_jump),
-    .ex_d_is_jal(ex_d_is_jal),
-    .ex_d_is_jalr(ex_d_is_jalr),
-    .ex_d_branch_predict(ex_d_branch_predict),
-    .ex_d_pht_idx(ex_d_pht_idx),
-    .ex_d_pc(ex_d_pc),
-    .ex_d_pc_plus_4(ex_d_pc_plus_4),
-    .ex_d_jaddr(ex_d_jaddr),
-    .ex_d_jump_taken(ex_d_jump_taken),
-    .ex_d_trap_valid(ex_d_trap_valid),
-    .ex_d_trap_pc(ex_d_trap_pc),
-    .ex_d_trap_mcause(ex_d_trap_mcause),
-    .ex_d_next_pc(ex_d_next_pc),
-    .ex_d_insn(ex_d_insn),
-    .ex_d_intr(ex_d_intr),
-    .ex_d_rs1_addr(ex_d_rs1_addr),
-    .ex_d_rs2_addr(ex_d_rs2_addr),
-    .ex_d_rs1_rdata(ex_d_rs1_rdata),
-    .ex_d_rs2_rdata(ex_d_rs2_rdata),
-    .ex_d_csr_rdata(ex_d_csr_rdata),
-    .ex_d_trap_insn(ex_d_trap_insn),
-    .ex_d_trap_next_pc(ex_d_trap_next_pc),
-    .ex_d_trap_rs1_addr(ex_d_trap_rs1_addr),
-    .ex_d_trap_rs2_addr(ex_d_trap_rs2_addr),
-    .ex_d_trap_rd_addr(ex_d_trap_rd_addr),
-    .ex_d_trap_rs1_rdata(ex_d_trap_rs1_rdata),
-    .ex_d_trap_rs2_rdata(ex_d_trap_rs2_rdata),
-    .ex_d_trap_rd_wdata(ex_d_trap_rd_wdata)
+    .wb_rd_wdata         (wb_rd_wdata         ),
+    .ex_forward_rs1_sel  (ex_forward_rs1_sel  ),
+    .ex_forward_rs2_sel  (ex_forward_rs2_sel  ),
+    .ex_d_valid          (ex_d_valid          ),
+    .ex_d_is_rd_write    (ex_d_is_rd_write    ),
+    .ex_d_rd_addr        (ex_d_rd_addr        ),
+    .ex_d_is_csr_write   (ex_d_is_csr_write   ),
+    .ex_d_is_csr_read    (ex_d_is_csr_read    ),
+    .ex_d_csr_addr       (ex_d_csr_addr       ),
+    .ex_d_csr_wdata      (ex_d_csr_wdata      ),
+    .ex_d_store_wdata    (ex_d_store_wdata    ),
+    .ex_d_alu_csr_result (ex_d_alu_csr_result ),
+    .ex_d_is_mem_read    (ex_d_is_mem_read    ),
+    .ex_d_is_mem_write   (ex_d_is_mem_write   ),
+    .ex_d_is_memsize_h   (ex_d_is_memsize_h   ),
+    .ex_d_is_memsize_hu  (ex_d_is_memsize_hu  ),
+    .ex_d_is_memsize_b   (ex_d_is_memsize_b   ),
+    .ex_d_is_memsize_bu  (ex_d_is_memsize_bu  ),
+    .ex_d_is_memsize_w   (ex_d_is_memsize_w   ),
+    .ex_d_is_branch      (ex_d_is_branch      ),
+    .ex_d_is_jump        (ex_d_is_jump        ),
+    .ex_d_is_jal         (ex_d_is_jal         ),
+    .ex_d_is_jalr        (ex_d_is_jalr        ),
+    .ex_d_branch_predict (ex_d_branch_predict ),
+    .ex_d_pht_idx        (ex_d_pht_idx        ),
+    .ex_d_pc             (ex_d_pc             ),
+    .ex_d_pc_plus_4      (ex_d_pc_plus_4      ),
+    .ex_d_jaddr          (ex_d_jaddr          ),
+    .ex_d_jump_taken     (ex_d_jump_taken     ),
+    .ex_d_trap_valid     (ex_d_trap_valid     ),
+    .ex_d_trap_pc        (ex_d_trap_pc        ),
+    .ex_d_trap_mcause    (ex_d_trap_mcause    ),
+    .ex_d_next_pc        (ex_d_next_pc        ),
+    .ex_d_insn           (ex_d_insn           ),
+    .ex_d_intr           (ex_d_intr           ),
+    .ex_d_rs1_addr       (ex_d_rs1_addr       ),
+    .ex_d_rs2_addr       (ex_d_rs2_addr       ),
+    .ex_d_rs1_rdata      (ex_d_rs1_rdata      ),
+    .ex_d_rs2_rdata      (ex_d_rs2_rdata      ),
+    .ex_d_csr_rdata      (ex_d_csr_rdata      ),
+    .ex_d_trap_insn      (ex_d_trap_insn      ),
+    .ex_d_trap_next_pc   (ex_d_trap_next_pc   ),
+    .ex_d_trap_rs1_addr  (ex_d_trap_rs1_addr  ),
+    .ex_d_trap_rs2_addr  (ex_d_trap_rs2_addr  ),
+    .ex_d_trap_rd_addr   (ex_d_trap_rd_addr   ),
+    .ex_d_trap_rs1_rdata (ex_d_trap_rs1_rdata ),
+    .ex_d_trap_rs2_rdata (ex_d_trap_rs2_rdata ),
+    .ex_d_trap_rd_wdata  (ex_d_trap_rd_wdata  )
   );
   //*****************************************************************
   //
@@ -1469,8 +1240,8 @@ ex_stage  ex_stage_inst (
   riscv_regfile riscv_regfile_inst (
     .clk_i            (clk_i            ),
     .rst_i            (rst_i            ),
-    .id_rs1_addr      (id_rs1_addr      ),
-    .id_rs2_addr      (id_rs2_addr      ),
+    .id_rs1_addr      (id_d_rs1_addr    ),
+    .id_rs2_addr      (id_d_rs2_addr    ),
     .wb_q_is_rd_write (wb_q_is_rd_write ),
     .wb_rd_addr       (wb_rd_addr       ),
     .wb_rd_wdata      (wb_rd_wdata      ),
@@ -1488,7 +1259,7 @@ ex_stage  ex_stage_inst (
   csr_file csr_file_inst (
     .clk_i            (clk_i            ),
     .rst_i            (rst_i            ),
-    .id_csr_addr      (id_csr_addr      ),
+    .id_csr_addr      (id_d_csr_addr    ),
     .csrfile_rdata    (csrfile_rdata    ),
     .wb_q_valid       (wb_q_valid       ),
     .wb_q_trap_valid  (wb_q_trap_valid  ),
@@ -1515,8 +1286,8 @@ ex_stage  ex_stage_inst (
   //
   //*****************************************************************
   hazard_ctrl hazard_ctrl_inst (
-    .id_rs1_addr          (id_rs1_addr          ),
-    .id_rs2_addr          (id_rs2_addr          ),
+    .id_rs1_addr          (id_d_rs1_addr        ),
+    .id_rs2_addr          (id_d_rs2_addr        ),
     .ex_q_rs1_addr        (ex_q_rs1_addr        ),
     .ex_q_rs2_addr        (ex_q_rs2_addr        ),
     .ex_q_rd_addr         (ex_q_rd_addr         ),
