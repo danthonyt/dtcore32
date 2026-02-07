@@ -1,4 +1,4 @@
-module riscv_regfile (
+module regfile (
   // --------------------
   // Clock / reset
   // --------------------
@@ -27,7 +27,7 @@ module riscv_regfile (
   // read two ports combinationally (A1/RD1, A2/RD2)
   // write third port on rising edge of clock (A3/WD3/WE3)
   // register 0 hardwired to 0
-  always @(posedge clk_i) begin
+  always_ff @(posedge clk_i) begin
     if (rst_i) begin
       for (regfile_idx = 0; regfile_idx < 32; regfile_idx = regfile_idx + 1) regfile_arr[regfile_idx] <= 32'd0;
     end else if (wb_q_is_rd_write) begin

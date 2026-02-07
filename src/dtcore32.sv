@@ -34,9 +34,8 @@
 // Author     : David Torres
 // Date       : 2025-09-16
 //===========================================================
+`include "formal_defs.svh"
 import riscv_pkg::*;
-// Optional: conditional compilation flag
-`define RISCV_FORMAL
 module dtcore32 (
   input               clk_i                  ,
   input               rst_i                  ,
@@ -415,8 +414,11 @@ module dtcore32 (
     .if_d_insn             (if_d_insn             ),
     .if_d_valid            (if_d_valid            ),
     .next_pc               (next_pc               ),
-    .imem_rdata_valid      (imem_rdata_valid      ),
+    .imem_rdata_valid      (imem_rdata_valid      )
+    `ifdef RISCV_FORMAL
+    ,
     .if_d_intr             (if_d_intr             )
+    `endif
   );
   //*****************************************************************
   //
@@ -491,7 +493,9 @@ id_stage  id_stage_inst (
     .id_d_csr_bitmask_sel(id_d_csr_bitmask_sel),
     .id_d_trap_valid(id_d_trap_valid),
     .id_d_trap_pc(id_d_trap_pc),
-    .id_d_trap_mcause(id_d_trap_mcause),
+    .id_d_trap_mcause(id_d_trap_mcause)
+    `ifdef RISCV_FORMAL
+    ,
     .id_d_insn(id_d_insn),
     .id_d_intr(id_d_intr),
     .id_d_trap_insn(id_d_trap_insn),
@@ -502,6 +506,7 @@ id_stage  id_stage_inst (
     .id_d_trap_rs1_rdata(id_d_trap_rs1_rdata),
     .id_d_trap_rs2_rdata(id_d_trap_rs2_rdata),
     .id_d_trap_rd_wdata(id_d_trap_rd_wdata)
+    `endif
   );
 
 
@@ -690,7 +695,9 @@ id_stage  id_stage_inst (
     .mem_d_trap_mcause     (mem_d_trap_mcause     ),
     .mem_btaken_mispredict (mem_btaken_mispredict ),
     .mem_bntaken_mispredict(mem_bntaken_mispredict),
-    .mem_branch_mispredict (mem_branch_mispredict ),
+    .mem_branch_mispredict (mem_branch_mispredict )
+    `ifdef RISCV_FORMAL
+    ,
     .mem_d_pc              (mem_d_pc              ),
     .mem_d_next_pc         (mem_d_next_pc         ),
     .mem_d_insn            (mem_d_insn            ),
@@ -713,6 +720,7 @@ id_stage  id_stage_inst (
     .mem_d_trap_rs1_rdata  (mem_d_trap_rs1_rdata  ),
     .mem_d_trap_rs2_rdata  (mem_d_trap_rs2_rdata  ),
     .mem_d_trap_rd_wdata   (mem_d_trap_rd_wdata   )
+    `endif
   );
   //*****************************************************************
   //
@@ -723,7 +731,7 @@ id_stage  id_stage_inst (
   //*****************************************************************
 
 
-  always @(*)
+  always_comb
     begin
       wb_trap_mcause = wb_q_trap_mcause;
       wb_trap_pc     = wb_q_trap_pc;
@@ -755,8 +763,10 @@ id_stage  id_stage_inst (
     .if_d_pc         (if_d_pc         ),
     .if_d_pc_plus_4  (if_d_pc_plus_4  ),
     .if_d_insn       (if_d_insn       ),
+    `ifdef RISCV_FORMAL
     .if_d_intr       (if_d_intr       ),
     .id_q_intr       (id_q_intr       ),
+    `endif
     .id_q_valid      (id_q_valid      ),
     .id_q_pc         (id_q_pc         ),
     .id_q_pc_plus_4  (id_q_pc_plus_4  ),
@@ -915,6 +925,7 @@ id_stage  id_stage_inst (
     .ex_d_trap_valid     (ex_d_trap_valid     ),
     .ex_d_trap_mcause    (ex_d_trap_mcause    ),
     .ex_d_trap_pc        (ex_d_trap_pc        ),
+    `ifdef RISCV_FORMAL
     .ex_d_insn           (ex_d_insn           ),
     .ex_d_intr           (ex_d_intr           ),
     .ex_d_next_pc        (ex_d_next_pc        ),
@@ -947,6 +958,7 @@ id_stage  id_stage_inst (
     .mem_q_trap_rs1_rdata(mem_q_trap_rs1_rdata),
     .mem_q_trap_rs2_rdata(mem_q_trap_rs2_rdata),
     .mem_q_trap_rd_wdata (mem_q_trap_rd_wdata ),
+    `endif
     .mem_q_valid         (mem_q_valid         ),
     .mem_q_pc            (mem_q_pc            ),
     .mem_q_pc_plus_4     (mem_q_pc_plus_4     ),
@@ -999,6 +1011,7 @@ id_stage  id_stage_inst (
     .mem_d_trap_valid    (mem_d_trap_valid    ),
     .mem_d_trap_mcause   (mem_d_trap_mcause   ),
     .mem_d_trap_pc       (mem_d_trap_pc       ),
+    `ifdef RISCV_FORMAL
     .mem_d_pc            (mem_d_pc            ),
     .mem_d_next_pc       (mem_d_next_pc       ),
     .mem_d_insn          (mem_d_insn          ),
@@ -1043,6 +1056,7 @@ id_stage  id_stage_inst (
     .wb_q_trap_rs1_rdata (wb_q_trap_rs1_rdata ),
     .wb_q_trap_rs2_rdata (wb_q_trap_rs2_rdata ),
     .wb_q_trap_rd_wdata  (wb_q_trap_rd_wdata  ),
+    `endif
     .wb_q_valid          (wb_q_valid          ),
     .wb_q_rd_addr        (wb_q_rd_addr        ),
     .wb_q_csr_addr       (wb_q_csr_addr       ),
@@ -1067,7 +1081,7 @@ id_stage  id_stage_inst (
   //
   //*****************************************************************
 
-  riscv_regfile riscv_regfile_inst (
+  regfile riscv_regfile_inst (
     .clk_i            (clk_i            ),
     .rst_i            (rst_i            ),
     .id_rs1_addr      (id_d_rs1_addr    ),
@@ -1086,7 +1100,7 @@ id_stage  id_stage_inst (
   //
   //
   //*****************************************************************
-  csr_file csr_file_inst (
+  csrfile csr_file_inst (
     .clk_i            (clk_i            ),
     .rst_i            (rst_i            ),
     .id_csr_addr      (id_d_csr_addr    ),
@@ -1101,8 +1115,10 @@ id_stage  id_stage_inst (
     .wb_trap_mcause   (wb_trap_mcause   ),
     .ex_q_valid       (ex_q_valid       ),
     .mem_q_valid      (mem_q_valid      ),
+    `ifdef RISCV_FORMAL
     .wb_csr_rmask     (wb_csr_rmask     ),
     .wb_csr_wmask     (wb_csr_wmask     ),
+    `endif
     .trap_handler_addr(trap_handler_addr)
   );
 

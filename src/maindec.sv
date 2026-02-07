@@ -64,7 +64,7 @@ module maindec (
 
 
   // Decode the control signals for the specific instruction
-  always @(*) begin
+  always_comb begin
     ecall_m_trap       = 0;
     illegal_instr_trap = 0;
     breakpoint_trap    = 0;

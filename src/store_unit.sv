@@ -7,7 +7,7 @@ module store_unit (
   output logic        misaligned_store
 );
 
-  always @(*) begin
+  always_comb begin
     misaligned_store = 0;
     mem_wdata_o      = 0;
     mem_wstrb        = 0;

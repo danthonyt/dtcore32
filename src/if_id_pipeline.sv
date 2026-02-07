@@ -23,7 +23,7 @@ module if_id_pipeline (
 //-------------------------------
 // IF/ID pipeline
 //-------------------------------
-  always @(posedge clk_i) begin
+  always_ff @(posedge clk_i) begin
     // clear the pipeline on reset, flush,
     // or imem buffer invalid AND the
     // stage is not stalled

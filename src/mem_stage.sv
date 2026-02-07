@@ -108,7 +108,7 @@ module mem_stage (
   logic [ 4:0] load_size_onehot ;
   logic [ 2:0] store_size_onehot;
   logic        mem_valid        ;
-  reg   [31:0] mem_load_rdata   ;
+  logic   [31:0] mem_load_rdata   ;
   logic        misaligned_load  ;
   logic        misaligned_store ;
   assign mem_btaken_mispredict  = (mem_q_is_branch && !mem_q_jump_taken && mem_q_branch_predict);
@@ -169,7 +169,7 @@ module mem_stage (
     .misaligned_store    (misaligned_store    )
   );
 
-  always @(*)
+  always_comb
     begin
       // memory interface local signals
       dmem_periph_req = (mem_q_is_mem_write || mem_q_is_mem_read) && !(misaligned_load || misaligned_store);
@@ -223,7 +223,7 @@ module mem_stage (
     end
 
 `ifdef RISCV_FORMAL
-  always @(*)
+  always_comb
   begin
     // rvfi
     mem_d_pc      = mem_q_pc;

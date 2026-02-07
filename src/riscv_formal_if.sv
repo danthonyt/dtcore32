@@ -161,7 +161,7 @@ module riscv_formal_if (
   wire rvfi_valid_next  ;
   assign rvfi_valid_next = mem_wb_stall ? 0 : commit_valid;
 
-  always @(*)
+  always_comb
     begin
       // PC + instruction flow
       commit_pc_rdata   = wb_q_pc;
@@ -205,7 +205,7 @@ module riscv_formal_if (
       commit_trap_rd_wdata  = 0;
     end
 
-  always @(*)
+  always_comb
     begin
       is_csr_misa       = 0;
       is_csr_mtvec      = 0;
@@ -254,11 +254,11 @@ module riscv_formal_if (
         12'hf15 :
           is_csr_mconfigptr = 1;
         default :
-          ;
+          ; // unimplemented address
       endcase
     end
 
-  always @(posedge clk_i)
+  always_ff @(posedge clk_i)
     begin
       if (rst_i)
         begin

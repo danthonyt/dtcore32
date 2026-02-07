@@ -10,7 +10,7 @@ module load_unit (
   wire [31:0] loaded;
   assign loaded = mem_rdata_i >> (8 * mem_q_alu_csr_result[1:0]);
 
-  always @(*) begin
+  always_comb begin
     misaligned_load = 0;
     mem_rstrb       = 0;
     mem_load_rdata  = 0;

@@ -77,7 +77,7 @@ module mem_wb_pipeline (
   output logic [31:0] wb_q_trap_pc
 );
 
-always @(posedge clk_i) begin
+always_ff @(posedge clk_i) begin
     if (rst_i || mem_wb_flush || (!mem_wb_stall && ex_mem_stall)) begin
       // clear MEM/WB pipeline registers
       wb_q_valid     <= 0;

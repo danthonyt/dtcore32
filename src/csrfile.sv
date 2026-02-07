@@ -1,5 +1,6 @@
+`include "formal_defs.svh"
 import riscv_pkg::*;
-module csr_file (
+module csrfile (
   // --------------------
   // Clock / reset
   // --------------------
@@ -59,8 +60,7 @@ module csr_file (
   // wmask bits are set if csr_wtype != 0
 
   // read from the csr register file in the ID stage
-  always @(*) begin
-    csrfile_rdata = 0;
+  always_comb begin
     case (id_csr_addr)
       CSR_ADDR_MTVEC    : csrfile_rdata = csr_mtvec_reg;
       CSR_ADDR_MSCRATCH : csrfile_rdata = csr_mscratch_reg;
@@ -73,13 +73,13 @@ module csr_file (
       CSR_ADDR_MINSTRET : csrfile_rdata = csr_minstret_reg[31:0] + ex_q_valid
         + mem_q_valid + wb_q_valid;
       CSR_ADDR_MINSTRETH : csrfile_rdata = csr_minstret_reg[63:32];
-      default            : ;
+      default            : csrfile_rdata = 0;
     endcase
   end
 
   // write to the csr register file in the WB stage
   // first, get the next value for each csr
-  always @(*) begin
+  always_comb begin
     csr_mtvec_next    = csr_mtvec_reg;
     csr_mscratch_next = csr_mscratch_reg;
     csr_mepc_next     = (wb_q_valid && wb_q_trap_valid) ? wb_trap_pc : csr_mepc_reg;
@@ -100,12 +100,12 @@ module csr_file (
       CSR_ADDR_MINSTRET
       CSR_ADDR_MINSTRETH
       */
-      default           : ;
+      default           : ; // do nothing if unimplemented address
     endcase
   end
 
   // write the next csr value to each csr
-  always @(posedge clk_i) begin
+  always_ff @(posedge clk_i) begin
     if (rst_i) begin
       csr_mtvec_reg    <= 0;
       csr_mscratch_reg <= 0;
@@ -129,7 +129,7 @@ module csr_file (
   end
 
   // synchronously update the trap handler register
-  always @(posedge clk_i) begin
+  always_ff @(posedge clk_i) begin
     if (rst_i) trap_handler_addr <= 0;
     else trap_handler_addr <= {csr_mtvec_reg[31:2], 2'd0};
   end

@@ -44,7 +44,7 @@ logic [31:0] if_buf_pc;
 logic [31:0] if_insn_buf;
 logic imem_buf_valid;
   // send read address to the instruction memory
-  always @(posedge clk_i)
+  always_ff @(posedge clk_i)
     begin
       if (rst_i)
         begin
@@ -65,7 +65,7 @@ logic imem_buf_valid;
 
   // registers imem address to stay cycle aligned with imem rdata
   // imem reads have 1 cycle latency
-  always @(posedge clk_i)
+  always_ff @(posedge clk_i)
     begin
       if (rst_i) begin
         imem_addr_q <= RESET_PC;
@@ -75,7 +75,7 @@ logic imem_buf_valid;
     end
 
   // buffer
-  always @(posedge clk_i)
+  always_ff @(posedge clk_i)
     begin
       if (rst_i)
         begin
@@ -99,7 +99,7 @@ logic imem_buf_valid;
         end
     end
 
-  always @(*)
+  always_comb
     begin
       // jump to trap handler if a trap instruction commits
       // else if a branch taken and mispredicted jump to mem.pc + 4
@@ -120,10 +120,10 @@ logic imem_buf_valid;
     end
 
 `ifdef RISCV_FORMAL
-  reg if_intr_d ;
-  reg if_intr_q ;
-  reg if_intr_qq;
-  always @(posedge clk_i)
+  logic if_intr_d ;
+  logic if_intr_q ;
+  logic if_intr_qq;
+  always_ff @(posedge clk_i)
     begin
       if (rst_i)
         begin
@@ -141,7 +141,7 @@ logic imem_buf_valid;
           if_intr_qq <= if_intr_q;
         end
     end
-  always @(*)
+  always_comb
     begin
       if_d_intr = if_intr_qq;
       if_intr_d = wb_q_trap_valid;

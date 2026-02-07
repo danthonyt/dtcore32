@@ -14,7 +14,7 @@ module extend (
   output logic [31:0] id_imm_ext
 );
   // extend immediate to 32 bit value depending on instruction type
-  always @(*) begin
+  always_comb begin
     case (id_imm_ext_op)
       //I-type ALU
       I_ALU_TYPE   : id_imm_ext = {{20{id_q_insn[31]}}, id_q_insn[31:20]};

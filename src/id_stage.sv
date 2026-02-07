@@ -238,7 +238,7 @@ module id_stage (
   assign id_is_memsize_w  = is_memsize_w;
 
   // assign signals propagating to the next stage
-  always @(*)
+  always_comb
   begin
     id_op          = id_q_insn[6:0];
     id_funct3      = id_q_insn[14:12];
@@ -326,7 +326,7 @@ module id_stage (
   end
 
 `ifdef RISCV_FORMAL
-  always @(*)
+  always_comb
   begin
     // rvfi metadata
     id_d_insn           = id_q_insn;

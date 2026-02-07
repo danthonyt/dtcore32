@@ -1,3 +1,4 @@
+`include "formal_defs.svh"
 import riscv_pkg::*;
 module ex_mem_pipeline (
   input  logic       clk_i,
@@ -99,7 +100,7 @@ module ex_mem_pipeline (
   output logic [31:0] mem_q_trap_pc
 );
 
-always @(posedge clk_i) begin
+always_ff @(posedge clk_i) begin
     if (rst_i || ex_mem_flush || (!ex_mem_stall && id_ex_stall)) begin
       // clear EX/MEM pipeline registers
       mem_q_valid          <= 0;

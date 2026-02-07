@@ -1,3 +1,4 @@
+`include "formal_defs.svh"
 import riscv_pkg::*;
 module id_ex_pipeline (
   input  logic        clk_i               ,
@@ -109,7 +110,7 @@ module id_ex_pipeline (
   output logic [31:0] ex_q_trap_pc
 );
 
-  always @(posedge clk_i) begin
+  always_ff @(posedge clk_i) begin
     // clear the pipeline on reset, flush,
     // or imem buffer invalid AND the stage is not stalled
     if (rst_i || id_ex_flush || (!id_ex_stall && if_id_stall)) begin

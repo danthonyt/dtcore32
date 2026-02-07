@@ -1,3 +1,4 @@
+`include "formal_defs.svh"
 import riscv_pkg::*;
 module ex_stage (
   // Clock & Reset
@@ -122,7 +123,7 @@ module ex_stage (
   logic ex_misaligned_jump;
 
   // select rs1 read data
-  always @(*) begin
+  always_comb begin
     case (ex_forward_rs1_sel)
       NO_FORWARD_SEL :
         ex_rs1_rdata = ex_q_rs1_rdata;
@@ -136,7 +137,7 @@ module ex_stage (
   end
 
 // select input data for the first alu input
-  always @(*) begin
+  always_comb begin
     case (ex_q_alu_a_sel)
       ALU_A_SEL_REG_DATA :
         ex_src_a = ex_rs1_rdata;
@@ -150,7 +151,7 @@ module ex_stage (
   end
 
 // select rs2 read data
-  always @(*) begin
+  always_comb begin
     case (ex_forward_rs2_sel)
       NO_FORWARD_SEL :
         ex_rs2_rdata = ex_q_rs2_rdata;
@@ -164,7 +165,7 @@ module ex_stage (
   end
 
 // select input data for the second alu input
-  always @(*) begin
+  always_comb begin
     case (ex_q_alu_b_sel)
       ALU_B_SEL_REG_DATA :
         ex_src_b = ex_rs2_rdata;
@@ -176,7 +177,7 @@ module ex_stage (
   end
 
 // select base value for pc offset
-  always @(*) begin
+  always_comb begin
     case (ex_q_pc_alu_sel)
       PC_ALU_SEL_REG_DATA :
         ex_pc_base = ex_rs1_rdata;
@@ -188,7 +189,7 @@ module ex_stage (
   end
 
 // select bitmask source for csr op
-  always @(*) begin
+  always_comb begin
     case (ex_q_csr_bitmask_sel)
       CSR_BITMASK_SEL_REG_DATA :
         ex_csr_bitmask = ex_rs1_rdata;
@@ -200,7 +201,7 @@ module ex_stage (
   end
 
 // select csr result depending on op type
-  always @(*) begin
+  always_comb begin
     if (ex_q_csr_op_rw) begin
       ex_csr_wdata = ex_csr_bitmask;
     end
@@ -222,7 +223,7 @@ module ex_stage (
   assign ex_jump_taken      = (ex_q_is_jump | (ex_q_is_branch & ex_branch_cond));
   assign ex_misaligned_jump = ex_jump_taken & (ex_jaddr[1] | ex_jaddr[0]);
 
-  always @(*)
+  always_comb
     begin
       // Branch and jump
       ex_d_is_branch      = ex_q_is_branch;
@@ -286,7 +287,7 @@ module ex_stage (
     end
 
   // calculates the branch condition of the instruction
-  always @(*) begin
+  always_comb begin
     case (ex_q_alu_control)
       SUB_ALU_CONTROL : ex_branch_cond = (ex_src_a == ex_src_b);  // beq
       NE_ALU_CONTROL  : ex_branch_cond = (ex_src_a != ex_src_b);
@@ -299,7 +300,7 @@ module ex_stage (
   end
 
   // calculates the result of the instruction
-  always @(*) begin
+  always_comb begin
     case (ex_q_alu_control)
       ADD_ALU_CONTROL       : ex_alu_result = ex_src_a + ex_src_b;
       SUB_ALU_CONTROL       : ex_alu_result = ex_src_a - ex_src_b;
@@ -318,7 +319,7 @@ module ex_stage (
 
   logic [31:0] ex_next_pc;
   assign ex_next_pc = (ex_jump_taken) ? ex_jaddr : ex_q_pc_plus_4;
-  always @(*)
+  always_comb
   begin
     // additional stage info
     ex_d_next_pc   = ex_next_pc;

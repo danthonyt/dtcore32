@@ -32,7 +32,7 @@ module pulse_generator(
 );
     reg en_q;
 
-    always @(posedge clk_i) begin
+    always_ff @(posedge clk_i) begin
         if (rst_i) begin
             en_q <= 0;
         end else begin
@@ -40,7 +40,7 @@ module pulse_generator(
         end
     end
 
-    always @(posedge clk_i) begin
+    always_ff @(posedge clk_i) begin
         if (rst_i) begin
             pulse_o <= 0; 
         // generate pulse on rising edge of en_i
