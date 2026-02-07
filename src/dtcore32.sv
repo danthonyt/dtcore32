@@ -288,20 +288,6 @@ module dtcore32 (
 
   wire mem_wb_stall;
   wire mem_wb_flush;
-
-  reg [31:0] mispredict_cnt;
-  reg [31:0] branch_cnt    ;
-  always @(posedge clk_i) begin
-    if (rst_i) begin
-      mispredict_cnt <= 0;
-      branch_cnt     <= 0;
-    end else begin
-      if (mem_branch_mispredict)
-        mispredict_cnt <= mispredict_cnt + 1;
-      if(mem_q_is_branch)
-        branch_cnt <= branch_cnt + 1;
-    end
-  end
 `ifdef RISCV_FORMAL
 
   wire [31:0] wb_csr_rmask;
@@ -526,37 +512,17 @@ module dtcore32 (
   //
   //
   //*****************************************************************
-  reg     [5:0] ght               ;
-  reg     [1:0] pht         [0:63];
-  wire    [5:0] pht_idx           ;
-  integer       pht_loop_idx      ;
-  assign pht_idx = id_is_branch ? id_q_pc[7:2] ^ ght : 0;
-  // make a branch prediction if the instruction is a branch
-  assign id_predict_btaken = id_is_branch ? pht[pht_idx][1] : 0;
-  assign id_pht_idx        = pht_idx;
-  always @(posedge clk_i) begin
-    if (rst_i) begin
-      ght <= 0;
-      for (pht_loop_idx = 0; pht_loop_idx < 64; pht_loop_idx = pht_loop_idx + 1) begin
-        pht[pht_loop_idx] <= 2'b01;
-      end
-    end else begin
-      if (mem_q_is_branch) begin
-        // store the actual branch result if a branch instruction is resolved
-        ght <= {ght[4:0], mem_q_jump_taken};
-        // update 2 bit branch predictor at index
-        // saturate at 2'b00 or 2'b11
-        // 2'b11 is branch strongly taken and
-        // 2'b00 is branch strongly not taken
-        if (mem_q_jump_taken && (pht[mem_q_pht_idx] != 2'b11)) begin
-          pht[mem_q_pht_idx] <= pht[mem_q_pht_idx] + 1;
-        end else if (!mem_q_jump_taken && (pht[mem_q_pht_idx] != 2'b00)) begin
-          pht[mem_q_pht_idx] <= pht[mem_q_pht_idx] - 1;
-        end
-      end
-
-    end
-  end
+  branch_predictor  branch_predictor_inst (
+    .clk_i(clk_i),
+    .rst_i(rst_i),
+    .id_is_branch(id_is_branch),
+    .id_q_pc(id_q_pc),
+    .mem_q_is_branch(mem_q_is_branch),
+    .mem_q_jump_taken(mem_q_jump_taken),
+    .mem_q_pht_idx(mem_q_pht_idx),
+    .id_predict_btaken(id_predict_btaken),
+    .id_pht_idx(id_pht_idx)
+  );
 
   reg illegal_instr_trap;
   reg ecall_m_trap      ;
@@ -1306,41 +1272,14 @@ riscv_imm_ext  riscv_imm_ext_inst (
   //
   //*****************************************************************
 
-  wire [31:0] loaded;
-  assign loaded = mem_rdata_i >> 8 * (mem_q_alu_csr_result[1:0]);
-  // logic to determine which bits of the read data from data memory will be loaded for load instructions
-  always @(*) begin
-    misaligned_load = 0;
-    mem_rstrb       = 0;
-    mem_load_rdata  = 0;
-    if (load_size_onehot[0]) begin  // byte
-      // never misaligned
-      mem_rstrb      = 4'h1 << mem_q_alu_csr_result[1:0];
-      mem_load_rdata = {{24{loaded[7]}}, loaded[7:0]};
-    end else if (load_size_onehot[1]) begin  // byte unsigned
-      // never misaligned
-      mem_rstrb      = 4'h1 << mem_q_alu_csr_result[1:0];
-      mem_load_rdata = {{24{1'b0}}, loaded[7:0]};
-    end else if (load_size_onehot[2]) begin  // half
-      // misaligned when lsb = 1
-      misaligned_load = mem_q_alu_csr_result[0];
-      mem_rstrb       = 4'h3 << (mem_q_alu_csr_result[1] * 2);
-      mem_load_rdata  = {{16{loaded[15]}}, loaded[15:0]};
-    end else if (load_size_onehot[3]) begin  // half unsigned
-      // misaligned when lsb = 1
-      misaligned_load = mem_q_alu_csr_result[0];
-      mem_rstrb       = 4'h3 << (mem_q_alu_csr_result[1] * 2);
-      mem_load_rdata  = {{16{1'b0}}, loaded[15:0]};
-    end else if (load_size_onehot[4]) begin  // word
-      // misaligned when at least one of the lower 2 bits are nonzero
-      misaligned_load = |mem_q_alu_csr_result[1:0];
-      mem_rstrb       = 4'hf;
-      mem_load_rdata  = loaded;
-    end else begin
-      mem_rstrb       = 0;
-      misaligned_load = 0;
-    end
-  end
+load_unit  load_unit_inst (
+    .mem_rdata_i(mem_rdata_i),
+    .mem_q_alu_csr_result(mem_q_alu_csr_result),
+    .load_size_onehot(load_size_onehot),
+    .mem_rstrb(mem_rstrb),
+    .mem_load_rdata(mem_load_rdata),
+    .misaligned_load(misaligned_load)
+  );
 
   //*****************************************************************
   //
@@ -1349,29 +1288,14 @@ riscv_imm_ext  riscv_imm_ext_inst (
   //
   //
   //*****************************************************************
-  always @(*) begin
-    misaligned_store = 0;
-    mem_wdata_o      = 0;
-    mem_wstrb        = 0;
-    if (store_size_onehot[0]) begin // byte
-      // never misaligned
-      mem_wstrb   = 4'b1 << mem_q_alu_csr_result[1:0];
-      mem_wdata_o = mem_q_store_wdata << mem_q_alu_csr_result[1:0] * 8;
-    end else if (store_size_onehot[1]) begin // half
-      // misaligned when lsb = 1
-      misaligned_store = mem_q_alu_csr_result[0];
-      mem_wstrb        = 4'h3 << mem_q_alu_csr_result[1] * 2;
-      mem_wdata_o      = mem_q_store_wdata << mem_q_alu_csr_result[1] * 16;
-    end else if (store_size_onehot[2]) begin // word
-      // misaligned when lsbs[1:0] != 2'b00
-      misaligned_store = |mem_q_alu_csr_result[1:0];
-      mem_wstrb        = 4'hf;
-      mem_wdata_o      = mem_q_store_wdata;
-    end else begin
-      mem_wstrb        = 0;
-      misaligned_store = 0;
-    end
-  end
+  store_unit  store_unit_inst (
+    .mem_q_alu_csr_result(mem_q_alu_csr_result),
+    .mem_q_store_wdata(mem_q_store_wdata),
+    .store_size_onehot(store_size_onehot),
+    .mem_wdata_o(mem_wdata_o),
+    .mem_wstrb(mem_wstrb),
+    .misaligned_store(misaligned_store)
+  );
 
   always @(*)
     begin
