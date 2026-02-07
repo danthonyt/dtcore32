@@ -96,8 +96,8 @@ module dtcore32 (
 );
 
 
-// ---------------- IF/ID PIPELINE REGISTERS ----------------
-// Going in / Coming out
+  // ---------------- IF/ID PIPELINE REGISTERS ----------------
+  // Going in / Coming out
   logic        if_d_valid, id_q_valid;
   logic [31:0] if_d_pc, id_q_pc;
   logic [31:0] if_d_pc_plus_4, id_q_pc_plus_4;
@@ -106,8 +106,8 @@ module dtcore32 (
   logic if_d_intr, id_q_intr;
 `endif
 
-// ---------------- ID/EX PIPELINE REGISTERS ----------------
-// Going in / Coming out
+  // ---------------- ID/EX PIPELINE REGISTERS ----------------
+  // Going in / Coming out
   logic        id_d_valid, ex_q_valid;
   logic [31:0] id_d_pc, ex_q_pc;
   logic [31:0] id_d_pc_plus_4, ex_q_pc_plus_4;
@@ -158,7 +158,7 @@ module dtcore32 (
 `ifdef RISCV_FORMAL
   logic [31:0] id_d_insn, ex_q_insn;
   logic        id_d_intr, ex_q_intr;
-// For rvfi_trap_info, you can either flatten all fields or leave as separate regs
+  // For rvfi_trap_info, you can either flatten all fields or leave as separate regs
   logic [31:0] id_d_trap_insn,     ex_q_trap_insn;
   logic [31:0] id_d_trap_next_pc,  ex_q_trap_next_pc;
   logic [ 4:0] id_d_trap_rs1_addr, ex_q_trap_rs1_addr;
@@ -169,8 +169,8 @@ module dtcore32 (
   logic [31:0] id_d_trap_rd_wdata, ex_q_trap_rd_wdata;
 
 `endif
-// ---------------- EX/MEM PIPELINE REGISTERS ----------------
-// Going in / Coming out
+  // ---------------- EX/MEM PIPELINE REGISTERS ----------------
+  // Going in / Coming out
   logic        ex_d_valid,          mem_q_valid;
   logic [31:0] ex_d_pc,             mem_q_pc;
   logic [31:0] ex_d_pc_plus_4,      mem_q_pc_plus_4;
@@ -216,7 +216,7 @@ module dtcore32 (
   logic [ 4:0] ex_d_rs2_addr,       mem_q_rs2_addr;
   logic [31:0] ex_d_rs1_rdata,      mem_q_rs1_rdata;
   logic [31:0] ex_d_rs2_rdata,      mem_q_rs2_rdata;
-// Flattened trap_info_t inside ex_mem_t
+  // Flattened trap_info_t inside ex_mem_t
   logic [31:0] ex_d_trap_insn,      mem_q_trap_insn;
   logic [31:0] ex_d_trap_next_pc,   mem_q_trap_next_pc;
   logic [ 4:0] ex_d_trap_rs1_addr,  mem_q_trap_rs1_addr;
@@ -227,8 +227,8 @@ module dtcore32 (
   logic [31:0] ex_d_trap_rd_wdata,  mem_q_trap_rd_wdata;
 `endif
 
-// ---------------- MEM/WB PIPELINE REGISTERS ----------------
-// Going in / Coming out
+  // ---------------- MEM/WB PIPELINE REGISTERS ----------------
+  // Going in / Coming out
   logic        mem_d_valid,        wb_q_valid;
   logic [ 4:0] mem_d_rd_addr,      wb_q_rd_addr;
   logic [11:0] mem_d_csr_addr,     wb_q_csr_addr;
@@ -259,7 +259,7 @@ module dtcore32 (
   logic [ 3:0] mem_d_load_rmask,   wb_q_load_rmask;
   logic [ 3:0] mem_d_store_wmask,  wb_q_store_wmask;
   logic [31:0] mem_d_store_wdata,  wb_q_store_wdata;
-// Flattened trap_info_t inside mem_wb_t
+  // Flattened trap_info_t inside mem_wb_t
   logic [31:0] mem_d_trap_insn,    wb_q_trap_insn;
   logic [31:0] mem_d_trap_next_pc, wb_q_trap_next_pc;
   logic [ 4:0] mem_d_trap_rs1_addr,wb_q_trap_rs1_addr;
@@ -271,8 +271,8 @@ module dtcore32 (
 `endif
 
 
-// ---------------- WB/RVFI PIPELINE REGISTERS ----------------
-// Coming out
+  // ---------------- WB/RVFI PIPELINE REGISTERS ----------------
+  // Coming out
 
 
 
@@ -295,11 +295,7 @@ module dtcore32 (
   // if stage signals;
   logic [31:0] next_pc          ;
   logic [31:0] trap_handler_addr;
-  logic [31:0] imem_addr_q      ;
   logic        imem_rdata_valid ;
-  logic        imem_buf_valid   ;
-  logic [31:0] if_insn_buf      ;
-  logic [31:0] if_buf_pc        ;
   // branch prediction logic
   logic [31:0] id_branch_addr   ;
   logic        id_predict_btaken;
@@ -307,73 +303,16 @@ module dtcore32 (
   // id stage signals
   logic                               id_forward_rs1       ;
   logic                               id_forward_rs2       ;
-  logic [                       11:0] id_csr_addr          ;
-  logic [                       31:0] id_imm_ext           ;
-  logic [                        4:0] id_rd_addr           ;
-  logic [       ALU_CTRL_T_WIDTH-1:0] id_alu_control       ;
-  logic [                        6:0] id_op                ;
-  logic [                        2:0] id_funct3            ;
-  logic                               id_funct7b5          ;
-  logic [                        6:0] id_funct7            ;
-  logic [                       11:0] id_funct12           ;
-  logic                               id_rtype_alt         ;
-  logic                               id_itype_alt         ;
-  logic [     IMM_EXT_OP_T_WIDTH-1:0] id_imm_ext_op        ;
-  logic [      ALU_A_SEL_T_WIDTH-1:0] id_alu_a_sel         ;
-  logic [      ALU_B_SEL_T_WIDTH-1:0] id_alu_b_sel         ;
-  logic [     PC_ALU_SEL_T_WIDTH-1:0] id_pc_alu_sel        ;
-  logic [CSR_BITMASK_SEL_T_WIDTH-1:0] id_csr_bitmask_sel   ;
-  logic [                        4:0] id_rs1_addr          ;
-  logic [                        4:0] id_rs2_addr          ;
   logic [                       31:0] regfile_rs1_rdata    ;
   logic [                       31:0] regfile_rs2_rdata    ;
   logic [                       31:0] csrfile_rdata        ;
-  logic                               id_illegal_instr_trap;
-  logic                               id_ecall_m_trap      ;
-  logic                               id_breakpoint_trap   ;
-  logic                               id_is_branch         ;
-  logic                               id_is_jump           ;
-  logic                               id_is_csr_write      ;
-  logic                               id_is_csr_read       ;
-  logic                               id_is_rd_write       ;
-  logic                               id_is_rs1_read       ;
-  logic                               id_is_rs2_read       ;
-  logic                               id_is_mem_write      ;
-  logic                               id_is_mem_read       ;
-  logic                               id_is_jal            ;
-  logic                               id_is_jalr           ;
-  logic                               id_is_memsize_b      ;
-  logic                               id_is_memsize_bu     ;
-  logic                               id_is_memsize_h      ;
-  logic                               id_is_memsize_hu     ;
-  logic                               id_is_memsize_w      ;
-  logic                               id_csr_op_rw         ;
-  logic                               id_csr_op_clear      ;
-  logic                               id_csr_op_set        ;
 
   // ex stage signal
   logic [ 1:0] ex_forward_rs1_sel;
   logic [ 1:0] ex_forward_rs2_sel;
-  logic [31:0] ex_jaddr          ;
-  logic        ex_jump_taken     ;
-  logic [31:0] ex_rs1_rdata      ;
-  logic [31:0] ex_rs2_rdata      ;
-  logic [31:0] ex_csr_bitmask    ;
-  logic [31:0] ex_csr_wdata      ;
-  logic [31:0] ex_src_a          ;
-  logic [31:0] ex_src_b          ;
-  logic [31:0] ex_pc_base        ;
-  logic        ex_branch_cond    ;
-  logic        ex_misaligned_jump;
-  logic [31:0] ex_alu_result     ;
 
   //mem stage
-  logic        misaligned_load       ;
-  logic        misaligned_store      ;
-  logic [ 3:0] mem_wstrb             ;
-  logic [ 3:0] mem_rstrb             ;
   logic        dmem_periph_req       ;
-  logic [31:0] mem_load_rdata        ;
   logic        mem_btaken_mispredict ;
   logic        mem_bntaken_mispredict;
   logic        mem_branch_mispredict ;
@@ -439,7 +378,8 @@ module dtcore32 (
     .id_predict_btaken(id_predict_btaken),
     .id_pht_idx       (id_pht_idx       )
   );
-id_stage  id_stage_inst (
+
+  id_stage  id_stage_inst (
     .id_q_insn(id_q_insn),
     .id_forward_rs1(id_forward_rs1),
     .id_forward_rs2(id_forward_rs2),
@@ -730,16 +670,20 @@ id_stage  id_stage_inst (
   //
   //*****************************************************************
 
-
-  always_comb
-    begin
-      wb_trap_mcause = wb_q_trap_mcause;
-      wb_trap_pc     = wb_q_trap_pc;
-      wb_rd_addr     = wb_q_rd_addr;
-      wb_rd_wdata    = wb_q_rd_wdata;
-      wb_csr_addr    = wb_q_csr_addr;
-      wb_csr_wdata   = wb_q_csr_wdata;
-    end
+  wb_stage wb_stage_instance (
+    .wb_q_trap_mcause(wb_q_trap_mcause),
+    .wb_q_trap_pc(wb_q_trap_pc),
+    .wb_q_rd_addr(wb_q_rd_addr),
+    .wb_q_rd_wdata(wb_q_rd_wdata),
+    .wb_q_csr_addr(wb_q_csr_addr),
+    .wb_q_csr_wdata(wb_q_csr_wdata),
+    .wb_trap_mcause(wb_trap_mcause),
+    .wb_trap_pc(wb_trap_pc),
+    .wb_rd_addr(wb_rd_addr),
+    .wb_rd_wdata(wb_rd_wdata),
+    .wb_csr_addr(wb_csr_addr),
+    .wb_csr_wdata(wb_csr_wdata)
+  );
 
   //*****************************************************************
   //
@@ -750,9 +694,9 @@ id_stage  id_stage_inst (
   //*****************************************************************
 
 
-//-------------------------------
-// IF/ID pipeline
-//-------------------------------
+  //-------------------------------
+  // IF/ID pipeline
+  //-------------------------------
   if_id_pipeline if_id_pipeline_inst (
     .clk_i           (clk_i           ),
     .rst_i           (rst_i           ),
@@ -774,9 +718,9 @@ id_stage  id_stage_inst (
   );
 
 
-//-------------------------------
-// ID/EX pipeline
-//-------------------------------
+  //-------------------------------
+  // ID/EX pipeline
+  //-------------------------------
   id_ex_pipeline id_ex_pipeline_inst (
     .clk_i               (clk_i               ),
     .rst_i               (rst_i               ),
@@ -887,9 +831,9 @@ id_stage  id_stage_inst (
 
 
 
-//-------------------------------
-// EX/MEM pipeline
-//-------------------------------
+  //-------------------------------
+  // EX/MEM pipeline
+  //-------------------------------
   ex_mem_pipeline ex_mem_pipeline_inst (
     .clk_i               (clk_i               ),
     .rst_i               (rst_i               ),
@@ -990,9 +934,9 @@ id_stage  id_stage_inst (
     .mem_q_trap_pc       (mem_q_trap_pc       )
   );
 
-//-------------------------------
-// MEM/WB pipeline
-//-------------------------------
+  //-------------------------------
+  // MEM/WB pipeline
+  //-------------------------------
   mem_wb_pipeline mem_wb_pipeline_inst (
     .clk_i               (clk_i               ),
     .rst_i               (rst_i               ),
@@ -1257,6 +1201,5 @@ id_stage  id_stage_inst (
     .rvfi_csr_mepc_wmask    (rvfi_csr_mepc_wmask    )
   );
 `endif
-
 
 endmodule
