@@ -1,9 +1,5 @@
 import riscv_pkg::*;
 module aludec (
-  // Clock & Reset (optional if purely combinational)
-  input  logic        clk_i,    // can be ignored if fully combinational
-  input  logic        rst_i,    // can be ignored if fully combinational
-
   // Instruction / opcode inputs
   input  logic [2:0]  id_funct3,      // funct3 from instruction
   input  logic        id_rtype_alt,   // alternative funct7 for R-type

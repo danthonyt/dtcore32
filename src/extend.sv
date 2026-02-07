@@ -1,5 +1,5 @@
 import riscv_pkg::*;
-module riscv_imm_ext (
+module extend (
   // --------------------
   // Instruction input
   // --------------------
