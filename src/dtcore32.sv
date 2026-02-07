@@ -34,9 +34,9 @@
 // Author     : David Torres
 // Date       : 2025-09-16
 //===========================================================
-
+import riscv_pkg::*;
 // Optional: conditional compilation flag
-  `define RISCV_FORMAL
+`define RISCV_FORMAL
 module dtcore32 (
   input             clk_i                  ,
   input             rst_i                  ,
@@ -89,219 +89,12 @@ module dtcore32 (
   // to data memory and peripheral interface
   input      [31:0] mem_rdata_i            ,
   input             mem_done_i             ,
-  output         mem_valid_o            ,
+  output            mem_valid_o            ,
   output reg        mem_wen_o              ,
   output reg [31:0] mem_addr_o             ,
   output reg [31:0] mem_wdata_o            ,
   output reg [ 3:0] mem_strb_o
 );
-
-
-
-
-//-------------------------------
-// Widths for pseudo-types
-//-------------------------------
-  localparam FWD_SEL_T_WIDTH         = 2;
-  localparam IMM_EXT_OP_T_WIDTH      = 3;
-  localparam ALU_CTRL_T_WIDTH        = 4;
-  localparam ALU_A_SEL_T_WIDTH       = 2;
-  localparam ALU_B_SEL_T_WIDTH       = 1;
-  localparam ALU_OP_T_WIDTH          = 2;
-  localparam PC_ALU_SEL_T_WIDTH      = 1;
-  localparam CSR_BITMASK_SEL_T_WIDTH = 1;
-
-
-//-------------------------------
-// ALU Control Signals
-//-------------------------------
-  localparam [3:0] ADD_ALU_CONTROL       = 4'h0;
-  localparam [3:0] SUB_ALU_CONTROL       = 4'h1;
-  localparam [3:0] AND_ALU_CONTROL       = 4'h2;
-  localparam [3:0] OR_ALU_CONTROL        = 4'h3;
-  localparam [3:0] L_SHIFT_ALU_CONTROL   = 4'h4;
-  localparam [3:0] LT_ALU_CONTROL        = 4'h5;
-  localparam [3:0] LTU_ALU_CONTROL       = 4'h6;
-  localparam [3:0] XOR_ALU_CONTROL       = 4'h7;
-  localparam [3:0] R_SHIFT_A_ALU_CONTROL = 4'h8;
-  localparam [3:0] R_SHIFT_L_ALU_CONTROL = 4'h9;
-  localparam [3:0] GE_ALU_CONTROL        = 4'hA;
-  localparam [3:0] GEU_ALU_CONTROL       = 4'hB;
-  localparam [3:0] NE_ALU_CONTROL        = 4'hC;
-  localparam [3:0] JALR_ALU_CONTROL      = 4'hD;
-
-//-------------------------------
-// Forwarding select
-//-------------------------------
-  localparam [1:0] NO_FORWARD_SEL         = 2'h0;
-  localparam [1:0] FORWARD_SEL_MEM_RESULT = 2'h1;
-  localparam [1:0] FORWARD_SEL_WB_RESULT  = 2'h2;
-
-//-------------------------------
-// Immediate type
-//-------------------------------
-  localparam [2:0]
-    I_ALU_TYPE     = 3'b000,
-    S_TYPE         = 3'b001,
-    B_TYPE         = 3'b010,
-    J_TYPE         = 3'b011,
-    I_SHIFT_TYPE   = 3'b100,
-    U_TYPE         = 3'b101,
-    CSR_TYPE       = 3'b110;
-
-//-------------------------------
-// ALU A select
-//-------------------------------
-  localparam [1:0] ALU_A_SEL_REG_DATA = 2'b00;
-  localparam [1:0] ALU_A_SEL_ZERO     = 2'b01;
-  localparam [1:0] ALU_A_SEL_PC       = 2'b10;
-
-//-------------------------------
-// ALU B select
-//-------------------------------
-  localparam ALU_B_SEL_REG_DATA = 1'b0;
-  localparam ALU_B_SEL_IMM      = 1'b1;
-
-//-------------------------------
-// ALU Operation type
-//-------------------------------
-  localparam [1:0]
-    ALU_OP_ILOAD_S_U_TYPE     = 2'b00,
-    ALU_OP_B_TYPE             = 2'b01,
-    ALU_OP_IALU_ISHIFT_R_TYPE = 2'b10,
-    ALU_OP_JALR               = 2'b11;
-
-
-//-------------------------------
-// PC ALU select
-//-------------------------------
-  localparam PC_ALU_SEL_PC       = 1'b0;
-  localparam PC_ALU_SEL_REG_DATA = 1'b1;
-
-//-------------------------------
-// CSR bitmask select
-//-------------------------------
-  localparam CSR_BITMASK_SEL_REG_DATA = 1'b0;
-  localparam CSR_BITMASK_SEL_IMM      = 1'b1;
-
-//-------------------------------
-// Opcodes
-//-------------------------------
-  localparam [6:0] OPCODE_LOAD         = 7'b0000011;
-  localparam [6:0] OPCODE_STORE        = 7'b0100011;
-  localparam [6:0] OPCODE_R_TYPE       = 7'b0110011;
-  localparam [6:0] OPCODE_B_TYPE       = 7'b1100011;
-  localparam [6:0] OPCODE_I_TYPE       = 7'b0010011;
-  localparam [6:0] OPCODE_JAL          = 7'b1101111;
-  localparam [6:0] OPCODE_U_TYPE_LUI   = 7'b0110111;
-  localparam [6:0] OPCODE_U_TYPE_AUIPC = 7'b0010111;
-  localparam [6:0] OPCODE_JALR         = 7'b1100111;
-  localparam [6:0] OPCODE_SYSCALL_CSR  = 7'b1110011;
-
-//-------------------------------
-// Funct3 codes
-//-------------------------------
-  localparam [2:0] FUNCT3_LB  = 3'b000;
-  localparam [2:0] FUNCT3_LH  = 3'b001;
-  localparam [2:0] FUNCT3_LW  = 3'b010;
-  localparam [2:0] FUNCT3_LBU = 3'b100;
-  localparam [2:0] FUNCT3_LHU = 3'b101;
-
-  localparam [2:0] FUNCT3_SB = 3'b000;
-  localparam [2:0] FUNCT3_SH = 3'b001;
-  localparam [2:0] FUNCT3_SW = 3'b010;
-
-  localparam [2:0] FUNCT3_BEQ  = 3'b000;
-  localparam [2:0] FUNCT3_BNE  = 3'b001;
-  localparam [2:0] FUNCT3_BLT  = 3'b100;
-  localparam [2:0] FUNCT3_BGE  = 3'b101;
-  localparam [2:0] FUNCT3_BLTU = 3'b110;
-  localparam [2:0] FUNCT3_BGEU = 3'b111;
-
-  localparam [2:0] FUNCT3_ADD        = 3'b000;
-  localparam [2:0] FUNCT3_SUB        = 3'b000;
-  localparam [2:0] FUNCT3_SLL        = 3'b001;
-  localparam [2:0] FUNCT3_SLT        = 3'b010;
-  localparam [2:0] FUNCT3_SLTU_SLTIU = 3'b011;
-  localparam [2:0] FUNCT3_XOR        = 3'b100;
-  localparam [2:0] FUNCT3_SRA        = 3'b101;
-  localparam [2:0] FUNCT3_SRL        = 3'b101;
-  localparam [2:0] FUNCT3_SRLI       = 3'b101;
-  localparam [2:0] FUNCT3_SRAI       = 3'b101;
-  localparam [2:0] FUNCT3_SLLI       = 3'b001;
-  localparam [2:0] FUNCT3_OR         = 3'b110;
-  localparam [2:0] FUNCT3_AND        = 3'b111;
-
-  localparam [2:0] FUNCT3_ECALL_EBREAK = 3'b000;
-  localparam [2:0] FUNCT3_CSRRW        = 3'b001;
-  localparam [2:0] FUNCT3_CSRRS        = 3'b010;
-  localparam [2:0] FUNCT3_CSRRC        = 3'b011;
-  localparam [2:0] FUNCT3_CSRRWI       = 3'b101;
-  localparam [2:0] FUNCT3_CSRRSI       = 3'b110;
-  localparam [2:0] FUNCT3_CSRRCI       = 3'b111;
-
-//-------------------------------
-// Funct7 codes
-//-------------------------------
-  localparam [6:0] FUNCT7_ADD  = 7'h00;
-  localparam [6:0] FUNCT7_SUB  = 7'h20;
-  localparam [6:0] FUNCT7_SLL  = 7'h00;
-  localparam [6:0] FUNCT7_SLT  = 7'h00;
-  localparam [6:0] FUNCT7_SLTU = 7'h00;
-  localparam [6:0] FUNCT7_XOR  = 7'h00;
-  localparam [6:0] FUNCT7_SRL  = 7'h00;
-  localparam [6:0] FUNCT7_SRA  = 7'h20;
-  localparam [6:0] FUNCT7_OR   = 7'h00;
-  localparam [6:0] FUNCT7_AND  = 7'h00;
-  localparam [6:0] FUNCT7_SLLI = 7'h00;
-  localparam [6:0] FUNCT7_SRLI = 7'h00;
-  localparam [6:0] FUNCT7_SRAI = 7'h20;
-
-//-------------------------------
-// Funct12 codes
-//-------------------------------
-  localparam [11:0] FUNCT12_ECALL  = 12'h000;
-  localparam [11:0] FUNCT12_EBREAK = 12'h001;
-
-//-------------------------------
-// Exception codes / trap codes
-//-------------------------------
-  localparam [30:0] TRAP_CODE_INSTR_ADDR_MISALIGNED = 31'd0 ;
-  localparam [30:0] TRAP_CODE_ILLEGAL_INSTR         = 31'd2 ;
-  localparam [30:0] TRAP_CODE_BREAKPOINT            = 31'd3 ;
-  localparam [30:0] TRAP_CODE_LOAD_ADDR_MISALIGNED  = 31'd4 ;
-  localparam [30:0] TRAP_CODE_STORE_ADDR_MISALIGNED = 31'd6 ;
-  localparam [30:0] TRAP_CODE_ECALL_M_MODE          = 31'd11;
-
-//-------------------------------
-// NOP instruction
-//-------------------------------
-  localparam [31:0] NOP_INSTRUCTION = 32'h00000013;
-
-//-------------------------------
-// CSR Addresses
-//-------------------------------
-  localparam [11:0] CSR_ADDR_MSTATUS    = 12'h300;
-  localparam [11:0] CSR_ADDR_MISA       = 12'h301;
-  localparam [11:0] CSR_ADDR_MIE        = 12'h304;
-  localparam [11:0] CSR_ADDR_MTVEC      = 12'h305;
-  localparam [11:0] CSR_ADDR_MSCRATCH   = 12'h340;
-  localparam [11:0] CSR_ADDR_MEPC       = 12'h341;
-  localparam [11:0] CSR_ADDR_MCAUSE     = 12'h342;
-  localparam [11:0] CSR_ADDR_MTVAL      = 12'h343;
-  localparam [11:0] CSR_ADDR_MIP        = 12'h344;
-  localparam [11:0] CSR_ADDR_MCYCLE     = 12'hB00;
-  localparam [11:0] CSR_ADDR_MCYCLEH    = 12'hB80;
-  localparam [11:0] CSR_ADDR_MINSTRET   = 12'hB02;
-  localparam [11:0] CSR_ADDR_MINSTRETH  = 12'hB82;
-  localparam [11:0] CSR_ADDR_MVENDORID  = 12'hF11;
-  localparam [11:0] CSR_ADDR_MARCHID    = 12'hF12;
-  localparam [11:0] CSR_ADDR_MIMPID     = 12'hF13;
-  localparam [11:0] CSR_ADDR_MHARTID    = 12'hF14;
-  localparam [11:0] CSR_ADDR_MCONFIGPTR = 12'hF15;
-  localparam [11:0] CSR_ADDR_NO_ADDR    = 12'h000;
-
-  localparam RESET_PC = 32'd0;
 
 
 // ---------------- IF/ID PIPELINE REGISTERS ----------------
@@ -565,7 +358,7 @@ module dtcore32 (
   reg  [                       11:0] id_csr_addr          ;
   reg  [                       31:0] id_imm_ext           ;
   reg  [                        4:0] id_rd_addr           ;
-  wire  [       ALU_CTRL_T_WIDTH-1:0] id_alu_control       ;
+  wire [       ALU_CTRL_T_WIDTH-1:0] id_alu_control       ;
   reg  [                        6:0] id_op                ;
   reg  [                        2:0] id_funct3            ;
   reg                                id_funct7b5          ;
@@ -573,11 +366,11 @@ module dtcore32 (
   reg  [                       11:0] id_funct12           ;
   reg                                id_rtype_alt         ;
   reg                                id_itype_alt         ;
-  wire  [     IMM_EXT_OP_T_WIDTH-1:0] id_imm_ext_op        ;
-  wire  [      ALU_A_SEL_T_WIDTH-1:0] id_alu_a_sel         ;
-  wire  [      ALU_B_SEL_T_WIDTH-1:0] id_alu_b_sel         ;
-  wire  [     PC_ALU_SEL_T_WIDTH-1:0] id_pc_alu_sel        ;
-  wire  [CSR_BITMASK_SEL_T_WIDTH-1:0] id_csr_bitmask_sel   ;
+  wire [     IMM_EXT_OP_T_WIDTH-1:0] id_imm_ext_op        ;
+  wire [      ALU_A_SEL_T_WIDTH-1:0] id_alu_a_sel         ;
+  wire [      ALU_B_SEL_T_WIDTH-1:0] id_alu_b_sel         ;
+  wire [     PC_ALU_SEL_T_WIDTH-1:0] id_pc_alu_sel        ;
+  wire [CSR_BITMASK_SEL_T_WIDTH-1:0] id_csr_bitmask_sel   ;
   reg  [                        4:0] id_rs1_addr          ;
   reg  [                        4:0] id_rs2_addr          ;
   wire [                       31:0] regfile_rs1_rdata    ;
@@ -607,8 +400,8 @@ module dtcore32 (
   wire                               id_csr_op_set        ;
 
   // ex stage signal
-  reg  [ 2:0] ex_forward_rs1_sel;
-  reg  [ 2:0] ex_forward_rs2_sel;
+  reg  [ 1:0] ex_forward_rs1_sel;
+  reg  [ 1:0] ex_forward_rs2_sel;
   wire [31:0] ex_jaddr          ;
   wire        ex_jump_taken     ;
   reg  [31:0] ex_rs1_rdata      ;
@@ -629,8 +422,8 @@ module dtcore32 (
   reg  [ 3:0] mem_rstrb             ;
   reg         dmem_periph_req       ;
   reg  [31:0] mem_load_rdata        ;
-  wire         mem_btaken_mispredict ;
-  wire         mem_bntaken_mispredict;
+  wire        mem_btaken_mispredict ;
+  wire        mem_bntaken_mispredict;
   wire        mem_branch_mispredict ;
   // writeback stage
   reg [ 4:0] wb_rd_addr    ;
@@ -1527,7 +1320,7 @@ module dtcore32 (
   //*****************************************************************
   wire [4:0] load_size_onehot ;
   wire [2:0] store_size_onehot;
-  wire mem_valid;
+  wire       mem_valid        ;
   assign mem_btaken_mispredict  = (mem_q_is_branch && !mem_q_jump_taken && mem_q_branch_predict);
   assign mem_bntaken_mispredict = (mem_q_is_branch && mem_q_jump_taken && !mem_q_branch_predict);
   assign mem_branch_mispredict  = mem_btaken_mispredict || mem_bntaken_mispredict;
@@ -1550,7 +1343,7 @@ module dtcore32 (
     .clk_i  (clk_i                         ),
     .rst_i  (rst_i                         ),
     .en_i   (dmem_periph_req && !mem_done_i),
-    .pulse_o(mem_valid                   )
+    .pulse_o(mem_valid                     )
   );
   assign mem_valid_o = mem_valid;
   //*****************************************************************
@@ -1924,208 +1717,208 @@ module dtcore32 (
 //-------------------------------
 // EX/MEM pipeline
 //-------------------------------
-always @(posedge clk_i) begin
+  always @(posedge clk_i) begin
     if (rst_i || ex_mem_flush || (!ex_mem_stall && id_ex_stall)) begin
-        // clear EX/MEM pipeline registers
-        mem_q_valid        <= 0;
-        mem_q_pc           <= 0;
-        mem_q_pc_plus_4    <= 0;
-        mem_q_rd_addr      <= 0;
-        mem_q_csr_addr     <= 0;
-        mem_q_csr_wdata    <= 0;
-        mem_q_store_wdata  <= 0;
-        mem_q_alu_csr_result <= 0;
+      // clear EX/MEM pipeline registers
+      mem_q_valid          <= 0;
+      mem_q_pc             <= 0;
+      mem_q_pc_plus_4      <= 0;
+      mem_q_rd_addr        <= 0;
+      mem_q_csr_addr       <= 0;
+      mem_q_csr_wdata      <= 0;
+      mem_q_store_wdata    <= 0;
+      mem_q_alu_csr_result <= 0;
 
-        mem_q_is_branch    <= 0;
-        mem_q_is_jump      <= 0;
-        mem_q_is_csr_write <= 0;
-        mem_q_is_csr_read  <= 0;
-        mem_q_is_rd_write  <= 0;
-        mem_q_is_mem_write <= 0;
-        mem_q_is_mem_read  <= 0;
+      mem_q_is_branch    <= 0;
+      mem_q_is_jump      <= 0;
+      mem_q_is_csr_write <= 0;
+      mem_q_is_csr_read  <= 0;
+      mem_q_is_rd_write  <= 0;
+      mem_q_is_mem_write <= 0;
+      mem_q_is_mem_read  <= 0;
 
-        mem_q_is_jal       <= 0;
-        mem_q_is_jalr      <= 0;
-        mem_q_is_memsize_b <= 0;
-        mem_q_is_memsize_bu<= 0;
-        mem_q_is_memsize_h <= 0;
-        mem_q_is_memsize_hu<= 0;
-        mem_q_is_memsize_w <= 0;
+      mem_q_is_jal        <= 0;
+      mem_q_is_jalr       <= 0;
+      mem_q_is_memsize_b  <= 0;
+      mem_q_is_memsize_bu <= 0;
+      mem_q_is_memsize_h  <= 0;
+      mem_q_is_memsize_hu <= 0;
+      mem_q_is_memsize_w  <= 0;
 
-        mem_q_branch_predict <= 0;
-        mem_q_pht_idx        <= 0;
+      mem_q_branch_predict <= 0;
+      mem_q_pht_idx        <= 0;
 
-        mem_q_jump_taken   <= 0;
-        mem_q_jaddr        <= 0;
+      mem_q_jump_taken <= 0;
+      mem_q_jaddr      <= 0;
 
-        mem_q_trap_valid   <= 0;
-        mem_q_trap_mcause  <= 0;
-        mem_q_trap_pc      <= 0;
+      mem_q_trap_valid  <= 0;
+      mem_q_trap_mcause <= 0;
+      mem_q_trap_pc     <= 0;
 
 `ifdef RISCV_FORMAL
-        mem_q_insn        <= 0;
-        mem_q_intr        <= 0;
-        mem_q_next_pc     <= 0;
-        mem_q_csr_rdata   <= 0;
-        mem_q_rs1_addr    <= 0;
-        mem_q_rs2_addr    <= 0;
-        mem_q_rs1_rdata   <= 0;
-        mem_q_rs2_rdata   <= 0;
-        mem_q_trap_insn       <= 0;
-        mem_q_trap_next_pc    <= 0;
-        mem_q_trap_rs1_addr   <= 0;
-        mem_q_trap_rs2_addr   <= 0;
-        mem_q_trap_rd_addr    <= 0;
-        mem_q_trap_rs1_rdata  <= 0;
-        mem_q_trap_rs2_rdata  <= 0;
-        mem_q_trap_rd_wdata   <= 0;
+      mem_q_insn           <= 0;
+      mem_q_intr           <= 0;
+      mem_q_next_pc        <= 0;
+      mem_q_csr_rdata      <= 0;
+      mem_q_rs1_addr       <= 0;
+      mem_q_rs2_addr       <= 0;
+      mem_q_rs1_rdata      <= 0;
+      mem_q_rs2_rdata      <= 0;
+      mem_q_trap_insn      <= 0;
+      mem_q_trap_next_pc   <= 0;
+      mem_q_trap_rs1_addr  <= 0;
+      mem_q_trap_rs2_addr  <= 0;
+      mem_q_trap_rd_addr   <= 0;
+      mem_q_trap_rs1_rdata <= 0;
+      mem_q_trap_rs2_rdata <= 0;
+      mem_q_trap_rd_wdata  <= 0;
 `endif
     end else if (!ex_mem_stall) begin
-        // propagate EX stage outputs to MEM stage
-        mem_q_valid        <= ex_d_valid;
-        mem_q_pc           <= ex_d_pc;
-        mem_q_pc_plus_4    <= ex_d_pc_plus_4;
-        mem_q_rd_addr      <= ex_d_rd_addr;
-        mem_q_csr_addr     <= ex_d_csr_addr;
-        mem_q_csr_wdata    <= ex_d_csr_wdata;
-        mem_q_store_wdata  <= ex_d_store_wdata;
-        mem_q_alu_csr_result <= ex_d_alu_csr_result;
+      // propagate EX stage outputs to MEM stage
+      mem_q_valid          <= ex_d_valid;
+      mem_q_pc             <= ex_d_pc;
+      mem_q_pc_plus_4      <= ex_d_pc_plus_4;
+      mem_q_rd_addr        <= ex_d_rd_addr;
+      mem_q_csr_addr       <= ex_d_csr_addr;
+      mem_q_csr_wdata      <= ex_d_csr_wdata;
+      mem_q_store_wdata    <= ex_d_store_wdata;
+      mem_q_alu_csr_result <= ex_d_alu_csr_result;
 
-        mem_q_is_branch    <= ex_d_is_branch;
-        mem_q_is_jump      <= ex_d_is_jump;
-        mem_q_is_csr_write <= ex_d_is_csr_write;
-        mem_q_is_csr_read  <= ex_d_is_csr_read;
-        mem_q_is_rd_write  <= ex_d_is_rd_write;
-        mem_q_is_mem_write <= ex_d_is_mem_write;
-        mem_q_is_mem_read  <= ex_d_is_mem_read;
+      mem_q_is_branch    <= ex_d_is_branch;
+      mem_q_is_jump      <= ex_d_is_jump;
+      mem_q_is_csr_write <= ex_d_is_csr_write;
+      mem_q_is_csr_read  <= ex_d_is_csr_read;
+      mem_q_is_rd_write  <= ex_d_is_rd_write;
+      mem_q_is_mem_write <= ex_d_is_mem_write;
+      mem_q_is_mem_read  <= ex_d_is_mem_read;
 
-        mem_q_is_jal       <= ex_d_is_jal;
-        mem_q_is_jalr      <= ex_d_is_jalr;
-        mem_q_is_memsize_b <= ex_d_is_memsize_b;
-        mem_q_is_memsize_bu<= ex_d_is_memsize_bu;
-        mem_q_is_memsize_h <= ex_d_is_memsize_h;
-        mem_q_is_memsize_hu<= ex_d_is_memsize_hu;
-        mem_q_is_memsize_w <= ex_d_is_memsize_w;
+      mem_q_is_jal        <= ex_d_is_jal;
+      mem_q_is_jalr       <= ex_d_is_jalr;
+      mem_q_is_memsize_b  <= ex_d_is_memsize_b;
+      mem_q_is_memsize_bu <= ex_d_is_memsize_bu;
+      mem_q_is_memsize_h  <= ex_d_is_memsize_h;
+      mem_q_is_memsize_hu <= ex_d_is_memsize_hu;
+      mem_q_is_memsize_w  <= ex_d_is_memsize_w;
 
-        mem_q_branch_predict <= ex_d_branch_predict;
-        mem_q_pht_idx        <= ex_d_pht_idx;
+      mem_q_branch_predict <= ex_d_branch_predict;
+      mem_q_pht_idx        <= ex_d_pht_idx;
 
-        mem_q_jump_taken   <= ex_d_jump_taken;
-        mem_q_jaddr        <= ex_d_jaddr;
+      mem_q_jump_taken <= ex_d_jump_taken;
+      mem_q_jaddr      <= ex_d_jaddr;
 
-        mem_q_trap_valid   <= ex_d_trap_valid;
-        mem_q_trap_mcause  <= ex_d_trap_mcause;
-        mem_q_trap_pc      <= ex_d_trap_pc;
+      mem_q_trap_valid  <= ex_d_trap_valid;
+      mem_q_trap_mcause <= ex_d_trap_mcause;
+      mem_q_trap_pc     <= ex_d_trap_pc;
 
 `ifdef RISCV_FORMAL
-        mem_q_insn        <= ex_d_insn;
-        mem_q_intr        <= ex_d_intr;
-        mem_q_next_pc     <= ex_d_next_pc;
-        mem_q_csr_rdata   <= ex_d_csr_rdata;
-        mem_q_rs1_addr    <= ex_d_rs1_addr;
-        mem_q_rs2_addr    <= ex_d_rs2_addr;
-        mem_q_rs1_rdata   <= ex_d_rs1_rdata;
-        mem_q_rs2_rdata   <= ex_d_rs2_rdata;
-        mem_q_trap_insn       <= ex_d_trap_insn;
-        mem_q_trap_next_pc    <= ex_d_trap_next_pc;
-        mem_q_trap_rs1_addr   <= ex_d_trap_rs1_addr;
-        mem_q_trap_rs2_addr   <= ex_d_trap_rs2_addr;
-        mem_q_trap_rd_addr    <= ex_d_trap_rd_addr;
-        mem_q_trap_rs1_rdata  <= ex_d_trap_rs1_rdata;
-        mem_q_trap_rs2_rdata  <= ex_d_trap_rs2_rdata;
-        mem_q_trap_rd_wdata   <= ex_d_trap_rd_wdata;
+      mem_q_insn           <= ex_d_insn;
+      mem_q_intr           <= ex_d_intr;
+      mem_q_next_pc        <= ex_d_next_pc;
+      mem_q_csr_rdata      <= ex_d_csr_rdata;
+      mem_q_rs1_addr       <= ex_d_rs1_addr;
+      mem_q_rs2_addr       <= ex_d_rs2_addr;
+      mem_q_rs1_rdata      <= ex_d_rs1_rdata;
+      mem_q_rs2_rdata      <= ex_d_rs2_rdata;
+      mem_q_trap_insn      <= ex_d_trap_insn;
+      mem_q_trap_next_pc   <= ex_d_trap_next_pc;
+      mem_q_trap_rs1_addr  <= ex_d_trap_rs1_addr;
+      mem_q_trap_rs2_addr  <= ex_d_trap_rs2_addr;
+      mem_q_trap_rd_addr   <= ex_d_trap_rd_addr;
+      mem_q_trap_rs1_rdata <= ex_d_trap_rs1_rdata;
+      mem_q_trap_rs2_rdata <= ex_d_trap_rs2_rdata;
+      mem_q_trap_rd_wdata  <= ex_d_trap_rd_wdata;
 `endif
     end
-end
+  end
 
 //-------------------------------
 // MEM/WB pipeline
 //-------------------------------
-always @(posedge clk_i) begin
+  always @(posedge clk_i) begin
     if (rst_i || mem_wb_flush || (!mem_wb_stall && ex_mem_stall)) begin
-        // clear MEM/WB pipeline registers
-        wb_q_valid       <= 0;
-        wb_q_rd_addr     <= 0;
-        wb_q_csr_addr    <= 0;
-        wb_q_csr_wdata   <= 0;
-        wb_q_rd_wdata    <= 0;
-        wb_q_pc_plus_4   <= 0;
+      // clear MEM/WB pipeline registers
+      wb_q_valid     <= 0;
+      wb_q_rd_addr   <= 0;
+      wb_q_csr_addr  <= 0;
+      wb_q_csr_wdata <= 0;
+      wb_q_rd_wdata  <= 0;
+      wb_q_pc_plus_4 <= 0;
 
-        wb_q_is_csr_write <= 0;
-        wb_q_is_csr_read  <= 0;
-        wb_q_is_rd_write  <= 0;
+      wb_q_is_csr_write <= 0;
+      wb_q_is_csr_read  <= 0;
+      wb_q_is_rd_write  <= 0;
 
-        wb_q_trap_valid   <= 0;
-        wb_q_trap_mcause  <= 0;
-        wb_q_trap_pc      <= 0;
+      wb_q_trap_valid  <= 0;
+      wb_q_trap_mcause <= 0;
+      wb_q_trap_pc     <= 0;
 
 `ifdef RISCV_FORMAL
-        wb_q_pc           <= 0;
-        wb_q_next_pc      <= 0;
-        wb_q_insn         <= 0;
-        wb_q_intr         <= 0;
-        wb_q_csr_rdata    <= 0;
-        wb_q_mem_addr     <= 0;
-        wb_q_load_rdata   <= 0;
-        wb_q_rs1_addr     <= 0;
-        wb_q_rs2_addr     <= 0;
-        wb_q_rs1_rdata    <= 0;
-        wb_q_rs2_rdata    <= 0;
-        wb_q_load_rmask   <= 0;
-        wb_q_store_wmask  <= 0;
-        wb_q_store_wdata  <= 0;
-        wb_q_trap_insn       <= 0;
-        wb_q_trap_next_pc    <= 0;
-        wb_q_trap_rs1_addr   <= 0;
-        wb_q_trap_rs2_addr   <= 0;
-        wb_q_trap_rd_addr    <= 0;
-        wb_q_trap_rs1_rdata  <= 0;
-        wb_q_trap_rs2_rdata  <= 0;
-        wb_q_trap_rd_wdata   <= 0;
+      wb_q_pc             <= 0;
+      wb_q_next_pc        <= 0;
+      wb_q_insn           <= 0;
+      wb_q_intr           <= 0;
+      wb_q_csr_rdata      <= 0;
+      wb_q_mem_addr       <= 0;
+      wb_q_load_rdata     <= 0;
+      wb_q_rs1_addr       <= 0;
+      wb_q_rs2_addr       <= 0;
+      wb_q_rs1_rdata      <= 0;
+      wb_q_rs2_rdata      <= 0;
+      wb_q_load_rmask     <= 0;
+      wb_q_store_wmask    <= 0;
+      wb_q_store_wdata    <= 0;
+      wb_q_trap_insn      <= 0;
+      wb_q_trap_next_pc   <= 0;
+      wb_q_trap_rs1_addr  <= 0;
+      wb_q_trap_rs2_addr  <= 0;
+      wb_q_trap_rd_addr   <= 0;
+      wb_q_trap_rs1_rdata <= 0;
+      wb_q_trap_rs2_rdata <= 0;
+      wb_q_trap_rd_wdata  <= 0;
 `endif
     end else if (!mem_wb_stall) begin
-        // propagate MEM stage outputs to WB stage
-        wb_q_valid       <= mem_d_valid;
-        wb_q_rd_addr     <= mem_d_rd_addr;
-        wb_q_csr_addr    <= mem_d_csr_addr;
-        wb_q_csr_wdata   <= mem_d_csr_wdata;
-        wb_q_rd_wdata    <= mem_d_rd_wdata;
-        wb_q_pc_plus_4   <= mem_d_pc_plus_4;
+      // propagate MEM stage outputs to WB stage
+      wb_q_valid     <= mem_d_valid;
+      wb_q_rd_addr   <= mem_d_rd_addr;
+      wb_q_csr_addr  <= mem_d_csr_addr;
+      wb_q_csr_wdata <= mem_d_csr_wdata;
+      wb_q_rd_wdata  <= mem_d_rd_wdata;
+      wb_q_pc_plus_4 <= mem_d_pc_plus_4;
 
-        wb_q_is_csr_write <= mem_d_is_csr_write;
-        wb_q_is_csr_read  <= mem_d_is_csr_read;
-        wb_q_is_rd_write  <= mem_d_is_rd_write;
+      wb_q_is_csr_write <= mem_d_is_csr_write;
+      wb_q_is_csr_read  <= mem_d_is_csr_read;
+      wb_q_is_rd_write  <= mem_d_is_rd_write;
 
-        wb_q_trap_valid   <= mem_d_trap_valid;
-        wb_q_trap_mcause  <= mem_d_trap_mcause;
-        wb_q_trap_pc      <= mem_d_trap_pc;
+      wb_q_trap_valid  <= mem_d_trap_valid;
+      wb_q_trap_mcause <= mem_d_trap_mcause;
+      wb_q_trap_pc     <= mem_d_trap_pc;
 
 `ifdef RISCV_FORMAL
-        wb_q_pc           <= mem_d_pc;
-        wb_q_next_pc      <= mem_d_next_pc;
-        wb_q_insn         <= mem_d_insn;
-        wb_q_intr         <= mem_d_intr;
-        wb_q_csr_rdata    <= mem_d_csr_rdata;
-        wb_q_mem_addr     <= mem_d_mem_addr;
-        wb_q_load_rdata   <= mem_d_load_rdata;
-        wb_q_rs1_addr     <= mem_d_rs1_addr;
-        wb_q_rs2_addr     <= mem_d_rs2_addr;
-        wb_q_rs1_rdata    <= mem_d_rs1_rdata;
-        wb_q_rs2_rdata    <= mem_d_rs2_rdata;
-        wb_q_load_rmask   <= mem_d_load_rmask;
-        wb_q_store_wmask  <= mem_d_store_wmask;
-        wb_q_store_wdata  <= mem_d_store_wdata;
-        wb_q_trap_insn       <= mem_d_trap_insn;
-        wb_q_trap_next_pc    <= mem_d_trap_next_pc;
-        wb_q_trap_rs1_addr   <= mem_d_trap_rs1_addr;
-        wb_q_trap_rs2_addr   <= mem_d_trap_rs2_addr;
-        wb_q_trap_rd_addr    <= mem_d_trap_rd_addr;
-        wb_q_trap_rs1_rdata  <= mem_d_trap_rs1_rdata;
-        wb_q_trap_rs2_rdata  <= mem_d_trap_rs2_rdata;
-        wb_q_trap_rd_wdata   <= mem_d_trap_rd_wdata;
+      wb_q_pc             <= mem_d_pc;
+      wb_q_next_pc        <= mem_d_next_pc;
+      wb_q_insn           <= mem_d_insn;
+      wb_q_intr           <= mem_d_intr;
+      wb_q_csr_rdata      <= mem_d_csr_rdata;
+      wb_q_mem_addr       <= mem_d_mem_addr;
+      wb_q_load_rdata     <= mem_d_load_rdata;
+      wb_q_rs1_addr       <= mem_d_rs1_addr;
+      wb_q_rs2_addr       <= mem_d_rs2_addr;
+      wb_q_rs1_rdata      <= mem_d_rs1_rdata;
+      wb_q_rs2_rdata      <= mem_d_rs2_rdata;
+      wb_q_load_rmask     <= mem_d_load_rmask;
+      wb_q_store_wmask    <= mem_d_store_wmask;
+      wb_q_store_wdata    <= mem_d_store_wdata;
+      wb_q_trap_insn      <= mem_d_trap_insn;
+      wb_q_trap_next_pc   <= mem_d_trap_next_pc;
+      wb_q_trap_rs1_addr  <= mem_d_trap_rs1_addr;
+      wb_q_trap_rs2_addr  <= mem_d_trap_rs2_addr;
+      wb_q_trap_rd_addr   <= mem_d_trap_rd_addr;
+      wb_q_trap_rs1_rdata <= mem_d_trap_rs1_rdata;
+      wb_q_trap_rs2_rdata <= mem_d_trap_rs2_rdata;
+      wb_q_trap_rd_wdata  <= mem_d_trap_rd_wdata;
 `endif
     end
-end
+  end
 
 
 
@@ -2137,21 +1930,17 @@ end
   //
   //*****************************************************************
 
-  integer        regfile_idx      ;
-  reg     [31:0] regfile_arr[0:31];
-  // three ported register file
-  // read two ports combinationally (A1/RD1, A2/RD2)
-  // write third port on rising edge of clock (A3/WD3/WE3)
-  // register 0 hardwired to 0
-  always @(posedge clk_i) begin
-    if (rst_i) begin
-      for (regfile_idx = 0; regfile_idx < 32; regfile_idx = regfile_idx + 1) regfile_arr[regfile_idx] <= 32'd0;
-    end else if (wb_q_is_rd_write) begin
-      if (wb_rd_addr != 0) regfile_arr[wb_rd_addr] <= wb_rd_wdata;
-    end
-  end
-  assign regfile_rs1_rdata = regfile_arr[id_rs1_addr];
-  assign regfile_rs2_rdata = regfile_arr[id_rs2_addr];
+ riscv_regfile  riscv_regfile_inst (
+    .clk_i(clk_i),
+    .rst_i(rst_i),
+    .id_rs1_addr(id_rs1_addr),
+    .id_rs2_addr(id_rs2_addr),
+    .wb_q_is_rd_write(wb_q_is_rd_write),
+    .wb_rd_addr(wb_rd_addr),
+    .wb_rd_wdata(wb_rd_wdata),
+    .regfile_rs1_rdata(regfile_rs1_rdata),
+    .regfile_rs2_rdata(regfile_rs2_rdata)
+  );
 
   //*****************************************************************
   //
@@ -2160,108 +1949,25 @@ end
   //
   //
   //*****************************************************************
-
-  reg [31:0] csr_mtvec_reg    ;
-  reg [31:0] csr_mscratch_reg ;
-  reg [31:0] csr_mepc_reg     ;
-  reg [31:0] csr_mcause_reg   ;
-  reg [31:0] csr_mtval_reg    ;
-  reg [63:0] csr_mcycle_reg   ;
-  reg [63:0] csr_minstret_reg ;
-  reg [31:0] csr_mtvec_next   ;
-  reg [31:0] csr_mscratch_next;
-  reg [31:0] csr_mepc_next    ;
-  reg [31:0] csr_mcause_next  ;
-  reg [31:0] csr_mtval_next   ;
-  reg [63:0] csr_mcycle_next  ;
-  reg [63:0] csr_minstret_next;
-
-  // asserted when writing to a read only register
-  // rmask  bits are set if rd != 0 and addr = valid_csr_addr
-  // wmask bits are set if csr_wtype != 0
-
-  // read from the csr register file in the ID stage
-  always @(*) begin
-    csrfile_rdata = 0;
-    case (id_csr_addr)
-      CSR_ADDR_MTVEC    : csrfile_rdata = csr_mtvec_reg;
-      CSR_ADDR_MSCRATCH : csrfile_rdata = csr_mscratch_reg;
-      CSR_ADDR_MEPC     : csrfile_rdata = csr_mepc_reg;
-      CSR_ADDR_MCAUSE   : csrfile_rdata = csr_mcause_reg;
-      CSR_ADDR_MTVAL    : csrfile_rdata = csr_mtval_reg;
-      CSR_ADDR_MCYCLE   : csrfile_rdata = csr_mcycle_reg[31:0];
-      CSR_ADDR_MCYCLEH  : csrfile_rdata = csr_mcycle_reg[63:32];
-      // since we are reading in ID stage add stages that will retire before to the count
-      CSR_ADDR_MINSTRET : csrfile_rdata = csr_minstret_reg[31:0] + ex_q_valid
-        + mem_q_valid + wb_q_valid;
-      CSR_ADDR_MINSTRETH : csrfile_rdata = csr_minstret_reg[63:32];
-      default            : ;
-    endcase
-  end
-
-  // write to the csr register file in the WB stage
-  // first, get the next value for each csr
-  always @(*) begin
-    csr_mtvec_next    = csr_mtvec_reg;
-    csr_mscratch_next = csr_mscratch_reg;
-    csr_mepc_next     = (wb_q_valid && wb_q_trap_valid) ? wb_trap_pc : csr_mepc_reg;
-    csr_mcause_next   = (wb_q_valid && wb_q_trap_valid) ? wb_trap_mcause : csr_mcause_reg;
-    csr_mtval_next    = csr_mtval_reg;
-    csr_mcycle_next   = csr_mcycle_reg + 1;
-    csr_minstret_next = wb_q_valid ? csr_minstret_reg + 1 : csr_minstret_reg;
-    case (wb_csr_addr)
-      CSR_ADDR_MTVEC    : csr_mtvec_next = wb_csr_wdata & 32'hffff_fffc;
-      CSR_ADDR_MSCRATCH : csr_mscratch_next = wb_csr_wdata;
-      CSR_ADDR_MEPC     : csr_mepc_next = wb_csr_wdata;
-      CSR_ADDR_MCAUSE   : csr_mcause_next = wb_csr_wdata;
-      CSR_ADDR_MTVAL    : csr_mtval_next = wb_csr_wdata;
-      /*
-      READ ONLY CSRS:
-      CSR_ADDR_MCYCLE
-      CSR_ADDR_MCYCLEH
-      CSR_ADDR_MINSTRET
-      CSR_ADDR_MINSTRETH
-      */
-      default           : ;
-    endcase
-  end
-
-  // write the next csr value to each csr
-  always @(posedge clk_i) begin
-    if (rst_i) begin
-      csr_mtvec_reg    <= 0;
-      csr_mscratch_reg <= 0;
-      csr_mepc_reg     <= 0;
-      csr_mcause_reg   <= 0;
-      csr_mtval_reg    <= 0;
-      csr_mcycle_reg   <= 0;
-      csr_minstret_reg <= 0;
-    end else begin
-      // use a write enable for csr registers that can be written to
-      if (wb_q_is_csr_write) begin
-        csr_mtvec_reg    <= csr_mtvec_next;
-        csr_mscratch_reg <= csr_mscratch_next;
-        csr_mepc_reg     <= csr_mepc_next;
-        csr_mcause_reg   <= csr_mcause_next;
-        csr_mtval_reg    <= csr_mtval_next;
-      end
-      csr_mcycle_reg   <= csr_mcycle_next;
-      csr_minstret_reg <= csr_minstret_next;
-    end
-  end
-
-  // synchronously update the trap handler register
-  always @(posedge clk_i) begin
-    if (rst_i) trap_handler_addr <= 0;
-    else trap_handler_addr <= {csr_mtvec_reg[31:2], 2'd0};
-  end
-
-`ifdef RISCV_FORMAL
-  // a csr isntruction is a read only if the destination register is not x0
-  assign wb_csr_rmask = wb_q_is_csr_read ? 32'hffff_ffff : 0;
-  // a csr instruction is a write if its a csrrw or if its (not a csrrw and rs1 != 0)
-  assign wb_csr_wmask = wb_q_is_csr_write ? 32'hffff_ffff : 0;
-`endif
+  csr_file csr_file_inst (
+    .clk_i            (clk_i            ),
+    .rst_i            (rst_i            ),
+    .id_csr_addr      (id_csr_addr      ),
+    .csrfile_rdata    (csrfile_rdata    ),
+    .wb_q_valid       (wb_q_valid       ),
+    .wb_q_trap_valid  (wb_q_trap_valid  ),
+    .wb_q_is_csr_write(wb_q_is_csr_write),
+    .wb_q_is_csr_read (wb_q_is_csr_read ),
+    .wb_csr_addr      (wb_csr_addr      ),
+    .wb_csr_wdata     (wb_csr_wdata     ),
+    .wb_trap_pc       (wb_trap_pc       ),
+    .wb_trap_mcause   (wb_trap_mcause   ),
+    .ex_q_valid       (ex_q_valid       ),
+    .mem_q_valid      (mem_q_valid      ),
+    .wb_csr_rmask           (wb_csr_rmask           ),
+    .wb_csr_wmask     (wb_csr_wmask     ),
+    .trap_handler_addr(trap_handler_addr)
+  );
 
 
 
@@ -2272,104 +1978,39 @@ end
   //
   //
   //*****************************************************************
-
-  wire mem_req_stall   ;
-  wire load_use_stall  ;
-  wire id_wb_rs1_match ;
-  wire id_wb_rs2_match ;
-  wire id_ex_rs1_match ;
-  wire id_ex_rs2_match ;
-  wire ex_mem_rs2_match;
-  wire ex_mem_rs1_match;
-  wire ex_wb_rs2_match ;
-  wire ex_wb_rs1_match ;
-  wire jump_flush      ;
-  assign id_wb_rs1_match  = (id_rs1_addr == wb_q_rd_addr) && |id_rs1_addr;
-  assign id_wb_rs2_match  = (id_rs2_addr == wb_q_rd_addr) && |id_rs2_addr;
-  assign id_ex_rs1_match  = (id_rs1_addr == ex_q_rd_addr) && |id_rs1_addr;
-  assign id_ex_rs2_match  = (id_rs2_addr == ex_q_rd_addr) && |id_rs2_addr;
-  assign ex_mem_rs1_match = ((ex_q_rs1_addr == mem_q_rd_addr) && |ex_q_rs1_addr);
-  assign ex_mem_rs2_match = ((ex_q_rs2_addr == mem_q_rd_addr) && |ex_q_rs2_addr);
-  assign ex_wb_rs1_match  = ((ex_q_rs1_addr == wb_q_rd_addr) && |ex_q_rs1_addr);
-  assign ex_wb_rs2_match  = ((ex_q_rs2_addr == wb_q_rd_addr) && |ex_q_rs2_addr);
-
-  /*****************************************/
-  //
-  //  STALL LOGIC
-  //
-  /*****************************************/
-  // stall if axil transaction is still not done
-
-  // We must stall if a load instruction is in the execute stage while another instruction
-  // has a matching source register to that write register in the decode stage
-  assign load_use_stall = (ex_q_is_mem_read && (id_ex_rs1_match || id_ex_rs2_match));
-
-  assign mem_req_stall = dmem_periph_req && !mem_done_i;
-
-  /*****************************************/
-  //
-  //  FORWARDING LOGIC
-  //
-  /*****************************************/
-
-  //if either source register matches a register we are writing to in a previous
-  //instruction we must forward that value from the previous instruction so the updated
-  //value is used.
-  always @(*) begin
-    if (ex_mem_rs1_match && mem_q_is_rd_write) ex_forward_rs1_sel = FORWARD_SEL_MEM_RESULT;
-    else if (ex_wb_rs1_match && wb_q_is_rd_write) ex_forward_rs1_sel = FORWARD_SEL_WB_RESULT;
-    else ex_forward_rs1_sel = NO_FORWARD_SEL;
-
-    if (ex_mem_rs2_match && mem_q_is_rd_write) ex_forward_rs2_sel = FORWARD_SEL_MEM_RESULT;
-    else if (ex_wb_rs2_match && wb_q_is_rd_write) ex_forward_rs2_sel = FORWARD_SEL_WB_RESULT;
-    else ex_forward_rs2_sel = NO_FORWARD_SEL;
-  end
-
-  assign id_forward_rs1 = id_wb_rs1_match && wb_q_is_rd_write;
-  assign id_forward_rs2 = id_wb_rs2_match && wb_q_is_rd_write;
-
-  assign jump_flush = mem_q_jump_taken && !mem_q_is_branch;
-
-  // flush if/id register on a mispredicted branch, a predicted jump, an unconditional jump, or an instruction trap
-  // mispredicted branch, jumps, and trapped instruction flushes are unconditional
-  // a predicted branch taken flush is conditional so that the branch instruction is not flushed when the next stage is stalled
-  assign if_id_flush = mem_branch_mispredict
-    || jump_flush
-    || (id_predict_btaken && !id_ex_stall && !if_id_stall)
-    || (ex_q_trap_valid || mem_q_trap_valid || wb_q_trap_valid);
-
-  // flush id/ex register on a mispredicted branch, a jump, an instruction trap,
-  // all flushes are unconditional
-  assign id_ex_flush = mem_branch_mispredict
-    || jump_flush
-    || (mem_q_trap_valid || wb_q_trap_valid);
-
-  // flush ex/mem flush on a mispredicted branch, a jump, an instruction trap,
-  // branch mispredict and jumps are conditional flushes to prevent losing the instruction when the next stage is stalled
-  // trapped instruction flush is unconditional
-  assign ex_mem_flush = (mem_branch_mispredict && !mem_wb_stall)
-    || (jump_flush              && !mem_wb_stall)
-    || (mem_q_trap_valid || wb_q_trap_valid);
-
-  // flush mem/wb register if a trap instruction is committed, or
-  // the previous stage is stalled and the register is not stalled
-  assign mem_wb_flush = wb_q_trap_valid;
-
-  // stall the if/id register on a load use hazard, or the next
-  // stage is stalled
-  assign if_id_stall = load_use_stall
-    || id_ex_stall;
-
-  // stall the id/ex register if the next stage is stalled
-  assign id_ex_stall = ex_mem_stall;
-
-  // stall the ex/mem register during a memory transaction,
-  // or the next stage is stalled
-  assign ex_mem_stall = mem_req_stall
-    || mem_wb_stall;
-
-  // stall the mem/wb register during a memory transaction
-  assign mem_wb_stall = mem_req_stall;
+  hazard_ctrl hazard_ctrl_inst (
+    .id_rs1_addr          (id_rs1_addr          ),
+    .id_rs2_addr          (id_rs2_addr          ),
+    .ex_q_rs1_addr        (ex_q_rs1_addr        ),
+    .ex_q_rs2_addr        (ex_q_rs2_addr        ),
+    .ex_q_rd_addr         (ex_q_rd_addr         ),
+    .mem_q_rd_addr        (mem_q_rd_addr        ),
+    .wb_q_rd_addr         (wb_q_rd_addr         ),
+    .ex_q_is_mem_read     (ex_q_is_mem_read     ),
+    .mem_q_is_rd_write    (mem_q_is_rd_write    ),
+    .wb_q_is_rd_write     (wb_q_is_rd_write     ),
+    .mem_q_jump_taken     (mem_q_jump_taken     ),
+    .mem_q_is_branch      (mem_q_is_branch      ),
+    .mem_branch_mispredict(mem_branch_mispredict),
+    .id_predict_btaken    (id_predict_btaken    ),
+    .ex_q_trap_valid      (ex_q_trap_valid      ),
+    .mem_q_trap_valid     (mem_q_trap_valid     ),
+    .wb_q_trap_valid      (wb_q_trap_valid      ),
+    .dmem_periph_req      (dmem_periph_req      ),
+    .mem_done_i           (mem_done_i           ),
+    .if_id_stall          (if_id_stall          ),
+    .id_ex_stall          (id_ex_stall          ),
+    .ex_mem_stall         (ex_mem_stall         ),
+    .mem_wb_stall         (mem_wb_stall         ),
+    .if_id_flush          (if_id_flush          ),
+    .id_ex_flush          (id_ex_flush          ),
+    .ex_mem_flush         (ex_mem_flush         ),
+    .mem_wb_flush         (mem_wb_flush         ),
+    .id_forward_rs1       (id_forward_rs1       ),
+    .id_forward_rs2       (id_forward_rs2       ),
+    .ex_forward_rs1_sel   (ex_forward_rs1_sel   ),
+    .ex_forward_rs2_sel   (ex_forward_rs2_sel   )
+  );
 
   //*****************************************************************
   //
@@ -2652,5 +2293,6 @@ end
     end
 
 `endif
+
 
 endmodule
