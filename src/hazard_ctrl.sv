@@ -50,14 +50,14 @@ module hazard_ctrl #(parameter int REG_ADDR_W = 5) (
   // --------------------
   // Hazard match wires
   // --------------------
-  wire id_wb_rs1_match ;
-  wire id_wb_rs2_match ;
-  wire id_ex_rs1_match ;
-  wire id_ex_rs2_match ;
-  wire ex_mem_rs1_match;
-  wire ex_mem_rs2_match;
-  wire ex_wb_rs1_match ;
-  wire ex_wb_rs2_match ;
+  logic id_wb_rs1_match ;
+  logic id_wb_rs2_match ;
+  logic id_ex_rs1_match ;
+  logic id_ex_rs2_match ;
+  logic ex_mem_rs1_match;
+  logic ex_mem_rs2_match;
+  logic ex_wb_rs1_match ;
+  logic ex_wb_rs2_match ;
 
   assign id_wb_rs1_match  = (id_rs1_addr == wb_q_rd_addr)  && |id_rs1_addr;
   assign id_wb_rs2_match  = (id_rs2_addr == wb_q_rd_addr)  && |id_rs2_addr;

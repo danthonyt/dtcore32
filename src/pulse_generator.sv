@@ -23,14 +23,14 @@
 // Author     : David Torres
 // Date       : 2025-09-16
 //===========================================================
-
+`include "formal_defs.svh"
 module pulse_generator(
-    input  clk_i,
-    input  rst_i,
-    input  en_i,
-    output reg pulse_o
+    input  logic clk_i,
+    input  logic rst_i,
+    input  logic en_i,
+    output logic pulse_o
 );
-    reg en_q;
+    logic en_q;
 
     always_ff @(posedge clk_i) begin
         if (rst_i) begin
@@ -51,5 +51,24 @@ module pulse_generator(
         end
     end
 
+   /******************************/
+   // FORMAL
+   //*****************************/
+   `ifdef RISCV_FORMAL 
+   logic pulse_prev;
+   logic en_prev;
+   initial begin
+    pulse_prev = 0;
+    en_prev = 0;
+   end
+    always_ff@(posedge clk_i)begin
+        // output pulse should never be held for longer than one cycle
+        if (pulse_o) assert(!pulse_prev);
+        pulse_prev <= pulse_o;
+        // output pulse should be low if enable is low
+        if (!en_prev) assert (!pulse_o);
+        en_prev <= en_i;
+    end
+   `endif
 
 endmodule

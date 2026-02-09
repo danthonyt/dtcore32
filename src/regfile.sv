@@ -36,4 +36,15 @@ module regfile (
   end
   assign regfile_rs1_rdata = regfile_arr[id_rs1_addr];
   assign regfile_rs2_rdata = regfile_arr[id_rs2_addr];
+
+
+  /******************************/
+  // FORMAL
+  //*****************************/
+   `ifdef RISCV_FORMAL
+   // register x0 must always be zero
+    always_comb begin
+      assert property(regfile_arr[0] == 0);
+    end
+   `endif
 endmodule

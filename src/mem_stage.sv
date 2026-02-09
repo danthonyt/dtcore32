@@ -144,13 +144,13 @@ module mem_stage (
   //
   //*****************************************************************
 
-  load_unit load_unit_inst (
-    .mem_rdata_i         (mem_rdata_i         ),
-    .mem_q_alu_csr_result(mem_q_alu_csr_result),
-    .load_size_onehot    (load_size_onehot    ),
-    .mem_rstrb           (mem_rstrb           ),
-    .mem_load_rdata      (mem_load_rdata      ),
-    .misaligned_load     (misaligned_load     )
+  load_unit load_unit_instance (
+    .rdata_unformatted(mem_rdata_i),
+    .addr(mem_q_alu_csr_result),
+    .load_size_onehot(load_size_onehot),
+    .rstrb(mem_rstrb),
+    .rdata_formatted(mem_load_rdata),
+    .misaligned_load(misaligned_load)
   );
 
   //*****************************************************************
@@ -160,13 +160,13 @@ module mem_stage (
   //
   //
   //*****************************************************************
-  store_unit store_unit_inst (
-    .mem_q_alu_csr_result(mem_q_alu_csr_result),
-    .mem_q_store_wdata   (mem_q_store_wdata   ),
-    .store_size_onehot   (store_size_onehot   ),
-    .mem_wdata_o         (mem_wdata_o         ),
-    .mem_wstrb           (mem_wstrb           ),
-    .misaligned_store    (misaligned_store    )
+  store_unit store_unit_instance (
+    .addr(mem_q_alu_csr_result),
+    .wdata_unformatted(mem_q_store_wdata),
+    .store_size_onehot(store_size_onehot),
+    .wdata_formatted(mem_wdata_o),
+    .wstrb(mem_wstrb),
+    .misaligned_store(misaligned_store)
   );
 
   always_comb

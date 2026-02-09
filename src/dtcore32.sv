@@ -367,16 +367,16 @@ module dtcore32 (
   //
   //*****************************************************************
 
-  branch_predictor branch_predictor_inst (
-    .clk_i            (clk_i            ),
-    .rst_i            (rst_i            ),
-    .id_is_branch     (id_d_is_branch   ),
-    .id_q_pc          (id_q_pc          ),
-    .mem_q_is_branch  (mem_q_is_branch  ),
-    .mem_q_jump_taken (mem_q_jump_taken ),
-    .mem_q_pht_idx    (mem_q_pht_idx    ),
-    .id_predict_btaken(id_predict_btaken),
-    .id_pht_idx       (id_pht_idx       )
+  branch_predictor branch_predictor_instance (
+    .clk_i(clk_i),
+    .rst_i(rst_i),
+    .id_is_branch(id_d_is_branch),
+    .id_pc(id_q_pc),
+    .mem_is_branch(mem_q_is_branch),
+    .mem_jump_taken(mem_q_jump_taken),
+    .mem_pht_idx(mem_q_pht_idx),
+    .predict_btaken(id_predict_btaken),
+    .id_pht_idx(id_pht_idx)
   );
 
   id_stage  id_stage_inst (

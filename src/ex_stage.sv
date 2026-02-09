@@ -286,34 +286,13 @@ module ex_stage (
         end
     end
 
-  // calculates the branch condition of the instruction
-  always_comb begin
-    case (ex_q_alu_control)
-      SUB_ALU_CONTROL : ex_branch_cond = (ex_src_a == ex_src_b);  // beq
-      NE_ALU_CONTROL  : ex_branch_cond = (ex_src_a != ex_src_b);
-      LT_ALU_CONTROL  : ex_branch_cond = ($signed(ex_src_a) < $signed(ex_src_b));
-      LTU_ALU_CONTROL : ex_branch_cond = (ex_src_a < ex_src_b);
-      GE_ALU_CONTROL  : ex_branch_cond = ($signed(ex_src_a) >= $signed(ex_src_b));
-      GEU_ALU_CONTROL : ex_branch_cond = (ex_src_a >= ex_src_b);
-      default         : ex_branch_cond = 0;
-    endcase
-  end
-
-  // calculates the result of the instruction
-  always_comb begin
-    case (ex_q_alu_control)
-      ADD_ALU_CONTROL       : ex_alu_result = ex_src_a + ex_src_b;
-      SUB_ALU_CONTROL       : ex_alu_result = ex_src_a - ex_src_b;
-      AND_ALU_CONTROL       : ex_alu_result = ex_src_a & ex_src_b;
-      OR_ALU_CONTROL        : ex_alu_result = ex_src_a | ex_src_b;
-      XOR_ALU_CONTROL       : ex_alu_result = ex_src_a ^ ex_src_b;
-      LT_ALU_CONTROL, LTU_ALU_CONTROL: ex_alu_result = {31'd0, ex_branch_cond};
-      L_SHIFT_ALU_CONTROL   : ex_alu_result = ex_src_a << ex_src_b[4:0];
-      R_SHIFT_L_ALU_CONTROL : ex_alu_result = ex_src_a >> ex_src_b[4:0];
-      R_SHIFT_A_ALU_CONTROL : ex_alu_result = $signed(ex_src_a) >>> ex_src_b[4:0];
-      default               : ex_alu_result = 0;
-    endcase
-  end
+    alu alu_instance (
+      .alu_control(ex_q_alu_control),
+      .a(ex_src_a),
+      .b(ex_src_b),
+      .bcond(ex_branch_cond),
+      .alu_result(ex_alu_result)
+    );
 
 `ifdef RISCV_FORMAL
 

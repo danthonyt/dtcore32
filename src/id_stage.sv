@@ -148,7 +148,7 @@ module id_stage (
   logic id_is_memsize_hu;
   logic id_is_memsize_w ;
 
-// decoded instruction fields
+  // decoded instruction fields
   logic        id_funct7b5;
   logic [ 4:0] id_rs2_addr;
   logic [11:0] id_csr_addr;
@@ -192,19 +192,18 @@ module id_stage (
     .csr_bitmask_sel   (csr_bitmask_sel   )
   );
 
-
-  aludec aludec_inst (
-    .id_funct3   (id_funct3   ),
-    .id_rtype_alt(id_rtype_alt),
-    .id_itype_alt(id_itype_alt),
-    .alu_op      (alu_op      ),
-    .alu_control (alu_control )
+  aludec aludec_instance (
+    .funct3(id_funct3),
+    .rtype_alt(id_rtype_alt),
+    .itype_alt(id_itype_alt),
+    .alu_op(alu_op),
+    .alu_control(alu_control)
   );
 
-  extend ext_inst (
-    .id_q_insn    (id_q_insn    ),
-    .id_imm_ext_op(id_imm_ext_op),
-    .id_imm_ext   (id_imm_ext   )
+  extend extend_instance (
+    .insn(id_q_insn),
+    .op(id_imm_ext_op),
+    .imm_ext(id_imm_ext)
   );
 
   assign id_alu_control        = alu_control;
@@ -253,7 +252,7 @@ module id_stage (
     id_csr_addr    = id_q_insn[31:20];
     // Branch and jump
     id_branch_addr = id_q_pc +
-      {{20{id_q_insn[31]}}, id_q_insn[7], id_q_insn[30:25], id_q_insn[11:8], 1'b0};
+    {{20{id_q_insn[31]}}, id_q_insn[7], id_q_insn[30:25], id_q_insn[11:8], 1'b0};
     id_d_is_branch      = id_is_branch;
     id_d_is_jump        = id_is_jump;
     id_d_is_jal         = id_is_jal;
