@@ -1,17 +1,12 @@
 `include "formal_defs.svh"
 import riscv_pkg::*;
 module ex_stage (
-  // Clock & Reset
-  input  logic        clk_i               ,
-  input  logic        rst_i               ,
   // Pipeline inputs
   input  logic        ex_q_valid          ,
   input  logic [31:0] ex_q_pc             ,
   input  logic [31:0] ex_q_pc_plus_4      ,
   input  logic [31:0] ex_q_rs1_rdata      ,
   input  logic [31:0] ex_q_rs2_rdata      ,
-  input  logic [ 4:0] ex_q_rs1_addr       ,
-  input  logic [ 4:0] ex_q_rs2_addr       ,
   input  logic [ 4:0] ex_q_rd_addr        ,
   input  logic        ex_q_is_rd_write    ,
   input  logic [ 5:0] ex_q_pht_idx        ,
@@ -20,8 +15,6 @@ module ex_stage (
   input  logic [11:0] ex_q_csr_addr       ,
   input  logic [31:0] ex_q_csr_rdata      ,
   input  logic [31:0] ex_q_imm_ext        ,
-  input  logic [31:0] ex_q_insn           ,
-  input  logic        ex_q_intr           ,
   input  logic        ex_q_is_jump        ,
   input  logic        ex_q_is_jal         ,
   input  logic        ex_q_is_jalr        ,
@@ -45,14 +38,6 @@ module ex_stage (
   input  logic        ex_q_trap_valid     ,
   input  logic [31:0] ex_q_trap_pc        ,
   input  logic [31:0] ex_q_trap_mcause    ,
-  input  logic [31:0] ex_q_trap_insn      ,
-  input  logic [31:0] ex_q_trap_next_pc   ,
-  input  logic [ 4:0] ex_q_trap_rs1_addr  ,
-  input  logic [ 4:0] ex_q_trap_rs2_addr  ,
-  input  logic [ 4:0] ex_q_trap_rd_addr   ,
-  input  logic [31:0] ex_q_trap_rs1_rdata ,
-  input  logic [31:0] ex_q_trap_rs2_rdata ,
-  input  logic [31:0] ex_q_trap_rd_wdata  ,
   // Forwarding inputs
   input  logic [31:0] mem_q_alu_csr_result,
   input  logic [31:0] wb_rd_wdata         ,
@@ -90,7 +75,18 @@ module ex_stage (
   output logic [31:0] ex_d_trap_mcause
 `ifdef RISCV_FORMAL
   ,
-  // RVFI outputs
+  input  logic [ 4:0] ex_q_rs1_addr       ,
+  input  logic [ 4:0] ex_q_rs2_addr       ,
+  input  logic [31:0] ex_q_insn           ,
+  input  logic        ex_q_intr           ,
+  input  logic [31:0] ex_q_trap_insn      ,
+  input  logic [31:0] ex_q_trap_next_pc   ,
+  input  logic [ 4:0] ex_q_trap_rs1_addr  ,
+  input  logic [ 4:0] ex_q_trap_rs2_addr  ,
+  input  logic [ 4:0] ex_q_trap_rd_addr   ,
+  input  logic [31:0] ex_q_trap_rs1_rdata ,
+  input  logic [31:0] ex_q_trap_rs2_rdata ,
+  input  logic [31:0] ex_q_trap_rd_wdata  ,
   output logic [31:0] ex_d_next_pc        ,
   output logic [31:0] ex_d_insn           ,
   output logic        ex_d_intr           ,
@@ -126,81 +122,81 @@ module ex_stage (
   always_comb begin
     case (ex_forward_rs1_sel)
       NO_FORWARD_SEL :
-        ex_rs1_rdata = ex_q_rs1_rdata;
+      ex_rs1_rdata = ex_q_rs1_rdata;
       FORWARD_SEL_MEM_RESULT :
-        ex_rs1_rdata = mem_q_alu_csr_result;
+      ex_rs1_rdata = mem_q_alu_csr_result;
       FORWARD_SEL_WB_RESULT :
-        ex_rs1_rdata = wb_rd_wdata;
+      ex_rs1_rdata = wb_rd_wdata;
       default :
-        ex_rs1_rdata = 0;
+      ex_rs1_rdata = 0;
     endcase
   end
 
-// select input data for the first alu input
+  // select input data for the first alu input
   always_comb begin
     case (ex_q_alu_a_sel)
       ALU_A_SEL_REG_DATA :
-        ex_src_a = ex_rs1_rdata;
+      ex_src_a = ex_rs1_rdata;
       ALU_A_SEL_PC :
-        ex_src_a = ex_q_pc;
+      ex_src_a = ex_q_pc;
       ALU_A_SEL_ZERO :
-        ex_src_a = 0;
+      ex_src_a = 0;
       default :
-        ex_src_a = 0;
+      ex_src_a = 0;
     endcase
   end
 
-// select rs2 read data
+  // select rs2 read data
   always_comb begin
     case (ex_forward_rs2_sel)
       NO_FORWARD_SEL :
-        ex_rs2_rdata = ex_q_rs2_rdata;
+      ex_rs2_rdata = ex_q_rs2_rdata;
       FORWARD_SEL_MEM_RESULT :
-        ex_rs2_rdata = mem_q_alu_csr_result;
+      ex_rs2_rdata = mem_q_alu_csr_result;
       FORWARD_SEL_WB_RESULT :
-        ex_rs2_rdata = wb_rd_wdata;
+      ex_rs2_rdata = wb_rd_wdata;
       default :
-        ex_rs2_rdata = 0;
+      ex_rs2_rdata = 0;
     endcase
   end
 
-// select input data for the second alu input
+  // select input data for the second alu input
   always_comb begin
     case (ex_q_alu_b_sel)
       ALU_B_SEL_REG_DATA :
-        ex_src_b = ex_rs2_rdata;
+      ex_src_b = ex_rs2_rdata;
       ALU_B_SEL_IMM :
-        ex_src_b = ex_q_imm_ext;
+      ex_src_b = ex_q_imm_ext;
       default :
-        ex_src_b = 0;
+      ex_src_b = 0;
     endcase
   end
 
-// select base value for pc offset
+  // select base value for pc offset
   always_comb begin
     case (ex_q_pc_alu_sel)
       PC_ALU_SEL_REG_DATA :
-        ex_pc_base = ex_rs1_rdata;
+      ex_pc_base = ex_rs1_rdata;
       PC_ALU_SEL_PC :
-        ex_pc_base = ex_q_pc;
+      ex_pc_base = ex_q_pc;
       default :
-        ex_pc_base = 0;
+      ex_pc_base = 0;
     endcase
   end
 
-// select bitmask source for csr op
+  // select bitmask source for csr op
   always_comb begin
     case (ex_q_csr_bitmask_sel)
       CSR_BITMASK_SEL_REG_DATA :
-        ex_csr_bitmask = ex_rs1_rdata;
+      ex_csr_bitmask = ex_rs1_rdata;
       CSR_BITMASK_SEL_IMM :
-        ex_csr_bitmask = ex_q_imm_ext;
+      ex_csr_bitmask = ex_q_imm_ext;
       default :
-        ex_csr_bitmask = 0;
+      ex_csr_bitmask = 0;
     endcase
   end
 
-// select csr result depending on op type
+  // select csr result depending on op type
   always_comb begin
     if (ex_q_csr_op_rw) begin
       ex_csr_wdata = ex_csr_bitmask;
@@ -224,75 +220,75 @@ module ex_stage (
   assign ex_misaligned_jump = ex_jump_taken & (ex_jaddr[1] | ex_jaddr[0]);
 
   always_comb
-    begin
-      // Branch and jump
-      ex_d_is_branch      = ex_q_is_branch;
-      ex_d_is_jump        = ex_q_is_jump;
-      ex_d_is_jal         = ex_q_is_jal;
-      ex_d_is_jalr        = ex_q_is_jalr;
-      ex_d_branch_predict = ex_q_branch_predict;
-      ex_d_pht_idx        = ex_q_pht_idx;
+  begin
+    // Branch and jump
+    ex_d_is_branch      = ex_q_is_branch;
+    ex_d_is_jump        = ex_q_is_jump;
+    ex_d_is_jal         = ex_q_is_jal;
+    ex_d_is_jalr        = ex_q_is_jalr;
+    ex_d_branch_predict = ex_q_branch_predict;
+    ex_d_pht_idx        = ex_q_pht_idx;
 
-      // CSR operations
-      ex_d_is_csr_write = ex_q_is_csr_write;
-      ex_d_is_csr_read  = ex_q_is_csr_read;
+    // CSR operations
+    ex_d_is_csr_write = ex_q_is_csr_write;
+    ex_d_is_csr_read  = ex_q_is_csr_read;
 
-      // Register writes
-      if (ex_misaligned_jump)
-        ex_d_is_rd_write = 0;
-      else
-        ex_d_is_rd_write = ex_q_is_rd_write;
+    // Register writes
+    if (ex_misaligned_jump)
+      ex_d_is_rd_write = 0;
+    else
+      ex_d_is_rd_write = ex_q_is_rd_write;
 
       // Memory access
-      ex_d_is_mem_write = ex_q_is_mem_write;
-      ex_d_is_mem_read  = ex_q_is_mem_read;
+    ex_d_is_mem_write = ex_q_is_mem_write;
+    ex_d_is_mem_read  = ex_q_is_mem_read;
 
-      // Memory size indicators
-      ex_d_is_memsize_b  = ex_q_is_memsize_b;
-      ex_d_is_memsize_bu = ex_q_is_memsize_bu;
-      ex_d_is_memsize_h  = ex_q_is_memsize_h;
-      ex_d_is_memsize_hu = ex_q_is_memsize_hu;
-      ex_d_is_memsize_w  = ex_q_is_memsize_w;
+    // Memory size indicators
+    ex_d_is_memsize_b  = ex_q_is_memsize_b;
+    ex_d_is_memsize_bu = ex_q_is_memsize_bu;
+    ex_d_is_memsize_h  = ex_q_is_memsize_h;
+    ex_d_is_memsize_hu = ex_q_is_memsize_hu;
+    ex_d_is_memsize_w  = ex_q_is_memsize_w;
 
-      // pipeline
-      ex_d_valid          = ex_q_valid;
-      ex_d_pc             = ex_q_pc;
-      ex_d_pc_plus_4      = ex_q_pc_plus_4;
-      ex_d_rd_addr        = ex_q_rd_addr;
-      ex_d_csr_addr       = ex_q_csr_addr;
-      ex_d_csr_wdata      = ex_csr_wdata;
-      ex_d_store_wdata    = ex_rs2_rdata;
-      ex_d_alu_csr_result = (ex_q_is_csr_read) ? ex_q_csr_rdata : ex_alu_result;
-      ex_d_jaddr          = ex_jaddr;
-      ex_d_jump_taken     = ex_jump_taken;
-      // traps
-      if (ex_q_trap_valid)
-        begin
-          ex_d_trap_valid  = 1;
-          ex_d_trap_mcause = ex_q_trap_mcause;
-          ex_d_trap_pc     = ex_q_trap_pc;
-        end
-      else if (ex_misaligned_jump)
-        begin
-          ex_d_trap_valid  = 1;
-          ex_d_trap_mcause = {1'b0, TRAP_CODE_INSTR_ADDR_MISALIGNED};
-          ex_d_trap_pc     = ex_q_pc;
-        end
-      else
-        begin
-          ex_d_trap_valid  = 0;
-          ex_d_trap_mcause = 0;
-          ex_d_trap_pc     = 0;
-        end
-    end
+    // pipeline
+    ex_d_valid          = ex_q_valid;
+    ex_d_pc             = ex_q_pc;
+    ex_d_pc_plus_4      = ex_q_pc_plus_4;
+    ex_d_rd_addr        = ex_q_rd_addr;
+    ex_d_csr_addr       = ex_q_csr_addr;
+    ex_d_csr_wdata      = ex_csr_wdata;
+    ex_d_store_wdata    = ex_rs2_rdata;
+    ex_d_alu_csr_result = (ex_q_is_csr_read) ? ex_q_csr_rdata : ex_alu_result;
+    ex_d_jaddr          = ex_jaddr;
+    ex_d_jump_taken     = ex_jump_taken;
+    // traps
+    if (ex_q_trap_valid)
+      begin
+        ex_d_trap_valid  = 1;
+        ex_d_trap_mcause = ex_q_trap_mcause;
+        ex_d_trap_pc     = ex_q_trap_pc;
+      end
+    else if (ex_misaligned_jump)
+      begin
+        ex_d_trap_valid  = 1;
+        ex_d_trap_mcause = {1'b0, TRAP_CODE_INSTR_ADDR_MISALIGNED};
+        ex_d_trap_pc     = ex_q_pc;
+      end
+    else
+      begin
+        ex_d_trap_valid  = 0;
+        ex_d_trap_mcause = 'x;
+        ex_d_trap_pc     = 'x;
+      end
+  end
 
-    alu alu_instance (
-      .alu_control(ex_q_alu_control),
-      .a(ex_src_a),
-      .b(ex_src_b),
-      .bcond(ex_branch_cond),
-      .alu_result(ex_alu_result)
-    );
+  alu alu_instance (
+    .alu_control(ex_q_alu_control),
+    .a(ex_src_a),
+    .b(ex_src_b),
+    .bcond(ex_branch_cond),
+    .alu_result(ex_alu_result)
+  );
 
 `ifdef RISCV_FORMAL
 

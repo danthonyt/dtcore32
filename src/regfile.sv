@@ -44,7 +44,7 @@ module regfile (
    `ifdef RISCV_FORMAL
    // register x0 must always be zero
     always_comb begin
-      assert property(regfile_arr[0] == 0);
+      assert(regfile_arr[0] == 0);
     end
    `endif
 endmodule

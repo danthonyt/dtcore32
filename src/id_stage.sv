@@ -3,7 +3,6 @@ module id_stage (
   input  logic [                       31:0] id_q_insn           ,
   input  logic                               id_forward_rs1      ,
   input  logic                               id_forward_rs2      ,
-  input  logic                               id_q_intr           ,
   input  logic [                       31:0] id_q_pc             ,
   input  logic                               id_predict_btaken   ,
   input  logic [                        5:0] id_pht_idx          ,
@@ -56,6 +55,7 @@ module id_stage (
   output logic [                       31:0] id_d_trap_mcause
 `ifdef RISCV_FORMAL
   ,
+  input  logic                               id_q_intr           ,
   output logic [                       31:0] id_d_insn           ,
   output logic                               id_d_intr           ,
   output logic [                       31:0] id_d_trap_insn      ,

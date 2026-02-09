@@ -12,7 +12,6 @@ module aludec (
 );
 
   always_comb begin
-    alu_control = ADD_ALU_CONTROL;
     case (alu_op)
       //I-type Load, S-type, U-type
       ALU_OP_ILOAD_S_U_TYPE :
@@ -26,7 +25,7 @@ module aludec (
           FUNCT3_BGE  : alu_control = GE_ALU_CONTROL;  //bge
           FUNCT3_BLTU : alu_control = LTU_ALU_CONTROL;  //bltu
           FUNCT3_BGEU : alu_control = GEU_ALU_CONTROL;  //bgeu
-          default     : ; // unknown
+          default     : alu_control = 'x; // unknown
         endcase
       //R-type, I-type ALU,I-type 1al shift
       ALU_OP_IALU_ISHIFT_R_TYPE : begin
@@ -41,10 +40,10 @@ module aludec (
             alu_control = (rtype_alt || itype_alt) ? R_SHIFT_A_ALU_CONTROL /*sra*/ : R_SHIFT_L_ALU_CONTROL /*srl*/;
           FUNCT3_OR  : alu_control = OR_ALU_CONTROL;  //or
           FUNCT3_AND : alu_control = AND_ALU_CONTROL;  //and
-          default    : ; // unknown
+          default    : alu_control = 'x; // unknown
         endcase
       end
-      default : ; // unknown
+      default : alu_control = 'x; // unknown
     endcase
   end
 

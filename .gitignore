@@ -1,4 +1,5 @@
 checks/
+build/
 *.o
 *.s
 sby_config/**/

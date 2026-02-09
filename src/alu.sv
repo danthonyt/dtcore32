@@ -16,7 +16,7 @@ module alu(
       LTU_ALU_CONTROL : bcond = (a < b);
       GE_ALU_CONTROL  : bcond = ($signed(a) >= $signed(b));
       GEU_ALU_CONTROL : bcond = (a >= b);
-      default         : bcond = 0;
+      default         : bcond = 'x;
     endcase
   end
 
@@ -32,7 +32,7 @@ module alu(
       L_SHIFT_ALU_CONTROL   : alu_result = a << b[4:0];
       R_SHIFT_L_ALU_CONTROL : alu_result = a >> b[4:0];
       R_SHIFT_A_ALU_CONTROL : alu_result = $signed(a) >>> b[4:0];
-      default               : alu_result = 0;
+      default               : alu_result = 'x;
     endcase
   end
 

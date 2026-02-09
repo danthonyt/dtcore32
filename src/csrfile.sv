@@ -17,7 +17,6 @@ module csrfile (
   input  logic        wb_q_valid       ,
   input  logic        wb_q_trap_valid  ,
   input  logic        wb_q_is_csr_write,
-  input  logic        wb_q_is_csr_read ,
   input  logic [11:0] wb_csr_addr      ,
   input  logic [31:0] wb_csr_wdata     ,
   input  logic [31:0] wb_trap_pc       ,
@@ -31,6 +30,7 @@ module csrfile (
   // --------------------
   // riscv-formal CSR masks
   // --------------------
+  input  logic        wb_q_is_csr_read ,
   output logic [31:0] wb_csr_rmask     ,
   output logic [31:0] wb_csr_wmask     ,
 `endif
